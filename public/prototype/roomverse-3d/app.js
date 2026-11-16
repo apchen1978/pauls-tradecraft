@@ -3060,9 +3060,10 @@ let lanternMat = null;
   // The speakers by the TV play music (Paul, 2026-11-16): tap a speaker, quiet original piano pieces made in the browser (sound.js). A second tap stops it; each new start plays the next piece.
   const roomMusic = createRoomMusic();
   let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now(), musicStopped = false, musicAuto = false;
+  const musicOptions = { playlist: true, onTrack: (index) => { musicTrack = index; if (roomMusic.state().playing) showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[index], 5000); } }; // the two pieces follow one another; each change shows its line
   const MUSIC_LINES = {
-    zh: ["♪ 窗邊的午後。🎹 輕輕的鋼琴，開著聲音聽聽看。", "♪ 週日慢慢過。🎶 再點一次，下次換下一首。"],
-    en: ["♪ Afternoon at the window. 🎹 Soft piano, turn the sound on.", "♪ A Sunday, slowly. 🎶 Tap again for the next one."],
+    zh: ["♪ 窗邊的午後。🎹 輕輕的鋼琴，開著聲音聽聽看。", "♪ 週日慢慢過。🎶 兩首會一直接著放，點喇叭就停。"],
+    en: ["♪ Afternoon at the window. 🎹 Soft piano, turn the sound on.", "♪ A Sunday, slowly. 🎶 The two pieces play on; tap a speaker to stop."],
     auto: { zh: "♪ 電視喇叭輕輕放著鋼琴。點喇叭可以關掉。", en: "♪ Soft piano from the TV speakers. Tap a speaker to turn it off." },
     hint: { zh: "電視櫃旁的喇叭會唱歌，點一下聽聽看 🎶", en: "The speakers by the TV can play music: tap one 🎶" },
   };
@@ -3071,14 +3072,14 @@ let lanternMat = null;
     musicHinted = true;
     if (roomMusic.state().playing) { roomMusic.stop(); musicStopped = true; /* switched off by hand: it never starts by itself again */ clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
     musicTrack = (musicTrack + 1) % 2;
-    if (roomMusic.start(musicTrack)) { showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[musicTrack], 6000); clearTimeout(musicTimer); musicTimer = setTimeout(() => roomMusic.stop(), 60000); }
+    if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[musicTrack], 6000); } /* no time limit */
   }
   // Series night and the TV wall (Paul, 2026-11-16): when the mood is series night, or the TV wall is the view, the speakers start the quiet piano by themselves, once per visit, from the visitor's
   // next tap or drag (browsers only allow sound after one). It starts the slow piece, stops after 60 s like the other start, and never starts again once the visitor has switched it off.
   function autoMusic() {
     if (musicAuto || musicStopped || roomMusic.state().playing || document.hidden || (state.mood !== "tv" && currentView !== "tv")) return;
     musicAuto = true; musicHinted = true; musicTrack = 1;
-    if (roomMusic.start(musicTrack)) { showCaption((MUSIC_LINES.auto[state.lang] || MUSIC_LINES.auto.zh), 7000); clearTimeout(musicTimer); musicTimer = setTimeout(() => roomMusic.stop(), 60000); }
+    if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES.auto[state.lang] || MUSIC_LINES.auto.zh), 7000); } /* no time limit */
   }
   window.addEventListener("pointerup", () => autoMusic(), { passive: true });
   window.addEventListener("click", () => autoMusic(), { passive: true }); // the view and mood buttons change the state in their own click handlers, which run before this one
@@ -4006,7 +4007,7 @@ let lanternMat = null;
     },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
-    musicState: () => roomMusic.state(), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
+    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre

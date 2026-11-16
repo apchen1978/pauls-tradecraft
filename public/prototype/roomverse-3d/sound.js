@@ -8,7 +8,7 @@
 // a very faint vinyl hiss and a few pops, small random timing and loudness differences, and stereo placement. The melody is a written eight-bar phrase, not random notes.
 // Nothing plays until the visitor taps (browsers allow sound only after a tap); a second tap, hiding the page or the app's own time limit stops it. start() must be called from inside that tap;
 // each new start plays the next track.
-const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
+const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 16; // playlist mode (Paul, 2026-11-17): each piece plays its eight bars twice (about a minute), then the other follows with no gap, until the visitor stops it or leaves
 const TRACKS = [
   { title: "窗邊的午後", bpm: 72, swing: 0.22,
     bars: [
@@ -41,7 +41,7 @@ const BASS = { partials: [[1, 1, "sine", 1], [2, 0.28, "triangle", 0.5], [3, 0.0
 const PAD = { partials: [[1, 0.7, "triangle", 1], [1.004, 0.6, "triangle", 1]], lowpass: 900 };
 
 export function createRoomMusic() {
-  let ctx = null, bus = null, master = null, hiss = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, trackIndex = 0, seed = 5, noise = null, reverbBuffer = null;
+  let ctx = null, bus = null, master = null, hiss = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, trackIndex = 0, seed = 5, noise = null, reverbBuffer = null, playlist = false, onTrack = null;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // fixed seed: the same small variations every time
   const jitter = (ms) => (rnd() - 0.5) * 2 * ms / 1000; // a human's small timing differences
   const vary = (gain) => gain * (0.88 + rnd() * 0.24); // and small loudness differences
@@ -75,7 +75,7 @@ export function createRoomMusic() {
     for (let channel = 0; channel < 2; channel++) { const data = buffer.getChannelData(channel); let last = 0; for (let i = 0; i < length; i++) { last = last * 0.55 + (rnd() * 2 - 1) * 0.45; data[i] = last * Math.pow(1 - i / length, 2.4) * (i < 0.012 * ctx.sampleRate ? i / (0.012 * ctx.sampleRate) : 1); } }
     return buffer;
   };
-  const scheduleBar = () => {
+  const scheduleBar = () => { if (playlist && barIndex >= BARS_PER_TRACK) { trackIndex = (trackIndex + 1) % TRACKS.length; seed = 5 + trackIndex * 17; barIndex = 0; const changed = trackIndex; setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // the other piece starts on the next bar; the page hears about it when its first note sounds
     const track = TRACKS[trackIndex], beat = 60 / track.bpm, barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime;
     const swung = (at) => (Math.abs(at % 1 - 0.5) < 0.01 ? at + track.swing : at); // eighth notes on the off-beat lean late
     const strum = (at, gain, length) => bar.chord.forEach((midi, i) => note(t0 + swung(at) * beat + i * 0.035 + jitter(6), midi, EPIANO, vary(gain), length, -0.18 + i * 0.1)); // chords are rolled, low to high
@@ -90,12 +90,12 @@ export function createRoomMusic() {
   };
   return {
     // Call from inside a tap. track: 0 or 1. Returns true if it started.
-    start(track = 0) {
+    start(track = 0, options = {}) {
       if (playing) return true;
       const AudioContextClass = window.AudioContext || window.webkitAudioContext; if (!AudioContextClass) return false;
       try {
         ctx ??= new AudioContextClass(); ctx.resume?.();
-        trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 5 + trackIndex * 17;
+        trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 5 + trackIndex * 17; playlist = Boolean(options.playlist); onTrack = options.onTrack ?? null;
         master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + 1.5); master.connect(ctx.destination);
         const compressor = ctx.createDynamicsCompressor(); compressor.threshold.value = -20; compressor.knee.value = 12; compressor.ratio.value = 3; compressor.attack.value = 0.012; compressor.release.value = 0.28;
         bus = ctx.createGain(); bus.connect(compressor); compressor.connect(master);
@@ -116,7 +116,8 @@ export function createRoomMusic() {
       try { old.gain.cancelScheduledValues(ctx.currentTime); old.gain.setValueAtTime(Math.max(0.0001, old.gain.value), ctx.currentTime); old.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.9); } catch { /* the graph may already be gone */ }
       setTimeout(() => { try { oldHiss?.stop(); old?.disconnect(); } catch { /* already stopped */ } }, 1800);
     },
+    next() { if (playing) { playlist = true; barIndex = BARS_PER_TRACK; } }, // QA: jump to the other piece at the next bar
     tracks: () => TRACKS.map((t) => t.title),
-    state: () => ({ playing, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, track: trackIndex, title: TRACKS[trackIndex].title }),
+    state: () => ({ playing, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, track: trackIndex, title: TRACKS[trackIndex].title, playlist }),
   };
 }
