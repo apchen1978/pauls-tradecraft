@@ -85,7 +85,7 @@ test.describe("Room 02 mobile immersive", () => {
     await page.goBack(); await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
     await immersiveShot(page, "landscape-after");
     await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator("#immersiveEnter")).toBeHidden();
+    await expect(page.locator("#immersiveEnter"), "the full-screen button shows on desktop too (2026-11-17)").toBeVisible();
     expect(errors).toEqual([]);
   });
 

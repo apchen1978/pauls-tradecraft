@@ -41,7 +41,7 @@ test("landscape exit remains visible and restores history, scrolling and focus",
   await expectFullscreenFillsViewport(page);
   await page.locator("#immersiveExit").click();
   await expectRestored(page);
-  await expect(page.locator("#lang")).toBeFocused();
+  await expect(page.locator("#immersiveEnter")).toBeFocused(); // the full-screen button shows at every width now, so focus returns to it
   // One more Back reaches the previous document, rather than a redundant immersive entry.
   await page.goBack();
   await expect(page).toHaveURL(ROOM + "&previous=1");
@@ -64,7 +64,7 @@ test("Escape exits fullscreen after rotating into landscape", async ({ page }) =
   await expectFullscreenFillsViewport(page);
   await page.keyboard.press("Escape");
   await expectRestored(page);
-  await expect(page.locator("#lang")).toBeFocused();
+  await expect(page.locator("#immersiveEnter")).toBeFocused(); // the full-screen button shows at every width now, so focus returns to it
 });
 
 test("browser Back exits fullscreen after rotating into landscape", async ({ page }) => {
@@ -73,5 +73,5 @@ test("browser Back exits fullscreen after rotating into landscape", async ({ pag
   await expectFullscreenFillsViewport(page);
   await page.goBack();
   await expectRestored(page);
-  await expect(page.locator("#lang")).toBeFocused();
+  await expect(page.locator("#immersiveEnter")).toBeFocused(); // the full-screen button shows at every width now, so focus returns to it
 });

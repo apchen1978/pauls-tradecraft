@@ -35,7 +35,7 @@ for (const [name, path, state] of [["room01", "/prototype/roomverse-3d/", "room0
     await expect.poll(() => page.evaluate((key)=>Boolean(history.state?.[key]),state)).toBe(false);
     expect(await page.evaluate(()=>getComputedStyle(document.body).overflow)).not.toBe("hidden");
     expect(await page.evaluate(()=>history.state?.qaBaseline)).toBe(true);
-    await expect(page.locator("#portalBtn")).toBeFocused();
+    await expect(page.locator("#immersiveEnter"), "focus returns to the full-screen button, which now shows at every width (2026-11-17)").toBeFocused();
     await saveScreenshot(page, `${name}-after`);
   });
   for (const method of ["Escape", "Back"]) test(`${name} portrait landscape portrait exits with ${method}`,async ({page})=>{
