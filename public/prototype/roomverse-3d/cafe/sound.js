@@ -99,7 +99,7 @@ export function createRoomSound() {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext; if (!AudioContextClass) return false;
       try {
         ctx ??= new AudioContextClass(); ctx.resume?.();
-        master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + 1.2); master.connect(ctx.destination);
+        master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + (options.fade ?? 1.2)); master.connect(ctx.destination);
         crackle = options.vinyl === false ? null : ctx.createBufferSource(); if (crackle) { crackle.buffer = noiseBuffer(3, "crackle"); crackle.loop = true; } // vinyl: false (Room 01 borrows this piece) leaves the record crackle out
         if (crackle) { const crackleFilter = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); crackleFilter.type = "highpass"; crackleFilter.frequency.value = 1400; crackleGain.gain.value = 0.126; // 0.55 x 0.7
         crackle.connect(crackleFilter); crackleFilter.connect(crackleGain); crackleGain.connect(master); crackle.start(); }

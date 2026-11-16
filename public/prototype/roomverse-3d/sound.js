@@ -118,7 +118,7 @@ function createNightMusic() { // the cinematic engine, for series night
       try {
         ctx ??= new AudioContextClass(); ctx.resume?.();
         trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 5 + trackIndex * 17; playlist = Boolean(options.playlist); onTrack = options.onTrack ?? null;
-        master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + 1.5); master.connect(ctx.destination);
+        master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + (options.fade ?? 1.5)); master.connect(ctx.destination);
         const compressor = ctx.createDynamicsCompressor(); compressor.threshold.value = -20; compressor.knee.value = 12; compressor.ratio.value = 3; compressor.attack.value = 0.012; compressor.release.value = 0.28;
         bus = ctx.createGain(); bus.connect(compressor); compressor.connect(master);
         const room = ctx.createConvolver(), wet = ctx.createGain(); sendNode = ctx.createGain(); reverbBuffer ??= reverb(); room.buffer = reverbBuffer; sendNode.gain.value = TRACKS[trackIndex].send; wet.gain.value = 0.9;
@@ -136,7 +136,7 @@ function createNightMusic() { // the cinematic engine, for series night
       if (!playing) return;
       playing = false; clearTimeout(timer); timer = 0;
       const old = master, oldHiss = hiss;
-      try { old.gain.cancelScheduledValues(ctx.currentTime); old.gain.setValueAtTime(Math.max(0.0001, old.gain.value), ctx.currentTime); old.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.9); } catch { /* the graph may already be gone */ }
+      try { old.gain.cancelScheduledValues(ctx.currentTime); old.gain.setValueAtTime(Math.max(0.0001, old.gain.value), ctx.currentTime); old.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5); } catch { /* the graph may already be gone */ }
       setTimeout(() => { try { oldHiss?.stop(); old?.disconnect(); } catch { /* already stopped */ } }, 1800);
     },
     next() { if (playing) { playlist = true; barIndex = BARS_PER_TRACK; } }, // QA: jump to the end of the piece (it goes round again)
@@ -155,7 +155,7 @@ export function createRoomMusic() {
     // Call from inside a tap. track: 0 is the day piece, 1 is series night. Returns true if it started.
     start(track = 0, options = {}) {
       night.stop(); day.stop();
-      if (track === 0) { active = "day"; return day.start(0, false, { vinyl: false, bpm: 100 }); } // Room 04's first record (慢板) at a brisk 100 beats a minute instead of 58; it goes round until stopped
+      if (track === 0) { active = "day"; return day.start(0, false, { vinyl: false, bpm: 100, fade: options.fade }); } // Room 04's first record (慢板) at a brisk 100 beats a minute instead of 58; it goes round until stopped
       active = "night"; return night.start(0, options);
     },
     stop() { day.stop(); night.stop(); },
