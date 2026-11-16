@@ -2274,7 +2274,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
     const tx = 2.17;
     for (const [z, surface] of [[0.77, "stone"], [1.48, "oak"]]) {
-      disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
+      if (surface === "oak") {
+        // Cool smoked-sage finish separates the small table from the terracotta upholstery while keeping the room's quiet wood-and-stone palette.
+        part("loungeDetail", colorize(new THREE.CylinderGeometry(0.275, 0.265, 0.038, 32).translate(tx, 0.431, z), 0x6f7b75));
+      } else disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
       if (surface === "stone") {
         const tableBase = disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
         tableBase.computeBoundingBox(); registerSupport("lounge-stone-table-base-ground", "ground", { bottomY: tableBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
