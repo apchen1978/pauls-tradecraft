@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207414, meshes: 140 }),
+  scene: Object.freeze({ vertices: 207992, meshes: 140 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 65, phone: 59 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -94,5 +94,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "the neon sign now glows on the brick: one big soft pink wash (a 256 x 128 texture on a 3.4 m additive plane, 4 vertices) behind the sign, shown with it in rain, closing and series night; the opening view (golden hour) does not draw it", vertices: 207410, meshes: 139, desktopCalls: 64, phoneCalls: 57 },
     { date: "2026-11-17", change: "mobile opening turns slightly toward the right street window, keeping both windows and the cat corner visible; camera culling adds two opening draw calls, with no geometry change", vertices: 207410, meshes: 139, desktopCalls: 64, phoneCalls: 59 },
     { date: "2026-11-17", change: "the graphite entrance mat carries a subtle 歡迎光臨 print on one transparent plane; four vertices and one mesh, adding one desktop opening draw call", vertices: 207414, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
+    { date: "2026-11-17", change: "the wash sink reads as a used cafe sink (Codex draft, taken over by CC): a drain, a terracotta pump bottle, a two-colour sponge and a folded cloth, all merged into the existing material batches; +578 vertices, no new mesh or draw call", vertices: 207992, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
   ]),
 });
