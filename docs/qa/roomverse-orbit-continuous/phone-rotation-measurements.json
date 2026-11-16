@@ -18,9 +18,9 @@
       "releaseDeltaDegrees": -88
     },
     {
-      "angleAtRelease": 269,
+      "angleAtRelease": 276,
       "angleSettled": 181,
-      "releaseDeltaDegrees": -88
+      "releaseDeltaDegrees": -95
     },
     {
       "angleAtRelease": 98,
@@ -28,9 +28,9 @@
       "releaseDeltaDegrees": -97
     },
     {
-      "angleAtRelease": 278,
+      "angleAtRelease": 271,
       "angleSettled": 181,
-      "releaseDeltaDegrees": -97
+      "releaseDeltaDegrees": -90
     }
   ]
 }

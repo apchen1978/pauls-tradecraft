@@ -18,19 +18,19 @@
       "releaseDeltaDegrees": -90
     },
     {
-      "angleAtRelease": 277,
+      "angleAtRelease": 268,
       "angleSettled": 181,
-      "releaseDeltaDegrees": -96
+      "releaseDeltaDegrees": -87
     },
     {
-      "angleAtRelease": 98,
+      "angleAtRelease": 91,
       "angleSettled": 1,
-      "releaseDeltaDegrees": -97
+      "releaseDeltaDegrees": -90
     },
     {
-      "angleAtRelease": 278,
+      "angleAtRelease": 260,
       "angleSettled": 181,
-      "releaseDeltaDegrees": -97
+      "releaseDeltaDegrees": -79
     }
   ]
 }
