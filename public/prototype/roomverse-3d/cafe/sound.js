@@ -32,7 +32,7 @@ const TRACKS = [
 ];
 
 export function createRoomSound() {
-  let ctx = null, master = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, crackle = null, seed = 7, nseed = 11, trackIndex = 0, rainNode = null, rainBuffer = null, playlist = false, onTrack = null, runId = 0;
+  let ctx = null, master = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, crackle = null, seed = 7, nseed = 11, trackIndex = 0, rainNode = null, rainBuffer = null, playlist = false, onTrack = null, runId = 0, tempo = 0;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // fixed seed: the same melody every time, like a record
   const nrnd = () => (nseed = (nseed * 16807) % 2147483647) / 2147483647; // the noise has its own seed so it never shifts the melody
   const noiseBuffer = (seconds, kind) => {
@@ -69,7 +69,7 @@ export function createRoomSound() {
     src.connect(filter); filter.connect(g); g.connect(master); src.start(time); src.stop(time + 0.3);
   };
   const scheduleBar = () => { if (playlist && barIndex >= BARS_PER_TRACK) { trackIndex = (trackIndex + 1) % TRACKS.length; seed = 7 + trackIndex * 31; barIndex = 0; const changed = trackIndex; setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // the next piece starts on the next bar; the page hears about it when its first note sounds
-    const track = TRACKS[trackIndex], beat = 60 / track.bpm, barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime;
+    const track = TRACKS[trackIndex], beat = 60 / (tempo || track.bpm), barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime;
     for (const [at, level] of track.stabs) bar.chord.forEach((note, i) => piano(t0 + at * beat + i * 0.045, note, level, barLength * (at ? 0.4 : 0.95), track.filter)); // the strum, and a stab where the loop has one
     for (const [at, shift, length] of track.bass) bass(t0 + at * beat, bar.bass + shift, beat * length);
     for (const [at, level, swung] of track.brush) brush(t0 + at * beat + (swung ? track.swing * beat : 0), level);
@@ -100,10 +100,10 @@ export function createRoomSound() {
       try {
         ctx ??= new AudioContextClass(); ctx.resume?.();
         master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + 1.2); master.connect(ctx.destination);
-        crackle = ctx.createBufferSource(); crackle.buffer = noiseBuffer(3, "crackle"); crackle.loop = true;
-        const crackleFilter = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); crackleFilter.type = "highpass"; crackleFilter.frequency.value = 1400; crackleGain.gain.value = 0.126; // 0.55 x 0.7
-        crackle.connect(crackleFilter); crackleFilter.connect(crackleGain); crackleGain.connect(master); crackle.start();
-        trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 7 + trackIndex * 31; playlist = Boolean(options.playlist); onTrack = options.onTrack ?? null;
+        crackle = options.vinyl === false ? null : ctx.createBufferSource(); if (crackle) { crackle.buffer = noiseBuffer(3, "crackle"); crackle.loop = true; } // vinyl: false (Room 01 borrows this piece) leaves the record crackle out
+        if (crackle) { const crackleFilter = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); crackleFilter.type = "highpass"; crackleFilter.frequency.value = 1400; crackleGain.gain.value = 0.126; // 0.55 x 0.7
+        crackle.connect(crackleFilter); crackleFilter.connect(crackleGain); crackleGain.connect(master); crackle.start(); }
+        trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 7 + trackIndex * 31; playlist = Boolean(options.playlist); onTrack = options.onTrack ?? null; tempo = options.bpm ?? 0;
         playing = true; barIndex = 0; noteCount = 0; const run = ++runId; realPiano.load(ctx).then(() => { if (!playing || run !== runId) return; nextTime = ctx.currentTime + 0.25; scheduleBar(); }); // the piano samples load on the first tap (about 1 MB, once); the first bar waits for them
         if (rain) startRain();
         return true;

@@ -1,6 +1,6 @@
 // Room 01's music (Paul, 2026-11-16: the living room has speakers but plays nothing; light music is welcome, it need not be jazz, and it must be original. 2026-11-17: make it richer, bright and
 // major, livelier with a vibraphone layer, a cinematic piece for series night with more bass, and a real piano instead of the MIDI-like keyboard; two pieces are enough).
-// Two pieces made with the browser's own audio synthesis plus a real sampled piano (piano.js: Salamander Grand Piano, CC BY 3.0, credited on the page). No song, melody or arrangement is borrowed:
+// 2026-11-17 (later): the day piece is now Room 04's first record, 慢板, played faster by Room 04's own engine (see createRoomMusic at the end); this file's own engine plays the series-night piece. (Earlier: two pieces made with the browser's own audio synthesis plus a real sampled piano (piano.js: Salamander Grand Piano, CC BY 3.0, credited on the page). No song, melody or arrangement is borrowed:
 // everything is written here note by note.
 //   Day (the "day" group): Track 1 "窗邊的午後": C major, 96 beats a minute, a light bounce. A sixteen-bar form, all major chords. First half: Cmaj9, Fmaj9, Cadd9, G6/9, Fmaj9, Cadd9, D9, G7.
 //   Second half, a lift: Fmaj9, G6/9, Cmaj9, Cadd9, Fmaj9, Bbmaj9, D9, G7. Syncopated piano chord hits, a bouncing walking bass, a bright vibraphone layer that sparkles on the off-beats and doubles the
@@ -12,30 +12,10 @@
 // Nothing plays until the visitor taps (browsers allow sound only after a tap); a second tap, hiding the page or leaving stops it. start() must be called from inside that tap. In playlist
 // mode a piece goes round again, with no gap, until the visitor stops it or leaves.
 import { createPiano } from "./piano.js?v=auto";
+import { createRoomSound } from "./cafe/sound.js?v=auto"; // Room 04's music engine plays the day piece
 const realPiano = createPiano(), PIANO_K = 2.4; // PIANO_K scales the old synth levels to the louder piano samples
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 16; // a piece is sixteen bars (the day piece's whole form, or the night piece's eight bars twice)
 const TRACKS = [
-  // The day piece stays in major chords (Paul: gloomy was wrong; the living room should be bright and sunny): I, IV and V with major sevenths, added ninths, sixes and dominant nines, no minor chords.
-  { title: "窗邊的午後", group: "day", style: "bright", bpm: 96, swing: 0.08, send: 0.3, comp: [[0, 0.075, 2.4], [1.5, 0.04, 1], [2.5, 0.045, 1.2]],
-    bars: [
-      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 79, 1.5], [1.5, 81, 0.5], [2, 84, 1.5], [3.5, 83, 0.5]] },           // Cmaj9: G A G E G, a sunny opening
-      { walk: [41, 45, 48, 52], chord: [57, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 79, 0.5], [2, 77, 1], [3, 81, 1]] },          // Fmaj9: up to the C, a step-wise fall
-      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1.5], [1.5, 76, 0.5], [2, 74, 1], [3, 76, 0.5], [3.5, 79, 0.5]] },                      // Cadd9: E G A G
-      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 81, 2], [2, 83, 1], [3, 86, 1]] },                      // G6/9: D G B, reaching the high B
-      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 81, 0.5], [2, 79, 1], [3, 81, 1]] },                      // Fmaj9: the second phrase starts high
-      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 84, 1.5], [2.5, 83, 0.5], [3, 79, 1]] },          // Cadd9: G C B A G
-      { walk: [38, 42, 45, 48], chord: [54, 57, 60, 64], tune: [[0, 78, 1], [1, 81, 1], [2, 84, 1.5], [3.5, 81, 0.5]] },                      // D9: a bright lift to the high D
-      { walk: [43, 47, 50, 47], chord: [53, 59, 62, 67], tune: [[0, 83, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 77, 1], [3, 79, 1]] },          // G7: B A G F E, falling home
-      // the second half: the same sun, a step higher
-      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 84, 0.5], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // Fmaj9: C D C A
-      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 83, 1], [1, 86, 1], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 1]] },                            // G6/9: B D B G
-      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 81, 1.5], [1.5, 83, 0.5], [2, 79, 1], [3, 76, 1]] },                      // Cmaj9: a smooth descent
-      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 79, 2]] },                      // Cadd9: settles on the E
-      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1], [1, 84, 1], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // Fmaj9: climbs again
-      { walk: [46, 50, 53, 57], chord: [62, 65, 69, 72], tune: [[0, 86, 1], [1, 84, 0.5], [1.5, 81, 0.5], [2, 77, 2]] },                      // Bbmaj9: a sunny borrowed colour
-      { walk: [38, 42, 45, 48], chord: [54, 57, 60, 64], tune: [[0, 78, 1], [1, 81, 1], [2, 84, 1], [3, 81, 1]] },                            // D9: F# A C A
-      { walk: [43, 47, 50, 47], chord: [53, 59, 62, 67], tune: [[0, 83, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 77, 1], [3, 76, 1]] },          // G7: falling home to the start
-    ] },
   // Series night: "bass" is a deep pedal and a low pulse under the bar; "chord" feeds the rising ostinato and the string pad.
   { title: "追劇夜", group: "night", style: "cinema", bpm: 70, swing: 0, send: 0.5,
     bars: [
@@ -49,7 +29,6 @@ const TRACKS = [
       { bass: 45, chord: [57, 61, 64, 69], tune: [[0, 76, 3], [3, 78, 1]] },                      // A: resolves, the F# leads back to the start
     ] },
 ];
-const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]; // C major (the day piece), for the grace notes
 const nextInGroup = (index) => { for (let k = 1; k <= TRACKS.length; k++) { const j = (index + k) % TRACKS.length; if (TRACKS[j].group === TRACKS[index].group) return j; } return index; };
 
 // synthesised voices: [frequency ratio, level, wave, how much of the note's length the partial lasts (1 = all of it)]
@@ -57,12 +36,11 @@ const EPIANO = { partials: [[1, 0.6, "sine", 1], [1.003, 0.5, "sine", 1], [2, 0.
 const VIBES = { partials: [[1, 0.7, "sine", 1], [4, 0.28, "sine", 0.3], [10, 0.05, "sine", 0.1]], attack: 0.004, lowpass: 5200, tremolo: 0.4 }; // a vibraphone bar: a fast-fading overtone and a gentle tremolo
 const BASS = { partials: [[1, 1, "sine", 1], [2, 0.28, "triangle", 0.5], [3, 0.06, "sine", 0.3]], attack: 0.015, lowpass: 700 };
 const SUB = { partials: [[1, 1, "sine", 1], [2, 0.12, "sine", 0.5]], attack: 0.25, lowpass: 400 };
-const PAD = { partials: [[1, 0.7, "triangle", 1], [1.004, 0.6, "triangle", 1]], lowpass: 900 };
 const STRINGS = { partials: [[1, 0.5, "sawtooth", 1], [1.007, 0.5, "sawtooth", 1]], lowpass: 1100 };
 const CELLO = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 650, attack: 0.3, vibrato: 8 };
 const STRING_LEAD = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 1300, attack: 0.25, vibrato: 9 };
 
-export function createRoomMusic() {
+function createNightMusic() { // the cinematic engine, for series night
   let ctx = null, bus = null, master = null, hiss = null, sendNode = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, trackIndex = 0, seed = 5, noise = null, swellNoise = null, reverbBuffer = null, playlist = false, onTrack = null, runId = 0;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // fixed seed: the same small variations every time
   const jitter = (ms) => (rnd() - 0.5) * 2 * ms / 1000; // a human's small timing differences
@@ -114,25 +92,7 @@ export function createRoomMusic() {
   const scheduleBar = () => {
     if (playlist && barIndex >= BARS_PER_TRACK) { const before = trackIndex; trackIndex = nextInGroup(trackIndex); seed = 5 + trackIndex * 17; barIndex = 0; const changed = trackIndex; sendNode?.gain.setTargetAtTime(TRACKS[trackIndex].send, ctx.currentTime, 0.6); if (changed !== before) setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // a piece goes round again; a different piece of the group would be announced when its first note sounds
     const track = TRACKS[trackIndex], beat = 60 / track.bpm, barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime, second = barIndex >= track.bars.length || (track.style === "bright" && barIndex >= 8);
-    const swung = (at) => (Math.abs(at % 1 - 0.5) < 0.01 ? at + track.swing : at); // eighth notes on the off-beat lean late
-    if (track.style === "bright") {
-      const strum = (at, gain, length) => bar.chord.forEach((midi, i) => piano(t0 + swung(at) * beat + i * 0.03 + jitter(5), midi, vary(gain), length, -0.18 + i * 0.1)); // chords are rolled, low to high
-      for (const [at, gain, length] of track.comp) strum(at, gain, beat * length); // syncopated hits: the lighter, bouncier rhythm
-      bar.walk.forEach((midi, i) => note(Math.max(t0 + 0.01, t0 + i * beat + jitter(7)), midi, BASS, vary(i === 0 ? 0.2 : 0.155), beat * 0.92)); // a walking bass, one note on every beat
-      for (const midi of bar.chord.slice(0, 3)) note(t0, midi, PAD, 0.014, barLength * 1.1, barIndex % 2 ? 0.45 : -0.45); // a slow pad under it all, swapping sides each bar
-      tick(t0 + beat, 0.022, 5200, 0.14); tick(t0 + 3 * beat, 0.022, 5200, 0.14); // brushes on two and four
-      for (const at of [0, 1, 1.66, 2, 3, 3.66]) tick(t0 + at * beat + jitter(4), vary(0.011), 7600, 0.08); // a whisper of ride: the classic skip pattern
-      [0.5, 1.5, 2.5, 3.5].forEach((at, i) => note(t0 + swung(at) * beat + jitter(4), bar.chord[(i + barIndex) % 4] + 12, VIBES, vary(0.026), beat * 1.4, -0.3)); // the vibraphone sparkle on the off-beats
-      const lift = [0.9, 0.97, 1.06, 0.95][barIndex % 4]; // the phrase breathes: it builds toward its third bar and relaxes at the end
-      bar.tune.forEach(([at, midi, length], k) => {
-        const when = t0 + swung(at) * beat + jitter(4), accent = Number.isInteger(at) ? 1.05 : 0.88, next = bar.tune[k + 1], hold = (next ? next[0] : 4.6) - at, gain = vary(0.085) * accent * lift;
-        piano(when, midi, gain, beat * (hold + 0.35), 0.15); // the melody, on the piano, a little to the right; each note rings until the next begins (legato)
-        if (length >= 1.5) piano(when, midi - 12, gain * 0.28, beat * (hold + 0.35), -0.1); // long notes are gently doubled an octave below: fuller, warmer
-        const below = [1, 2, 3].map((d) => midi - d).find((m) => MAJOR_SCALE.includes(((m % 12) + 12) % 12)); // a soft grace note a scale step below leads into a long note (only for notes inside the scale)
-        if (length >= 1.5 && at > 0 && MAJOR_SCALE.includes(midi % 12)) piano(when - 0.1 * beat, below, gain * 0.32, beat * 0.22, 0.15);
-        if (second) note(when, midi + 12, VIBES, vary(0.02), beat * (length + 0.8), -0.3); // the second half: the vibraphone doubles it an octave up
-      });
-    } else {
+
       const ext = [...bar.chord, bar.chord[0] + 12, bar.chord[1] + 12];
       [0, 1, 2, 3, 4, 5, 4, 3].forEach((pick, i) => piano(t0 + i * 0.5 * beat + jitter(5), ext[pick], vary(i % 4 === 0 ? 0.05 : 0.032), beat * 1.6, -0.2 + pick * 0.07)); // the rising ostinato, straight eighths
       note(t0, bar.bass, SUB, 0.22, barLength * 1.05); // a deep pedal under the bar
@@ -147,12 +107,11 @@ export function createRoomMusic() {
         if (second) note(when, midi + 12, VIBES, vary(0.022), beat * (length + 1), -0.25); // the second time round, the vibraphone doubles it an octave up
       }
       if (barIndex % 8 === 6) swell(t0, barLength * 2); // a breath before the turn
-    }
-    nextTime += barLength * (track.style === "bright" && barIndex % 4 === 3 ? 1.025 : 1); barIndex += 1; // each four-bar phrase ends with a tiny breath: the next phrase starts a little late
+    nextTime += barLength; barIndex += 1;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
   return {
-    // Call from inside a tap. track: 0 is the day piece, 1 is series night. Returns true if it started.
+    // (this engine's only piece is series night, track 0 here). Returns true if it started.
     start(track = 0, options = {}) {
       if (playing) return true;
       const AudioContextClass = window.AudioContext || window.webkitAudioContext; if (!AudioContextClass) return false;
@@ -183,5 +142,28 @@ export function createRoomMusic() {
     next() { if (playing) { playlist = true; barIndex = BARS_PER_TRACK; } }, // QA: jump to the end of the piece (it goes round again)
     tracks: () => TRACKS.map((t) => t.title),
     state: () => ({ playing, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, track: trackIndex, title: TRACKS[trackIndex].title, group: TRACKS[trackIndex].group, playlist, piano: realPiano.ready() }),
+  };
+}
+
+// Room 01's music: two pieces. The day piece (every mood except series night) is Room 04's first record, 慢板, played by Room 04's own music engine on the real piano, without the vinyl crackle, and
+// at 100 beats a minute instead of 58 (Paul, 2026-11-17: the café is Shanghai, slowly, but the living room at golden hour wants a brisker, brighter tempo; the Room 04 records themselves are unchanged).
+// In this room it keeps the name 窗邊的午後. The visitor may have heard it in the Shanghai café: a small echo between the rooms. Series night plays the cinematic piece above.
+export function createRoomMusic() {
+  const night = createNightMusic(), day = createRoomSound(), piano = createPiano();
+  let active = "day";
+  return {
+    // Call from inside a tap. track: 0 is the day piece, 1 is series night. Returns true if it started.
+    start(track = 0, options = {}) {
+      night.stop(); day.stop();
+      if (track === 0) { active = "day"; return day.start(0, false, { vinyl: false, bpm: 100 }); } // Room 04's first record (慢板) at a brisk 100 beats a minute instead of 58; it goes round until stopped
+      active = "night"; return night.start(0, options);
+    },
+    stop() { day.stop(); night.stop(); },
+    next() { if (active === "night") night.next(); }, // QA: the cinematic piece goes round again; the day piece simply keeps going
+    tracks: () => ["窗邊的午後", "追劇夜"],
+    state() {
+      if (active === "night") return { ...night.state(), group: "night", piano: piano.ready() };
+      const d = day.state(); return { playing: d.playing, context: d.context, bars: d.bars, notes: d.notes, track: 0, title: "窗邊的午後", group: "day", playlist: false, piano: piano.ready() };
+    },
   };
 }

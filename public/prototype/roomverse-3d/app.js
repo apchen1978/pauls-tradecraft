@@ -2391,7 +2391,7 @@ let lanternMat = null;
   // Each feeling starts with a matching existing finish; an explicit URL or visitor pick wins.
   // Soft neutral walls pair with the mist-blue side walls in golden and chic moods.
   const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "blush", slow: "sand", golden: "botanical", tv: "wine" }; // golden hour opens with the soft leaf wallpaper behind the sofa (Paul, 2026-11-17: a plain wall looked pale in long sunlight)
-  let sideStripe = null; // the two side walls take the fine vertical-stripe paper when the leaf wallpaper is on the back wall: the sun sweeping across stripes gives the room a vertical rhythm
+  let sideStripe = null; // the two side walls take the fine vertical-stripe paper when the leaf wallpaper is on the back wall, except in golden hour, which keeps the plain painted side walls (Paul, 2026-11-17: the stripes did not suit it): the sun sweeping across stripes gives the room a vertical rhythm
   const sideWallPaper = () => { if (!sideStripe) { sideStripe = WALLS.stripe.tex(); sideStripe.repeat.set(D / WALLS.stripe.size, (H + .3) / WALLS.stripe.size); } return sideStripe; }; // its own texture object: the repeat is set per use
   const fromUrl = new URLSearchParams(location.search);
   // The painting follows the mood once the visitor changes the feeling (the first view always shows the main painting); a picked or addressed painting wins.
@@ -2465,7 +2465,7 @@ let lanternMat = null;
     if (w.tex) { const t = cache[state.wall] ||= w.tex(); t.repeat.set(1 / w.size, 1 / w.size); wallMat.map = t; wallMat.color.set("#ffffff"); }
     else { wallMat.map = null; wallMat.color.set(w.paint); }
     wallMat.needsUpdate = true;
-    for (const material of [sideMat, entrySideMat]) { const map = state.wall === "botanical" ? sideWallPaper() : null; if (material.map !== map) { material.map = map; material.needsUpdate = true; } } // stripes on both side walls with the leaf wallpaper
+    for (const material of [sideMat, entrySideMat]) { const map = state.wall === "botanical" && state.mood !== "golden" ? sideWallPaper() : null; if (material.map !== map) { material.map = map; material.needsUpdate = true; } } // stripes on both side walls with the leaf wallpaper
     rugMat.map = cache["rug-" + state.rug] ||= RUGS[state.rug].tex(); rugMat.needsUpdate = true;
     drawPanel();
     render();

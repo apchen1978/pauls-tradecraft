@@ -5,10 +5,12 @@
 // If the samples cannot be loaded, play() returns false and the caller falls back to its own synthesised piano, so the music never goes silent.
 const SAMPLES = [["A2", 45], ["C3", 48], ["Ds3", 51], ["Fs3", 54], ["A3", 57], ["C4", 60], ["Ds4", 63], ["Fs4", 66], ["A4", 69], ["C5", 72], ["Ds5", 75], ["Fs5", 78], ["A5", 81], ["C6", 84], ["Ds6", 87], ["Fs6", 90]];
 
+let shared = null; // one piano for the whole page: Room 01 uses it from two music engines, and the samples are fetched and decoded once
 export function createPiano() {
+  if (shared) return shared;
   let buffers = null, loading = null;
   const decode = (ctx, data) => new Promise((resolve, reject) => { const result = ctx.decodeAudioData(data, resolve, reject); if (result && typeof result.then === "function") result.then(resolve, reject); }); // callback form for older Safari, promise form elsewhere
-  return {
+  return (shared = {
     // Fetch and decode the samples (once). Resolves true when they are ready, false if anything failed (the caller then uses its fallback).
     load(ctx) {
       loading ??= Promise.all(SAMPLES.map(async ([name, midi]) => {
@@ -32,5 +34,5 @@ export function createPiano() {
       source.start(time); source.stop(time + length + 0.5);
       return true;
     },
-  };
+  });
 }

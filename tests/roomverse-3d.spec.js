@@ -1591,13 +1591,11 @@ test("Room 01 the music plays on: one tap keeps the piece going on the real pian
   const state = () => page.evaluate(() => window.__room.musicState());
   const spot = await page.evaluate(() => window.__room.speakerScreen());
   await page.mouse.click(spot.x, spot.y); // one tap on a speaker
-  await expect.poll(async () => (await state()).playlist, { timeout: 8000 }).toBe(true);
+  await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
   expect((await state()).title).toBe("窗邊的午後");
   await expect.poll(async () => (await state()).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
   await expect.poll(async () => (await state()).bars, { timeout: 12000, message: "the music is scheduled" }).toBeGreaterThan(1);
-  await page.evaluate(() => window.__room.musicNext()); // jump to the end of the piece: it goes round again, with no gap
-  await expect.poll(async () => (await state()).bars, { timeout: 20000, message: "it goes round again" }).toBeLessThan(6);
-  expect((await state()).title).toBe("窗邊的午後");
+  expect((await state()).title).toBe("窗邊的午後"); expect((await state()).group).toBe("day");
   await page.waitForTimeout(62000); // longer than the old 60 s limit
   expect((await state()).playing, "no time limit").toBe(true);
   await page.mouse.click(spot.x, spot.y); // the next tap stops it
@@ -1605,18 +1603,21 @@ test("Room 01 the music plays on: one tap keeps the piece going on the real pian
   expect(errors).toEqual([]);
 });
 
-test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and fine stripes on both side walls; another wall brings plain side walls back", async ({ page }) => {
+test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and plain painted side walls; the stripes pair with the leaf wallpaper in the other moods", async ({ page }) => {
   test.setTimeout(90000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${PAGE}?lang=zh`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await expect.poll(async () => (await page.evaluate(() => window.__room.wallInfo())).backMap, { timeout: 20000, message: "the wallpaper loads" }).toBe(true);
-  const info = await page.evaluate(() => window.__room.wallInfo());
-  expect(info.wall).toBe("botanical"); expect(info.sideMap).toBe(true); expect(info.entrySideMap).toBe(true);
-  await page.evaluate(() => window.__room.set("wall", "softwhite"));
-  const plain = await page.evaluate(() => window.__room.wallInfo());
-  expect(plain.backMap).toBe(false); expect(plain.sideMap).toBe(false); expect(plain.entrySideMap).toBe(false);
+  const info = async () => page.evaluate(() => window.__room.wallInfo());
+  let now = await info();
+  expect(now.wall).toBe("botanical"); expect(now.sideMap, "golden hour keeps plain painted side walls").toBe(false); expect(now.entrySideMap).toBe(false);
+  await page.evaluate(() => window.__room.set("mood", "slow")); // another mood, its own default wall
   await page.evaluate(() => window.__room.set("wall", "botanical"));
-  expect((await page.evaluate(() => window.__room.wallInfo())).sideMap).toBe(true);
+  now = await info(); expect(now.sideMap, "with the leaf wallpaper in another mood the side walls take the stripes").toBe(true); expect(now.entrySideMap).toBe(true);
+  await page.evaluate(() => window.__room.set("mood", "golden"));
+  now = await info(); expect(now.wall).toBe("botanical"); expect(now.sideMap, "back to golden hour: plain again").toBe(false);
+  await page.evaluate(() => window.__room.set("mood", "slow")); await page.evaluate(() => window.__room.set("wall", "softwhite"));
+  now = await info(); expect(now.backMap).toBe(false); expect(now.sideMap).toBe(false);
   expect(errors).toEqual([]);
 });
