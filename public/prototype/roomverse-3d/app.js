@@ -7,6 +7,7 @@ import * as THREE from "./vendor/three.module.min.js"; // three.js r160 (MIT), s
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
+import { createRoomMusic } from "./sound.js?v=auto";
 
 export const TEXT = {
   zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", entryView: "看看入口角落", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
@@ -1179,6 +1180,10 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     hills: { zh: "山丘與太陽", en: "Hills and sun" },
     moon: { zh: "新月", en: "Crescent moon" },
     rain: { zh: "雨雲", en: "Rain cloud" },
+    // Paul, 2026-11-16: the sofa wall needs art, not a child's picture. Three painted pieces from Codex card 70 (paper-textured, low contrast); the three simple prints above stay for the moods that suit them and for the picker.
+    ridge: { zh: "晨光山脊", en: "Morning ridge" },
+    paper: { zh: "紙剪植物", en: "Paper-cut leaves" },
+    inkmoon: { zh: "墨與金月", en: "Ink and gold moon" },
   };
   const prints = {}, printLoader = new THREE.TextureLoader();
   const printMat = new THREE.MeshStandardMaterial({ roughness: .85 });
@@ -1189,10 +1194,10 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     }
     return prints[name];
   }
-  const AX = .35, AY = 1.62, AW = .86, AH = .6;
+  const AX = .35, AY = 1.70, AW = 1.07, AH = .76; // a larger frame for the 3:2 paintings; its bottom edge stays where it was (1.29 m), above the LED strip
   add(new THREE.BoxGeometry(AW + .06, AH + .06, .035), new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 }), AX, AY, BACK + .02);
   add(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), AX, AY, BACK + .038, false);
-  add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false); // .72 x .46 m, the prints are 1200 x 766
+  add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false); // .93 x .62 m (3:2): the new paintings are 1536 x 1024, the old prints 1200 x 766 are drawn a little wide, which their flat shapes tolerate
   const rugMat = new THREE.MeshStandardMaterial({ roughness: 1 });
   const rug = add(new THREE.BoxGeometry(2.6, .012, 1.65), rugMat, SX, .006, SZ + .95, false);
   rug.name = "living-room-rug"; rug.rotation.y = .0873; rug.position.z -= .08;
@@ -1231,6 +1236,35 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const haloTex = canvasTex(128, 128, (ctx, w, h) => { const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,220,160,.9)"); g.addColorStop(.35, "rgba(255,200,130,.35)"); g.addColorStop(1, "rgba(255,190,120,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
   const halo = (x, y, z, s) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); m.position.set(x, y, z); m.scale.setScalar(s); scene.add(m); return m; };
   const tableHalo = halo(TX, .99, TZ, .65);
+  // Dust motes drifting in the window light (Paul, 2026-11-16: the light in Room 04 felt lovely, the room breathes with it; bring it to the living room). One Points draw, a child of a rig that sits in
+  // the window and points along the sun's direction, so the motes drift down the beam. They show only when the sun is strong (golden hour most, then afternoon), move at about 10 frames a second,
+  // and only while the tab is visible, reduced motion is off and the visitor touched the room in the last 30 seconds (an idle room settles).
+  const DUST_COUNT = compactRender ? 44 : 84, DUST_RANGE = 3.0;
+  const dustRig = new THREE.Group(); dustRig.position.set((win.x0 + win.x1) / 2, (win.y0 + win.y1) / 2, BACK + .05);
+  dustRig.lookAt(dustRig.position.clone().add(windowLight.target.position.clone().sub(windowLight.position).normalize())); scene.add(dustRig);
+  const dustBase = new Float32Array(DUST_COUNT * 3), dustSpeed = new Float32Array(DUST_COUNT), dustPhase = new Float32Array(DUST_COUNT);
+  const dustPositions = new Float32Array(DUST_COUNT * 3), dustColors = new Float32Array(DUST_COUNT * 4);
+  { let seed = 20261116; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; // fixed seed: the same dust every visit
+    for (let i = 0; i < DUST_COUNT; i++) { dustBase[i * 3] = (rnd() - .5) * 1.0; dustBase[i * 3 + 1] = (rnd() - .5) * 1.25; dustBase[i * 3 + 2] = rnd() * DUST_RANGE; dustSpeed[i] = .014 + rnd() * .02; dustPhase[i] = rnd() * Math.PI * 2; } }
+  const dustTexture = canvasTex(32, 32, (ctx) => { const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 15); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.35, "rgba(255,255,255,.5)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, 32, 32); });
+  dustTexture.wrapS = dustTexture.wrapT = THREE.ClampToEdgeWrapping;
+  const dustGeometry = new THREE.BufferGeometry();
+  dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3)); dustGeometry.setAttribute("color", new THREE.BufferAttribute(dustColors, 4));
+  const dustPoints = new THREE.Points(dustGeometry, new THREE.PointsMaterial({ map: dustTexture, size: .05, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, vertexColors: true }));
+  dustPoints.name = "dust-motes"; dustPoints.renderOrder = 3; dustPoints.frustumCulled = false; dustPoints.visible = false; dustRig.add(dustPoints);
+  let dustTime = 0;
+  const stepDust = (dt) => {
+    dustTime += dt;
+    for (let i = 0; i < DUST_COUNT; i++) {
+      const along = (dustBase[i * 3 + 2] + dustSpeed[i] * dustTime) % DUST_RANGE, wobble = dustTime * .3 + dustPhase[i];
+      dustPositions[i * 3] = dustBase[i * 3] + Math.sin(wobble) * .05; dustPositions[i * 3 + 1] = dustBase[i * 3 + 1] + Math.cos(wobble * .8) * .05; dustPositions[i * 3 + 2] = along;
+      const edge = Math.min(1, along / .5, (DUST_RANGE - along) / .5), twinkle = .65 + .35 * Math.sin(dustTime * .9 + dustPhase[i] * 3);
+      dustColors[i * 4] = 1; dustColors[i * 4 + 1] = .94; dustColors[i * 4 + 2] = .8; dustColors[i * 4 + 3] = Math.max(0, edge) * twinkle;
+    }
+    dustGeometry.attributes.position.needsUpdate = true; dustGeometry.attributes.color.needsUpdate = true;
+  };
+  stepDust(0);
+  const dustAmount = (sun) => Math.min(1, Math.max(0, (sun - 1.8) / 2)) * .9; // none in the dim moods, the most at golden hour (sun 4.8)
 
   // ---------- furniture from illustrations (quantised GLB, ~100 KB each) ----------
   const fabric = new THREE.MeshStandardMaterial({ color: "#e6dccb", roughness: 1 });
@@ -2256,7 +2290,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   })();
 
   // ---------- state + panel ----------
-  const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "hills", lang };
+  const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "ridge", lang };
   robotBubble = document.getElementById("robotBubble");
   let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0;
   let directorStillOpen = false;
@@ -2295,6 +2329,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
+    dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02;
     shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
     if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
@@ -2327,6 +2362,9 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   // Soft neutral walls pair with the mist-blue side walls in golden and chic moods.
   const DEFAULT_WALL_BY_MOOD = { rain: "grasscloth", family: "olive", tech: "mist", chic: "blush", slow: "sand", golden: "softwhite", tv: "wine" };
   const fromUrl = new URLSearchParams(location.search);
+  // The painting follows the mood once the visitor changes the feeling (the first view always shows the main painting); a picked or addressed painting wins.
+  const DEFAULT_PRINT_BY_MOOD = { rain: "rain", family: "paper", tech: "moon", chic: "ridge", slow: "paper", golden: "ridge", tv: "inkmoon" };
+  let printWasChosen = Object.hasOwn(PRINTS, fromUrl.get("print") ?? "");
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
   if (fromUrl.get("from") === "home" && !Object.hasOwn(MOODS, fromUrl.get("mood") ?? "")) state.mood = "tv"; // Room 01's home entry defaults to series night; a valid explicit mood in the address wins
@@ -2334,6 +2372,8 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   function choose(key, value) {
     const previous = state[key];
     if (key === "wall") wallWasChosen = true;
+    if (key === "print") printWasChosen = true;
+    if (key === "mood" && !printWasChosen && previous !== value) state.print = DEFAULT_PRINT_BY_MOOD[value];
     if (key === "mood" && !wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[value];
     state[key] = value;
     if (key === "mood" && previous !== value) showRobotMood(value);
@@ -2506,7 +2546,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     const draw = () => ({ wall: pick(WALLS, before.wall), rug: pick(RUGS, before.rug), curtain: pick(CURTAINS, before.curtain), print: pick(PRINTS, before.print) });
     let next = draw();
     if (next.wall === before.wall && next.rug === before.rug && next.curtain === before.curtain && next.print === before.print) next = draw();
-    wallWasChosen = true;
+    wallWasChosen = true; printWasChosen = true;
     state.wall = next.wall; state.rug = next.rug; state.curtain = next.curtain; state.print = next.print;
     apply(); toUrl();
   }
@@ -2995,6 +3035,38 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   Object.assign(noteCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(noteCaption);
   let noteTimer = 0;
+  // The speakers by the TV play music (Paul, 2026-11-16): tap a speaker, quiet original piano pieces made in the browser (sound.js). A second tap stops it; each new start plays the next piece.
+  const roomMusic = createRoomMusic();
+  let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now();
+  const MUSIC_LINES = {
+    zh: ["♪ 窗邊的午後。🎹 輕輕的鋼琴，開著聲音聽聽看。", "♪ 週日慢慢過。🎶 再點一次，下次換下一首。"],
+    en: ["♪ Afternoon at the window. 🎹 Soft piano, turn the sound on.", "♪ A Sunday, slowly. 🎶 Tap again for the next one."],
+    hint: { zh: "電視櫃旁的喇叭會唱歌，點一下聽聽看 🎶", en: "The speakers by the TV can play music: tap one 🎶" },
+  };
+  const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
+  function toggleMusic() {
+    musicHinted = true;
+    if (roomMusic.state().playing) { roomMusic.stop(); clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
+    musicTrack = (musicTrack + 1) % 2;
+    if (roomMusic.start(musicTrack)) { showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[musicTrack], 6000); clearTimeout(musicTimer); musicTimer = setTimeout(() => roomMusic.stop(), 60000); }
+  }
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { roomMusic.stop(); clearTimeout(musicTimer); } });
+  window.addEventListener("pointerdown", () => { lastTouch = performance.now(); }, { passive: true });
+  let dustLast = 0, ambientFrozen = false; // ambientFrozen is a QA switch: tests that compare two renders of one angle stop the drifting motes first
+  const ambientTick = () => { // the ambient tick: motes drift and the sun breathes a little (about 4%, one breath per 12 s) while the window light shows
+    let cost = 0;
+    try {
+      const now = performance.now();
+      if (!musicHinted && !intro && !director && now - lastTouch > 9000 && now - lastTouch < 30000 && !document.hidden && noteCaption.style.opacity === "0") { musicHinted = true; showCaption(MUSIC_LINES.hint[state.lang] || MUSIC_LINES.hint.zh, 5200); }
+      if (ambientFrozen || !dustPoints.visible || document.hidden || still || now - lastTouch > 30000) dustLast = 0;
+      else {
+        const dt = dustLast ? Math.min(.25, (now - dustLast) / 1000) : .1; dustLast = now;
+        stepDust(dt); if (shown) windowLight.intensity = shown.win * (1 + .04 * Math.sin(dustTime * .5)); render(); cost = performance.now() - now;
+      }
+    } catch { /* the room is still starting up */ }
+    setTimeout(ambientTick, Math.max(100, cost * 3)); // a slow device draws less often (at most a third of the time spent drawing), so the ambient motion never starves the rest of the page
+  };
+  setTimeout(ambientTick, 100);
   function showPlantNote() { plantHintShown = true; noteCaption.textContent = deskNoteLines[state.lang] || deskNoteLines.zh; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, 4600); }
   // Paul 2026-11-11: the note is a few pixels in the overview, so say it is there. Once per visit, when a turn of the view settles with the note in frame
   // (not in the default phone view, where the plant is off screen), one line under the picture: "Tap: the little note on the plant pot."
@@ -3021,6 +3093,8 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     // the note on the plant pot (7.5 cm: a few pixels on a phone, so a ray through a box 4 cm bigger counts too)
     // Paul 2026-11-11: a 7.5 cm note is a few pixels in the overview and a finger is wider than that, so a tap within 34 px of the note on screen counts (when it is in view)
     if (!robotBubble || robotBubble.hidden) { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); if (c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 34) { showPlantNote(); return; } }
+    const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
+    if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
     if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
@@ -3900,6 +3974,10 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
+    musicState: () => roomMusic.state(), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
+    speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
+    freezeAmbient(on = true) { ambientFrozen = on; },
+    dustState: () => ({ visible: dustPoints.visible, opacity: dustPoints.material.opacity, count: DUST_COUNT }),
     robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
     guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent }; }, // local QA only
     faceDoorWall() { viewTheta = -Math.PI / 2; camera.position.copy(cameraAt(viewTheta)); camera.lookAt(controls.target); controls.update(); render(); }, // local QA only
