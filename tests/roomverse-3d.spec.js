@@ -1611,7 +1611,7 @@ test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and plai
   await expect.poll(async () => (await page.evaluate(() => window.__room.wallInfo())).backMap, { timeout: 20000, message: "the wallpaper loads" }).toBe(true);
   const info = async () => page.evaluate(() => window.__room.wallInfo());
   let now = await info();
-  expect(now.wall).toBe("botanical"); expect(now.sideMap, "golden hour keeps plain painted side walls").toBe(false); expect(now.entrySideMap).toBe(false);
+  expect(now.wall).toBe("botanical"); expect(now.backRepeat, "the leaf pattern is 20 percent larger (one tile per 1.8 m)").toBeCloseTo(1 / 1.8, 3); expect(now.sideMap, "golden hour keeps plain painted side walls").toBe(false); expect(now.entrySideMap).toBe(false);
   await page.evaluate(() => window.__room.set("mood", "slow")); // another mood, its own default wall
   await page.evaluate(() => window.__room.set("wall", "botanical"));
   now = await info(); expect(now.sideMap, "with the leaf wallpaper in another mood the side walls take the stripes").toBe(true); expect(now.entrySideMap).toBe(true);
@@ -1619,5 +1619,34 @@ test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and plai
   now = await info(); expect(now.wall).toBe("botanical"); expect(now.sideMap, "back to golden hour: plain again").toBe(false);
   await page.evaluate(() => window.__room.set("mood", "slow")); await page.evaluate(() => window.__room.set("wall", "softwhite"));
   now = await info(); expect(now.backMap).toBe(false); expect(now.sideMap).toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the music follows the mood, the little robot hints that the TV screen or a speaker starts it, and a tap on the TV screen starts it", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  // the robot's hint after a few quiet seconds (it names the TV screen and the speakers)
+  await expect(page.locator("#robotBubble:not([hidden]) [data-bubble-copy]"), "the robot hints at the music").toContainText("電視螢幕", { timeout: 25000 });
+  await page.evaluate(() => window.__room.playMusic());
+  const state = () => page.evaluate(() => window.__room.musicState());
+  await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
+  expect((await state()).title).toBe("窗邊的午後");
+  await page.evaluate(() => window.__room.set("mood", "tv")); // series night while the music plays: it becomes the cinematic piece
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "series night plays the cinematic piece" }).toBe("追劇夜");
+  expect((await state()).playing).toBe(true);
+  await page.evaluate(() => window.__room.set("mood", "golden"));
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back to the bright piece" }).toBe("窗邊的午後");
+  await page.evaluate(() => window.__room.stopMusic());
+  // a tap on the TV screen starts the music
+  await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.tvScreenPoint())).front, { timeout: 20000 }).toBe(true);
+  await page.waitForTimeout(2500);
+  const spot = await page.evaluate(() => window.__room.tvScreenPoint());
+  await page.mouse.click(spot.x, spot.y - 20);
+  await expect.poll(async () => (await state()).playing, { timeout: 8000, message: "a tap on the TV screen starts the music" }).toBe(true);
+  await page.evaluate(() => window.__room.stopMusic());
   expect(errors).toEqual([]);
 });
