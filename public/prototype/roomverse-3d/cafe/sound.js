@@ -108,7 +108,7 @@ export function createRoomSound() {
         ctx ??= new AudioContextClass(); ctx.resume?.();
         master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + 1.2); master.connect(ctx.destination);
         crackle = ctx.createBufferSource(); crackle.buffer = noiseBuffer(3, "crackle"); crackle.loop = true;
-        const crackleFilter = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); crackleFilter.type = "highpass"; crackleFilter.frequency.value = 1400; crackleGain.gain.value = 0.3; // 0.55 x 0.7
+        const crackleFilter = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); crackleFilter.type = "highpass"; crackleFilter.frequency.value = 1400; crackleGain.gain.value = 0.18; // 0.55 x 0.7
         crackle.connect(crackleFilter); crackleFilter.connect(crackleGain); crackleGain.connect(master); crackle.start();
         trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 7 + trackIndex * 31; playlist = Boolean(options.playlist); onTrack = options.onTrack ?? null;
         playing = true; barIndex = 0; noteCount = 0; nextTime = ctx.currentTime + 0.25; scheduleBar();
