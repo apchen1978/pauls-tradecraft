@@ -5,6 +5,7 @@
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
 import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 import { loadModel, loadGlb } from "./models.js?v=5";
+import { createRoomRecord } from "./sound.js?v=auto"; // the record by the window plays one piece (Brooklyn Windowsill)
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -384,6 +385,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       return Promise.resolve(true);
     }
 
+    recordMusic.stop(); // the music ends when the visitor walks out
     leaving = { ...from, cancelled: false, fading: null, frame: 0, started: performance.now() };
     const run = leaving;
     const stand = new THREE.Vector3(DOOR.x, 1.5, 1.56);
@@ -521,6 +523,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (hitRobot) { tapRobot(); return; }
     tapClient = [event.clientX, event.clientY];
     const story = storyAt();
+    if (story === "vinyl-corner") { // the record corner: a tap starts the music, the next tap stops it
+      if (recordMusic.state().playing) { recordMusic.stop(); showPropStory("vinyl-corner"); } else showPropStory(recordMusic.start() ? "vinyl-music" : "vinyl-corner");
+      return;
+    }
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
   });
   el.addEventListener("pointercancel", endDrag);
@@ -530,6 +536,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const PROP_STORIES = {
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
+    "vinyl-music": { zh: "♪ 布魯克林窗台。🎹 鋼琴和老派節拍。再點一下就停。", en: "♪ Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to stop." },
+    "hint-vinyl": { zh: "點一下：窗邊的唱片機，有音樂。", en: "Tap: the record player by the window, for some music." },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
     "hint-work": { zh: "點一下：螢幕邊的小便條。", en: "Tap: the little note on the monitor." },
@@ -541,7 +549,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   storyCaption.id = "propStory"; storyCaption.setAttribute("role", "status"); storyCaption.setAttribute("aria-live", "polite");
   Object.assign(storyCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(storyCaption);
-  let storyTimer = 0, storyKey = null;
+  const recordMusic = createRoomRecord(); // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped)
+  let storyTimer = 0, storyKey = null, vinylHinted = false;
   function showPropStory(key) {
     const story = PROP_STORIES[key]; if (!story) return;
     storyKey = key; storyCaption.textContent = story[lang] || story.zh; storyCaption.style.opacity = "1";
@@ -2289,7 +2298,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   };
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) recordMusic.stop(); }); // the music stops when the page is hidden
+  setTimeout(() => { if (!vinylHinted && lookName === "center" && storyKey === null && !recordMusic.state().playing) { vinylHinted = true; showPropStory("hint-vinyl"); } }, 9000); // a quiet hint once, if the visitor has not found the record player
   return {
+    recordState: () => recordMusic.state(), stopRecord: () => recordMusic.stop(),
+    vinylPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = new THREE.Box3().setFromObject(root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner")).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the turntable on screen
     tvState() { // local QA only
       const m = tvFace.material, on = !!m.emissiveMap;
       return { mode: !on ? "off" : m.emissiveMap === tvTex.film ? "film" : "game", reflection: !!m.map };

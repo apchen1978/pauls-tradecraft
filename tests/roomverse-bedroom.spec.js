@@ -1107,3 +1107,21 @@ test("the vinyl corner keeps all 32 records in one draw call and its deck glows 
   const info = await page.evaluate(() => window.__bedroom.info());
   expect(info.vertices, "the room stays under the relaxed geometry ceiling").toBeLessThanOrEqual(CAPS.vertices);
 });
+
+test("Room 02 the record player by the window plays one Brooklyn piece on a real piano when tapped, and stops with the next tap", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom, null, { timeout: 60000 }); await page.waitForTimeout(3500);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.vinylPoint())).front, { timeout: 20000 }).toBe(true);
+  const spot = await page.evaluate(() => window.__bedroom.vinylPoint());
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { timeout: 8000, message: "a tap on the record corner starts the music" }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 12000 }).toBeGreaterThan(12);
+  await expect(page.locator("#propStory")).toContainText("布魯克林窗台");
+  await page.waitForTimeout(1500);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing).toBe(false);
+  expect(errors).toEqual([]);
+});
