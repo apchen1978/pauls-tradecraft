@@ -3058,19 +3058,29 @@ let lanternMat = null;
   let noteTimer = 0;
   // The speakers by the TV play music (Paul, 2026-11-16): tap a speaker, quiet original piano pieces made in the browser (sound.js). A second tap stops it; each new start plays the next piece.
   const roomMusic = createRoomMusic();
-  let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now();
+  let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now(), musicStopped = false, musicAuto = false;
   const MUSIC_LINES = {
     zh: ["♪ 窗邊的午後。🎹 輕輕的鋼琴，開著聲音聽聽看。", "♪ 週日慢慢過。🎶 再點一次，下次換下一首。"],
     en: ["♪ Afternoon at the window. 🎹 Soft piano, turn the sound on.", "♪ A Sunday, slowly. 🎶 Tap again for the next one."],
+    auto: { zh: "♪ 電視喇叭輕輕放著鋼琴。點喇叭可以關掉。", en: "♪ Soft piano from the TV speakers. Tap a speaker to turn it off." },
     hint: { zh: "電視櫃旁的喇叭會唱歌，點一下聽聽看 🎶", en: "The speakers by the TV can play music: tap one 🎶" },
   };
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
   function toggleMusic() {
     musicHinted = true;
-    if (roomMusic.state().playing) { roomMusic.stop(); clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
+    if (roomMusic.state().playing) { roomMusic.stop(); musicStopped = true; /* switched off by hand: it never starts by itself again */ clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
     musicTrack = (musicTrack + 1) % 2;
     if (roomMusic.start(musicTrack)) { showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[musicTrack], 6000); clearTimeout(musicTimer); musicTimer = setTimeout(() => roomMusic.stop(), 60000); }
   }
+  // Series night and the TV wall (Paul, 2026-11-16): when the mood is series night, or the TV wall is the view, the speakers start the quiet piano by themselves, once per visit, from the visitor's
+  // next tap or drag (browsers only allow sound after one). It starts the slow piece, stops after 60 s like the other start, and never starts again once the visitor has switched it off.
+  function autoMusic() {
+    if (musicAuto || musicStopped || roomMusic.state().playing || document.hidden || (state.mood !== "tv" && currentView !== "tv")) return;
+    musicAuto = true; musicHinted = true; musicTrack = 1;
+    if (roomMusic.start(musicTrack)) { showCaption((MUSIC_LINES.auto[state.lang] || MUSIC_LINES.auto.zh), 7000); clearTimeout(musicTimer); musicTimer = setTimeout(() => roomMusic.stop(), 60000); }
+  }
+  window.addEventListener("pointerup", () => autoMusic(), { passive: true });
+  window.addEventListener("click", () => autoMusic(), { passive: true }); // the view and mood buttons change the state in their own click handlers, which run before this one
   document.addEventListener("visibilitychange", () => { if (document.hidden) { roomMusic.stop(); clearTimeout(musicTimer); } });
   window.addEventListener("pointerdown", () => { lastTouch = performance.now(); }, { passive: true });
   let dustLast = 0, ambientFrozen = false; // ambientFrozen is a QA switch: tests that compare two renders of one angle stop the drifting motes first
