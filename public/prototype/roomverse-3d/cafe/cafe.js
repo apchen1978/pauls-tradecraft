@@ -1943,6 +1943,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       slab("matWeave", [MX0 + F, MX1 - F], [0, 0.016], [MZ0 + F, MZ1 - F], { tile: 0.16 });
       slab("gold", [MX0, MX1], [0, 0.019], [MZ0, MZ0 + F], { tile: 1 }); slab("gold", [MX0, MX1], [0, 0.019], [MZ1 - F, MZ1], { tile: 1 });
       slab("gold", [MX0, MX0 + F], [0, 0.019], [MZ0 + F, MZ1 - F], { tile: 1 }); slab("gold", [MX1 - F, MX1], [0, 0.019], [MZ0 + F, MZ1 - F], { tile: 1 });
+      const lettering = document.createElement("canvas"); lettering.width = 1024; lettering.height = 512;
+      const ink = lettering.getContext("2d"); ink.fillStyle = "#d9c7a7"; ink.textAlign = "center"; ink.textBaseline = "middle";
+      ink.font = "600 116px 'Noto Serif CJK TC', 'Microsoft JhengHei', serif"; ink.fillText("歡迎光臨", 512, 256);
+      ink.globalAlpha = 0.55; ink.fillRect(240, 174, 544, 2); ink.fillRect(240, 337, 544, 2);
+      const print = new THREE.CanvasTexture(lettering); print.colorSpace = THREE.SRGBColorSpace; print.anisotropy = 8;
+      const welcome = new THREE.Mesh(new THREE.PlaneGeometry(MX1 - MX0 - 0.12, MZ1 - MZ0 - 0.12), new THREE.MeshStandardMaterial({ map: print, transparent: true, roughness: 1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
+      welcome.name = "entrance-mat-welcome"; welcome.rotation.x = -Math.PI / 2; welcome.position.set((MX0 + MX1) / 2, 0.017, (MZ0 + MZ1) / 2); welcome.receiveShadow = true; scene.add(welcome);
     }
   }
   // ---------- the lamps (Codex card 50): four designs, each with a glowing part ----------
