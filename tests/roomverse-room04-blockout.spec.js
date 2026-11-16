@@ -796,3 +796,16 @@ test("Room 04 lounge tablet: dark by day, lit at night with a pulse, and a tap s
   await expect(page.locator("#bubble [data-line]"), "a night line").toHaveText(/歌單|末班|明天見|追劇/);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 ?perf=1 shows a small FPS read-out while the view moves, and nothing without it", async ({ page }) => {
+  const errors = await open(page, 390);
+  expect(await page.locator("#stage div", { hasText: /^fps / }).count(), "no read-out without ?perf=1").toBe(0);
+  await page.goto("/prototype/roomverse-3d/cafe/?perf=1"); await page.locator("#enter").click();
+  await page.waitForFunction(() => window.__room04 && window.__room04.catState().loaded, null, { timeout: 120000 });
+  const box = await page.locator("#stage canvas").boundingBox(), y = box.y + box.height * 0.82;
+  await page.mouse.move(box.x + box.width - 10, y); await page.mouse.down();
+  for (let i = 0; i < 40; i++) { await page.mouse.move(box.x + box.width - 10 - i * 7, y); await page.waitForTimeout(40); }
+  await page.mouse.up();
+  await expect(page.locator("#stage div", { hasText: /^fps \d+/ })).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
