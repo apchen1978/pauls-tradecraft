@@ -1528,8 +1528,9 @@ test("Room 01 light and music: dust motes drift in strong sun only, a tap on a s
   await expect(page.locator("#plantNote")).toContainText("窗邊的午後");
   await page.mouse.click(spot.x, spot.y); // the second tap stops it
   await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
-  await page.evaluate(() => window.__room.playMusic()); // the next start plays the next piece
-  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("週日慢慢過");
+  await page.evaluate(() => window.__room.set("mood", "tv")); // series night plays its own cinematic piece
+  await page.evaluate(() => window.__room.playMusic());
+  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("追劇夜");
   await page.evaluate(() => window.__room.stopMusic());
   expect(errors).toEqual([]);
 });
@@ -1544,7 +1545,7 @@ test("Room 01 series night: the TV speakers start the quiet piano on the next ta
   const state = () => page.evaluate(() => window.__room.musicState());
   await page.locator("h1").click(); // any next tap in series night
   await expect.poll(async () => (await state()).playing, { timeout: 6000 }).toBe(true);
-  expect((await state()).title).toBe("週日慢慢過");
+  expect((await state()).title).toBe("追劇夜");
   await expect(page.locator("#plantNote")).toContainText("電視喇叭");
   const spot = await page.evaluate(() => window.__room.speakerScreen());
   await page.mouse.click(spot.x, spot.y); // switch it off by hand
@@ -1578,7 +1579,7 @@ test("Room 01 the lantern is the light source: the room's fill light sits at the
   expect(errors).toEqual([]);
 });
 
-test("Room 01 the music plays on: one tap plays the two pieces one after another with no time limit until the visitor stops it", async ({ page }) => {
+test("Room 01 the music plays on: one tap keeps the piece going on the real piano with no time limit until the visitor stops it", async ({ page }) => {
   test.setTimeout(170000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`);
@@ -1590,9 +1591,11 @@ test("Room 01 the music plays on: one tap plays the two pieces one after another
   await page.mouse.click(spot.x, spot.y); // one tap on a speaker
   await expect.poll(async () => (await state()).playlist, { timeout: 8000 }).toBe(true);
   expect((await state()).title).toBe("窗邊的午後");
-  await page.evaluate(() => window.__room.musicNext()); // jump to the other piece, as the end of a piece does
-  await expect.poll(async () => (await state()).title, { timeout: 20000, message: "the other piece follows by itself" }).toBe("週日慢慢過");
-  await expect(page.locator("#plantNote"), "its line shows").toContainText("週日慢慢過");
+  await expect.poll(async () => (await state()).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
+  await expect.poll(async () => (await state()).bars, { timeout: 12000, message: "the music is scheduled" }).toBeGreaterThan(1);
+  await page.evaluate(() => window.__room.musicNext()); // jump to the end of the piece: it goes round again, with no gap
+  await expect.poll(async () => (await state()).bars, { timeout: 20000, message: "it goes round again" }).toBeLessThan(6);
+  expect((await state()).title).toBe("窗邊的午後");
   await page.waitForTimeout(62000); // longer than the old 60 s limit
   expect((await state()).playing, "no time limit").toBe(true);
   await page.mouse.click(spot.x, spot.y); // the next tap stops it
