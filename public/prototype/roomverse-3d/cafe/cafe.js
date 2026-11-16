@@ -35,7 +35,7 @@ function counterShift(x) {
 const BACK_BAR = Object.freeze({ x0: -2.6, x1: 3.0, depth: 0.5, height: 0.9, top: 0.03 });
 
 const COLORS = Object.freeze({
-  wall: 0xf1ece2, ceiling: 0xf4f1ea, floor: 0xa89a8e, oak: 0xb98a55, olive: 0x4d5d3c, black: 0x2b2e2e,
+  wall: 0xf1e3cd, ceiling: 0xf4f1ea, floor: 0xa89a8e, oak: 0xb98a55, olive: 0x4d5d3c, black: 0x2b2e2e,
   steel: 0xd9dddf, stone: 0xeeeae4, plant: 0x5f8a45, terracotta: 0xc4623a, robot: 0xf2f0ea, chalk: 0x2f3334,
 });
 
@@ -115,7 +115,7 @@ export const LOOK_GROUPS = Object.freeze({
   // The plank ceiling's tint: [colour multiplied over the white boards, the glow that stands in for light bounced up from the floor]. White stays the default: it is the lightest surface, it
   // lifts the dark herringbone floor and the red brick, and it is the morning light's natural partner. The others are for the random cafe (warm wood echoes Room 03).
   ceiling: Object.freeze({ white: [0xffffff, 0xf4f1ea], warmwood: [0xf0d4a0, 0xd9b27a], sage: [0xcfdcc4, 0xa9bd9c], clay: [0xeac3b0, 0xc88a6e], slate: [0x9fb0c4, 0x4f6a88] }),
-  wall: Object.freeze({ warm: 0xf1ece2, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
+  wall: Object.freeze({ warm: 0xf1e3cd, blush: 0xf0dcd4, mist: 0xdde5e2, butter: 0xf3e6c4, grey: 0xdad8d4 }),
   floor: Object.freeze({ greybrown: [1, 1, 1], warmoak: [1.25, 1.0, 0.78], walnut: [0.62, 0.52, 0.46], pale: [1.18, 1.16, 1.12], terrazzo: "room04-floor-terrazzo-v1.webp", herringbone: "room04-floor-herringbone.webp", slate: "room04-floor-slate.webp" }), // strings are painted floor tiles from Codex cards 51 C and 52 F
   lamp: Object.freeze({ bamboo: 1, rings: 2 }), // Codex card 50: the two designs Paul kept. "bamboo": the bamboo cloud over the window seat and paper rings over the counter; "rings": the other way round
   scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
@@ -621,7 +621,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // olive wainscot, the oak rail and the pictures sit against a colour instead of a flat grey-white. A wallpaper look shows as it is on every wall.
   // The armchair has its own fabric (Paul, 2026-11-16: sofa and chair melted together): the pillows stay mustard, the banquette burgundy, the armchair a cool petrol blue-green.
   materials.loungeChair = materials.loungeAccent.clone(); materials.loungeChair.color.setHex(LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][4]);
-  const CLAY_TINT = new THREE.Color(0xe6cfb2);
+  const CLAY_TINT = new THREE.Color(0xeddcc3);
   materials.wallFeature = materials.wall.clone(); materials.wallFeature.color.copy(materials.wall.color).multiply(CLAY_TINT);
 
   const add = (name, geometry, material, x, y, z, { cast = true, receive = true } = {}) => {
