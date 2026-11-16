@@ -1264,7 +1264,28 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     dustGeometry.attributes.position.needsUpdate = true; dustGeometry.attributes.color.needsUpdate = true;
   };
   stepDust(0);
+let lanternMat = null;
   const dustAmount = (sun) => Math.min(1, Math.max(0, (sun - 1.8) / 2)) * .9; // none in the dim moods, the most at golden hour (sun 4.8)
+  // The living room's main light (Paul, 2026-11-16: the ceiling had light but no fixture). A round washi-paper lantern on a short cord, after Codex's card 69 drawing (A2): a paper globe with a warm
+  // glow, thin bamboo rings and a round canopy. It is built here (no model file): about 600 vertices, three meshes. Its glow follows the room's main light: bright in the day moods, dim at night
+  // ("skip the ceiling light"). The light itself is still the room's soft fill; the lantern is the thing that light comes from.
+  const LANTERN = { x: .05, z: -1.4, radius: .17, bottom: 2.0 };
+  { const R = LANTERN.radius, cy = LANTERN.bottom + R, ceilingY = H;
+    const paper = canvasTex(256, 256, (ctx, w, h) => { ctx.fillStyle = "#f4e6c8"; ctx.fillRect(0, 0, w, h); let seed = 77; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      for (let n = 0; n < 150; n++) { ctx.strokeStyle = `rgba(190,150,90,${.06 + rnd() * .12})`; ctx.lineWidth = .6 + rnd() * .8; ctx.beginPath(); const x = rnd() * w, y = rnd() * h; ctx.moveTo(x, y); ctx.quadraticCurveTo(x + (rnd() - .5) * 90, y + (rnd() - .5) * 90, x + (rnd() - .5) * 120, y + (rnd() - .5) * 120); ctx.stroke(); } });
+    lanternMat = new THREE.MeshStandardMaterial({ map: paper, emissive: "#ffd9a0", emissiveMap: paper, emissiveIntensity: .8, roughness: .95 });
+    const globe = add(new THREE.SphereGeometry(R, 28, 18), lanternMat, LANTERN.x, cy, LANTERN.z, false); globe.name = "living-room-lantern";
+    const rings = [];
+    for (const lat of [-.8, -.55, -.28, 0, .28, .55, .8]) { const ring = new THREE.TorusGeometry(R * Math.cos(lat) * 1.012, .0035, 5, 28); ring.rotateX(Math.PI / 2); ring.translate(0, R * Math.sin(lat), 0); rings.push(ring); }
+    for (const yaw of [0, Math.PI / 2]) { const rib = new THREE.TorusGeometry(R * 1.012, .0035, 5, 36); rib.rotateY(yaw); rings.push(rib); }
+    const bamboo = add(mergeGeometries(rings), new THREE.MeshStandardMaterial({ color: "#d9b87a", roughness: .6 }), LANTERN.x, cy, LANTERN.z, false); bamboo.name = "living-room-lantern-rings";
+    const cordLength = ceilingY - .025 - (cy + R);
+    const fittings = mergeGeometries([
+      new THREE.CylinderGeometry(.07, .07, .025, 24).translate(0, ceilingY - .0125 - cy, 0), // the round canopy on the ceiling
+      new THREE.CylinderGeometry(.006, .006, cordLength, 8).translate(0, R + cordLength / 2, 0), // the cord
+      new THREE.CylinderGeometry(.02, .028, .03, 16).translate(0, R + .006, 0), // the cap on top of the globe
+    ]);
+    const fixture = add(fittings, new THREE.MeshStandardMaterial({ color: "#efe6d6", roughness: .7 }), LANTERN.x, cy, LANTERN.z, false); fixture.name = "living-room-lantern-fittings"; }
 
   // ---------- furniture from illustrations (quantised GLB, ~100 KB each) ----------
   const fabric = new THREE.MeshStandardMaterial({ color: "#e6dccb", roughness: 1 });
@@ -2330,7 +2351,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02;
-    shadeGlow.value = v.shade; tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
+    shadeGlow.value = v.shade; if (lanternMat) lanternMat.emissiveIntensity = Math.min(.95, .2 + v.fill * .45); /* follows the main light: bright by day, dim at night */ tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
     if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
     updateRightArtLight(v);

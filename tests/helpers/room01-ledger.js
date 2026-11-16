@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 119015, meshes: 330 }),
+  scene: Object.freeze({ vertices: 121528, meshes: 333 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 85, phone: 66 }),
+  openingDrawCalls: Object.freeze({ desktop: 88, phone: 69 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes, one more call.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 85, family: 86, tech: 87, chic: 86, slow: 86, golden: 86, tv: 85 }),
-    phone: Object.freeze({ rain: 66, family: 67, tech: 68, chic: 67, slow: 67, golden: 67, tv: 66 }),
+    desktop: Object.freeze({ rain: 88, family: 89, tech: 90, chic: 89, slow: 89, golden: 89, tv: 88 }),
+    phone: Object.freeze({ rain: 69, family: 70, tech: 71, chic: 70, slow: 70, golden: 70, tv: 69 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -29,6 +29,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-11", change: "sofa pillows, second pass (Paul: from the side the backrest showed a white fold and the single pillow looked huge and fake): the old cushions leaning on the backrest are pressed almost flat (62 percent, seat part unchanged), the coloured pillows shrink from 48 to 40 cm, and a larger plain pillow (oat, dusty blue) sits behind each, as on many American sofas. Two more meshes (+2 draw calls) and +2,300 vertices", vertices: 119011, meshes: 329, desktopCalls: 84, phoneCalls: 66 },
     { date: "2026-11-11", change: "note 1/3 of the three-room note set (Paul): a yellow sticky note on the plant pot, tappable within 34 px (4 vertices, +1 mesh, +1 desktop draw call; phone unchanged because the note is outside the default 390 px view)", vertices: 119015, meshes: 330, desktopCalls: 85, phoneCalls: 66 },
     { date: "2026-11-16", change: "dust motes drifting in the window light (one Points draw, 84 motes, 44 on a phone; only in the sunny moods, fading out as the sun dims) and a slow 4 percent breathing of the sun; the speakers by the TV play two quiet original piano pieces (sound.js, browser synthesis) when tapped. The sunny moods cost one more draw call; meshes and vertices are unchanged (Points are not counted)", vertices: 119015, meshes: 330, desktopCalls: 85, phoneCalls: 66 },
+    { date: "2026-11-16", change: "the living room gets its main light fixture (Paul: the ceiling had light but nothing it came from): a round washi-paper lantern on a short cord after Codex card 69 drawing A2, built in code (paper globe with fibre texture, bamboo rings, canopy, cord and cap; three meshes, about 2,500 vertices); its glow follows the main light, bright by day and dim at night", vertices: 121528, meshes: 333, desktopCalls: 88, phoneCalls: 69 },
   ]),
 });
 
