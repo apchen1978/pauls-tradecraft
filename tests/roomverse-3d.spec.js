@@ -1109,7 +1109,8 @@ test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and wi
     await expect(page).toHaveURL(new RegExp(`mood=${mood}`));
     await expect(page).toHaveURL(/view=tv/);
   }
-  await page.waitForTimeout(700);
+  await page.waitForLoadState("networkidle"); await page.waitForTimeout(1500); // the painted prints load as the feelings change; wait until the last one has arrived
+  await page.evaluate(() => window.__room.freezeAmbient()); // the drifting dust would differ between two renders
   const windowPostcard = await page.evaluate(() => window.__room.postcard().toDataURL());
   await page.evaluate(() => window.__room.setOrbitAngle(0));
   const windowPostcardAtZero = await page.evaluate(() => window.__room.postcard().toDataURL());
@@ -1507,4 +1508,28 @@ test("the two coffee-table books sit on the table and the red suitcase stands on
   }
   expect(d.suitcase.insideRoom).toBe(true);
   expect(d.lights, "no new light was added").toBe(6);
+});
+
+test("Room 01 light and music: dust motes drift in strong sun only, a tap on a speaker plays quiet piano, and the next tap stops it", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`); // the TV wall view, where the speakers are
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.dustState())).visible, { timeout: 8000, message: "dust in the golden hour sun" }).toBe(true);
+  await page.evaluate(() => window.__room.set("mood", "rain"));
+  await expect.poll(async () => (await page.evaluate(() => window.__room.dustState())).visible, { timeout: 12000, message: "no dust in the rain" }).toBe(false);
+  await page.waitForTimeout(1500);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.speakerScreen()))?.front, { timeout: 20000, message: "the speakers load" }).toBe(true);
+  const spot = await page.evaluate(() => window.__room.speakerScreen());
+  await page.mouse.click(spot.x, spot.y); // a real tap on the speaker
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing, { timeout: 5000 }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).notes, { timeout: 8000 }).toBeGreaterThan(8);
+  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("窗邊的午後");
+  await expect(page.locator("#plantNote")).toContainText("窗邊的午後");
+  await page.mouse.click(spot.x, spot.y); // the second tap stops it
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
+  await page.evaluate(() => window.__room.playMusic()); // the next start plays the next piece
+  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("週日慢慢過");
+  await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
 });
