@@ -1025,6 +1025,17 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const zz of [z - 0.16, z + 0.15]) slab("steel", [1.56, 2.11], [y + 0.006, y + 0.025], [zz, zz + 0.012]);
     part("steel", tubeGeometry([[1.88, y + 0.018, z - 0.2], [1.88, y + 0.18, z - 0.2], [1.88, y + 0.24, z - 0.13], [1.88, y + 0.18, z - 0.055]], 0.009, 16, 6), { tile: 1 });
     part("steel", new THREE.CylinderGeometry(0.015, 0.015, 0.016, 12).translate(1.77, y + 0.01, z - 0.19), { tile: 1 });
+    // A drain and a small working set make the wash area read as a used cafe sink, without another material or draw call.
+    part("steel", new THREE.TorusGeometry(0.023, 0.003, 5, 18).rotateX(Math.PI / 2).translate(1.84, y + 0.009, z), { tile: 1 });
+    for (const dx of [-0.009, 0, 0.009]) part("steel", rodGeometry([1.84 + dx, y + 0.009, z - 0.012], [1.84 + dx, y + 0.009, z + 0.012], 0.0015, 5), { tile: 1 });
+    part("oakDeep", new THREE.CylinderGeometry(0.029, 0.032, 0.102, 16).translate(2.19, y + 0.053, z - 0.11), { tile: 1 });
+    part("paper", new THREE.CylinderGeometry(0.0305, 0.031, 0.031, 16, 1, true).translate(2.19, y + 0.049, z - 0.11), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.019, 0.019, 0.012, 12).translate(2.19, y + 0.111, z - 0.11), { tile: 1 });
+    part("steel", rodGeometry([2.19, y + 0.117, z - 0.11], [2.19, y + 0.143, z - 0.11], 0.003, 6), { tile: 1 });
+    part("steel", rodGeometry([2.19, y + 0.143, z - 0.11], [2.16, y + 0.143, z - 0.11], 0.003, 6), { tile: 1 });
+    slab("leafDark", [2.13, 2.205], [y + 0.002, y + 0.015], [z + 0.08, z + 0.135], { tile: 1 });
+    slab("paper", [2.134, 2.201], [y + 0.015, y + 0.019], [z + 0.083, z + 0.132], { tile: 1 });
+    slab("paper", [1.41, 1.52], [y + 0.002, y + 0.009], [z + 0.055, z + 0.14], { tile: 1 });
     // Three water glasses at the far right, spaced away from the wash basin.
     for (const x of [2.28, 2.47, 2.66]) part("glass", new THREE.CylinderGeometry(0.038, 0.031, 0.085, 12, 1, true).translate(x, y + 0.043, z), { tile: 1 });
     // A dry wiping cloth and two hooks below the menus, above the countertop.
