@@ -1,0 +1,4 @@
+Piano samples: "Salamander Grand Piano" (a Yamaha C5) recorded by Alexander Holm.
+Licensed under Creative Commons Attribution 3.0 Unported (CC BY 3.0): http://creativecommons.org/licenses/by/3.0/
+Source: https://github.com/sfzinstruments/SalamanderGrandPiano ; the MP3 files here were taken from https://github.com/Tonejs/audio (salamander folder) unchanged, a subset (every third semitone from A2 to F#6).
+The credit also appears on the Room 01 and Room 04 pages.

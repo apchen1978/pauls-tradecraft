@@ -3062,23 +3062,23 @@ let lanternMat = null;
   let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now(), musicStopped = false, musicAuto = false;
   const musicOptions = { playlist: true, onTrack: (index) => { musicTrack = index; if (roomMusic.state().playing) showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[index], 5000); } }; // the two pieces follow one another; each change shows its line
   const MUSIC_LINES = {
-    zh: ["♪ 窗邊的午後。🎹 輕輕的鋼琴，開著聲音聽聽看。", "♪ 週日慢慢過。🎶 兩首會一直接著放，點喇叭就停。"],
-    en: ["♪ Afternoon at the window. 🎹 Soft piano, turn the sound on.", "♪ A Sunday, slowly. 🎶 The two pieces play on; tap a speaker to stop."],
-    auto: { zh: "♪ 電視喇叭輕輕放著鋼琴。點喇叭可以關掉。", en: "♪ Soft piano from the TV speakers. Tap a speaker to turn it off." },
+    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴，開著聲音聽聽看。點喇叭就停。", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。點喇叭就停。"],
+    en: ["♪ Afternoon at the window. 🎹 Bright piano, turn the sound on. Tap a speaker to stop.", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap a speaker to stop."],
+    auto: { zh: "♪ 電視喇叭輕輕放著音樂。點喇叭可以關掉。", en: "♪ Music from the TV speakers. Tap a speaker to turn it off." },
     hint: { zh: "電視櫃旁的喇叭會唱歌，點一下聽聽看 🎶", en: "The speakers by the TV can play music: tap one 🎶" },
   };
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
   function toggleMusic() {
     musicHinted = true;
     if (roomMusic.state().playing) { roomMusic.stop(); musicStopped = true; /* switched off by hand: it never starts by itself again */ clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
-    musicTrack = (musicTrack + 1) % 2;
+    musicTrack = state.mood === "tv" ? 1 : 0; // series night plays the cinematic piece, every other mood the bright one
     if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES[state.lang] || MUSIC_LINES.zh)[musicTrack], 6000); } /* no time limit */
   }
   // Series night and the TV wall (Paul, 2026-11-16): when the mood is series night, or the TV wall is the view, the speakers start the quiet piano by themselves, once per visit, from the visitor's
   // next tap or drag (browsers only allow sound after one). It starts the slow piece, stops after 60 s like the other start, and never starts again once the visitor has switched it off.
   function autoMusic() {
     if (musicAuto || musicStopped || roomMusic.state().playing || document.hidden || (state.mood !== "tv" && currentView !== "tv")) return;
-    musicAuto = true; musicHinted = true; musicTrack = 1;
+    musicAuto = true; musicHinted = true; musicTrack = state.mood === "tv" ? 1 : 0;
     if (roomMusic.start(musicTrack, musicOptions)) { showCaption((MUSIC_LINES.auto[state.lang] || MUSIC_LINES.auto.zh), 7000); } /* no time limit */
   }
   window.addEventListener("pointerup", () => autoMusic(), { passive: true });
