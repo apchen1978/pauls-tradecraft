@@ -1,8 +1,8 @@
 // Room 01's music (Paul, 2026-11-16: the living room has speakers but plays nothing; light music is welcome, it need not be jazz, and it must be original. Same day: add a little jazz and
 // low-mid body. 2026-11-17: it still sounded like MIDI and thin next to Room 04, so make it richer and less repetitive).
 // Two calm pieces made entirely with the browser's own audio synthesis: no sound files, no samples, nothing borrowed. Everything is written here note by note.
-//   Track 1 "窗邊的午後": C major, 72 beats a minute, a light swing. Eight bars: Cmaj9, Am9, Dm9, G13, then Em7, A7, Dm9, G7 back to the start.
-//   Track 2 "週日慢慢過": F major, 62 beats a minute, slower and sparser. Eight bars: Fmaj9, Gm9, C13, Fmaj9, then Bbmaj9, Am7, Gm9, C13.
+//   Track 1 "窗邊的午後": C major, 76 beats a minute, a light swing. Eight bars, all major chords: Cmaj9, Fmaj9, Cadd9, G6/9, then Fmaj9, Cadd9, D9, G7 back to the start.
+//   Track 2 "週日慢慢過": F major, 66 beats a minute, relaxed and flowing. Eight bars, all major chords: Fmaj9, Bbmaj9, Fmaj9, C6/9, then Bbmaj9, Fmaj9, G9, C13.
 // What makes it less MIDI-like: a room reverb (a synthetic impulse response), a soft compressor that glues the band, an electric piano with a fast-fading tine over a warm body, a breathy
 // muted-horn lead that scoops into its notes and adds vibrato after a moment, chords that are strummed rather than struck, a walking bass with a round tone, a whisper of ride and brushes,
 // a very faint vinyl hiss and a few pops, small random timing and loudness differences, and stereo placement. The melody is a written eight-bar phrase, not random notes.
@@ -10,33 +10,35 @@
 // each new start plays the next track.
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 16; // playlist mode (Paul, 2026-11-17): each piece plays its eight bars twice (about a minute), then the other follows with no gap, until the visitor stops it or leaves
 const TRACKS = [
-  { title: "窗邊的午後", bpm: 72, swing: 0.22,
+  // Both pieces are in a major key and stay in major chords (Paul, 2026-11-17: the first version was gloomy; the living room should be bright and sunny): I, IV and V with major sevenths, added ninths, sixes
+  // and dominant nines, no minor chords. The melodies are written phrases that rise in the first half and fall back in the second, built from the major scale, mostly by step with a few leaps.
+  { title: "窗邊的午後", bpm: 76, swing: 0.1,
     bars: [
-      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0.5, 79, 1.0], [2, 76, 0.75], [3, 74, 0.5], [3.5, 72, 1.0]] },        // Cmaj9
-      { walk: [33, 36, 40, 43], chord: [48, 52, 55, 59], tune: [[1, 76, 1.0], [2.5, 72, 0.5], [3, 71, 0.5], [3.5, 69, 0.5]] },          // Am9
-      { walk: [38, 41, 45, 48], chord: [53, 57, 60, 64], tune: [[0.5, 77, 1.5], [2.5, 81, 0.75], [3.5, 79, 0.5]] },                     // Dm9
-      { walk: [43, 47, 50, 53], chord: [53, 59, 62, 64], tune: [[0, 77, 1.0], [1.5, 74, 0.5], [2, 76, 1.5]] },                          // G13
-      { walk: [40, 43, 47, 50], chord: [55, 59, 62, 64], tune: [[0.5, 79, 1.0], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 1.0]] },          // Em7
-      { walk: [33, 37, 40, 43], chord: [55, 61, 64, 66], tune: [[0, 76, 0.75], [1, 73, 0.75], [2, 76, 0.5], [3, 79, 1.0]] },            // A7
-      { walk: [38, 41, 45, 48], chord: [53, 57, 60, 64], tune: [[0.5, 77, 1.0], [2, 76, 0.5], [2.5, 74, 1.5]] },                        // Dm9
-      { walk: [43, 47, 50, 47], chord: [53, 59, 62, 67], tune: [[0, 71, 1.0], [1.5, 74, 0.5], [2.5, 77, 0.5], [3.5, 76, 1.0]] },        // G7
+      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 79, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 76, 1], [3, 79, 1]] },           // Cmaj9: G A G E G, a sunny opening
+      { walk: [41, 45, 48, 52], chord: [57, 60, 64, 67], tune: [[0, 81, 1], [1, 84, 1], [2, 81, 0.5], [2.5, 79, 0.5], [3, 77, 1]] },          // Fmaj9: up to the C, a step-wise fall
+      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 76, 1.5], [1.5, 79, 0.5], [2, 81, 1], [3, 79, 1]] },                      // Cadd9: E G A G
+      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 74, 1], [1, 79, 1], [2, 83, 1.5], [3.5, 81, 0.5]] },                      // G6/9: D G B, reaching the high B
+      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 81, 0.5], [2, 77, 1], [3, 81, 1]] },                      // Fmaj9: the second phrase starts high
+      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 84, 1], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 1]] },          // Cadd9: G C B A G
+      { walk: [38, 42, 45, 48], chord: [54, 57, 60, 64], tune: [[0, 78, 1], [1, 81, 1], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // D9: a bright lift to the high D
+      { walk: [43, 47, 50, 47], chord: [53, 59, 62, 67], tune: [[0, 83, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 77, 1], [3, 76, 1]] },          // G7: B A G F E, falling home
     ] },
-  { title: "週日慢慢過", bpm: 62, swing: 0.24,
+  { title: "週日慢慢過", bpm: 66, swing: 0.16,
     bars: [
-      { walk: [41, 45, 48, 52], chord: [57, 60, 64, 67], tune: [[0.5, 81, 2.0], [3, 79, 1.0]] },                                        // Fmaj9
-      { walk: [43, 46, 50, 53], chord: [58, 62, 65, 69], tune: [[0, 77, 1.5], [2, 74, 2.0]] },                                          // Gm9
-      { walk: [36, 40, 43, 46], chord: [58, 62, 64, 69], tune: [[0.5, 76, 1.5], [2.5, 81, 1.5]] },                                      // C13
-      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 79, 2.0], [2.5, 77, 1.5]] },                                        // Fmaj9
-      { walk: [34, 38, 41, 45], chord: [62, 65, 69, 72], tune: [[0.5, 81, 1.0], [2, 77, 1.0], [3, 74, 1.0]] },                          // Bbmaj9
-      { walk: [33, 36, 40, 43], chord: [55, 60, 64, 67], tune: [[0.5, 76, 1.5], [2.5, 72, 1.5]] },                                      // Am7
-      { walk: [43, 46, 50, 46], chord: [58, 62, 65, 69], tune: [[0, 74, 1.0], [1.5, 77, 1.0], [3, 81, 1.0]] },                          // Gm9
-      { walk: [36, 40, 43, 46], chord: [58, 62, 64, 69], tune: [[0.5, 79, 1.5], [2.5, 76, 1.5]] },                                      // C13
+      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 84, 0.5], [2, 81, 1], [3, 79, 1]] },                      // Fmaj9: A C A G
+      { walk: [34, 38, 41, 45], chord: [62, 65, 69, 72], tune: [[0, 77, 1], [1, 81, 1], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // Bbmaj9: F A D C
+      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1], [1, 79, 0.5], [1.5, 77, 0.5], [2, 79, 1], [3, 81, 1]] },          // Fmaj9: a small wave
+      { walk: [36, 40, 43, 40], chord: [55, 62, 64, 69], tune: [[0, 79, 1.5], [1.5, 81, 0.5], [2, 84, 2]] },                                  // C6/9: climbs and holds the C
+      { walk: [34, 38, 41, 45], chord: [62, 65, 69, 72], tune: [[0, 86, 1], [1, 84, 1], [2, 81, 1], [3, 77, 1]] },                            // Bbmaj9: a long descent, the flow of the piece
+      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 79, 0.5], [2, 77, 1], [3, 79, 1]] },                      // Fmaj9
+      { walk: [43, 47, 50, 47], chord: [59, 62, 65, 69], tune: [[0, 83, 1], [1, 81, 1], [2, 79, 1], [3, 77, 1]] },                            // G9: B A G F
+      { walk: [36, 40, 43, 46], chord: [58, 62, 64, 69], tune: [[0, 76, 1.5], [1.5, 79, 0.5], [2, 81, 1], [3, 82, 1]] },                      // C13: climbs back to the start
     ] },
 ];
 
 // instrument recipes: [frequency ratio, level, wave, how much of the note's length the partial lasts (1 = all of it)]
 const EPIANO = { partials: [[1, 0.6, "sine", 1], [1.003, 0.5, "sine", 1], [2, 0.22, "sine", 0.45], [3, 0.07, "triangle", 0.25], [7, 0.035, "sine", 0.12]], attack: 0.008, lowpass: 2800 };
-const LEAD = { partials: [[1, 0.8, "triangle", 1], [1, 0.3, "sawtooth", 1], [2, 0.12, "sine", 1]], attack: 0.05, lowpass: 1700, vibrato: 16, scoop: 0.018 };
+const LEAD = { partials: [[1, 0.8, "triangle", 1], [1, 0.3, "sawtooth", 1], [2, 0.12, "sine", 1]], attack: 0.035, lowpass: 2000, vibrato: 14, scoop: 0.015 };
 const BASS = { partials: [[1, 1, "sine", 1], [2, 0.28, "triangle", 0.5], [3, 0.06, "sine", 0.3]], attack: 0.015, lowpass: 700 };
 const PAD = { partials: [[1, 0.7, "triangle", 1], [1.004, 0.6, "triangle", 1]], lowpass: 900 };
 
@@ -53,7 +55,7 @@ export function createRoomMusic() {
     for (const [ratio, level, wave, lasts] of recipe.partials) {
       const osc = ctx.createOscillator(), g = ctx.createGain(), f = hz(midi) * ratio;
       osc.type = wave; osc.detune.value = (rnd() - 0.5) * 8;
-      if (recipe.scoop) { osc.frequency.setValueAtTime(f * (1 - recipe.scoop), time); osc.frequency.exponentialRampToValueAtTime(f, time + 0.06); } else osc.frequency.value = f;
+      if (recipe.scoop) { osc.frequency.setValueAtTime(f * (1 - recipe.scoop), time); osc.frequency.exponentialRampToValueAtTime(f, time + 0.04); } else osc.frequency.value = f;
       g.gain.setValueAtTime(level, time); if (lasts < 1) g.gain.exponentialRampToValueAtTime(level * 0.002, time + length * lasts);
       if (recipe.vibrato) { const lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 5.2 + rnd() * 0.6; depth.gain.setValueAtTime(0, time); depth.gain.linearRampToValueAtTime(recipe.vibrato, time + 0.3); lfo.connect(depth); depth.connect(osc.detune); lfo.start(time); lfo.stop(time + length + 0.05); }
       osc.connect(g); g.connect(out); osc.start(time); osc.stop(time + length + 0.05);
@@ -84,7 +86,7 @@ export function createRoomMusic() {
     for (const midi of bar.chord.slice(0, 3)) note(t0, midi, PAD, 0.016, barLength * 1.1, barIndex % 2 ? 0.45 : -0.45); // a slow pad under it all, swapping sides each bar
     tick(t0 + beat, 0.022, 5200, 0.17); tick(t0 + 3 * beat, 0.022, 5200, 0.17); // brushes on two and four
     for (const at of [0, 1, 1.66, 2, 3, 3.66]) tick(t0 + at * beat + jitter(5), vary(0.011), 7600, 0.09); // a whisper of ride: the classic skip pattern
-    for (const [at, midi, length] of bar.tune) note(t0 + swung(at) * beat + jitter(10), midi, LEAD, vary(0.075), beat * (length + 0.5), 0.22); // the melody, a little to the right
+    for (const [at, midi, length] of bar.tune) note(t0 + swung(at) * beat + jitter(4), midi, LEAD, vary(0.075) * (Number.isInteger(at) ? 1.05 : 0.88), beat * (length + 0.3), 0.22); // the melody, a little to the right
     barIndex += 1; nextTime += barLength;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
