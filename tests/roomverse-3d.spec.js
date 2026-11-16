@@ -1604,3 +1604,19 @@ test("Room 01 the music plays on: one tap keeps the piece going on the real pian
   await expect.poll(async () => (await state()).playing).toBe(false);
   expect(errors).toEqual([]);
 });
+
+test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and fine stripes on both side walls; another wall brings plain side walls back", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.wallInfo())).backMap, { timeout: 20000, message: "the wallpaper loads" }).toBe(true);
+  const info = await page.evaluate(() => window.__room.wallInfo());
+  expect(info.wall).toBe("botanical"); expect(info.sideMap).toBe(true); expect(info.entrySideMap).toBe(true);
+  await page.evaluate(() => window.__room.set("wall", "softwhite"));
+  const plain = await page.evaluate(() => window.__room.wallInfo());
+  expect(plain.backMap).toBe(false); expect(plain.sideMap).toBe(false); expect(plain.entrySideMap).toBe(false);
+  await page.evaluate(() => window.__room.set("wall", "botanical"));
+  expect((await page.evaluate(() => window.__room.wallInfo())).sideMap).toBe(true);
+  expect(errors).toEqual([]);
+});
