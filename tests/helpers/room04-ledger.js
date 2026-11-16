@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207410, meshes: 139 }),
+  scene: Object.freeze({ vertices: 207414, meshes: 140 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 64, phone: 59 }),
+  openingDrawCalls: Object.freeze({ desktop: 65, phone: 59 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   // Paul, 2026-11-16: the room may grow to 200,000-230,000 vertices and 144-150 meshes; the caps take the top of that range. Phones are still checked by the draw-call caps.
   caps: Object.freeze({ vertices: 230000, meshes: 150, desktopCalls: 115, phoneCalls: 105 }),
@@ -93,5 +93,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-16", change: "Shanghai night and slow day: a neon sign (red 上海慢板 with cyan tubes, one additive plane) above the menu boards that glows in rain, closing and series night and hums with a rare flicker; the sun breathes about 4% over a 12 s breath in day moods; a third record 夜色外灘 (a slow night-Bund jazz with a muted-trumpet style lead) that plays first when the visitor starts the record at night", vertices: 207406, meshes: 138, desktopCalls: 64, phoneCalls: 57 },
     { date: "2026-11-17", change: "the neon sign now glows on the brick: one big soft pink wash (a 256 x 128 texture on a 3.4 m additive plane, 4 vertices) behind the sign, shown with it in rain, closing and series night; the opening view (golden hour) does not draw it", vertices: 207410, meshes: 139, desktopCalls: 64, phoneCalls: 57 },
     { date: "2026-11-17", change: "mobile opening turns slightly toward the right street window, keeping both windows and the cat corner visible; camera culling adds two opening draw calls, with no geometry change", vertices: 207410, meshes: 139, desktopCalls: 64, phoneCalls: 59 },
+    { date: "2026-11-17", change: "the graphite entrance mat carries a subtle 歡迎光臨 print on one transparent plane; four vertices and one mesh, adding one desktop opening draw call", vertices: 207414, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
   ]),
 });
