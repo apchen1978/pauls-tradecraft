@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207402, meshes: 138 }),
+  scene: Object.freeze({ vertices: 207402, meshes: 137 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 65, phone: 58 }),
+  openingDrawCalls: Object.freeze({ desktop: 64, phone: 57 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   // Paul, 2026-11-16: the room may grow to 200,000-230,000 vertices and 144-150 meshes; the caps take the top of that range. Phones are still checked by the draw-call caps.
   caps: Object.freeze({ vertices: 230000, meshes: 150, desktopCalls: 115, phoneCalls: 105 }),
@@ -89,5 +89,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-16", change: "mesh diet 1 (Paul: diet first): the four left-wall boxes (same plaster) become one mesh, the TV frame and the soundbar (both black) become one mesh, and the three contact-shadow planes (counter, back bar, furniture) become one mesh whose planes carry their own opacity as vertex alpha. 6 meshes and 4 opening draw calls fewer; the picture is the same (pixel comparison of eight views: 0.00-0.15% of pixels differ, all on animated things)", vertices: 207402, meshes: 140, desktopCalls: 65, phoneCalls: 58 },
     { date: "2026-11-16", change: "tone pass outside the Lounge (Paul): the default plaster (wall look warm) goes from a grey-white 0xf1ece2 to a warm oat 0xf1e3cd, so the window seat, the entry and the middle views are no longer cold; the Lounge feature wall tint is eased (0xe6cfb2 -> 0xeddcc3) so it stays one step deeper instead of going caramel; colours only, no geometry", vertices: 207402, meshes: 140, desktopCalls: 65, phoneCalls: 58 },
     { date: "2026-11-16", change: "mesh diet 2: the I love SH poster, the Employee of the Month notice and the magazine covers are drawn on one shared 1024 x 1024 canvas (each in its own rectangle with a gap so mipmaps do not bleed) and drawn as one mesh: 2 meshes fewer, about the same texture memory as three separate canvases; the picture is the same", vertices: 207402, meshes: 138, desktopCalls: 65, phoneCalls: 58 },
+    { date: "2026-11-16", change: "mesh diet 3: the apron under the window sill (the same white trim) joins the skirting mesh. Plus the slow record: the record player now plays a short slow jazz loop made with the browser's own audio synthesis (sound.js, no files), started by the tap on the record player", vertices: 207402, meshes: 137, desktopCalls: 64, phoneCalls: 57 },
   ]),
 });

@@ -3,6 +3,7 @@ import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { loadModel } from "../bedroom/models.js?v=auto";
 import { auditRoom04 } from "./physics-audit.js?v=auto";
+import { createRoomSound } from "./sound.js?v=auto";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai; the room opens at golden hour, standing just inside the door.
 // Look brief approved by Paul on 2026-11-13 (original arrival = morning white light, since changed to golden hour by Paul on 2026-11-15; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
@@ -670,7 +671,6 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   add("window-glass", new THREE.PlaneGeometry(wz, wy), materials.pane, GLASS_X, (WINDOW.y0 + WINDOW.y1) / 2, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false }).rotation.y = Math.PI / 2;
   // An oak sill that sticks 7 cm into the room, and a thin apron under it, so the window reads as built into a thick wall.
   box("window-sill", materials.oak, [X0 - 0.11, X0 + 0.07], [WINDOW.y0 - 0.035, WINDOW.y0 + 0.005], [WINDOW.z0 - 0.06, WINDOW.z1 + 0.06]);
-  box("window-apron", materials.trim, [X0, X0 + 0.02], [WINDOW.y0 - 0.14, WINDOW.y0 - 0.035], [WINDOW.z0 - 0.02, WINDOW.z1 + 0.02]);
   // The painted street (Codex card 45) hangs 1.35 m outside the wall: far enough to read as a street, near enough to fill the opening from where the visitor stands.
   const streetW = 4.5, streetH = streetW / 1.5;
   const street = add("window-street-view", new THREE.PlaneGeometry(streetW, streetH), materials.street, X0 - 1.35, (WINDOW.y0 + WINDOW.y1) / 2 + 0.05, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false });
@@ -680,6 +680,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const addSkirt = (x0, x1, z0, z1) => skirting.push(new THREE.BoxGeometry(x1 - x0, skirtH, z1 - z0).translate((x0 + x1) / 2, skirtH / 2, (z0 + z1) / 2));
   addSkirt(X0, X0 + skirtT, BACK, FRONT + 1.2); addSkirt(X1 - skirtT, X1, BACK, FRONT + 1.2);
   addSkirt(X0, BACK_BAR.x0, BACK, BACK + skirtT); addSkirt(BACK_BAR.x1, X1, BACK, BACK + skirtT);
+  { const [ax0, ax1, ay0, ay1, az0, az1] = [X0, X0 + 0.02, WINDOW.y0 - 0.14, WINDOW.y0 - 0.035, WINDOW.z0 - 0.02, WINDOW.z1 + 0.02]; // the apron under the window sill is the same white trim: one mesh with the skirting (the mesh diet)
+    skirting.push(new THREE.BoxGeometry(ax1 - ax0, ay1 - ay0, az1 - az0).translate((ax0 + ax1) / 2, (ay0 + ay1) / 2, (az0 + az1) / 2)); }
   add("skirting", mergeGeometries(skirting), materials.trim, 0, 0, 0);
 
   // ---------- counter and back bar (section 2) ----------
@@ -1352,14 +1354,15 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
   const ARM_REST = 0.28, ARM_PLAY = 2.34;
   const setArm = (value) => { armPivot.rotation.y = value; };
+  const roomSound = createRoomSound(); // the slow record (sound.js): it starts inside the tap on the record player and stops with it
   const stopRecordPlayback = () => {
     if (!recordPlaying) return false;
-    recordPlaying = false; robotFace.setMusic(false); clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
+    recordPlaying = false; roomSound.stop(); robotFace.setMusic(false); clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
     recordRaf = 0; setArm(ARM_REST); greeter.local.rotation.x = 0; render(); return true;
   };
   const playRecord = () => {
     if (recordPlaying) return false;
-    recordPlaying = true; robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordPlaying = true; roomSound.start(); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
     recordTimer = setTimeout(stopRecordPlayback, 30000);
     const reduced = reducedMotion();
     const tick = (now) => {
@@ -3063,6 +3066,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const step = (now) => { if (run !== hopRun) return; dirtyShadows(); const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; dirtyShadows(); render(); } };
     requestAnimationFrame(step);
   }
+  document.addEventListener("visibilitychange", () => { if (document.hidden) stopRecordPlayback(); }); // the music stops when the page is hidden
   const onRenderHooks = [];
   // A small FPS read-out that appears only with ?perf=1 in the address (for measuring on a real phone; nothing is shown or run otherwise). The room draws on demand, so the number is the
   // rate while something moves: drag or flick the view, or let the glide, the dust or a mood change run, then read it. It also shows the draw calls, triangles and lights.
@@ -3240,6 +3244,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     floorLampLight: () => floorLampLight.intensity,
+    soundState: () => roomSound.state(),
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
