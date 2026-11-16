@@ -104,7 +104,9 @@ const $ = (id) => document.getElementById(id);
 const viewButtons = $("views");
 function updateViewScrollHint() {
   const canScroll = viewButtons.scrollWidth > viewButtons.clientWidth + 1;
-  viewButtons.classList.toggle("has-more", canScroll && viewButtons.scrollLeft <= 8);
+  const showHint = canScroll && viewButtons.scrollLeft <= 8;
+  viewButtons.classList.toggle("has-more", showHint);
+  $("viewScrollHint").hidden = !showHint;
 }
 viewButtons.addEventListener("scroll", updateViewScrollHint, { passive: true });
 window.addEventListener("resize", updateViewScrollHint);
@@ -157,6 +159,7 @@ function renderMoods() {
 }
 function renderCopy() {
   const copy = COPY[lang];
+  $("viewScrollHint").textContent = lang === "en" ? "Swipe for more →" : "左滑看更多 →";
   document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
   document.title = `${ROOM_TITLE} · ROOMVERSE 3D`;
   $("enter").textContent = copy.enter;

@@ -91,6 +91,8 @@
       .room { margin:0 8px; height:clamp(360px,100vw,450px); min-height:360px; border-radius:14px; }
       .view-buttons { right:0; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; overscroll-behavior-inline:contain; scrollbar-width:none; padding-right:10px; touch-action:pan-x; }
       .view-buttons.has-more::after { content:"›"; position:absolute; inset:0 0 0 auto; display:flex; align-items:center; justify-content:flex-end; box-sizing:border-box; width:30px; padding-right:5px; pointer-events:none; background:linear-gradient(90deg,transparent,rgba(58,42,31,.9)); color:#fff; font:700 18px/1 system-ui,sans-serif; }
+      .view-scroll-hint { position:absolute; z-index:4; top:62px; right:10px; padding:5px 9px; border-radius:999px; background:#3a2a1fe8; color:#fff; font:600 12px/1.2 system-ui,sans-serif; pointer-events:none; }
+      .view-scroll-hint[hidden], .is-immersive .view-scroll-hint { display:none; }
       .view-buttons::-webkit-scrollbar { display:none; }
       .view-buttons button { flex:none; white-space:nowrap; }
       .note { padding:10px 14px 28px; }
@@ -117,6 +119,7 @@
       <div id="poster" class="poster"><button id="enter" type="button">走進咖啡廳</button></div>
       <p id="status" class="status" role="status" hidden></p>
       <div class="view-buttons" id="views" role="group"><button class="center-view" data-view="counter" type="button" aria-pressed="true" hidden></button><button class="center-view" data-view="window" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="lounge" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="entry" type="button" aria-pressed="false" hidden></button><button class="center-view" id="centerView" data-view="middle" type="button" aria-pressed="false" hidden></button></div>
+      <span class="view-scroll-hint" id="viewScrollHint" hidden></span>
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
       <div class="immersive-exits" id="immersiveExits"><button id="immersiveDoor" data-travel-door-trigger type="button"></button></div>
