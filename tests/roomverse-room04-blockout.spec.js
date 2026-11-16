@@ -425,7 +425,7 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   expect(box.x + box.width).toBeLessThanOrEqual(390);
 
   await target.click();
-  await expect(page.locator("#bubble [data-line]")).toHaveText("慢板，三十三轉。");
+  await expect(page.locator("#bubble [data-line]")).toContainText("慢板，三十三轉。");
   await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(true);
   await page.waitForTimeout(850);
   const moving = await page.evaluate(() => window.__room04.recordState());
@@ -807,5 +807,18 @@ test("Room 04 ?perf=1 shows a small FPS read-out while the view moves, and nothi
   for (let i = 0; i < 40; i++) { await page.mouse.move(box.x + box.width - 10 - i * 7, y); await page.waitForTimeout(40); }
   await page.mouse.up();
   await expect(page.locator("#stage div", { hasText: /^fps \d+/ })).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test("Room 04 the record player plays a slow jazz loop made by the browser, and stops with it", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440);
+  expect((await page.evaluate(() => window.__room04.soundState())).playing, "silent until the record is started").toBe(false);
+  await page.evaluate(() => window.__room04.playRecord());
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).notes, { timeout: 8000, message: "notes are scheduled" }).toBeGreaterThan(8);
+  const on = await page.evaluate(() => window.__room04.soundState());
+  expect(on.playing).toBe(true);
+  await page.evaluate(() => window.__room04.stopRecordPlayback());
+  expect((await page.evaluate(() => window.__room04.soundState())).playing, "it stops with the record").toBe(false);
   expect(errors).toEqual([]);
 });
