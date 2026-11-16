@@ -642,10 +642,12 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   box("brick-wall", materials.brick, [X0, X1], [0, ROOM.height], [BACK - 0.1, BACK]);
   box("right-wall", materials.wallFeature, [X1, X1 + 0.1], [0, ROOM.height], [BACK, FRONT + 1.2]);
   // The left wall is four pieces around the window opening, so the sun really comes through the hole and the wall shades the rest.
-  box("left-wall-below", materials.wall, [X0 - LEFT_WALL, X0], [0, WINDOW.y0], [BACK, FRONT + 1.2]);
-  box("left-wall-above", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y1, ROOM.height], [BACK, FRONT + 1.2]);
-  box("left-wall-back", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y0, WINDOW.y1], [BACK, WINDOW.z0]);
-  box("left-wall-front", materials.wall, [X0 - LEFT_WALL, X0], [WINDOW.y0, WINDOW.y1], [WINDOW.z1, FRONT + 1.2]);
+  { // the left wall around the street window: four boxes of the same plaster, drawn as one mesh (the mesh diet, 2026-11-16)
+    const pieces = [[[0, WINDOW.y0], [BACK, FRONT + 1.2]], [[WINDOW.y1, ROOM.height], [BACK, FRONT + 1.2]], [[WINDOW.y0, WINDOW.y1], [BACK, WINDOW.z0]], [[WINDOW.y0, WINDOW.y1], [WINDOW.z1, FRONT + 1.2]]].map(([[y0, y1], [z0, z1]]) => {
+      const g = new THREE.BoxGeometry(LEFT_WALL, y1 - y0, z1 - z0).translate(X0 - LEFT_WALL / 2, (y0 + y1) / 2, (z0 + z1) / 2); worldUVs(g, 1); return g;
+    });
+    add("left-wall", mergeGeometries(pieces), materials.wall, 0, 0, 0);
+  }
   // Black steel glazing: an outer frame, two uprights and one rail, 5 cm wide and 6 cm deep, set at the glass plane inside the reveal.
   const wz = WINDOW.z1 - WINDOW.z0, wy = WINDOW.y1 - WINDOW.y0, GLASS_X = X0 - 0.11, bar = 0.05, barDepth = 0.06;
   const bars = [];
@@ -865,9 +867,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
   // Soft contact shadows on the floor under the counter and the back bar.
   const contactTexture = makeContactShadowTexture();
+  const bigContactPlanes = []; // the counter and back-bar shadows join the furniture shadows in one mesh (the mesh diet, 2026-11-16); each plane carries its own opacity as vertex alpha
   const contact = (name, x0, x1, z0, z1, opacity) => {
-    const mesh = add(name, new THREE.PlaneGeometry(x1 - x0, z1 - z0), new THREE.MeshBasicMaterial({ map: contactTexture, transparent: true, opacity, depthWrite: false, color: 0x000000 }), (x0 + x1) / 2, 0.004, (z0 + z1) / 2, { cast: false, receive: false });
-    mesh.rotation.x = -Math.PI / 2; mesh.renderOrder = 1;
+    bigContactPlanes.push({ geometry: new THREE.PlaneGeometry(x1 - x0, z1 - z0).rotateX(-Math.PI / 2).translate((x0 + x1) / 2, 0.004, (z0 + z1) / 2), opacity });
   };
   contact("counter-contact-shadow", c.x0 - 0.35, c.x1 + 0.35, c.z0 - 0.35, c.z1 + 0.45, 0.5);
   contact("back-bar-contact-shadow", bb.x0 - 0.3, bb.x1 + 0.3, BACK - 0.05, bbFront + 0.4, 0.42);
@@ -2009,11 +2011,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   })();
   materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0xffffff, map: tvGlass, roughness: 0.16, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
   { const TV = { z0: -0.15, z1: 1.05, y0: 1.16, y1: 1.84 }, TX = X1 - 0.05;
-    box("tv-frame", materials.black, [TX, X1 - 0.005], [TV.y0 - 0.012, TV.y1 + 0.012], [TV.z0 - 0.012, TV.z1 + 0.012], { cast: false });
+    const tvBox = ([x0, x1], [y0, y1], [z0, z1]) => new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    add("tv-frame", mergeGeometries([tvBox([TX, X1 - 0.005], [TV.y0 - 0.012, TV.y1 + 0.012], [TV.z0 - 0.012, TV.z1 + 0.012]), tvBox([TX + 0.005, X1 - 0.005], [TV.y0 - 0.075, TV.y0 - 0.04], [0.05, 0.85])]), materials.black, 0, 0, 0, { cast: false }); // the frame and the slim soundbar under it
     const screen = add("tv-screen", new THREE.PlaneGeometry(TV.z1 - TV.z0, TV.y1 - TV.y0), materials.tvScreen, TX - 0.002, (TV.y0 + TV.y1) / 2, (TV.z0 + TV.z1) / 2, { cast: false, receive: false });
     screen.rotation.y = -Math.PI / 2;
-    // a slim soundbar under it
-    box("tv-soundbar", materials.black, [TX + 0.005, X1 - 0.005], [TV.y0 - 0.075, TV.y0 - 0.04], [0.05, 0.85], { cast: false });
   }
   // Codex's three series-night stills (card 51 A), one chosen at random the first time series night is opened; until it loads the stand-in picture stays.
   const TV_STILLS = ["room04-tv-s1-rain-street.webp", "room04-tv-s2-rooftop.webp", "room04-tv-s3-window.webp"], tvStillCache = {};
@@ -2737,8 +2738,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   scene.add(...Object.values(stoolSets)); for (const [name, set] of Object.entries(stoolSets)) set.visible = name === DEFAULT_LOOK.stool;
   for (const [x, z] of [[-1.2, 0.18], [-0.45, 0.2], [0.65, 0.18], [1.75, 0.2]]) addContactShadow(x, z + counterShift(x), 0.46, 0.46);
-  const contactShadows = add("furniture-contact-shadows", mergeGeometries(contactShadowPlanes),
-    new THREE.MeshBasicMaterial({ map: makeContactShadowTexture(), color: 0x000000, transparent: true, opacity: 0.6, depthWrite: false }), 0, 0, 0,
+  const shadowPieces = [...bigContactPlanes, ...contactShadowPlanes.map((geometry) => ({ geometry, opacity: 0.6 }))].map(({ geometry, opacity }) => {
+    const g = geometry.index ? geometry : geometry; const n = g.attributes.position.count, rgba = new Float32Array(n * 4);
+    for (let i = 0; i < n; i++) rgba[i * 4 + 3] = opacity;
+    g.setAttribute("color", new THREE.BufferAttribute(rgba, 4)); return g;
+  });
+  const contactShadows = add("furniture-contact-shadows", mergeGeometries(shadowPieces),
+    new THREE.MeshBasicMaterial({ map: makeContactShadowTexture(), color: 0xffffff, vertexColors: true, transparent: true, opacity: 1, depthWrite: false }), 0, 0, 0,
     { cast: false, receive: false });
   contactShadows.renderOrder = 1;
 
