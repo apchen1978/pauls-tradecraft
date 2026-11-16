@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207406, meshes: 138 }),
+  scene: Object.freeze({ vertices: 207410, meshes: 139 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 64, phone: 57 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -91,5 +91,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-16", change: "mesh diet 2: the I love SH poster, the Employee of the Month notice and the magazine covers are drawn on one shared 1024 x 1024 canvas (each in its own rectangle with a gap so mipmaps do not bleed) and drawn as one mesh: 2 meshes fewer, about the same texture memory as three separate canvases; the picture is the same", vertices: 207402, meshes: 138, desktopCalls: 65, phoneCalls: 58 },
     { date: "2026-11-16", change: "mesh diet 3: the apron under the window sill (the same white trim) joins the skirting mesh. Plus the slow record: the record player now plays a short slow jazz loop made with the browser's own audio synthesis (sound.js, no files), started by the tap on the record player", vertices: 207402, meshes: 137, desktopCalls: 64, phoneCalls: 57 },
     { date: "2026-11-16", change: "Shanghai night and slow day: a neon sign (red 上海慢板 with cyan tubes, one additive plane) above the menu boards that glows in rain, closing and series night and hums with a rare flicker; the sun breathes about 4% over a 12 s breath in day moods; a third record 夜色外灘 (a slow night-Bund jazz with a muted-trumpet style lead) that plays first when the visitor starts the record at night", vertices: 207406, meshes: 138, desktopCalls: 64, phoneCalls: 57 },
+    { date: "2026-11-17", change: "the neon sign now glows on the brick: one big soft pink wash (a 256 x 128 texture on a 3.4 m additive plane, 4 vertices) behind the sign, shown with it in rain, closing and series night; the opening view (golden hour) does not draw it", vertices: 207410, meshes: 139, desktopCalls: 64, phoneCalls: 57 },
   ]),
 });
