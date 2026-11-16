@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 207402, meshes: 140 }),
+  scene: Object.freeze({ vertices: 207402, meshes: 138 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 65, phone: 58 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -88,5 +88,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-16", change: "Lounge colour (Paul: a designer's hand, and the sofa and armchair must read apart): the right wall is a feature wall one step deeper and warmer (clay tint of the chosen wall look); the Lounge rug opens as the terracotta, olive and cream geometric rug; the armchair gets its own fabric (petrol blue-green, a fifth colour in every colourway) so it no longer melts into the mustard pillows and the burgundy banquette; the footstool turns ochre with darker ribs. The armchair cushions are now their own merged mesh (+1)", vertices: 207402, meshes: 146, desktopCalls: 69, phoneCalls: 62 },
     { date: "2026-11-16", change: "mesh diet 1 (Paul: diet first): the four left-wall boxes (same plaster) become one mesh, the TV frame and the soundbar (both black) become one mesh, and the three contact-shadow planes (counter, back bar, furniture) become one mesh whose planes carry their own opacity as vertex alpha. 6 meshes and 4 opening draw calls fewer; the picture is the same (pixel comparison of eight views: 0.00-0.15% of pixels differ, all on animated things)", vertices: 207402, meshes: 140, desktopCalls: 65, phoneCalls: 58 },
     { date: "2026-11-16", change: "tone pass outside the Lounge (Paul): the default plaster (wall look warm) goes from a grey-white 0xf1ece2 to a warm oat 0xf1e3cd, so the window seat, the entry and the middle views are no longer cold; the Lounge feature wall tint is eased (0xe6cfb2 -> 0xeddcc3) so it stays one step deeper instead of going caramel; colours only, no geometry", vertices: 207402, meshes: 140, desktopCalls: 65, phoneCalls: 58 },
+    { date: "2026-11-16", change: "mesh diet 2: the I love SH poster, the Employee of the Month notice and the magazine covers are drawn on one shared 1024 x 1024 canvas (each in its own rectangle with a gap so mipmaps do not bleed) and drawn as one mesh: 2 meshes fewer, about the same texture memory as three separate canvases; the picture is the same", vertices: 207402, meshes: 138, desktopCalls: 65, phoneCalls: 58 },
   ]),
 });

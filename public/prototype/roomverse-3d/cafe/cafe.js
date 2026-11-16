@@ -440,6 +440,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // cost no mesh and no draw call of their own (Paul, 2026-11-15, to free mesh slots). Frames are built with the Lounge, the pictures join the atlas mesh.
   const LOUNGE_PRINTS = [{ i: 9, z: 1.33 }, { i: 10, z: 1.7 }, { i: 11, z: 2.07 }], LOUNGE_PRINT_GEOM = Object.freeze({ PW: 0.30, PH: 0.225, PY: 1.37, WALL_X: 3.2 });
   const LOUNGE_FILES = ["../../kitchen/art/room03-print-poster-leaf-v1.webp", "../../tex/left-wall-harbor-dusk-v1.webp", "../../kitchen/art/room03-print-poster-sun-v1.webp"]; // relative to art/
+  // The "I love SH" poster, the Employee of the Month notice and the magazine covers are drawn on one shared 1024 x 1024 canvas and drawn as one mesh (the mesh diet, 2026-11-16: two
+  // meshes and two draw calls fewer, about the same texture memory as three separate canvases). Each is drawn on its own canvas as before, then copied into its own rectangle with a gap
+  // (so mipmaps do not bleed between them); its plane's UVs are mapped into that rectangle.
+  const decorCanvas = document.createElement("canvas"); decorCanvas.width = decorCanvas.height = 1024;
+  const decorContext = decorCanvas.getContext("2d"), decorPieces = [];
+  const DECOR_RECTS = Object.freeze({ poster: [0, 0, 480, 640], certificate: [512, 0, 504, 364], magazines: [0, 672, 768, 340] });
+  const decorPlace = (key, source, geometry) => { // geometry's UVs run 0..1 over the whole picture (v up, as a plane's are)
+    const [rx, ry, rw, rh] = DECOR_RECTS[key]; decorContext.drawImage(source, rx, ry, rw, rh);
+    const uv = geometry.attributes.uv;
+    for (let k = 0; k < uv.count; k++) uv.setXY(k, (rx + uv.getX(k) * rw) / 1024, 1 - (ry + (1 - uv.getY(k)) * rh) / 1024);
+    decorPieces.push(geometry);
+  };
   const afterFirstFrame = [];
   const catRef = { group: null }; // the cat, once it has loaded
   let tabletRig = null; // its lit screen and pulse, built with the lounge
@@ -1819,9 +1831,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       g.strokeStyle = "#b8923f"; g.lineWidth = 3; g.beginPath(); g.moveTo(180, 380); g.lineTo(540, 380); g.stroke();
       g.fillStyle = "#6b4f1d"; g.font = "500 34px Georgia, 'Times New Roman', serif"; g.fillText("November 2026  ·  2026 年 11 月", 360, 424);
       g.fillStyle = "#b8923f"; g.font = "700 44px sans-serif"; g.fillText("★  ★  ★", 360, 466);
-      const certificate = new THREE.CanvasTexture(canvas); certificate.colorSpace = THREE.SRGBColorSpace; certificate.anisotropy = 8;
       const plane = new THREE.PlaneGeometry(sx1 - sx0 - 2 * fw2, sy1 - sy0 - 2 * fw2).rotateY(Math.PI).translate((sx0 + sx1) / 2, (sy0 + sy1) / 2, FW - 0.0125);
-      add("employee-of-the-month", plane, new THREE.MeshStandardMaterial({ map: certificate, roughness: 0.8 }), 0, 0, 0, { cast: false });
+      decorPlace("certificate", canvas, plane);
     }
     // The "I ♥ SH" poster (Paul, 2026-11-16: a well-known little Shanghai image): hung under the framed Employee of the Month notice by the door, between it and the wainscot cap. An original
     // drawing, not a copy of any billboard or sticker: black slab-serif letters on warm paper and a red heart filled with a small art-deco lattice. The picture is a canvas (no file), one
@@ -1847,8 +1858,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       g.fillStyle = "#1c1a18"; g.font = "900 330px 'Courier New', 'Rockwell', Georgia, serif";
       const w = g.measureText("SH").width, k = Math.min(1, 410 / w); g.save(); g.translate(34, 572); g.scale(k, 1); g.fillText("SH", 0, 0); g.restore();
       g.font = "italic 700 28px Georgia, serif"; g.fillStyle = "#6b5a46"; g.textAlign = "center"; g.fillText("Shanghai, Slowly Café", 240, 618, 410);
-      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
-      add("sh-poster", new THREE.PlaneGeometry(PW2, PH2).rotateY(Math.PI).translate(cx2, cy2, FW - 0.0165), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.78 }), 0, 0, 0, { cast: false });
+      decorPlace("poster", canvas, new THREE.PlaneGeometry(PW2, PH2).rotateY(Math.PI).translate(cx2, cy2, FW - 0.0165));
     }
     // A gallery of eight framed prints (Codex card 49, in the poster style of Room 02): four right of the door and four on the left wall by the window seat. Frames are oak,
     // black and brass, each with a linen mat. The eight pictures are drawn once onto one atlas, so the whole gallery is one draw call. Until they load, the frames hold the mat only.
@@ -2306,8 +2316,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         g.fillStyle = title; g.font = "bold 40px Georgia, serif"; g.fillText(a, x + 18, 64, 220);
         g.font = "22px sans-serif"; g.fillText(b, x + 18, 100, 220); g.fillRect(x + 18, 300, 120, 6);
       });
-      const tex = new THREE.CanvasTexture(canvas); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = maxAnisotropy;
-      add("lounge-magazine-covers", mergeGeometries(coverPlanes), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55 }), 0, 0, 0, { cast: false }); }
+      decorPlace("magazines", canvas, mergeGeometries(coverPlanes)); }
     boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, magTop + 0.005, sz);
     detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, magTop + 0.010, sz), 0x627b87);
     // One white cable, a single tube with no joints: out of the phone, over the table edge, down to the floor, along it with a little slack, then up the wall base into a plug. White,
@@ -2667,6 +2676,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     new THREE.Vector3(DRIP.x + DRIP.width / 2, dripTopY, DRIP.z + DRIP.depth / 2),
   );
   addContactShadow(DRIP.x, DRIP.z, 0.31, 0.27, DRIP.barTop + 0.001);
+  { const tex = new THREE.CanvasTexture(decorCanvas); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+    add("decor-pictures", mergeGeometries(decorPieces), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.72 }), 0, 0, 0, { cast: false }); }
   flush("polish");
 
   let dripPlaying = false, dripRaf = 0, dripTimer = 0, dripStarted = 0;
