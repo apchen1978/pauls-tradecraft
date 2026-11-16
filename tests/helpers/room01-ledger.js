@@ -13,7 +13,7 @@ export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
   scene: Object.freeze({ vertices: 121528, meshes: 333 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 88, phone: 69 }),
+  openingDrawCalls: Object.freeze({ desktop: 89, phone: 70 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes, one more call.
   moodDrawCalls: Object.freeze({
     desktop: Object.freeze({ rain: 88, family: 89, tech: 90, chic: 89, slow: 89, golden: 89, tv: 88 }),
@@ -30,6 +30,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-11", change: "note 1/3 of the three-room note set (Paul): a yellow sticky note on the plant pot, tappable within 34 px (4 vertices, +1 mesh, +1 desktop draw call; phone unchanged because the note is outside the default 390 px view)", vertices: 119015, meshes: 330, desktopCalls: 85, phoneCalls: 66 },
     { date: "2026-11-16", change: "dust motes drifting in the window light (one Points draw, 84 motes, 44 on a phone; only in the sunny moods, fading out as the sun dims) and a slow 4 percent breathing of the sun; the speakers by the TV play two quiet original piano pieces (sound.js, browser synthesis) when tapped. The sunny moods cost one more draw call; meshes and vertices are unchanged (Points are not counted)", vertices: 119015, meshes: 330, desktopCalls: 85, phoneCalls: 66 },
     { date: "2026-11-16", change: "the living room gets its main light fixture (Paul: the ceiling had light but nothing it came from): a round washi-paper lantern on a short cord after Codex card 69 drawing A2, built in code (paper globe with fibre texture, bamboo rings, canopy, cord and cap; three meshes, about 2,500 vertices); its glow follows the main light, bright by day and dim at night", vertices: 121528, meshes: 333, desktopCalls: 88, phoneCalls: 69 },
+    { date: "2026-11-17", change: "Room 01 opens in golden hour (Paul: the drifting light motes and the bright music suit it best), also from the home cover; the dust layer is drawn in the opening view, so the opening draw calls rise by one (89 desktop, 70 phone); no geometry change", vertices: 121528, meshes: 333, desktopCalls: 89, phoneCalls: 70 },
   ]),
 });
 

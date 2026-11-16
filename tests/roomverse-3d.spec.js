@@ -560,7 +560,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
-  await expect(pressed(0)).toHaveText("下雨天想窩在家裡");
+  await expect(pressed(0)).toHaveText("傍晚金色時光"); // an unknown mood falls back to the default, golden hour (2026-11-17)
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
 
@@ -1459,9 +1459,9 @@ for (const [label, viewport] of [["phone", { width: 390, height: 844 }], ["deskt
   });
 }
 
-test("Room 01 enters series night from the home cover and still lets visitors switch moods", async ({ page }) => {
+test("Room 01 enters golden hour from the home cover and still lets visitors switch moods", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh&from=home`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tv"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
   await page.locator("#panelToggle").click();
   await page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]').click();
   await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
@@ -1472,9 +1472,9 @@ test("Room 01 honours a valid mood explicitly supplied with the home route", asy
   await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
 });
 
-test("a direct Room 01 visit keeps its existing rain mood", async ({ page }) => {
+test("a direct Room 01 visit opens in golden hour", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the two coffee-table books sit on the table and the red suitcase stands on its wheels in front of the painting", async ({ page }) => {
