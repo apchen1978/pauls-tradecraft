@@ -2312,7 +2312,7 @@ let lanternMat = null;
   })();
 
   // ---------- state + panel ----------
-  const state = { mood: "rain", wall: "original", rug: "stripe", curtain: "linen", print: "ridge", lang };
+  const state = { mood: "golden", wall: "original", rug: "stripe", curtain: "linen", print: "ridge", lang };
   robotBubble = document.getElementById("robotBubble");
   let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0;
   let directorStillOpen = false;
@@ -2389,7 +2389,7 @@ let lanternMat = null;
   let printWasChosen = Object.hasOwn(PRINTS, fromUrl.get("print") ?? "");
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
-  if (fromUrl.get("from") === "home" && !Object.hasOwn(MOODS, fromUrl.get("mood") ?? "")) state.mood = "tv"; // Room 01's home entry defaults to series night; a valid explicit mood in the address wins
+  if (fromUrl.get("from") === "home" && !Object.hasOwn(MOODS, fromUrl.get("mood") ?? "")) state.mood = "golden"; // Room 01 opens in golden hour (Paul, 2026-11-17: the drifting light motes and the bright music suit it best), also from the home cover; a valid explicit mood in the address wins
   if (!wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[state.mood];
   function choose(key, value) {
     const previous = state[key];
