@@ -1,8 +1,9 @@
-// Room 04's records (Paul, 2026-11-16: the record player turns but plays nothing; the room is called Shanghai, Slowly). Two short jazz loops made entirely with the browser's own audio
+// Room 04's records (Paul, 2026-11-16: the record player turns but plays nothing; the room is called Shanghai, Slowly). Three short jazz loops made entirely with the browser's own audio
 // synthesis: no sound files. Track 1 "慢板" is a slow ii-V-I in C (Dm9, G13, Cmaj9, Am9, about 58 beats a minute, a lazy swing); track 2 "午後弄堂" is a lighter bossa-style loop in F (Fmaj9, Dm9,
 // Gm9, C13, about 74 beats a minute). Each has an electric-piano chord on the bar, a soft bass, a few sparse melody notes, brushed hi-hat, and the faint crackle and hiss of vinyl (turned
 // down by 30% at Paul's ear). In the rain mood a soft rain sits under the music. Nothing plays until the visitor taps the record player (browsers allow sound only after a tap); a second tap,
-// the 30 s limit or hiding the page stops it. start() must be called from inside that tap; each new start plays the next track.
+// the 30 s limit or hiding the page stops it. start() must be called from inside that tap; each new start plays the next track. Track 3, 夜色外灘, is an old-Shanghai night piece (C minor, 66 beats a
+// minute, a heavy swing, a muted-trumpet-like lead over the piano); the first start after closing or on series night plays it.
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
 const TRACKS = [
   { title: "慢板", bpm: 58, swing: 0.18, filter: 2100, bass: [[0, 0, 1.8], [2.5, 7, 1.2]], brush: [[1, 0.05, true], [3, 0.05, true], [1.66, 0.022], [3.66, 0.022]], stabs: [[0, 0.085]],
@@ -18,6 +19,13 @@ const TRACKS = [
       { chord: [50, 57, 60, 65, 69], bass: 38, melody: [72, 74, 76, 77, 81] },   // Dm9
       { chord: [55, 58, 62, 65, 69], bass: 43, melody: [70, 72, 74, 77, 79] },   // Gm9
       { chord: [52, 58, 62, 64, 69], bass: 36, melody: [69, 72, 74, 76, 77] },   // C13
+    ] },
+  { title: "夜色外灘", bpm: 66, swing: 0.22, filter: 2000, lead: true, bass: [[0, 0, 1.4], [1.5, 7, 0.8], [2.5, 0, 1.0], [3.5, -2, 0.5]], brush: [[1, 0.05, true], [3, 0.05, true], [1.66, 0.025], [3.66, 0.025]], stabs: [[0, 0.08], [2.5, 0.045]],
+    bars: [
+      { chord: [48, 55, 60, 63, 69], bass: 36, melody: [72, 75, 77, 79, 81] },   // Cm6
+      { chord: [53, 56, 60, 62, 65], bass: 41, melody: [68, 72, 75, 77, 80] },   // Fm6
+      { chord: [48, 55, 59, 63, 67], bass: 36, melody: [72, 74, 75, 79, 83] },   // Cm(maj7)
+      { chord: [43, 53, 59, 62, 68], bass: 43, melody: [71, 74, 77, 79, 80] },   // G7b9
     ] },
 ];
 
@@ -45,6 +53,16 @@ export function createRoomSound() {
     }
     out.connect(filter); filter.connect(master); noteCount += 1;
   };
+  const lead = (time, midi, gain, length) => { // a soft muted-trumpet-like lead (a triangle and a sine with a slow vibrato) for the night track
+    const out = ctx.createGain(), filter = ctx.createBiquadFilter(), lfo = ctx.createOscillator(), depth = ctx.createGain();
+    filter.type = "lowpass"; filter.frequency.value = 2300; filter.Q.value = 0.6; lfo.frequency.value = 5.4; depth.gain.value = hz(midi) * 0.009; lfo.connect(depth);
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(gain, time + 0.08); out.gain.exponentialRampToValueAtTime(gain * 0.55, time + length * 0.6); out.gain.exponentialRampToValueAtTime(0.0001, time + length);
+    for (const [ratio, level, type] of [[1, 1, "triangle"], [2, 0.18, "sine"]]) {
+      const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = type; osc.frequency.value = hz(midi) * ratio; g.gain.value = level; depth.connect(osc.frequency);
+      osc.connect(g); g.connect(out); osc.start(time); osc.stop(time + length + 0.05);
+    }
+    lfo.start(time); lfo.stop(time + length + 0.05); out.connect(filter); filter.connect(master); noteCount += 1;
+  };
   const bass = (time, midi, length) => {
     const osc = ctx.createOscillator(), g = ctx.createGain();
     osc.type = "sine"; osc.frequency.value = hz(midi);
@@ -63,7 +81,7 @@ export function createRoomSound() {
     for (const [at, shift, length] of track.bass) bass(t0 + at * beat, bar.bass + shift, beat * length);
     for (const [at, level, swung] of track.brush) brush(t0 + at * beat + (swung ? track.swing * beat : 0), level);
     let at = 0.5 + rnd() * 0.5; // a few sparse melody notes, in the gaps
-    while (at < 3.7) { piano(t0 + at * beat, bar.melody[Math.floor(rnd() * bar.melody.length)], 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
+    while (at < 3.7) { const note = bar.melody[Math.floor(rnd() * bar.melody.length)]; if (track.lead) lead(t0 + at * beat, note, 0.06, beat * (1.3 + rnd() * 1.1)); else piano(t0 + at * beat, note, 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
     barIndex += 1; nextTime += barLength;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };

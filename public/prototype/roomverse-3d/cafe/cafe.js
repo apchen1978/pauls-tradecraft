@@ -44,12 +44,12 @@ const COLORS = Object.freeze({
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3 }),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x6f84b8, hemiGround: 0x453f4a, ambient: 0.16, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42 }),
-  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6273a8, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0 }),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3, neon: 0 }),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 }),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75 }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x6f84b8, hemiGround: 0x453f4a, ambient: 0.16, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0 }),
+  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6273a8, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0, neon: 0.9 }),
 });
 
 // PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
@@ -1354,7 +1354,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
   const ARM_REST = 0.28, ARM_PLAY = 2.34;
   const setArm = (value) => { armPivot.rotation.y = value; };
-  let recordTrack = -1; // each tap that starts the record plays the next of the two tracks
+  let recordTrack = -1; // each tap that starts the record plays the next of the three tracks (the first start at night plays 夜色外灘)
   const roomSound = createRoomSound(); // the slow record (sound.js): it starts inside the tap on the record player and stops with it
   const stopRecordPlayback = () => {
     if (!recordPlaying) return false;
@@ -1363,7 +1363,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   };
   const playRecord = () => {
     if (recordPlaying) return false;
-    recordTrack = (recordTrack + 1) % 2; recordPlaying = true; roomSound.start(recordTrack, currentMood === "rain"); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordTrack = recordTrack < 0 && (currentMood === "closing" || currentMood === "series") ? 2 : (recordTrack + 1) % 3; recordPlaying = true; roomSound.start(recordTrack, currentMood === "rain"); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
     recordTimer = setTimeout(stopRecordPlayback, 30000);
     const reduced = reducedMotion();
     const tick = (now) => {
@@ -2817,6 +2817,21 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const sunShafts = new THREE.Mesh(mergeGeometries(shaftParts.map((g) => (g.index ? g.toNonIndexed() : g))), new THREE.MeshBasicMaterial({ map: shaftTexture, color: 0xfff3e6, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
   sunShafts.name = "sun-shafts"; sunShafts.position.set(X0 - 0.02, 1.7, 0.3); sunShafts.renderOrder = 2; sunShafts.frustumCulled = false; scene.add(sunShafts);
 
+  // The neon sign (Paul, 2026-11-16: a night-Shanghai vibe): "上海慢板 / SHANGHAI · SLOWLY · CAFÉ" in red neon with a cyan border tube, on the brick wall above the two menu boards. One additive plane
+  // with the glow painted into its texture; off by day, bright after closing, a little dimmer on series night, and it comes on in the rain. A faint flicker runs with the ambient frames.
+  const neonSign = (() => {
+    const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 384; const g = canvas.getContext("2d");
+    const tube = (draw, color, glow, width) => { g.save(); g.lineJoin = "round"; g.lineCap = "round"; g.shadowColor = glow; g.shadowBlur = 34; g.strokeStyle = color; g.lineWidth = width; draw(); g.restore(); };
+    const frame = () => { g.beginPath(); g.roundRect(34, 30, 956, 324, 46); g.stroke(); };
+    tube(frame, "#27c8ff", "#27c8ff", 10); tube(frame, "#d8f6ff", "#27c8ff", 3.5);
+    g.textAlign = "center"; g.textBaseline = "middle";
+    const text = (str, y, size, family) => { const draw = () => { g.font = size + "px " + family; g.strokeText(str, 512, y); }; tube(draw, "#ff2a5f", "#ff2a5f", 13); tube(draw, "#ff8fae", "#ff2a5f", 7); tube(draw, "#ffe9ee", "#ff4d7e", 2.6); };
+    text("上海慢板", 150, "700 150", "'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif");
+    text("SHANGHAI · SLOWLY · CAFÉ", 272, "700 54", "Georgia,'Times New Roman',serif");
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    const mesh = add("neon-sign", new THREE.PlaneGeometry(1.3, 0.4875), new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }), 1.1, 2.68, BACK + 0.03, { cast: false, receive: false });
+    mesh.visible = false; mesh.renderOrder = 3; return mesh;
+  })();
   // Dust motes drifting slowly through the window light (the slow tempo of the room). One Points draw, a child of the sun shafts so it follows the light's direction, and only drawn
   // while a shaft is visible (morning, midday, golden hour). It moves at about 10 frames a second, only while it is drawn, the tab is visible, reduced motion is off and the visitor has touched the room in the last 30 seconds (an idle room settles: no dust, no blinking).
   const DUST_COUNT = compact ? 48 : 90, DUST_X0 = 0.4, DUST_RANGE = 4.4;
@@ -2851,9 +2866,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   };
   stepDust(0);
   let dustLast = 0;
-  const dustTimer = () => {
-    if (!dust.visible || document.hidden || reducedMotion() || performance.now() - lastActive > 30000) { dustLast = 0; return; }
-    const now = performance.now(); stepDust(dustLast ? Math.min(0.25, (now - dustLast) / 1000) : 0.1); dustLast = now; renderAmbient();
+  let vibeTime = 0;
+  const dustTimer = () => { // the ambient tick (about 10 frames a second, only while something ambient is shown, the visitor is active and reduced motion is off)
+    if ((!dust.visible && !neonSign.visible && !(live.sun > 0.5)) || document.hidden || reducedMotion() || performance.now() - lastActive > 30000) { dustLast = 0; return; }
+    const now = performance.now(), dt = dustLast ? Math.min(0.25, (now - dustLast) / 1000) : 0.1; vibeTime += dt;
+    if (dust.visible) stepDust(dt);
+    if (live.sun > 0.5) sun.intensity = live.sun * (1 + 0.04 * Math.sin(vibeTime * 0.5)); // a slow cloud-like breathing of the sun (about 4%, one breath per 12 s) gives the afternoon a lazy pulse
+    if (neonSign.visible) { const dip = (vibeTime % 11) > 10.55 && (vibeTime % 0.3) < 0.12 ? 0.55 : 1; neonSign.material.opacity = live.neon * dip * (0.97 + 0.03 * Math.sin(vibeTime * 9)); } // a faint hum and, now and then, a quick flicker
+    dustLast = now; renderAmbient();
   };
 
   // A warm lamp pool over the counter for the dim moods (a point light: no draw call).
@@ -2899,7 +2919,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let currentMood = "golden", moodTween = 0; // the room opens at golden hour (Paul, 2026-11-15): warm raking light on the brick and the honey oak is the best first impression
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { tv: 0, shaft: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     dirtyShadows();
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
@@ -2911,6 +2931,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = Math.max(0, live.tv - 0.4) * 4; // by day the screen plays dimly (a cafe television is never a black hole) and lights nothing; on series night it lights the lounge
     sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
+    neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02;
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
     materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9; floorLampLight.intensity = Math.max(0, live.pendant - 0.3) * 1.9;
@@ -2920,10 +2941,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     currentMood = name; posMood?.(name); robotFace.setMood(name); roomSound.setRain(name === "rain"); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
-    const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const from = { tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
-      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft", "tv"]) live[key] = blend(from[key], look[key], k);
+      for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft", "tv", "neon"]) live[key] = blend(from[key], look[key], k);
       live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
@@ -3229,6 +3250,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     floorLampLight: () => floorLampLight.intensity,
     soundState: () => roomSound.state(),
+    vibeState: () => ({ neon: neonSign.material.opacity, neonVisible: neonSign.visible }),
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
