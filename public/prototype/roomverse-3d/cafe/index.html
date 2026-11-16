@@ -78,7 +78,7 @@
     .tap-target:focus-visible { outline:3px solid #fff; outline-offset:-3px; box-shadow:0 0 0 5px #8a4a2b; }
     .bubble { position:absolute; z-index:5; transform:translate(-50%,-100%); width:max-content; max-width:min(260px,78%); padding:10px 34px 10px 14px; border-radius:14px; background:#fffffaee; color:#2a2f2a; box-shadow:0 6px 20px #0003; font-size:14px; font-weight:600; line-height:1.45; }
     .bubble [data-title] { margin:0 0 2px; font-size:11px; letter-spacing:.14em; color:var(--brick); }
-    .bubble [data-line] { margin:0; }
+    .bubble [data-line] { margin:0; } .bubble [data-cover] { display:block; width:72px; height:72px; margin:0 0 6px; border-radius:6px; object-fit:cover; box-shadow:0 2px 8px #0003; }
     .bubble [data-travel] { display:inline-flex; align-items:center; min-height:44px; margin-top:4px; color:var(--brick); font-size:13px; font-weight:700; }
     .bubble [data-close] { position:absolute; top:2px; right:2px; width:44px; height:44px; border:0; background:transparent; color:#6a5a4a; font:700 18px system-ui; cursor:pointer; }
     .bubble [hidden] { display:none; }
@@ -129,7 +129,7 @@
       <button class="tap-target" id="noteHit" type="button" hidden></button>
       <button class="tap-target" id="recordHit" type="button" hidden></button>
       <button class="tap-target" id="dripHit" type="button" hidden></button>
-      <div class="bubble" id="bubble" role="dialog" hidden><p data-title></p><p data-line></p><a data-travel data-travel-door-trigger href="/prototype/roomverse-3d/"></a><button data-close type="button">×</button></div>
+      <div class="bubble" id="bubble" role="dialog" hidden><img data-cover width="72" height="72" alt="" hidden><p data-title></p><p data-line></p><a data-travel data-travel-door-trigger href="/prototype/roomverse-3d/"></a><button data-close type="button">×</button></div>
     </section>
     <section class="toolbar" id="roomControls" aria-label="Room settings" hidden>
       <div class="moods" id="moods" role="group"></div>
