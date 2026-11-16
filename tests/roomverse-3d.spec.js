@@ -1516,8 +1516,10 @@ test("Room 01 light and music: dust motes drift in strong sun only, a tap on a s
   await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`); // the TV wall view, where the speakers are
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await expect.poll(async () => (await page.evaluate(() => window.__room.dustState())).visible, { timeout: 8000, message: "dust in the golden hour sun" }).toBe(true);
+  expect((await page.evaluate(() => window.__room.dustState())).beam, "the sunbeam shows with the sun").toBe(true);
   await page.evaluate(() => window.__room.set("mood", "rain"));
   await expect.poll(async () => (await page.evaluate(() => window.__room.dustState())).visible, { timeout: 12000, message: "no dust in the rain" }).toBe(false);
+  expect((await page.evaluate(() => window.__room.dustState())).beam, "no sunbeam in the rain").toBe(false);
   await page.waitForTimeout(1500);
   await expect.poll(async () => (await page.evaluate(() => window.__room.speakerScreen()))?.front, { timeout: 20000, message: "the speakers load" }).toBe(true);
   const spot = await page.evaluate(() => window.__room.speakerScreen());

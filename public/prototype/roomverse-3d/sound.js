@@ -18,19 +18,19 @@ const TRACKS = [
   // The day piece stays in major chords (Paul: gloomy was wrong; the living room should be bright and sunny): I, IV and V with major sevenths, added ninths, sixes and dominant nines, no minor chords.
   { title: "窗邊的午後", group: "day", style: "bright", bpm: 96, swing: 0.08, send: 0.3, comp: [[0, 0.075, 2.4], [1.5, 0.04, 1], [2.5, 0.045, 1.2]],
     bars: [
-      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 79, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 76, 1], [3, 79, 1]] },           // Cmaj9: G A G E G, a sunny opening
-      { walk: [41, 45, 48, 52], chord: [57, 60, 64, 67], tune: [[0, 81, 1], [1, 84, 1], [2, 81, 0.5], [2.5, 79, 0.5], [3, 77, 1]] },          // Fmaj9: up to the C, a step-wise fall
-      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 76, 1.5], [1.5, 79, 0.5], [2, 81, 1], [3, 79, 1]] },                      // Cadd9: E G A G
-      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 74, 1], [1, 79, 1], [2, 83, 1.5], [3.5, 81, 0.5]] },                      // G6/9: D G B, reaching the high B
-      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 81, 0.5], [2, 77, 1], [3, 81, 1]] },                      // Fmaj9: the second phrase starts high
-      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 84, 1], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 1]] },          // Cadd9: G C B A G
-      { walk: [38, 42, 45, 48], chord: [54, 57, 60, 64], tune: [[0, 78, 1], [1, 81, 1], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // D9: a bright lift to the high D
-      { walk: [43, 47, 50, 47], chord: [53, 59, 62, 67], tune: [[0, 83, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 77, 1], [3, 76, 1]] },          // G7: B A G F E, falling home
+      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 79, 1.5], [1.5, 81, 0.5], [2, 84, 1.5], [3.5, 83, 0.5]] },           // Cmaj9: G A G E G, a sunny opening
+      { walk: [41, 45, 48, 52], chord: [57, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 79, 0.5], [2, 77, 1], [3, 81, 1]] },          // Fmaj9: up to the C, a step-wise fall
+      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1.5], [1.5, 76, 0.5], [2, 74, 1], [3, 76, 0.5], [3.5, 79, 0.5]] },                      // Cadd9: E G A G
+      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 81, 2], [2, 83, 1], [3, 86, 1]] },                      // G6/9: D G B, reaching the high B
+      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 81, 0.5], [2, 79, 1], [3, 81, 1]] },                      // Fmaj9: the second phrase starts high
+      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 84, 1.5], [2.5, 83, 0.5], [3, 79, 1]] },          // Cadd9: G C B A G
+      { walk: [38, 42, 45, 48], chord: [54, 57, 60, 64], tune: [[0, 78, 1], [1, 81, 1], [2, 84, 1.5], [3.5, 81, 0.5]] },                      // D9: a bright lift to the high D
+      { walk: [43, 47, 50, 47], chord: [53, 59, 62, 67], tune: [[0, 83, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 77, 1], [3, 79, 1]] },          // G7: B A G F E, falling home
       // the second half: the same sun, a step higher
-      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 86, 0.5], [2, 84, 1], [3, 81, 1]] },                      // Fmaj9: C D C A
-      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 83, 1], [1, 86, 1], [2, 83, 1], [3, 79, 1]] },                            // G6/9: B D B G
-      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 84, 1.5], [1.5, 81, 0.5], [2, 79, 1], [3, 76, 1]] },                      // Cmaj9: a smooth descent
-      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 76, 2]] },                      // Cadd9: settles on the E
+      { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 84, 0.5], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // Fmaj9: C D C A
+      { walk: [43, 47, 50, 47], chord: [59, 62, 64, 69], tune: [[0, 83, 1], [1, 86, 1], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 1]] },                            // G6/9: B D B G
+      { walk: [36, 40, 43, 45], chord: [52, 55, 59, 62], tune: [[0, 81, 1.5], [1.5, 83, 0.5], [2, 79, 1], [3, 76, 1]] },                      // Cmaj9: a smooth descent
+      { walk: [36, 40, 43, 40], chord: [52, 55, 60, 62], tune: [[0, 79, 1], [1, 81, 0.5], [1.5, 79, 0.5], [2, 79, 2]] },                      // Cadd9: settles on the E
       { walk: [41, 45, 48, 45], chord: [57, 60, 64, 67], tune: [[0, 81, 1], [1, 84, 1], [2, 86, 1.5], [3.5, 84, 0.5]] },                      // Fmaj9: climbs again
       { walk: [46, 50, 53, 57], chord: [62, 65, 69, 72], tune: [[0, 86, 1], [1, 84, 0.5], [1.5, 81, 0.5], [2, 77, 2]] },                      // Bbmaj9: a sunny borrowed colour
       { walk: [38, 42, 45, 48], chord: [54, 57, 60, 64], tune: [[0, 78, 1], [1, 81, 1], [2, 84, 1], [3, 81, 1]] },                            // D9: F# A C A
@@ -49,6 +49,7 @@ const TRACKS = [
       { bass: 45, chord: [57, 61, 64, 69], tune: [[0, 76, 3], [3, 78, 1]] },                      // A: resolves, the F# leads back to the start
     ] },
 ];
+const MAJOR_SCALE = [0, 2, 4, 5, 7, 9, 11]; // C major (the day piece), for the grace notes
 const nextInGroup = (index) => { for (let k = 1; k <= TRACKS.length; k++) { const j = (index + k) % TRACKS.length; if (TRACKS[j].group === TRACKS[index].group) return j; } return index; };
 
 // synthesised voices: [frequency ratio, level, wave, how much of the note's length the partial lasts (1 = all of it)]
@@ -122,11 +123,15 @@ export function createRoomMusic() {
       tick(t0 + beat, 0.022, 5200, 0.14); tick(t0 + 3 * beat, 0.022, 5200, 0.14); // brushes on two and four
       for (const at of [0, 1, 1.66, 2, 3, 3.66]) tick(t0 + at * beat + jitter(4), vary(0.011), 7600, 0.08); // a whisper of ride: the classic skip pattern
       [0.5, 1.5, 2.5, 3.5].forEach((at, i) => note(t0 + swung(at) * beat + jitter(4), bar.chord[(i + barIndex) % 4] + 12, VIBES, vary(0.026), beat * 1.4, -0.3)); // the vibraphone sparkle on the off-beats
-      for (const [at, midi, length] of bar.tune) {
-        const when = t0 + swung(at) * beat + jitter(4), accent = Number.isInteger(at) ? 1.05 : 0.88;
-        piano(when, midi, vary(0.085) * accent, beat * (length + 0.3), 0.15); // the melody, on the piano, a little to the right
+      const lift = [0.9, 0.97, 1.06, 0.95][barIndex % 4]; // the phrase breathes: it builds toward its third bar and relaxes at the end
+      bar.tune.forEach(([at, midi, length], k) => {
+        const when = t0 + swung(at) * beat + jitter(4), accent = Number.isInteger(at) ? 1.05 : 0.88, next = bar.tune[k + 1], hold = (next ? next[0] : 4.6) - at, gain = vary(0.085) * accent * lift;
+        piano(when, midi, gain, beat * (hold + 0.35), 0.15); // the melody, on the piano, a little to the right; each note rings until the next begins (legato)
+        if (length >= 1.5) piano(when, midi - 12, gain * 0.28, beat * (hold + 0.35), -0.1); // long notes are gently doubled an octave below: fuller, warmer
+        const below = [1, 2, 3].map((d) => midi - d).find((m) => MAJOR_SCALE.includes(((m % 12) + 12) % 12)); // a soft grace note a scale step below leads into a long note (only for notes inside the scale)
+        if (length >= 1.5 && at > 0 && MAJOR_SCALE.includes(midi % 12)) piano(when - 0.1 * beat, below, gain * 0.32, beat * 0.22, 0.15);
         if (second) note(when, midi + 12, VIBES, vary(0.02), beat * (length + 0.8), -0.3); // the second half: the vibraphone doubles it an octave up
-      }
+      });
     } else {
       const ext = [...bar.chord, bar.chord[0] + 12, bar.chord[1] + 12];
       [0, 1, 2, 3, 4, 5, 4, 3].forEach((pick, i) => piano(t0 + i * 0.5 * beat + jitter(5), ext[pick], vary(i % 4 === 0 ? 0.05 : 0.032), beat * 1.6, -0.2 + pick * 0.07)); // the rising ostinato, straight eighths
@@ -143,7 +148,7 @@ export function createRoomMusic() {
       }
       if (barIndex % 8 === 6) swell(t0, barLength * 2); // a breath before the turn
     }
-    barIndex += 1; nextTime += barLength;
+    nextTime += barLength * (track.style === "bright" && barIndex % 4 === 3 ? 1.025 : 1); barIndex += 1; // each four-bar phrase ends with a tiny breath: the next phrase starts a little late
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
   return {

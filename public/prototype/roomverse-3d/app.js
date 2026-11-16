@@ -47,7 +47,7 @@ const MOODS = {
     why: { zh: "白天的光柔和又均勻，用淺木色、亞麻和一點深色收邊，房間就安靜下來，週日下午什麼都不用趕。", en: "Soft, even daylight with pale wood, linen and one dark accent keeps the room calm, so a Sunday afternoon has nowhere to hurry to." },
     hemi: 1.6, win: 2.2, winCol: "#f4f6f8", lamp: .5, fill: 1.8, out: "#f7f8f6", exposure: 1.08, floor: 0, glow: .04 },
   golden: { zh: "傍晚金色時光", en: "Golden hour",
-    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: .95, win: 4.8, winCol: "#ffb866", lamp: 2.5, fill: 1.2, out: "#fff0df", exposure: 1.08, floor: 0, glow: .22, sunY: 1.2, shadowRadius: 4 },
+    why: { zh: "低角度的夕陽把窗影拉長，剛亮起的暖燈讓傍晚更有回家的感覺。", en: "Low golden sunlight stretches the window shadows while newly lit lamps make the evening feel like home." }, hemi: 1.3, win: 8, winCol: "#ffc477", lamp: 2.5, fill: 1.8, out: "#fff0df", exposure: 1.2, floor: 0, glow: .22, sunY: 1.5, shadowRadius: 4 },
   tv: { zh: "追劇夜", en: "Series night",
     why: { zh: "週五晚上，關掉主燈，只留燈帶和一盞暖燈，沙發就是整個世界。", en: "Friday night: ceiling light off, just the warm strips and one lamp; the sofa is the whole world." }, hemi: .62, win: .7, winCol: "#56647f", lamp: 2.5, fill: .55, out: "#c6cad6", exposure: .98, floor: .45, glow: .48 },
 };
@@ -1266,6 +1266,14 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   stepDust(0);
 let lanternMat = null;
   const dustAmount = (sun) => Math.min(1, Math.max(0, (sun - 1.8) / 2)) * .9; // none in the dim moods, the most at golden hour (sun 4.8)
+  // A beam of sunlight through the window (Paul, 2026-11-17: golden hour should look like the sun really comes in). Two crossed soft planes along the sun's direction, in the same rig as the dust motes
+  // so the motes drift through it; one mesh, additive, painted with a soft gradient (bright at the window, fading across and along). It shows with the sun, like the motes.
+  const sunBeamMaterial = new THREE.MeshBasicMaterial({ map: canvasTex(64, 128, (ctx, w, h) => { const image = ctx.createImageData(w, h); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const across = Math.max(0, 1 - Math.pow(Math.abs(x / (w - 1) * 2 - 1), 1.6)), along = Math.pow(1 - y / (h - 1), 1.15) * Math.min(1, y / 10), a = across * across * along; const o = (y * w + x) * 4; image.data[o] = 255; image.data[o + 1] = 214; image.data[o + 2] = 150; image.data[o + 3] = Math.round(255 * a); } ctx.putImageData(image, 0, 0); }), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false });
+  sunBeamMaterial.map.wrapS = sunBeamMaterial.map.wrapT = THREE.ClampToEdgeWrapping;
+  const sunBeam = (() => {
+    const length = 3.0, lying = new THREE.PlaneGeometry(1.05, length).rotateX(-Math.PI / 2).translate(0, 0, length / 2), standing = new THREE.PlaneGeometry(1.4, length).rotateX(-Math.PI / 2).rotateZ(Math.PI / 2).translate(0, 0, length / 2);
+    const mesh = new THREE.Mesh(mergeGeometries([lying, standing]), sunBeamMaterial); mesh.name = "sun-beam"; mesh.renderOrder = 2; mesh.visible = false; mesh.frustumCulled = false; mesh.raycast = () => {}; dustRig.add(mesh); return mesh;
+  })();
   // The living room's main light (Paul, 2026-11-16: the ceiling had light but no fixture). A round washi-paper lantern on a short cord, after Codex's card 69 drawing (A2): a paper globe with a warm
   // glow, thin bamboo rings and a round canopy. It is built here (no model file): about 600 vertices, three meshes. Its glow follows the room's main light: bright in the day moods, dim at night
   // ("skip the ceiling light"). The light itself is still the room's soft fill; the lantern is the thing that light comes from.
@@ -2351,7 +2359,7 @@ let lanternMat = null;
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
     lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
-    dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02;
+    dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02; sunBeamMaterial.opacity = dustAmount(v.win) * .85; sunBeam.visible = sunBeamMaterial.opacity > .01;
     shadeGlow.value = v.shade; if (lanternMat) lanternMat.emissiveIntensity = Math.min(1.25, .35 + v.fill * .6); /* follows the main light: bright by day, dim at night */ tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
     if (tvScreenArtLoaded) tvScreenMat.color.setScalar(v.screenLevel);
@@ -4011,7 +4019,7 @@ let lanternMat = null;
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre
-    dustState: () => ({ visible: dustPoints.visible, opacity: dustPoints.material.opacity, count: DUST_COUNT }),
+    dustState: () => ({ visible: dustPoints.visible, opacity: dustPoints.material.opacity, count: DUST_COUNT, beam: sunBeam.visible }),
     robotState: () => ({ sleeping: robotSleeping, speaking: !robotBubble.hidden, mood: state.mood, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent, yaw: robotPivot.rotation.y, reducedMotion: still }),
     guideRobot() { scene.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(guidePivot), c = b.getCenter(new THREE.Vector3()).project(camera); return { min: b.min.toArray(), max: b.max.toArray(), ndc: { x: c.x, y: c.y, z: c.z }, bubble: !robotBubble.hidden && bubbleTarget === guidePivot, phrase: robotBubble.querySelector("[data-bubble-copy]").textContent }; }, // local QA only
     faceDoorWall() { viewTheta = -Math.PI / 2; camera.position.copy(cameraAt(viewTheta)); camera.lookAt(controls.target); controls.update(); render(); }, // local QA only
