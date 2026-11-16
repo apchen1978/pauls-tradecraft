@@ -3,11 +3,11 @@ import { LEDGER } from "./helpers/room04-ledger.js";
 
 const PAGE = "/prototype/roomverse-3d/cafe/";
 
-async function open(page, width, lang = "zh") {
+async function open(page, width, lang = "zh", extra = "&hint=0") { // hint=0 keeps the record-player hint out of the other tests
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
-  await page.goto(`${PAGE}?lang=${lang}`);
+  await page.goto(`${PAGE}?lang=${lang}${extra}`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
   await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 60000 });
@@ -283,7 +283,7 @@ test("Room 04 views are standing stations: no overview, the room opens in the mi
 
 test("Room 04 poster defers the 3D scene and portal arrivals enter directly", async ({ page }) => {
   const requests = []; page.on("request", (request) => requests.push(request.url()));
-  await page.goto(PAGE);
+  await page.goto(PAGE + "?hint=0");
   await expect(page.locator("#poster")).toBeVisible();
   await expect(page.locator("#enter")).toBeVisible();
   expect(await page.evaluate(() => Boolean(window.__room04))).toBe(false);
@@ -299,7 +299,7 @@ test("Room 04 poster defers the 3D scene and portal arrivals enter directly", as
   expect(deferred).toHaveLength(10);
   expect(deferred.every(Boolean)).toBe(true);
   for (const from of ["room01", "room02", "room03"]) {
-    await page.goto(`${PAGE}?from=${from}`);
+    await page.goto(`${PAGE}?from=${from}&hint=0`);
     await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
     await expect(page.locator("#poster")).toBeHidden();
     expect(await page.evaluate(() => performance.getEntriesByType("resource").some((entry) => entry.name.includes("room04-shanghai-slowly-cover-v3-mobile.webp")))).toBe(false);
@@ -310,7 +310,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   test.describe("Room 04 immersive at " + viewport.width + "px", () => {
     test.use({ viewport, deviceScaleFactor: viewport.width === 390 ? 2 : 1, hasTouch: viewport.width === 390, reducedMotion: "reduce" });
     test("keeps the room controls, history and travel usable", async ({ page }) => {
-      await page.goto(PAGE + "?lang=zh&lounge=navy");
+      await page.goto(PAGE + "?lang=zh&lounge=navy&hint=0");
       const enter = page.locator("#immersiveEnter"), exit = page.locator("#immersiveExit");
       const shell = page.locator(".room"), door = page.locator(".travel-door-dialog");
       await expect(enter).toBeHidden();
@@ -799,14 +799,14 @@ test("Room 04 lounge tablet: dark by day, lit at night with a pulse, and a tap s
 
 test("Room 04 ?perf=1 shows a small FPS read-out while the view moves, and nothing without it", async ({ page }) => {
   const errors = await open(page, 390);
-  expect(await page.locator("#stage div", { hasText: /^fps / }).count(), "no read-out without ?perf=1").toBe(0);
+  expect(await page.locator("pre", { hasText: /^frame avg/ }).count(), "no read-out without ?perf=1").toBe(0);
   await page.goto("/prototype/roomverse-3d/cafe/?perf=1"); await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04 && window.__room04.catState().loaded, null, { timeout: 120000 });
   const box = await page.locator("#stage canvas").boundingBox(), y = box.y + box.height * 0.82;
   await page.mouse.move(box.x + box.width - 10, y); await page.mouse.down();
   for (let i = 0; i < 40; i++) { await page.mouse.move(box.x + box.width - 10 - i * 7, y); await page.waitForTimeout(40); }
   await page.mouse.up();
-  await expect(page.locator("#stage div", { hasText: /^fps \d+/ })).toHaveCount(1);
+  await expect(page.locator("pre", { hasText: /^frame avg/ })).toHaveCount(1);
   expect(errors).toEqual([]);
 });
 
@@ -820,5 +820,31 @@ test("Room 04 the record player plays a slow jazz loop made by the browser, and 
   expect(on.playing).toBe(true);
   await page.evaluate(() => window.__room04.stopRecordPlayback());
   expect((await page.evaluate(() => window.__room04.soundState())).playing, "it stops with the record").toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("Room 04 the record player: a hint to tap it (not in late-night moods), two tracks that take turns, and a rain layer", async ({ page }) => {
+  test.setTimeout(150000);
+  const errors = await open(page, 1440, "zh", "");
+  await page.locator('[data-mood="closing"]').click();
+  await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(3600);
+  await expect(page.locator("#bubble"), "no hint after closing").toBeHidden();
+  await page.locator('[data-mood="golden"]').click();
+  await expect(page.locator("#bubble [data-line]"), "the hint shows in a day mood").toContainText("唱盤", { timeout: 8000 });
+  await page.waitForTimeout(500);
+  await page.locator("#recordHit").click(); // a real tap on the record player ends the hint and starts track 1
+  await expect(page.locator("#bubble [data-line]")).toContainText("慢板");
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).notes, { timeout: 8000 }).toBeGreaterThan(8);
+  expect((await page.evaluate(() => window.__room04.soundState())).title).toBe("慢板");
+  await page.locator("#recordHit").dispatchEvent("click"); // stop
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).playing).toBe(false);
+  await page.locator("#recordHit").dispatchEvent("click"); // start again: the next track
+  await expect(page.locator("#bubble [data-line]")).toContainText("午後弄堂");
+  expect((await page.evaluate(() => window.__room04.soundState())).title).toBe("午後弄堂");
+  await page.locator('[data-mood="rain"]').click();
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).rain, { timeout: 4000, message: "the rain joins in the rain mood" }).toBe(true);
+  await page.locator('[data-mood="golden"]').click();
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).rain, { timeout: 4000 }).toBe(false);
+  await page.locator("#recordHit").dispatchEvent("click");
   expect(errors).toEqual([]);
 });
