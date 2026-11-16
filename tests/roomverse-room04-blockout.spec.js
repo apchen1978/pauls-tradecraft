@@ -858,6 +858,7 @@ test("Room 04 Shanghai night and slow day: the neon sign glows at night only, an
   const vibe = () => page.evaluate(() => window.__room04.vibeState());
   await page.evaluate(() => window.__room04.setMood("golden"));
   await expect.poll(async () => (await vibe()).neonVisible, { message: "no neon by day" }).toBe(false);
+  expect((await vibe()).haloVisible, "no neon wash on the brick by day").toBe(false);
   await page.evaluate(() => window.__room04.setMood("closing"));
   await expect.poll(async () => (await vibe()).neon, { timeout: 6000, message: "the neon is on at night" }).toBeGreaterThan(0.8);
   await page.evaluate(() => window.__room04.playRecord()); // the first start at night plays the third record
@@ -866,5 +867,6 @@ test("Room 04 Shanghai night and slow day: the neon sign glows at night only, an
   await page.evaluate(() => window.__room04.stopRecordPlayback());
   await page.evaluate(() => window.__room04.setMood("rain"));
   await expect.poll(async () => (await vibe()).neonVisible, { timeout: 6000, message: "the neon glows in the rain too" }).toBe(true);
+  expect((await vibe()).haloVisible, "the neon colours the brick around it").toBe(true);
   expect(errors).toEqual([]);
 });

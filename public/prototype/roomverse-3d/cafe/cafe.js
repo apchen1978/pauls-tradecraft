@@ -2819,6 +2819,16 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
   // The neon sign (Paul, 2026-11-16: a night-Shanghai vibe): "上海慢板 / SHANGHAI · SLOWLY · CAFÉ" in red neon with a cyan border tube, on the brick wall above the two menu boards. One additive plane
   // with the glow painted into its texture; off by day, bright after closing, a little dimmer on series night, and it comes on in the rain. A faint flicker runs with the ambient frames.
+  // The neon's glow on the brick (a night-Shanghai vibe): one big, soft pink wash behind the sign, a low-resolution texture on a 3.4 m plane, so the wall around the tubes catches the colour like real neon.
+  // It comes and goes with the sign (the same opacity, a little lower).
+  const neonHalo = (() => {
+    const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 128; const g = canvas.getContext("2d");
+    g.translate(128, 64); g.scale(1, 0.5); const wash = g.createRadialGradient(0, 0, 0, 0, 0, 128);
+    wash.addColorStop(0, "rgba(255,110,150,0.55)"); wash.addColorStop(0.4, "rgba(255,80,125,0.24)"); wash.addColorStop(1, "rgba(255,60,110,0)"); g.fillStyle = wash; g.fillRect(-128, -128, 256, 256);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
+    const mesh = add("neon-halo", new THREE.PlaneGeometry(3.4, 1.7), new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }), 1.1, 2.68, BACK + 0.028, { cast: false, receive: false });
+    mesh.visible = false; mesh.renderOrder = 2; mesh.raycast = () => {}; /* a light wash never catches a tap meant for the menu boards behind it */ return mesh;
+  })();
   const neonSign = (() => {
     const canvas = document.createElement("canvas"); canvas.width = 1024; canvas.height = 384; const g = canvas.getContext("2d");
     const tube = (draw, color, glow, width) => { g.save(); g.lineJoin = "round"; g.lineCap = "round"; g.shadowColor = glow; g.shadowBlur = 34; g.strokeStyle = color; g.lineWidth = width; draw(); g.restore(); };
@@ -2833,7 +2843,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     text("SHANGHAI · SLOWLY · CAFÉ", 272, "700 54", "Georgia,'Times New Roman',serif");
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
     const mesh = add("neon-sign", new THREE.PlaneGeometry(1.3, 0.4875), new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }), 1.1, 2.68, BACK + 0.03, { cast: false, receive: false });
-    mesh.visible = false; mesh.renderOrder = 3; return mesh;
+    mesh.visible = false; mesh.renderOrder = 3; mesh.raycast = () => {}; return mesh;
   })();
   // Dust motes drifting slowly through the window light (the slow tempo of the room). One Points draw, a child of the sun shafts so it follows the light's direction, and only drawn
   // while a shaft is visible (morning, midday, golden hour). It moves at about 10 frames a second, only while it is drawn, the tab is visible, reduced motion is off and the visitor has touched the room in the last 30 seconds (an idle room settles: no dust, no blinking).
@@ -2875,7 +2885,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const now = performance.now(), dt = dustLast ? Math.min(0.25, (now - dustLast) / 1000) : 0.1; vibeTime += dt;
     if (dust.visible) stepDust(dt);
     if (live.sun > 0.5) sun.intensity = live.sun * (1 + 0.04 * Math.sin(vibeTime * 0.5)); // a slow cloud-like breathing of the sun (about 4%, one breath per 12 s) gives the afternoon a lazy pulse
-    if (neonSign.visible) { const dip = (vibeTime % 11) > 10.55 && (vibeTime % 0.3) < 0.12 ? 0.55 : 1; neonSign.material.opacity = live.neon * dip * (0.97 + 0.03 * Math.sin(vibeTime * 9)); } // a faint hum and, now and then, a quick flicker
+    if (neonSign.visible) { const dip = (vibeTime % 11) > 10.55 && (vibeTime % 0.3) < 0.12 ? 0.55 : 1; neonSign.material.opacity = live.neon * dip * (0.97 + 0.03 * Math.sin(vibeTime * 9)); neonHalo.material.opacity = neonSign.material.opacity * 0.8; } // a faint hum and, now and then, a quick flicker
     dustLast = now; renderAmbient();
   };
 
@@ -2934,7 +2944,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = Math.max(0, live.tv - 0.4) * 4; // by day the screen plays dimly (a cafe television is never a black hole) and lights nothing; on series night it lights the lounge
     sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
-    neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02;
+    neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02; neonHalo.material.opacity = live.neon * 0.8; neonHalo.visible = neonSign.visible;
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
     materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9; floorLampLight.intensity = Math.max(0, live.pendant - 0.3) * 1.9;
@@ -3253,7 +3263,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     floorLampLight: () => floorLampLight.intensity,
     soundState: () => roomSound.state(),
-    vibeState: () => ({ neon: neonSign.material.opacity, neonVisible: neonSign.visible }),
+    vibeState: () => ({ neon: neonSign.material.opacity, neonVisible: neonSign.visible, haloVisible: neonHalo.visible }),
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
     playRecord, stopRecordPlayback, pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
