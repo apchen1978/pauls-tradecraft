@@ -13,7 +13,7 @@ const COPY = {
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
     fullScreen: "全螢幕", exitFullScreen: "退出", portal: "傳送門", viewsLabel: "選擇視角",
     enter: "走進咖啡廳", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
-    robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", recordLabel: "唱機：點一下播放，再點一下停止", recordLine: "慢板，三十三轉。🎷 開著聲音聽聽看。", dripLabel: "冰滴塔：點一下開始，再點一下停止", dripLine: "冰滴，一滴一滴慢慢來。", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
+    robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", recordLabel: "唱機：點一下播放，再點一下停止", recordLines: ["♪ 慢板，三十三轉。🎷 開著聲音聽聽看。", "♪ 午後弄堂，四十五轉。🎶 再點一次，下次換下一首。"], recordHint: "點一下唱盤，聽聽音樂 🎷", dripLabel: "冰滴塔：點一下開始，再點一下停止", dripLine: "冰滴，一滴一滴慢慢來。", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
     randomLook: "隨機搭一間咖啡廳", resetLook: "回到預設搭配", swapsTitle: "換搭配", randomDone: "已幫你搭了一間新的咖啡廳。",
     groups: {
       brick: ["磚牆", { red: "老紅磚", umber: "赭褐磚", grey: "灰磚", dusty: "灰粉磚", white: "白磚（刷白老磚）", dark: "深色老磚" }],
@@ -60,7 +60,7 @@ const COPY = {
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
     fullScreen: "Full screen", exitFullScreen: "Exit", portal: "Travel", viewsLabel: "Choose a view",
     enter: "Step into the cafe", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
-    robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", recordLabel: "Record player: tap to play, tap again to stop", recordLine: "Slow tempo, thirty-three and a third. 🎷 Turn the sound on.", dripLabel: "Cold drip tower: tap to start, tap again to stop", dripLine: "Cold drip, one drop at a time.", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
+    robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", recordLabel: "Record player: tap to play, tap again to stop", recordLines: ["♪ Slow tempo, thirty-three and a third. 🎷 Turn the sound on.", "♪ Lane in the afternoon, forty-five. 🎶 Tap again for the next one."], recordHint: "Tap the record to hear some music 🎷", dripLabel: "Cold drip tower: tap to start, tap again to stop", dripLine: "Cold drip, one drop at a time.", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
     randomLook: "Build me a random cafe", resetLook: "Back to the default look", swapsTitle: "Swap the look", randomDone: "A new cafe, just for you.",
     groups: {
       brick: ["Brick wall", { red: "Old red brick", umber: "Umber brick", grey: "Grey brick", dusty: "Dusty pink brick", white: "Whitewashed brick", dark: "Dark old brick" }],
@@ -133,7 +133,7 @@ function renderSwaps() {
   }));
 }
 function lookIsDefault() { return LOOK_KEYS.every((g) => look[g] === room?.lookDefaults?.[g]); }
-let catLine = -1, baristaLine = -1, tabletLine = -1;
+let catLine = -1, baristaLine = -1, tabletLine = -1, recordTrackShown = 0, recordHintDone = false, recordHintTimer = 0;
 let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, recordTimer = 0, dripTimer = 0, moodLineKey = "golden";
 
 function renderMoods() {
@@ -183,13 +183,30 @@ function placeTarget(button, rect) {
   button.hidden = false;
   Object.assign(button.style, { left: `${rect.left - stageRect.left + (rect.right - rect.left) / 2 - width / 2}px`, top: `${rect.top - stageRect.top + (rect.bottom - rect.top) / 2 - height / 2}px`, width: `${width}px`, height: `${height}px` });
 }
+
+// The record-player hint (Paul, 2026-11-16: visitors should know there is music): once per visit, when the record player has been on screen for about a second and it is not late night
+// (after closing and series night are excluded), a small bubble says to tap it. It lets taps through and goes away by itself; tapping the record ends the hint for good.
+function recordOnScreen() {
+  if (!room || recordHintDone || params.get("hint") === "0" || mood === "closing" || mood === "series") return false;
+  const rect = room.recordScreen(), stage = $("stage").getBoundingClientRect(); if (!rect) return false;
+  const cx = (rect.left + rect.right) / 2, cy = (rect.top + rect.bottom) / 2;
+  return rect.right - rect.left > 16 && cx > stage.left + stage.width * 0.12 && cx < stage.right - stage.width * 0.12 && cy > stage.top + stage.height * 0.18 && cy < stage.bottom - stage.height * 0.22;
+}
+function watchRecordHint() {
+  if (!recordOnScreen() || !$("bubble").hidden) { clearTimeout(recordHintTimer); recordHintTimer = 0; return; }
+  if (recordHintTimer) return;
+  recordHintTimer = setTimeout(() => { recordHintTimer = 0; if (recordOnScreen() && $("bubble").hidden) { recordHintDone = true; openBubble("recordHint", 7000); } }, 1300);
+}
 function placeUi() {
   if (!room) return;
   const robotRect = room.robotScreen(), catRect = room.catScreen ? room.catScreen() : null, baristaRect = room.baristaScreen ? room.baristaScreen() : null, tabletRect = room.tabletScreen ? room.tabletScreen() : null, menuBox = room.menuScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
   const menuRect = menuBox && { left: (menuBox.left + menuBox.right) / 2, right: (menuBox.left + menuBox.right) / 2, top: (menuBox.top + menuBox.bottom) / 2, bottom: (menuBox.top + menuBox.bottom) / 2 };
   // the small keyboard / screen-reader button sits between the two boards; the boards themselves take taps on the canvas
   placeTarget($("catHit"), catRect); placeTarget($("baristaHit"), baristaRect); placeTarget($("tabletHit"), tabletRect); placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
-  const bubble = $("bubble"), anchor = bubbleOwner === "tablet" ? tabletRect : bubbleOwner === "barista" ? baristaRect : bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
+  const bubble = $("bubble"), anchor = bubbleOwner === "recordHint" ? recordRect : bubbleOwner === "tablet" ? tabletRect : bubbleOwner === "barista" ? baristaRect : bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
+  watchRecordHint();
+  bubble.style.pointerEvents = bubbleOwner === "recordHint" ? "none" : "";
+  const closeButton = bubble.querySelector("[data-close]"); if (closeButton) closeButton.hidden = bubbleOwner === "recordHint"; // the hint lets taps through and goes away by itself
   if (bubble.hidden) return;
   if (!anchor) { bubble.hidden = true; return; }
   const stageRect = $("stage").getBoundingClientRect(), half = bubble.offsetWidth / 2 + 8;
@@ -201,7 +218,7 @@ function placeUi() {
 }
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
-  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLine : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "tablet" ? (mood === "closing" || mood === "series" ? copy.tabletNight[tabletLine % copy.tabletNight.length] : copy.tabletDay[tabletLine % copy.tabletDay.length]) : bubbleOwner === "barista" ? copy.baristaLines[baristaLine % copy.baristaLines.length] : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
+  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? copy.recordLines[recordTrackShown] : bubbleOwner === "recordHint" ? copy.recordHint : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "tablet" ? (mood === "closing" || mood === "series" ? copy.tabletNight[tabletLine % copy.tabletNight.length] : copy.tabletDay[tabletLine % copy.tabletDay.length]) : bubbleOwner === "barista" ? copy.baristaLines[baristaLine % copy.baristaLines.length] : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
   const title = bubble.querySelector("[data-title]"); title.textContent = copy.noteTitle; title.hidden = bubbleOwner !== "note";
   const link = bubble.querySelector("[data-travel]"); link.textContent = copy.robotChoose; link.href = `/prototype/roomverse-3d/?lang=${lang}`; link.hidden = bubbleOwner !== "robot";
   bubble.querySelector("[data-close]").setAttribute("aria-label", copy.close);
@@ -238,7 +255,7 @@ $("recordHit").addEventListener("click", () => {
     room.stopRecordPlayback(); clearTimeout(recordTimer); recordTimer = 0; closeBubble();
     return;
   }
-  room.playRecord(); openBubble("record", 30000);
+  room.playRecord(); recordHintDone = true; clearTimeout(recordHintTimer); recordTrackShown = room.soundState().track || 0; openBubble("record", 30000);
   clearTimeout(recordTimer); recordTimer = setTimeout(() => { room?.stopRecordPlayback(); closeBubble(); recordTimer = 0; }, 30000);
 });
 $("dripHit").addEventListener("click", () => {

@@ -1354,6 +1354,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
   const ARM_REST = 0.28, ARM_PLAY = 2.34;
   const setArm = (value) => { armPivot.rotation.y = value; };
+  let recordTrack = -1; // each tap that starts the record plays the next of the two tracks
   const roomSound = createRoomSound(); // the slow record (sound.js): it starts inside the tap on the record player and stops with it
   const stopRecordPlayback = () => {
     if (!recordPlaying) return false;
@@ -1362,7 +1363,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   };
   const playRecord = () => {
     if (recordPlaying) return false;
-    recordPlaying = true; roomSound.start(); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordTrack = (recordTrack + 1) % 2; recordPlaying = true; roomSound.start(recordTrack, currentMood === "rain"); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
     recordTimer = setTimeout(stopRecordPlayback, 30000);
     const reduced = reducedMotion();
     const tick = (now) => {
@@ -2916,7 +2917,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name; posMood?.(name); robotFace.setMood(name); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
+    currentMood = name; posMood?.(name); robotFace.setMood(name); roomSound.setRain(name === "rain"); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
@@ -3068,23 +3069,6 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   document.addEventListener("visibilitychange", () => { if (document.hidden) stopRecordPlayback(); }); // the music stops when the page is hidden
   const onRenderHooks = [];
-  // A small FPS read-out that appears only with ?perf=1 in the address (for measuring on a real phone; nothing is shown or run otherwise). The room draws on demand, so the number is the
-  // rate while something moves: drag or flick the view, or let the glide, the dust or a mood change run, then read it. It also shows the draw calls, triangles and lights.
-  if (new URLSearchParams(location.search).get("perf") === "1") {
-    const box = document.createElement("div");
-    box.style.cssText = "position:absolute;left:8px;bottom:8px;z-index:9;padding:4px 8px;border-radius:8px;background:#000b;color:#9fffb0;font:12px/1.35 ui-monospace,monospace;pointer-events:none;white-space:pre";
-    stage.appendChild(box);
-    let frames = 0, t0 = performance.now(), worst = 0, last = t0, lastFps = 0;
-    onRenderHooks.push(() => {
-      const now = performance.now(); frames += 1; worst = Math.max(worst, now - last); last = now;
-      if (now - t0 >= 1000) {
-        lastFps = Math.round(frames * 1000 / (now - t0)); const i = renderer.info;
-        let lights = 0; scene.traverse((o) => { if (o.isLight && o.visible) lights += 1; });
-        box.textContent = `fps ${lastFps}  worst ${Math.round(worst)} ms\ncalls ${i.render.calls}  tris ${(i.render.triangles / 1000).toFixed(0)}k\nlights ${lights}  px ${renderer.getPixelRatio()}  ${currentMood}`;
-        frames = 0; t0 = now; worst = 0;
-      }
-    });
-  }
 
   let ambientRender = false, lastActive = performance.now(); // the dust motes render on their own; those frames are not counted, and the dust rests 30 s after the last real interaction
   let frames = 0;
