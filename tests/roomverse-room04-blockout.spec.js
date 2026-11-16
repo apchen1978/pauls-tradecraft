@@ -870,3 +870,26 @@ test("Room 04 Shanghai night and slow day: the neon sign glows at night only, an
   expect((await vibe()).haloVisible, "the neon colours the brick around it").toBe(true);
   expect(errors).toEqual([]);
 });
+
+test("Room 04 the records play on: one tap plays the three one after another with no time limit until the visitor stops them", async ({ page }) => {
+  test.setTimeout(150000);
+  const errors = await open(page, 1440);
+  await page.locator('[data-mood="golden"]').click();
+  await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(3500);
+  await page.locator("#recordHit").click(); // one tap
+  const state = () => page.evaluate(() => window.__room04.soundState());
+  const titles = ["慢板", "午後弄堂", "夜色外灘"];
+  await expect.poll(async () => (await state()).playlist, { timeout: 8000 }).toBe(true);
+  const first = (await state()).title;
+  await page.evaluate(() => window.__room04.recordNext()); // jump to the next piece, as the end of a piece does
+  await expect.poll(async () => (await state()).title, { timeout: 20000, message: "the next record follows by itself" }).not.toBe(first);
+  const second = (await state()).title;
+  await expect.poll(async () => page.locator("#bubble [data-cover]").getAttribute("src"), { timeout: 8000, message: "the bubble shows the new cover" }).toContain(`room04-record-cover-${titles.indexOf(second)}-`);
+  expect((await state()).playing).toBe(true);
+  await page.waitForTimeout(31000); // longer than the old 30 s limit
+  expect((await state()).playing, "no time limit").toBe(true);
+  expect(await page.evaluate(() => window.__room04.recordPlaying())).toBe(true);
+  await page.locator("#recordHit").dispatchEvent("click"); // the next tap stops it
+  await expect.poll(async () => (await state()).playing).toBe(false);
+  expect(errors).toEqual([]);
+});
