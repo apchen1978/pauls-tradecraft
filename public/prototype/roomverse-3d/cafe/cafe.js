@@ -3053,6 +3053,23 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     requestAnimationFrame(step);
   }
   const onRenderHooks = [];
+  // A small FPS read-out that appears only with ?perf=1 in the address (for measuring on a real phone; nothing is shown or run otherwise). The room draws on demand, so the number is the
+  // rate while something moves: drag or flick the view, or let the glide, the dust or a mood change run, then read it. It also shows the draw calls, triangles and lights.
+  if (new URLSearchParams(location.search).get("perf") === "1") {
+    const box = document.createElement("div");
+    box.style.cssText = "position:absolute;left:8px;bottom:8px;z-index:9;padding:4px 8px;border-radius:8px;background:#000b;color:#9fffb0;font:12px/1.35 ui-monospace,monospace;pointer-events:none;white-space:pre";
+    stage.appendChild(box);
+    let frames = 0, t0 = performance.now(), worst = 0, last = t0, lastFps = 0;
+    onRenderHooks.push(() => {
+      const now = performance.now(); frames += 1; worst = Math.max(worst, now - last); last = now;
+      if (now - t0 >= 1000) {
+        lastFps = Math.round(frames * 1000 / (now - t0)); const i = renderer.info;
+        let lights = 0; scene.traverse((o) => { if (o.isLight && o.visible) lights += 1; });
+        box.textContent = `fps ${lastFps}  worst ${Math.round(worst)} ms\ncalls ${i.render.calls}  tris ${(i.render.triangles / 1000).toFixed(0)}k\nlights ${lights}  px ${renderer.getPixelRatio()}  ${currentMood}`;
+        frames = 0; t0 = now; worst = 0;
+      }
+    });
+  }
 
   let ambientRender = false, lastActive = performance.now(); // the dust motes render on their own; those frames are not counted, and the dust rests 30 s after the last real interaction
   let frames = 0;
