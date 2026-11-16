@@ -128,12 +128,12 @@ export const LOOK_GROUPS = Object.freeze({
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
   lounge: Object.freeze({
-    terracotta: [0xa0523e, 0xc39748, 0xd5b18a, 0xe0c8aa, 0x3d7379],
-    olive: [0x697349, 0xe2d2ab, 0xb88467, 0xe8d9bd, 0xb9822f],
-    navy: [0x354c61, 0xc9b99f, 0xb27d6b, 0xd9cbb8, 0xb5583d],
-    plum: [0x65454d, 0xcaa48f, 0xd6bca8, 0xe4d5c6, 0x4f7a72],
-    sage: [0x78907a, 0xd8c5a5, 0xb8795e, 0xeee0c8, 0x34495e],
-    cocoa: [0x765744, 0xc6a982, 0x8b9b9a, 0xe2d3b8, 0x76803f],
+    terracotta: [0x9e604b, 0xb89a5c, 0xd3bca6, 0xdacbb2, 0x536b69],
+    olive: [0x89926c, 0xd1bea0, 0xb97f6b, 0xe2d5bd, 0x9a7448],
+    navy: [0x3f5369, 0xbfb39f, 0xb4897b, 0xd9ccba, 0xa25f4d],
+    plum: [0x735461, 0xc6a99e, 0xd6c0b2, 0xdfd0bf, 0x677a6c],
+    sage: [0xa0b5a7, 0xd7c5a7, 0xb9876e, 0xe7dac4, 0x5c6c76],
+    cocoa: [0x80614e, 0xc8aa82, 0x98a6a1, 0xe2d1b3, 0x6a7753],
   }),
   wallpaper: Object.freeze({ none: null, stripe: ["wallpaper-stripe-v1.webp", 1.0], botanical: ["wallpaper-botanical-v1.webp", 1.5], grasscloth: ["wallpaper-grasscloth-oat-v1.webp", 2.2], sagewash: ["wallpaper-sage-limewash-v1.webp", 2.4], planeleaf: ["room04-wallpaper-plane-leaf.webp", 1.5], windowshadow: ["room04-wallpaper-window-shadow.webp", 1.5] }), // the last two are this cafe's own (Codex card 52 C)
 });
@@ -273,7 +273,7 @@ function makeFabricTextures() {
   const coarse = noiseGrid(4), fine = noiseGrid(8);
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
     const twill = Math.sin(((x + y) % 8) / 8 * Math.PI * 2), patch = sample(coarse, 4, x, y) * 0.55 + sample(fine, 8, x, y) * 0.45 - 0.5, grain = (rnd() - 0.5) * 8, i = (y * N + x) * 4;
-    const b = Math.max(0, Math.min(255, 128 + twill * 34 + patch * 40 + grain)), m = Math.max(0, Math.min(255, 230 + twill * 11 + patch * 34 + grain * 0.6));
+    const b = Math.max(0, Math.min(255, 128 + twill * 15 + patch * 28 + grain)), m = Math.max(0, Math.min(255, 232 + twill * 4 + patch * 22 + grain * 0.6));
     bump.image.data.set([b, b, b, 255], i); map.image.data.set([m, m, m, 255], i);
   }
   bump.g.putImageData(bump.image, 0, 0); map.g.putImageData(map.image, 0, 0);
@@ -532,10 +532,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85, bumpMap: makeCaneBumpTexture(), bumpScale: 0.018 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
-    loungeSeat: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], vertexColors: true, roughness: 0.91, map: fabric.map, bumpMap: fabric.bump, bumpScale: 5, sheen: 1, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xfff0d8) }),
-    loungeAccent: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.9, map: fabric.map, bumpMap: fabric.bump, bumpScale: 6, sheen: 1, sheenRoughness: 0.45, sheenColor: new THREE.Color(0xfff0d8) }),
-    loungePillow: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][2], vertexColors: true, roughness: 0.94, map: fabric.map, bumpMap: fabric.bump, bumpScale: 4, sheen: 0.35 }),
-    loungeThrow: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][3], roughness: 0.97, map: fabric.map, bumpMap: fabric.bump, bumpScale: 3 }),
+    loungeSeat: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], vertexColors: true, roughness: 0.93, map: fabric.map, bumpMap: fabric.bump, bumpScale: 2.8, sheen: 0.65, sheenRoughness: 0.65, sheenColor: new THREE.Color(0xf1e2cb) }),
+    loungeAccent: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][1], roughness: 0.92, map: fabric.map, bumpMap: fabric.bump, bumpScale: 3, sheen: 0.65, sheenRoughness: 0.65, sheenColor: new THREE.Color(0xf1e2cb) }),
+    loungePillow: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][2], vertexColors: true, roughness: 0.94, map: fabric.map, bumpMap: fabric.bump, bumpScale: 2.2, sheen: 0.4 }),
+    loungeThrow: new THREE.MeshStandardMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][3], roughness: 0.97, map: fabric.map, bumpMap: fabric.bump, bumpScale: 1.8 }),
     matWeave: new THREE.MeshStandardMaterial({ color: 0x756b60, roughness: 0.97, bumpMap: makeMatRibTexture(), bumpScale: 9 }),
     loungeDetail: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.87 }),
     paper: new THREE.MeshStandardMaterial({ color: 0xf6f0e2, roughness: 0.9 }),
@@ -2174,9 +2174,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       detail(cushionWeltGeometry(width, depth, y + 0.003, x, z, 0.0038), 0xb88a68);
     };
     [
-      [-0.614, 0.502, 0.108, 0.566, 0.010, 0xf8f5f0],
+      [-0.614, 0.502, 0.108, 0.566, 0.010, 0xe5d9cd],
       [0.002, 0.514, 0.103, 0.573, 0.016, 0xffffff],
-      [0.617, 0.507, 0.112, 0.558, 0.012, 0xf2eee9],
+      [0.617, 0.507, 0.112, 0.558, 0.012, 0xe5e8df],
     ].forEach(([dz, w, h, d, sag, tone]) => addCushion(w, h, d, bx - 0.025, 0.412, bz + dz, sag, tone));
     part("loungeSeat", colorize(roundedBox(0.113, 0.37, 1.85, 0.045, 0.0225, 4).translate(bx + 0.145, 0.657, bz), 0xf7f2ed));
 
