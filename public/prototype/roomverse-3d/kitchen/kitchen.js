@@ -3891,7 +3891,7 @@ function buildRightWallCredenza(scene, m) {
 function buildRoom03CredenzaDecor(scene) {
   const TOP_Y = 0.815, X = 2.71;
   const parts = [];
-  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1], bucket = parts) => {
     geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale),
     ));
@@ -3899,7 +3899,7 @@ function buildRoom03CredenzaDecor(scene) {
     for (let i = 0; i < count; i++) colour.toArray(colors, i * 3);
     geometry.deleteAttribute("uv");
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    parts.push(geometry);
+    bucket.push(geometry);
   };
   const lathe = (profile, segments) => new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), segments);
   const CLAY = 0xa8644a, MOSS = 0x6f7d5a, BLUE = 0x6c7f93, CREAM = 0xe6dccb, OAK = 0xb88b5b, CERAMIC = 0xd9cfbc;
@@ -3939,22 +3939,14 @@ function buildRoom03CredenzaDecor(scene) {
     add(new THREE.CylinderGeometry(0.0016, 0.0022, height, 4), 0x8c7a4e, [X + dx + Math.sin(lean) * height * 0.5, TOP_Y + 0.265 + Math.cos(lean) * height * 0.5, -0.22 + dz], [lean * 0.4, 0, -lean]);
     add(new THREE.SphereGeometry(0.011, 6, 4), 0xb9a37a, [X + dx + Math.sin(lean) * height, TOP_Y + 0.265 + Math.cos(lean) * height, -0.22 + dz], [0, 0, 0], [0.8, 1.9, 0.8]);
   }
-  // Row of five upright books with a wooden sculpture at the end (z about 0.12).
-  const row = [[0.04, 0.27, CLAY], [0.036, 0.235, BLUE], [0.045, 0.30, MOSS], [0.038, 0.25, CREAM], [0.04, 0.215, CLAY]];
-  // Paul 2026-11-04: packed tight (0.5 mm) so the last book rests on the sculpture plinth, with an oak L bookend holding the open end.
-  let rowZ = 0.185 - 0.201;
-  add(new THREE.BoxGeometry(0.10, 0.14, 0.012), OAK, [X, TOP_Y + 0.07, rowZ - 0.0065]);
-  add(new THREE.BoxGeometry(0.10, 0.004, 0.06), OAK, [X, TOP_Y + 0.002, rowZ - 0.0125 - 0.03]);
-  for (const [thick, tall, cover] of row) { book(0.18, tall, thick, cover, [X, TOP_Y, rowZ + thick / 2], 0, 0); rowZ += thick + 0.0005; }
-  add(new THREE.BoxGeometry(0.1, 0.022, 0.07), OAK, [X, TOP_Y + 0.011, 0.22]);
-  add(new THREE.BoxGeometry(0.065, 0.075, 0.05), OAK, [X, TOP_Y + 0.0595, 0.22]);
-  add(new THREE.BoxGeometry(0.045, 0.075, 0.04), CLAY, [X + 0.009, TOP_Y + 0.134, 0.222]);
-  // Small unbranded San Francisco cable-car keepsake replaces the flat-looking plant.
+  // Paul moved the upright books out so the record player has a clear, supported footprint. The three lying books stay.
+  // The small unbranded San Francisco cable car now rests on the entry nook's TV console.
   // A redwood-toned plinth, clay-red body, cream trim and brass details echo the framed cable-car art above.
-  const keepsakeCenter = [2.69, TOP_Y, 0.57], keepsakeBoxes = [];
+  const keepsakeCenter = [2.69, TOP_Y, 0.57], nookCenter = [-0.78, 0.575, 3.52], keepsakeBoxes = [], keepsakeParts = [];
+  const keepsakeOffset = nookCenter.map((v, axis) => v - keepsakeCenter[axis]);
   let keepsakeVertices = 0;
   const keepsakePart = (geometry, colour, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
-    add(geometry, colour, position, rotation, scale);
+    add(geometry, colour, position.map((v, axis) => v + keepsakeOffset[axis]), rotation, scale, keepsakeParts);
     geometry.computeBoundingBox();
     keepsakeBoxes.push(geometry.boundingBox.clone());
     keepsakeVertices += geometry.attributes.position.count;
@@ -3999,7 +3991,15 @@ function buildRoom03CredenzaDecor(scene) {
   keepsakePart(new THREE.TubeGeometry(gripCurve, 10, 0.0022, 6, false), cableDark, [kx, TOP_Y, kz]);
   const keepsakeBounds = new THREE.Box3();
   keepsakeBoxes.forEach((box) => keepsakeBounds.union(box));
-  const keepsake = { type: "unbranded-sf-cable-car-keepsake", bounds: { min: keepsakeBounds.min.toArray(), max: keepsakeBounds.max.toArray() }, vertices: keepsakeVertices };
+  const keepsakeGeometry = mergeGeometries(keepsakeParts, false);
+  keepsakeParts.forEach((part) => part.dispose());
+  keepsakeGeometry.computeVertexNormals();
+  const keepsakeMesh = new THREE.Mesh(keepsakeGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.82 }));
+  keepsakeMesh.name = "room03-nook-cable-car-keepsake";
+  keepsakeMesh.userData.category = "entry-nook";
+  keepsakeMesh.castShadow = true; keepsakeMesh.receiveShadow = true;
+  scene.add(keepsakeMesh);
+  const keepsake = { type: "unbranded-sf-cable-car-keepsake", bounds: { min: keepsakeBounds.min.toArray(), max: keepsakeBounds.max.toArray() }, vertices: keepsakeVertices, consoleGapMm: Math.round((keepsakeBounds.min.y - 0.575) * 1000) };
   // Shallow dish with three stones (z about 0.85), kept clear of the wok counter at z 1.023.
   add(lathe([[0, 0.003], [0.05, 0.003], [0.07, 0.014], [0.078, 0.03], [0.072, 0.034], [0.062, 0.018], [0, 0.012]], 14), CERAMIC, [X, TOP_Y, 0.84], [0, 0, 0], [1.25, 1, 0.8]);
   for (const [dz, dx, r, tone] of [[-0.05, -0.01, 0.026, 0x9a9488], [0.0, 0.02, 0.022, 0xb5ac9a], [0.05, -0.012, 0.024, 0x7f7a6e]]) {
@@ -4019,6 +4019,50 @@ function buildRoom03CredenzaDecor(scene) {
     vertices, mesh, cups: cupFits, keepsake,
     bounds: () => { scene.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray() }; },
   };
+}
+
+// A compact, self-contained turntable on the cleared end of the credenza. No sound is loaded in this first step.
+function buildRoom03RecordPlayer(scene) {
+  const C = { x: 2.77, z: 0.53, top: 0.815 }, parts = [];
+  const footBoxes = [];
+  const add = (geometry, color) => {
+    const tint = new THREE.Color(color), count = geometry.attributes.position.count;
+    const colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) tint.toArray(colors, i * 3);
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    parts.push(geometry);
+  };
+  // Four feet begin 2.5 mm inside the oak top and run 7.5 mm into the wooden plinth.
+  for (const dx of [-0.12, 0.12]) for (const dz of [-0.17, 0.17]) {
+    const foot = new THREE.CylinderGeometry(0.011, 0.012, 0.025, 10).translate(C.x + dx, 0.825, C.z + dz);
+    foot.computeBoundingBox(); footBoxes.push(foot.boundingBox.clone()); add(foot, 0x272b29);
+  }
+  const deck = new THREE.BoxGeometry(0.32, 0.028, 0.42).translate(C.x, 0.844, C.z);
+  deck.computeBoundingBox(); const deckBox = deck.boundingBox.clone(); add(deck, 0x71523e);
+  add(new THREE.BoxGeometry(0.314, 0.003, 0.414).translate(C.x, 0.8595, C.z), 0x9c7858);
+  const platter = { x: C.x, y: 0.864, z: C.z - 0.055, radius: 0.138 };
+  add(new THREE.CylinderGeometry(platter.radius, platter.radius, 0.006, 40).translate(platter.x, platter.y, platter.z), 0x34383a);
+  const vinyl = new THREE.CylinderGeometry(0.132, 0.132, 0.002, 40).translate(platter.x, 0.868, platter.z);
+  vinyl.computeBoundingBox(); const vinylBox = vinyl.boundingBox.clone(); add(vinyl, 0x141817);
+  for (const r of [0.073, 0.095, 0.116]) add(new THREE.TorusGeometry(r, 0.0007, 3, 40).rotateX(Math.PI / 2).translate(platter.x, 0.8692, platter.z), 0x555a57);
+  add(new THREE.CylinderGeometry(0.025, 0.025, 0.001, 20).translate(platter.x, 0.8695, platter.z), 0xc5a778);
+  add(new THREE.CylinderGeometry(0.003, 0.003, 0.011, 8).translate(platter.x, 0.875, platter.z), 0xc6c6bb);
+  const pivot = [C.x + 0.113, 0.881, C.z + 0.151], elbow = [C.x + 0.11, 0.889, C.z + 0.106], tip = [C.x + 0.072, 0.873, C.z + 0.022];
+  add(new THREE.CylinderGeometry(0.012, 0.012, 0.024, 12).translate(pivot[0], 0.87, pivot[2]), 0x46494a);
+  add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(...pivot), new THREE.Vector3(...elbow), new THREE.Vector3(...tip)]), 14, 0.003, 6, false), 0xc6c6bb);
+  const stylus = new THREE.BoxGeometry(0.012, 0.01, 0.015).translate(tip[0], 0.874, tip[2]);
+  stylus.computeBoundingBox(); const stylusBox = stylus.boundingBox.clone(); add(stylus, 0x363632);
+  const geometry = mergeGeometries(parts, false);
+  parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.59, metalness: 0.08 }));
+  mesh.name = "room03-credenza-record-player"; mesh.userData.category = "credenza";
+  mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh);
+  const box = new THREE.Box3().setFromObject(mesh);
+  return { mesh, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276,
+    footIntoTopMm: Math.round((C.top - Math.max(...footBoxes.map((b) => b.min.y))) * 1000),
+    footIntoPlinthMm: Math.round((Math.min(...footBoxes.map((b) => b.max.y)) - deckBox.min.y) * 1000),
+    tonearmEndAboveVinylMm: Math.round((stylusBox.min.y - vinylBox.max.y) * 1000),
+    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count }) };
 }
 
 function buildDishDryer(scene, m) {
@@ -6451,6 +6495,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (on === Boolean(centerView)) return;
     if (on) {
       if (nookSaved) setNookView(false);
+      if (recordSaved) setRecordView(false);
       savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), zoom: camera.zoom };
       controls.enabled = false;
       canvas.tabIndex = 0;
@@ -6525,6 +6570,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (on === Boolean(nookSaved)) return;
     if (on) {
       if (centerView) setCenterView(false);
+      if (recordSaved) setRecordView(false);
       nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance, rotateSpeed: controls.rotateSpeed, zoomSpeed: controls.zoomSpeed };
       controls.minDistance = NOOK_VIEW.minDistance; controls.maxDistance = NOOK_VIEW.maxDistance;
       // Paul 2026-11-01: a slow, deliberate orbit feels like standing in the room; the room's default speed is for the big orbit.
@@ -6550,6 +6596,34 @@ export async function start({ stage, onReady = () => {} }) {
       controls.rotateSpeed = saved.rotateSpeed; controls.zoomSpeed = saved.zoomSpeed;
       nookSaved = null;
       controls.update(); setMood(currentMood); render();
+    }
+  }
+  // A close, slow look at the credenza end where the record player stands (Paul 2026-11-17: the record player's own quality is the idea, and a tap on it
+  // will start the music). Same pattern as the nook view: save the orbit, hold it to a small window, walk in over about a second, restore on leave.
+  const RECORD_VIEW = { target: [2.72, 0.88, 0.52], position: [1.80, 1.26, 1.02], minDistance: 0.55, maxDistance: 1.4, azimuthHalfRange: 0.55, halfHfovDeg: 24, minFov: 44, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
+  const recordFov = (aspect) => Math.min(RECORD_VIEW.maxFov, Math.max(RECORD_VIEW.minFov, 2 * Math.atan(Math.tan(RECORD_VIEW.halfHfovDeg * Math.PI / 180) / aspect) * 180 / Math.PI));
+  let recordSaved = null;
+  function setRecordView(on) {
+    if (on === Boolean(recordSaved)) return;
+    if (on) {
+      if (centerView) setCenterView(false);
+      if (nookSaved) setNookView(false);
+      recordSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance, rotateSpeed: controls.rotateSpeed, zoomSpeed: controls.zoomSpeed };
+      const theta = Math.atan2(RECORD_VIEW.position[0] - RECORD_VIEW.target[0], RECORD_VIEW.position[2] - RECORD_VIEW.target[2]);
+      controls.minAzimuthAngle = theta - RECORD_VIEW.azimuthHalfRange; controls.maxAzimuthAngle = theta + RECORD_VIEW.azimuthHalfRange;
+      controls.minDistance = RECORD_VIEW.minDistance; controls.maxDistance = RECORD_VIEW.maxDistance;
+      controls.rotateSpeed = RECORD_VIEW.rotateSpeed; controls.zoomSpeed = RECORD_VIEW.zoomSpeed;
+      tweenNook(camera.position, controls.target, camera.fov, new THREE.Vector3(...RECORD_VIEW.position), new THREE.Vector3(...RECORD_VIEW.target), recordFov(camera.aspect));
+    } else {
+      const saved = recordSaved;
+      if (nookTween) { cancelAnimationFrame(nookTween); nookTween = null; }
+      camera.position.copy(saved.position); controls.target.copy(saved.target);
+      camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov; camera.updateProjectionMatrix();
+      controls.minAzimuthAngle = saved.minAzimuth; controls.maxAzimuthAngle = saved.maxAzimuth;
+      controls.minDistance = saved.minDistance; controls.maxDistance = saved.maxDistance;
+      controls.rotateSpeed = saved.rotateSpeed; controls.zoomSpeed = saved.zoomSpeed;
+      recordSaved = null;
+      controls.update(); render();
     }
   }
   function centerPointerDown(event) {
@@ -6584,6 +6658,7 @@ export async function start({ stage, onReady = () => {} }) {
     { key: "corkboard", box: [[0.06, 0.82, 3.70], [0.48, 1.18, 3.76]], zh: "軟木板上的蠟筆畫，是小姪女畫的。", en: "The crayon drawing on the board is from my niece." },
     { key: "keyShelf", box: [[0.16, 0.36, 3.58], [0.48, 0.50, 3.76]], zh: "鑰匙層板：回家先把鑰匙放下。", en: "The key shelf: keys land here before anything else." },
     { key: "puppy", box: [[-0.50, 0.57, 3.36], [-0.29, 0.71, 3.57]], zh: "小狗在等誰回家，等到睡著了。", en: "The puppy fell asleep waiting for someone to come home." },
+    { key: "cableCar", box: [[-0.86, 0.575, 3.39], [-0.70, 0.75, 3.65]], zh: "從餐櫃搬來的小纜車，現在住在這個角落。", en: "The little cable car moved from the credenza to this nook." },
   ];
   let nookLang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
   let nookCaptionKey = null, nookHintShown = false, nookCaptionTimer = 0;
@@ -6611,6 +6686,39 @@ export async function start({ stage, onReady = () => {} }) {
     nookHintShown = true;
     showNookCaption(nookLang === "zh" ? "點一下：帆布袋、軟木板、鑰匙層板。" : "Tap: totes, board, key shelf.", null, 4200);
   }
+  // A discoverable record-player cue; the first tap acknowledges the object without loading or playing audio.
+  let vinylFound = false, vinylTap = null;
+  const vinylReadyAt = performance.now(), vinylRing = document.createElement("div"), vinylStyle = document.createElement("style");
+  vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
+  vinylStyle.textContent = "#vinylRing{position:absolute;z-index:4;width:62px;height:62px;margin:-31px 0 0 -31px;border:3px solid #ffe2a8;border-radius:50%;background:radial-gradient(circle,rgba(255,214,150,.3),transparent 70%);box-shadow:0 0 18px 5px rgba(255,190,90,.8);pointer-events:none;animation:vinylPulse 1.9s ease-out infinite}#vinylRing[hidden]{display:none}@keyframes vinylPulse{0%{transform:scale(.72);opacity:1}80%,100%{transform:scale(1.35);opacity:0}}@media(prefers-reduced-motion:reduce){#vinylRing{animation:none}}";
+  document.head.append(vinylStyle); (canvas.parentElement || stage).append(vinylRing);
+  const vinylPoint = () => {
+    scene.updateMatrixWorld(true); camera.updateMatrixWorld();
+    const p = new THREE.Vector3(2.77, 0.875, 0.53).project(camera), rect = canvas.getBoundingClientRect();
+    if (p.z >= 1 || Math.abs(p.x) > 0.9 || Math.abs(p.y) > 0.9) return null;
+    return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2 };
+  };
+  const positionVinylRing = () => {
+    const p = !vinylFound && performance.now() - vinylReadyAt > 4500 && !document.hidden ? vinylPoint() : null;
+    vinylRing.hidden = !p;
+    if (p) { const rect = vinylRing.parentElement.getBoundingClientRect(); vinylRing.style.left = `${p.x - rect.left}px`; vinylRing.style.top = `${p.y - rect.top}px`; }
+  };
+  const vinylTimer = setInterval(positionVinylRing, 1000);
+  const vinylPointerDown = (event) => { if (event.isPrimary) vinylTap = { x: event.clientX, y: event.clientY }; };
+  const vinylPointerUp = (event) => {
+    if (!vinylTap || !event.isPrimary) return;
+    const start = vinylTap; vinylTap = null;
+    if (vinylFound || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
+    const p = vinylPoint(); if (!p) return;
+    // the hit area follows how big the turntable looks on screen (a 14 cm platter radius), never smaller than a finger
+    const edge = new THREE.Vector3(2.77, 0.875, 0.53 + 0.14).project(camera), rect = canvas.getBoundingClientRect();
+    const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
+    if (Math.hypot(event.clientX - p.x, event.clientY - p.y) > Math.max(34, radiusPx * 1.1)) return;
+    vinylFound = true; positionVinylRing();
+    showNookCaption(nookLang === "zh" ? "這張唱片在等一個好午後。" : "A record waiting for a slow afternoon.");
+  };
+  canvas.addEventListener("pointerdown", vinylPointerDown);
+  canvas.addEventListener("pointerup", vinylPointerUp);
   const nookRaycaster = new THREE.Raycaster();
   function nookSpotAt(clientX, clientY) {
     if (!nookSaved) return null;
@@ -6822,6 +6930,7 @@ export async function start({ stage, onReady = () => {} }) {
   const grasscloth = makeGrasscloth(scene);
   credenza = buildRightWallCredenza(scene, materials);
   const credenzaDecor = buildRoom03CredenzaDecor(scene);
+  const recordPlayer = buildRoom03RecordPlayer(scene);
   const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
   const mediaWoodwork = addRoom03Woodwork(scene, materials.oak, woodGeometries);
   const moodSlots = { screen: mediaUnit.screen, tabletopCenterpiece: scene.getObjectByName("mood-slot-tabletop-centerpiece"), tableware: null };
@@ -7503,14 +7612,14 @@ export async function start({ stage, onReady = () => {} }) {
       compactCameraActive = nextCompact;
       const preset = compactCameraActive ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
       controls.maxDistance = preset.maxDistance;
-      if (!centerView && !nookSaved) {
+      if (!centerView && !nookSaved && !recordSaved) {
         camera.position.set(...preset.position);
         controls.target.set(...preset.target);
         controls.update();
       }
     }
     camera.aspect = rect.width / rect.height;
-    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : nookSaved ? nookFov(camera.aspect) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
+    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : nookSaved ? nookFov(camera.aspect) : recordSaved ? recordFov(camera.aspect) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
     camera.updateProjectionMatrix();
     // P0b: the pendant shadow follows the same compact flag the camera uses, so a phone never pays for the point-light pass.
     pendantLight.castShadow = !compactCameraActive;
@@ -8175,6 +8284,7 @@ export async function start({ stage, onReady = () => {} }) {
   };
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
+    recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
@@ -8199,6 +8309,7 @@ export async function start({ stage, onReady = () => {} }) {
     },
     setArtwork: (frameKey, optionKey, onDone) => wallArt.setArtwork(frameKey, optionKey, (result) => { render(); onDone?.(result); }),
     artOptions: () => Object.fromEntries(Object.entries(wallArt.artOptions).map(([frame, options]) => [frame, Object.keys(options)])),
+    setRecordView, recordViewInfo: () => recordSaved ? { target: [...RECORD_VIEW.target], position: [...RECORD_VIEW.position], distance: camera.position.distanceTo(controls.target), fov: camera.fov } : null,
     setNookView, nookViewInfo: () => nookSaved ? { target: [...NOOK_VIEW.target], position: [...NOOK_VIEW.position], azimuthHalfRange: NOOK_VIEW.azimuthHalfRange, minDistance: NOOK_VIEW.minDistance } : null,
     nookAnimating: () => Boolean(nookTween), nookTvCutHidden, nookHotspotInfo, sinkStation: () => (sinkStationInfoRef ? sinkStationInfoRef() : null),
 
@@ -8213,6 +8324,8 @@ export async function start({ stage, onReady = () => {} }) {
       controls.update(); render();
     },
     dispose: () => {
+      clearInterval(vinylTimer); vinylRing.remove(); vinylStyle.remove();
+      canvas.removeEventListener("pointerdown", vinylPointerDown); canvas.removeEventListener("pointerup", vinylPointerUp);
       canvas.removeEventListener('pointerdown', centerPointerDown);
       canvas.removeEventListener('pointermove', centerPointerMove);
       canvas.removeEventListener('pointerup', centerPointerEnd);
