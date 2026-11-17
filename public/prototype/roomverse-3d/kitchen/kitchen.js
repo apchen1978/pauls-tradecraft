@@ -423,7 +423,7 @@ function makeMaterials() {
     }),
     waterLabel: std(0x78959a, 0.78),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
-    porcelain: std(0xe1ddd2, 0.72), mugGlaze: std(0xb0533c, 0.30), coffee: std(0x47372b, 0.78), coffeeBeanLight: std(0x805536, 0.8),
+    porcelain: std(0xe1ddd2, 0.72), mugGlaze: std(0xb0533c, 0.30), mugCoffee: std(0x1b120c, 0.3), coffee: std(0x47372b, 0.78), coffeeBeanLight: std(0x805536, 0.8),
     oilGlass: std(0x526044, 0.4, { metalness: 0.04 }), leafGreen: std(0x405b3d, 0.78, { side: THREE.DoubleSide }), leafGreenLight: std(0x778b53, 0.8, { side: THREE.DoubleSide }), soil: std(0x62513d, 0.98),
     warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
     sunlight: new THREE.MeshBasicMaterial({ color: 0xffdda0, map: makeSunPatchTexture(), transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide }),
@@ -4504,6 +4504,8 @@ function buildHouseholdProps(scene, m) {
     const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]]
       .map(([radius, y]) => new THREE.Vector2(radius, y));
     const x = -0.30, z = -1.752, yaw = -0.62;
+    // Paul 2026-11-17: black coffee in the mug. The inner wall is 34.2 mm in radius; the surface sits 15 mm under the 95 mm rim.
+    shape(new THREE.CircleGeometry(0.0338, 40).rotateX(-Math.PI / 2), m.mugCoffee, [x, 0.954 + 0.080, z]);
     // Weld the lathe's duplicated seam vertices first: buildPropGroup recomputes normals on the merged geometry, and
     // an unwelded seam leaves two coincident vertices with different normals, which drew a hard vertical line down
     // the mug from every angle (Paul 2026-11-04). 48 segments keeps the silhouette round up close.
@@ -4532,6 +4534,40 @@ function buildHouseholdProps(scene, m) {
   // A 30-40 mm-tall glaze surface picks up shadow-map acne that reads as flat facets, so the mug only casts.
   counterMugs.traverse((child) => { if (child.isMesh) child.receiveShadow = false; });
   counterMugs.userData.mugCount = 1;
+  // Paul 2026-11-17: the red mug gets a little gold. A thin gilded ring on the rim and a thin band near the foot, and on the side that faces the room a small
+  // gold lotus medallion (a ring, a dotted ring, eight petals and a sun at the centre), drawn in code on a canvas, no download. The mug stands at the credenza.
+  {
+    const MX = -0.30 + RED_MUG_SHIFT[0], MY = 0.954 + RED_MUG_SHIFT[1], MZ = -1.752 + RED_MUG_SHIFT[2];
+    const goldMaterial = new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 0.78, roughness: 0.28, emissive: 0x3a2808, emissiveIntensity: 0.4 });
+    const rim = new THREE.TorusGeometry(0.0374, 0.0016, 8, 56).rotateX(Math.PI / 2).translate(MX, MY + 0.0948, MZ);
+    const foot = new THREE.TorusGeometry(0.0403, 0.0011, 8, 56).rotateX(Math.PI / 2).translate(MX, MY + 0.016, MZ);
+    const goldRings = new THREE.Mesh(mergeGeometries([rim, foot], false), goldMaterial);
+    goldRings.name = "room03-red-mug-gold"; goldRings.userData.category = "credenza"; goldRings.castShadow = false; goldRings.receiveShadow = false;
+    scene.add(goldRings);
+    const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 256;
+    const g = canvas.getContext("2d"), cx = 128, cy = 128;
+    const gradient = g.createLinearGradient(30, 30, 226, 226);
+    gradient.addColorStop(0, "#f7e19a"); gradient.addColorStop(0.5, "#c9962f"); gradient.addColorStop(1, "#f1d98e");
+    g.clearRect(0, 0, 256, 256);
+    g.strokeStyle = gradient; g.fillStyle = gradient; g.lineWidth = 6;
+    g.beginPath(); g.arc(cx, cy, 118, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 2.5; g.beginPath(); g.arc(cx, cy, 108, 0, Math.PI * 2); g.stroke();
+    for (let i = 0; i < 36; i++) { const a = (i / 36) * Math.PI * 2; g.beginPath(); g.arc(cx + Math.cos(a) * 98, cy + Math.sin(a) * 98, 2.6, 0, Math.PI * 2); g.fill(); }
+    for (let i = 0; i < 8; i++) { // eight petals
+      g.save(); g.translate(cx, cy); g.rotate((i / 8) * Math.PI * 2);
+      g.beginPath(); g.moveTo(0, -20); g.bezierCurveTo(26, -50, 26, -82, 0, -92); g.bezierCurveTo(-26, -82, -26, -50, 0, -20); g.closePath();
+      g.globalAlpha = 0.9; g.fill(); g.globalAlpha = 1; g.lineWidth = 2; g.strokeStyle = "#7a5516"; g.stroke();
+      g.restore();
+    }
+    g.fillStyle = gradient; g.beginPath(); g.arc(cx, cy, 17, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = "#7a5516"; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 17, 0, Math.PI * 2); g.stroke();
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    const arc = 1.0, facing = -1.3; // radians around the mug; the medallion faces into the room, away from the handle
+    const medallion = new THREE.Mesh(new THREE.CylinderGeometry(0.0403, 0.0403, 0.04, 36, 1, true, facing - arc / 2, arc),
+      new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.4, metalness: 0.25, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    medallion.name = "room03-red-mug-medallion"; medallion.position.set(MX, MY + 0.049, MZ); medallion.userData.category = "credenza";
+    scene.add(medallion);
+  }
   // Paul 2026-11-17: the shallow dish with three pebbles leaves the credenza (the middle pebble hovered about 5 mm over the dish floor and two sat on the wall)
   // and stands on the counter where the red mug was, beside the coffee maker. Each pebble is placed from the dish's own floor height so it rests on it
   // (0.5 mm in), stays inside the wall, and is a smooth, slightly tilted, irregular stone rather than a flat sphere.
@@ -4706,7 +4742,7 @@ function buildHouseholdProps(scene, m) {
   sinkStationInfoRef = () => JSON.parse(JSON.stringify(sinkStationBoxes));
 
   scene.updateMatrixWorld(true); // the station props were just created; merge in world space so they land where they belong
-  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs, ...sinkStationProps], [m.steel, m.black, m.mugGlaze, m.porcelain, m.faucetSteel, m.leafGreen, m.oak], "prop-countertop-hardware-shared");
+  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs, ...sinkStationProps], [m.steel, m.black, m.mugGlaze, m.mugCoffee, m.porcelain, m.faucetSteel, m.leafGreen, m.oak], "prop-countertop-hardware-shared");
 
   // One reduced solid-wood board leans against the wok-side backsplash; the former island board is removed.
   const cuttingBoard = buildPropGroup(scene, "cutting-board", [0, 0, 0], ({ shape }) => {
@@ -6660,7 +6696,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   // A close, slow look at the credenza end where the record player stands (Paul 2026-11-17: the record player's own quality is the idea, and a tap on it
   // will start the music). Same pattern as the nook view: save the orbit, hold it to a small window, walk in over about a second, restore on leave.
-  const RECORD_VIEW = { target: [2.72, 0.88, 0.52], position: [1.80, 1.26, 1.02], minDistance: 0.55, maxDistance: 1.4, azimuthHalfRange: 0.55, halfHfovDeg: 24, minFov: 44, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
+  const RECORD_VIEW = { target: [2.72, 0.89, 0.60], position: [1.76, 1.22, 0.99], minDistance: 0.55, maxDistance: 1.4, azimuthHalfRange: 0.55, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
   const recordFov = (aspect) => Math.min(RECORD_VIEW.maxFov, Math.max(RECORD_VIEW.minFov, 2 * Math.atan(Math.tan(RECORD_VIEW.halfHfovDeg * Math.PI / 180) / aspect) * 180 / Math.PI));
   let recordSaved = null;
   function setRecordView(on) {
@@ -6674,6 +6710,7 @@ export async function start({ stage, onReady = () => {} }) {
       controls.minDistance = RECORD_VIEW.minDistance; controls.maxDistance = RECORD_VIEW.maxDistance;
       controls.rotateSpeed = RECORD_VIEW.rotateSpeed; controls.zoomSpeed = RECORD_VIEW.zoomSpeed;
       tweenNook(camera.position, controls.target, camera.fov, new THREE.Vector3(...RECORD_VIEW.position), new THREE.Vector3(...RECORD_VIEW.target), recordFov(camera.aspect));
+      refreshMugSteam();
     } else {
       const saved = recordSaved;
       if (nookTween) { cancelAnimationFrame(nookTween); nookTween = null; }
@@ -6683,7 +6720,7 @@ export async function start({ stage, onReady = () => {} }) {
       controls.minDistance = saved.minDistance; controls.maxDistance = saved.maxDistance;
       controls.rotateSpeed = saved.rotateSpeed; controls.zoomSpeed = saved.zoomSpeed;
       recordSaved = null;
-      controls.update(); render();
+      controls.update(); render(); refreshMugSteam();
     }
   }
   function centerPointerDown(event) {
@@ -6750,12 +6787,13 @@ export async function start({ stage, onReady = () => {} }) {
   // stopped -> 布魯克林窗台 -> 午後弄堂 -> stopped. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before.
   const recordA = createRoomRecord(), recordB = createRoomSound();
   let recordSide = -1; // -1 stopped, 0 布魯克林窗台, 1 午後弄堂
-  const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; };
+  const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); };
   const nextRecord = () => {
     if (recordSide === -1) recordSide = recordA.start(0) ? 0 : -1;
     // The second piece (Room 04's) is about 5 dB softer than the first (measured), so it plays 1.4x louder here (+3 dB): about level with it in the middle, a little under in the loud notes.
     else if (recordSide === 0) { recordA.stop(); recordSide = recordB.start(1, false, { playlist: false, level: 1.4 }) ? 1 : -1; }
     else stopRecords();
+    refreshMugSteam();
     return recordSide;
   };
   const RECORD_CAPTIONS = [ // short on purpose: the line sits over the picture and must not cover the turntable
@@ -7555,11 +7593,57 @@ export async function start({ stage, onReady = () => {} }) {
   })();
   function applyAutumnLeaves(name) { leafRig.mesh.visible = name === "thanksgiving"; }
   function autumnLeavesInfo() { const b = new THREE.Box3().setFromObject(leafRig.mesh); return { visible: leafRig.mesh.visible, leaves: leafRig.count, vertices: leafRig.vertices, bounds: { min: b.min.toArray(), max: b.max.toArray() } }; }
+  // Paul 2026-11-17: a little steam over the red mug's black coffee. A faint curl is always there (one still frame); it drifts while the close record view is
+  // open or the record plays, at about 15 frames a second like the Sunday-morning steam, and only then. In the Sunday mood the existing morning steam does this job.
+  const mugSteamRig = (() => {
+    const softCanvas = document.createElement("canvas"); softCanvas.width = softCanvas.height = 64;
+    const sx = softCanvas.getContext("2d"), sg = sx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    sg.addColorStop(0, "rgba(255,255,255,1)"); sg.addColorStop(0.4, "rgba(255,255,255,.5)"); sg.addColorStop(1, "rgba(255,255,255,0)");
+    sx.fillStyle = sg; sx.fillRect(0, 0, 64, 64);
+    const COUNT = 22, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+    for (let i = 0; i < COUNT; i++) data.seed[i] = (i * 0.618034 + 0.07 * Math.sin(i * 5.3)) % 1; // spread unevenly so it never reads as a row of dots
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+    const material = new THREE.PointsMaterial({ map: new THREE.CanvasTexture(softCanvas), size: 0.058, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false });
+    material.name = "red-mug-steam";
+    const points = new THREE.Points(geometry, material); points.name = "red-mug-steam"; points.frustumCulled = false;
+    points.raycast = () => {}; // atmosphere, not an object
+    scene.add(points);
+    const RIM = { x: -0.30 + RED_MUG_SHIFT[0], y: 0.954 + RED_MUG_SHIFT[1] + 0.098, z: -1.752 + RED_MUG_SHIFT[2] };
+    const update = (t) => {
+      for (let i = 0; i < COUNT; i++) {
+        const life = (t * 0.26 + data.seed[i]) % 1; // 0 at the coffee, 1 gone, about four seconds
+        const widen = 0.25 + life * 1.6; // the curl opens out as it rises
+        const sway = Math.sin(t * 0.9 + life * 5.2 + data.seed[i] * 6) * 0.012 * widen; // an S-shaped drift
+        const spread = Math.sin(data.seed[i] * 40) * 0.008 * widen;
+        data.pos[i * 3] = RIM.x + sway + spread + life * 0.014; data.pos[i * 3 + 1] = RIM.y + life * 0.16; data.pos[i * 3 + 2] = RIM.z + Math.cos(t * 0.7 + life * 4.1 + data.seed[i] * 7) * 0.009 * widen + Math.cos(data.seed[i] * 31) * 0.006 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * 0.5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * 0.97;
+      }
+      geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+    };
+    update(7.3);
+    return { points, update };
+  })();
+  let mugSteamRun = 0;
+  function refreshMugSteam() {
+    const run = ++mugSteamRun;
+    mugSteamRig.points.visible = currentMood !== "sunday";
+    if (!mugSteamRig.points.visible || morningReduced() || !(recordSaved || recordSide >= 0)) { mugSteamRig.update(7.3); return; }
+    const t0 = performance.now(); let last = 0;
+    const step = (now) => {
+      if (run !== mugSteamRun) return;
+      if (!(recordSaved || recordSide >= 0) || currentMood === "sunday") { mugSteamRig.update(7.3); render(); return; }
+      if (!document.hidden && now - last > 66) { last = now; mugSteamRig.update((now - t0) / 1000 + 7.3); render(); }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
   let morningRun = 0;
   const morningReduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   function applyMorningTouches(name) {
     const on = name === "sunday", { dustPoints, steamPoints, update } = morningRig;
     dustPoints.visible = on; steamPoints.visible = on;
+    mugSteamRig.points.visible = !on;
     const run = ++morningRun;
     if (!on) return;
     if (morningReduced()) { update(12.5); return; } // still: motes hang in the beam, one soft curl above the mug
