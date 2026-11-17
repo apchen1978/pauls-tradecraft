@@ -6753,7 +6753,8 @@ export async function start({ stage, onReady = () => {} }) {
   const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; };
   const nextRecord = () => {
     if (recordSide === -1) recordSide = recordA.start(0) ? 0 : -1;
-    else if (recordSide === 0) { recordA.stop(); recordSide = recordB.start(1, false, { playlist: false }) ? 1 : -1; }
+    // The second piece (Room 04's) is about 5 dB softer than the first (measured), so it plays 1.4x louder here (+3 dB): about level with it in the middle, a little under in the loud notes.
+    else if (recordSide === 0) { recordA.stop(); recordSide = recordB.start(1, false, { playlist: false, level: 1.4 }) ? 1 : -1; }
     else stopRecords();
     return recordSide;
   };

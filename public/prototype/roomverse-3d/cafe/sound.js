@@ -93,13 +93,13 @@ export function createRoomSound() {
     setTimeout(() => { try { src.stop(); } catch { /* already stopped */ } }, 1200);
   };
   return {
-    // Call from inside a tap. track: 0 or 1; rain: true in the rain mood. Returns true if it started.
+    // Call from inside a tap. track: 0 or 1; rain: true in the rain mood. Returns true if it started. options.level scales the volume (default 1; Room 03 asks for more so this softer piece sits beside Room 02's).
     start(track = 0, rain = false, options = {}) {
       if (playing) return true;
       const AudioContextClass = window.AudioContext || window.webkitAudioContext; if (!AudioContextClass) return false;
       try {
         ctx ??= new AudioContextClass(); ctx.resume?.();
-        master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.9, ctx.currentTime + (options.fade ?? 1.2)); master.connect(ctx.destination);
+        master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.9 * (options.level ?? 1), ctx.currentTime + (options.fade ?? 1.2)); master.connect(ctx.destination);
         crackle = options.vinyl === false ? null : ctx.createBufferSource(); if (crackle) { crackle.buffer = noiseBuffer(3, "crackle"); crackle.loop = true; } // vinyl: false (Room 01 borrows this piece) leaves the record crackle out
         if (crackle) { const crackleFilter = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); crackleFilter.type = "highpass"; crackleFilter.frequency.value = 1400; crackleGain.gain.value = 0.126; // 0.55 x 0.7
         crackle.connect(crackleFilter); crackleFilter.connect(crackleGain); crackleGain.connect(master); crackle.start(); }
