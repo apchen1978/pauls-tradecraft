@@ -4048,13 +4048,16 @@ function buildRoom03CredenzaDecor(scene) {
 function buildRoom03RecordPlayer(scene) {
   const C = { x: 2.77, z: 0.53, top: 0.815 }, parts = [];
   const footBoxes = [];
-  const add = (geometry, color) => {
+  const add = (geometry, color, into = parts) => {
     const tint = new THREE.Color(color), count = geometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) tint.toArray(colors, i * 3);
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    parts.push(geometry);
+    into.push(geometry);
   };
+  // Card I (2026-11-18): the platter (with the record, grooves, label and spindle) and the tonearm (tube and stylus) are their own two meshes so they can
+  // turn and swing while the music plays; everything else stays in the one merged body. Both share the body's material.
+  const platterParts = [], armParts = [];
   // Four feet begin 2.5 mm inside the oak top and run 7.5 mm into the wooden plinth.
   for (const dx of [-0.12, 0.12]) for (const dz of [-0.17, 0.17]) {
     const foot = new THREE.CylinderGeometry(0.011, 0.012, 0.025, 10).translate(C.x + dx, 0.825, C.z + dz);
@@ -4064,17 +4067,26 @@ function buildRoom03RecordPlayer(scene) {
   deck.computeBoundingBox(); const deckBox = deck.boundingBox.clone(); add(deck, 0x71523e);
   add(new THREE.BoxGeometry(0.314, 0.003, 0.414).translate(C.x, 0.8595, C.z), 0x9c7858);
   const platter = { x: C.x, y: 0.864, z: C.z - 0.055, radius: 0.138 };
-  add(new THREE.CylinderGeometry(platter.radius, platter.radius, 0.006, 40).translate(platter.x, platter.y, platter.z), 0x34383a);
+  add(new THREE.CylinderGeometry(platter.radius, platter.radius, 0.006, 40).translate(platter.x, platter.y, platter.z), 0x34383a, platterParts);
   const vinyl = new THREE.CylinderGeometry(0.132, 0.132, 0.002, 40).translate(platter.x, 0.868, platter.z);
-  vinyl.computeBoundingBox(); const vinylBox = vinyl.boundingBox.clone(); add(vinyl, 0x141817);
-  for (const r of [0.073, 0.095, 0.116]) add(new THREE.TorusGeometry(r, 0.0007, 3, 40).rotateX(Math.PI / 2).translate(platter.x, 0.8692, platter.z), 0x555a57);
-  add(new THREE.CylinderGeometry(0.025, 0.025, 0.001, 20).translate(platter.x, 0.8695, platter.z), 0xc5a778);
-  add(new THREE.CylinderGeometry(0.003, 0.003, 0.011, 8).translate(platter.x, 0.875, platter.z), 0xc6c6bb);
+  vinyl.computeBoundingBox(); const vinylBox = vinyl.boundingBox.clone(); add(vinyl, 0x141817, platterParts);
+  for (const r of [0.073, 0.095, 0.116]) add(new THREE.TorusGeometry(r, 0.0007, 3, 40).rotateX(Math.PI / 2).translate(platter.x, 0.8692, platter.z), 0x555a57, platterParts);
+  add(new THREE.CylinderGeometry(0.025, 0.025, 0.001, 20).translate(platter.x, 0.8695, platter.z), 0xc5a778, platterParts);
+  // One small dark print block on the label, off centre (no words): the record and its rings are round, so without it a turning record looks still.
+  add(new THREE.BoxGeometry(0.014, 0.0004, 0.004).translate(platter.x + 0.011, 0.87, platter.z - 0.006), 0x6b4a2c, platterParts);
+  add(new THREE.CylinderGeometry(0.003, 0.003, 0.011, 8).translate(platter.x, 0.875, platter.z), 0xc6c6bb, platterParts);
   const pivot = [C.x + 0.113, 0.881, C.z + 0.151], elbow = [C.x + 0.11, 0.889, C.z + 0.106], tip = [C.x + 0.072, 0.873, C.z + 0.022];
   add(new THREE.CylinderGeometry(0.012, 0.012, 0.024, 12).translate(pivot[0], 0.87, pivot[2]), 0x46494a);
-  add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(...pivot), new THREE.Vector3(...elbow), new THREE.Vector3(...tip)]), 14, 0.003, 6, false), 0xc6c6bb);
+  const armCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(...pivot), new THREE.Vector3(...elbow), new THREE.Vector3(...tip)]);
+  add(new THREE.TubeGeometry(armCurve, 14, 0.003, 6, false), 0xc6c6bb, armParts);
   const stylus = new THREE.BoxGeometry(0.012, 0.01, 0.015).translate(tip[0], 0.874, tip[2]);
-  stylus.computeBoundingBox(); const stylusBox = stylus.boundingBox.clone(); add(stylus, 0x363632);
+  stylus.computeBoundingBox(); const stylusBox = stylus.boundingBox.clone(); add(stylus, 0x363632, armParts);
+  // The arm parks 30 degrees outwards (stylus 12 mm clear of the gold rim) on a slim rest post that stands 1 mm into the deck top and meets the tube's underside.
+  const ARM = { play: 0, rest: -0.52, swingMs: 650 }, DECK_TOP = 0.861;
+  const restAt = armCurve.getPoint(0.72), restOff = new THREE.Vector3(restAt.x - pivot[0], 0, restAt.z - pivot[2]).applyAxisAngle(new THREE.Vector3(0, 1, 0), ARM.rest);
+  const restTop = restAt.y - 0.003 + 0.001, restBottom = DECK_TOP - 0.001;
+  const restPost = new THREE.CylinderGeometry(0.0026, 0.0032, restTop - restBottom, 8).translate(pivot[0] + restOff.x, (restTop + restBottom) / 2, pivot[2] + restOff.z);
+  restPost.computeBoundingBox(); const restBox = restPost.boundingBox.clone(); add(restPost, 0x2c302e);
   // Gold trim (Paul 2026-11-17: make the record player shine and stand out): a thin frame around the top edge, a pinstripe on the room-facing side,
   // a ring at the platter's rim and a cap on the tonearm pivot. One merged mesh with a warm metal material.
   const gold = [];
@@ -4091,15 +4103,54 @@ function buildRoom03RecordPlayer(scene) {
   goldMesh.name = "room03-credenza-record-player-gold"; goldMesh.userData.category = "credenza"; goldMesh.castShadow = false; goldMesh.receiveShadow = false; scene.add(goldMesh);
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
-  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.59, metalness: 0.08 }));
+  const bodyMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.59, metalness: 0.08 });
+  const mesh = new THREE.Mesh(geometry, bodyMaterial);
   mesh.name = "room03-credenza-record-player"; mesh.userData.category = "credenza";
   mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh);
-  const box = new THREE.Box3().setFromObject(mesh);
-  return { mesh, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276,
+  // Moving parts: geometry is moved so the mesh's own origin sits on its axis (platter centre, arm pivot), then the mesh is placed back there.
+  const moving = (list, name, ox, oz) => {
+    const g = mergeGeometries(list, false); list.forEach((part) => part.dispose()); g.translate(-ox, 0, -oz); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, bodyMaterial); m.name = name; m.userData.category = "credenza"; m.position.set(ox, 0, oz); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+  };
+  const platterMesh = moving(platterParts, "room03-record-platter", platter.x, platter.z);
+  const armMesh = moving(armParts, "room03-record-tonearm", pivot[0], pivot[2]);
+  armMesh.rotation.y = ARM.rest; // stopped: parked on the rest post
+  const box = new THREE.Box3().setFromObject(mesh).union(new THREE.Box3().setFromObject(platterMesh)).union(new THREE.Box3().setFromObject(armMesh));
+  // Card I, copied from Room 04's deck: while playing, the platter turns at 33 1/3 rpm and the arm swings onto the record in 650 ms; on stop it swings back and
+  // the loop ends, so a stopped room draws nothing extra.
+  const RPM33 = (33.333 / 60) * Math.PI * 2;
+  const motion = { playing: false, arm: ARM.rest, from: ARM.rest, swingAt: 0, last: 0, loop: 0, render: null };
+  const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const frame = (now) => {
+    motion.loop = 0;
+    const dt = Math.min(0.1, (now - (motion.last || now)) / 1000); motion.last = now;
+    const k = Math.min(1, (now - motion.swingAt) / ARM.swingMs), e = k * k * (3 - 2 * k), target = motion.playing ? ARM.play : ARM.rest;
+    motion.arm = motion.from + (target - motion.from) * e; armMesh.rotation.y = motion.arm;
+    if (motion.playing && !reduced()) platterMesh.rotation.y -= RPM33 * dt;
+    motion.render?.();
+    if (motion.playing || k < 1) motion.loop = requestAnimationFrame(frame);
+  };
+  const setPlaying = (playing, render) => {
+    motion.render = render ?? motion.render; playing = !!playing;
+    if (playing === motion.playing) return;
+    motion.playing = playing; motion.from = motion.arm; motion.swingAt = performance.now(); motion.last = 0;
+    if (reduced()) { motion.arm = playing ? ARM.play : ARM.rest; armMesh.rotation.y = motion.arm; motion.render?.(); return; }
+    if (!motion.loop) motion.loop = requestAnimationFrame(frame);
+  };
+  const stop = () => { if (motion.loop) cancelAnimationFrame(motion.loop); motion.loop = 0; };
+  const motionInfo = () => {
+    scene.updateMatrixWorld(true);
+    const tipNow = new THREE.Vector3(tip[0] - pivot[0], 0, tip[2] - pivot[2]).applyAxisAngle(new THREE.Vector3(0, 1, 0), armMesh.rotation.y);
+    const mm = (v) => Number((v * 1000).toFixed(1));
+    return { playing: motion.playing, looping: !!motion.loop, armAngle: Number(armMesh.rotation.y.toFixed(4)), armRest: ARM.rest, armPlay: ARM.play, platterAngle: Number(platterMesh.rotation.y.toFixed(4)),
+      stylusFromCentreMm: mm(Math.hypot(pivot[0] + tipNow.x - platter.x, pivot[2] + tipNow.z - platter.z)), vinylRadiusMm: 132, labelRadiusMm: 25, platterRadiusMm: 138,
+      restIntoDeckMm: mm(DECK_TOP - restBox.min.y), restTopToTubeMm: mm(restAt.y - 0.003 - restBox.max.y) };
+  };
+  return { mesh, platterMesh, armMesh, setPlaying, stop, motionInfo, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276,
     footIntoTopMm: Math.round((C.top - Math.max(...footBoxes.map((b) => b.min.y))) * 1000),
     footIntoPlinthMm: Math.round((Math.min(...footBoxes.map((b) => b.max.y)) - deckBox.min.y) * 1000),
     tonearmEndAboveVinylMm: Math.round((stylusBox.min.y - vinylBox.max.y) * 1000),
-    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count + goldGeometry.attributes.position.count, goldVertices: goldGeometry.attributes.position.count }) };
+    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count + platterMesh.geometry.attributes.position.count + armMesh.geometry.attributes.position.count + goldGeometry.attributes.position.count, goldVertices: goldGeometry.attributes.position.count, motion: motionInfo() }) };
 }
 
 function buildDishDryer(scene, m) {
@@ -6794,13 +6845,14 @@ export async function start({ stage, onReady = () => {} }) {
   // stopped -> 布魯克林窗台 -> 午後弄堂 -> stopped. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before.
   const recordA = createRoomRecord(), recordB = createRoomSound();
   let recordSide = -1; // -1 stopped, 0 布魯克林窗台, 1 午後弄堂
-  const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); };
+  let syncRecordMotion = null; // Card I: set once the record player is built; turns the platter and drops the arm while a piece plays
+  const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); syncRecordMotion?.(); };
   const nextRecord = () => {
     if (recordSide === -1) recordSide = recordA.start(0) ? 0 : -1;
     // The second piece (Room 04's) is about 5 dB softer than the first (measured), so it plays 1.4x louder here (+3 dB): about level with it in the middle, a little under in the loud notes.
     else if (recordSide === 0) { recordA.stop(); recordSide = recordB.start(1, false, { playlist: false, level: 1.4 }) ? 1 : -1; }
     else stopRecords();
-    refreshMugSteam();
+    refreshMugSteam(); syncRecordMotion?.();
     return recordSide;
   };
   const RECORD_CAPTIONS = [ // short on purpose: the line sits over the picture and must not cover the turntable
@@ -7058,6 +7110,7 @@ export async function start({ stage, onReady = () => {} }) {
   credenza = buildRightWallCredenza(scene, materials);
   const credenzaDecor = buildRoom03CredenzaDecor(scene);
   const recordPlayer = buildRoom03RecordPlayer(scene);
+  syncRecordMotion = () => recordPlayer.setPlaying(recordSide >= 0, render);
   const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
   const mediaWoodwork = addRoom03Woodwork(scene, materials.oak, woodGeometries);
   const moodSlots = { screen: mediaUnit.screen, tabletopCenterpiece: scene.getObjectByName("mood-slot-tabletop-centerpiece"), tableware: null };
@@ -8498,7 +8551,7 @@ export async function start({ stage, onReady = () => {} }) {
       controls.update(); render();
     },
     dispose: () => {
-      stopRecords(); document.removeEventListener("visibilitychange", onRecordHidden);
+      stopRecords(); recordPlayer.stop(); document.removeEventListener("visibilitychange", onRecordHidden);
       clearInterval(vinylTimer); vinylRing.remove(); vinylStyle.remove();
       canvas.removeEventListener("pointerdown", vinylPointerDown); canvas.removeEventListener("pointerup", vinylPointerUp);
       canvas.removeEventListener('pointerdown', centerPointerDown);
