@@ -1,8 +1,8 @@
 // Room 03's own record (Paul, 2026-11-18: Room 03 is a Bay Area flat; its record player only played pieces borrowed from Room 02 and Room 04, so give it one new piece of its own, played first).
 // "灣區午後" / "Bay Area Afternoon": a light, sunny West Coast loop at 92 beats a minute, nearly straight eighths with a little lift, in G major: Gmaj9, Em9, Cmaj9 and D6/9 (I-vi-IV-V with
 // open voicings, no minor turn at the end, so it keeps rising). A soft bossa-style bass (root, fifth on the "and" of two, root, fifth), a rim click and a shaker made from noise, a rolled comp
-// and a major-pentatonic melody on the same real piano as the other rooms (piano.js: Salamander Grand Piano, CC BY 3.0, credited on the page), over a very faint record crackle and an airy room.
-// The form is sixteen bars: two bars of comp, the melody, a higher phrase in bars 8 to 11, then the melody again. Everything is written here note by note; nothing is borrowed and no sound file is
+// and a bright, bouncy hook (see the melodies below) on the same real piano as the other rooms (piano.js: Salamander Grand Piano, CC BY 3.0, credited on the page), over a very faint record crackle and an airy room.
+// The form is sixteen bars: two bars of comp, the hook and its answer, the same shape lifted an octave in bars 8 to 11, then the hook again and a cadence home to G. Everything is written here note by note; nothing is borrowed and no sound file is
 // added. Nothing plays until the visitor taps the record player (browsers allow sound only after a tap); start() must be called from inside that tap.
 import { createPiano } from "../piano.js?v=auto";
 const realPiano = createPiano(), PIANO_K = 3.0;
@@ -14,19 +14,23 @@ const CHORDS = [
   { bass: 36, comp: [55, 59, 62, 64] },   // Cmaj9: G B D E
   { bass: 38, comp: [54, 57, 59, 64] },   // D6/9: F# A B E
 ];
-// melodies: [step, midi, length in steps] per bar
+// melodies: [step, midi, length in steps] per bar (Paul, 2026-11-18: brighter, sunnier, a warm holiday-greeting feel). The hook is a bouncy, syncopated climb (root or fifth, third, fifth,
+// then the sixth or ninth on the off-beat) that comes back over the IV chord; the second bar of each pair answers it. Strong beats sit on chord tones; the colour notes (the sixth, the ninth)
+// fall on the off-beats. Bars 8 to 11 lift the same shape about an octave higher, up to C6, and the last bar walks up to the leading tone and lands on G on the next downbeat.
+const HOOK = [[0, 67, 2], [2, 71, 2], [4, 74, 2], [7, 76, 2], [10, 74, 2], [12, 71, 3]];   // G B D E D B: over Gmaj9 and again over Cmaj9 (the fifth, seventh, ninth and third)
 const MELODY_A = [
-  [[2, 71, 4], [6, 74, 2], [8, 76, 6], [14, 74, 2]],   // Gmaj9: B D E D
-  [[0, 71, 6], [8, 67, 4], [12, 69, 4]],               // Em9: B G A
-  [[2, 76, 4], [6, 74, 2], [8, 71, 4], [12, 74, 4]],   // Cmaj9: E D B D
-  [[0, 69, 8], [10, 66, 2], [12, 69, 4]],              // D6/9: A F# A
+  HOOK,                                                            // Gmaj9: the call
+  [[0, 71, 2], [3, 69, 2], [6, 67, 2], [8, 66, 3], [12, 67, 1], [14, 71, 2]],   // Em9: the answer, B A G, the ninth F#, a pickup back up
+  HOOK,                                                            // Cmaj9: the call again
+  [[0, 74, 2], [2, 76, 2], [4, 78, 2], [7, 76, 2], [10, 74, 2], [12, 69, 3]],   // D6/9: D E F# E D A, the answer climbs
 ];
-const MELODY_B = [
-  [[0, 79, 4], [4, 78, 2], [6, 76, 2], [8, 74, 6], [14, 76, 2]],   // Gmaj9: G F# E D E
-  [[0, 79, 6], [8, 76, 4], [12, 74, 4]],                           // Em9: G E D
-  [[2, 76, 4], [6, 79, 2], [8, 83, 6], [14, 81, 2]],               // Cmaj9: E G B A
-  [[0, 81, 6], [8, 78, 4], [12, 74, 4]],                           // D6/9: A F# D
+const MELODY_B = [ // the lift
+  [[0, 79, 2], [2, 81, 2], [4, 83, 2], [7, 81, 2], [10, 79, 2], [12, 76, 3]],   // Gmaj9: G A B A G E (the ninth and the sixth)
+  [[0, 79, 2], [3, 78, 2], [6, 76, 2], [8, 74, 3], [12, 78, 1], [14, 79, 2]],   // Em9: G F# E D, F# G
+  [[0, 79, 2], [2, 81, 2], [4, 83, 2], [7, 84, 2], [10, 83, 2], [12, 79, 3]],   // Cmaj9: up to C6, the peak
+  [[0, 81, 2], [3, 78, 2], [6, 76, 2], [8, 78, 2], [10, 81, 2], [12, 83, 3]],   // D6/9: A F# E F# A, the sixth B leads back into the hook
 ];
+const CADENCE = [[0, 74, 2], [2, 76, 2], [4, 78, 2], [7, 81, 2], [10, 78, 2], [12, 76, 1], [14, 78, 2], [16, 79, 8]]; // the last bar (D6/9): up to A, down, F# and home to G on the next downbeat
 export const BAY_TITLE = { zh: "灣區午後", en: "Bay Area Afternoon" };
 export const BAY_BARS = FORM_BARS; // one time through the form, about 42 s
 
@@ -62,6 +66,11 @@ export function createBayRecord() {
     const out = ctx.createGain(), osc = ctx.createOscillator(), osc2 = ctx.createOscillator(); osc.type = "triangle"; osc2.type = "sine"; osc.frequency.value = hz(midi); osc2.frequency.value = hz(midi) * 2;
     out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(gain, time + 0.01); out.gain.exponentialRampToValueAtTime(0.0001, time + length); osc.connect(out); osc2.connect(out); out.connect(bus); osc.start(time); osc2.start(time); osc.stop(time + length + 0.05); osc2.stop(time + length + 0.05); noteCount += 1;
   };
+  const bell = (time, midi, gain) => { // a small bell: a sine with two quieter inharmonic partials and a quick ring-out
+    const out = ctx.createGain(); out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(gain, time + 0.004); out.gain.exponentialRampToValueAtTime(0.0001, time + 0.9);
+    for (const [ratio, level] of [[1, 1], [2.76, 0.28], [5.4, 0.08]]) { const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = "sine"; osc.frequency.value = hz(midi) * ratio; g.gain.value = level; osc.connect(g); g.connect(out); osc.start(time); osc.stop(time + 0.95); }
+    out.connect(bus); noteCount += 1;
+  };
   const reverb = () => { // an airy, bright room (longer and lighter than Room 02's)
     const length = Math.floor(ctx.sampleRate * 1.8), buffer = ctx.createBuffer(2, length, ctx.sampleRate);
     for (let channel = 0; channel < 2; channel++) { const data = buffer.getChannelData(channel); let last = 0; for (let i = 0; i < length; i++) { last = last * 0.35 + (rnd() * 2 - 1) * 0.65; data[i] = last * Math.pow(1 - i / length, 2.2); } }
@@ -81,8 +90,12 @@ export function createBayRecord() {
     chord.comp.forEach((midi, i) => piano(at(0) + i * 0.03 + jitter(5), midi, vary(0.062), STEP * 7, -0.2 + i * 0.12));
     chord.comp.slice(1).forEach((midi, k) => piano(at(6) + k * 0.018, midi, vary(0.034), STEP * 3, 0.12 - k * 0.08));
     chord.comp.slice(2).forEach((midi, k) => piano(at(12) + k * 0.018, midi, vary(0.03), STEP * 3, 0.1));
-    // the melody: absent for the first two bars, then phrase A, the higher phrase B, then A again
-    if (section >= 2) { const phrase = section >= 8 && section <= 11 ? MELODY_B : MELODY_A; for (const [i, midi, length] of phrase[barIndex % 4]) piano(at(i) + 0.01 + jitter(7), midi, vary(0.085), STEP * (length + 1), 0.22); }
+    // the melody: absent for the first two bars, then phrase A, the higher phrase B, then A again ending on the cadence. Short notes and a slightly stronger touch keep it bouncy;
+    // a soft bell an octave up doubles the head of the hook for a little holiday sparkle.
+    if (section >= 2) {
+      const row = section === FORM_BARS - 1 ? CADENCE : (section >= 8 && section <= 11 ? MELODY_B : MELODY_A)[barIndex % 4], hook = barIndex % 2 === 0;
+      for (const [i, midi, length] of row) { const t = at(i) + 0.008 + jitter(5); piano(t, midi, vary(0.095), STEP * (length + 0.6), 0.22); if (hook && i < 8) bell(t, midi + 12, section >= 8 && section <= 11 ? 0.012 : 0.016); }
+    }
     barIndex += 1; nextTime += BAR_STEPS * STEP;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
