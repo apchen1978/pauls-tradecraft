@@ -5,6 +5,7 @@ import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
 import { createRoomRecord } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
 import { createRoomSound } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
+import { createBayRecord, BAY_BARS } from "./sound.js?v=auto"; // Room 03's own piece "灣區午後", played first
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
@@ -6841,22 +6842,32 @@ export async function start({ stage, onReady = () => {} }) {
     nookHintShown = true;
     showNookCaption(nookLang === "zh" ? "點一下：帆布袋、軟木板、鑰匙層板。" : "Tap: totes, board, key shelf.", null, 4200);
   }
-  // The record player plays two pieces that already exist (Paul, 2026-11-17): Room 02's "布魯克林窗台" and Room 04's "午後弄堂". One tap walks the record:
-  // stopped -> 布魯克林窗台 -> 午後弄堂 -> stopped. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before.
-  const recordA = createRoomRecord(), recordB = createRoomSound();
-  let recordSide = -1; // -1 stopped, 0 布魯克林窗台, 1 午後弄堂
+  // The record player (Paul, 2026-11-18): Room 03's own piece "灣區午後" plays first, then Room 02's "布魯克林窗台" and Room 04's "午後弄堂", each once through, round and round
+  // like Room 04's playlist, until the next tap stops it. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before. After the first tap the
+  // next piece starts from a timer, which browsers allow once the page has made sound.
+  const recordBay = createBayRecord(), recordA = createRoomRecord(), recordB = createRoomSound();
+  // [engine, bars to play once through, how to start it]. 午後弄堂 is about 5 dB softer than the others (measured), so it plays 1.4x louder here (+3 dB), as before.
+  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, 16, () => recordA.start(0)], [recordB, 12, () => recordB.start(1, false, { playlist: false, level: 1.4 })]];
+  let recordSide = -1; // -1 stopped, 0 灣區午後, 1 布魯克林窗台, 2 午後弄堂
   let syncRecordMotion = null; // Card I: set once the record player is built; turns the platter and drops the arm while a piece plays
-  const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); syncRecordMotion?.(); };
-  const nextRecord = () => {
-    if (recordSide === -1) recordSide = recordA.start(0) ? 0 : -1;
-    // The second piece (Room 04's) is about 5 dB softer than the first (measured), so it plays 1.4x louder here (+3 dB): about level with it in the middle, a little under in the loud notes.
-    else if (recordSide === 0) { recordA.stop(); recordSide = recordB.start(1, false, { playlist: false, level: 1.4 }) ? 1 : -1; }
+  let recordTimer = 0;
+  const stopRecords = () => { clearInterval(recordTimer); recordTimer = 0; for (const [engine] of RECORD_PIECES) engine.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); syncRecordMotion?.(); };
+  const playRecordPiece = (side) => { RECORD_PIECES.forEach(([engine], i) => { if (i !== side) engine.stop(); }); recordSide = RECORD_PIECES[side][2]() ? side : -1; return recordSide; };
+  const advanceRecord = () => { // the next piece, a moment before the last bar of this one ends (bars counts bars already scheduled, 0.6 s ahead)
+    const next = (recordSide + 1) % RECORD_PIECES.length;
+    if (playRecordPiece(next) < 0) { stopRecords(); return; }
+    showNookCaption(RECORD_CAPTIONS[next][nookLang], null, 3500); refreshMugSteam(); syncRecordMotion?.();
+  };
+  const watchRecord = () => { if (recordSide >= 0) { const [engine, bars] = RECORD_PIECES[recordSide]; if (engine.state().bars > bars) advanceRecord(); } };
+  const nextRecord = () => { // one tap plays (from the first piece), the next tap stops
+    if (recordSide === -1) { if (playRecordPiece(0) >= 0) { clearInterval(recordTimer); recordTimer = setInterval(watchRecord, 400); } }
     else stopRecords();
     refreshMugSteam(); syncRecordMotion?.();
     return recordSide;
   };
   const RECORD_CAPTIONS = [ // short on purpose: the line sits over the picture and must not cover the turntable
-    { zh: "♪ 布魯克林窗台　再點換歌", en: "♪ Brooklyn Windowsill · tap for next" },
+    { zh: "♪ 灣區午後　再點停止", en: "♪ Bay Area Afternoon · tap to stop" },
+    { zh: "♪ 布魯克林窗台　再點停止", en: "♪ Brooklyn Windowsill · tap to stop" },
     { zh: "♪ 午後弄堂　再點停止", en: "♪ Afternoon Lane · tap to stop" },
     { zh: "唱片收起來了", en: "Record put away" },
     { zh: "這台裝置放不出聲音", en: "No sound on this device" },
@@ -6893,7 +6904,7 @@ export async function start({ stage, onReady = () => {} }) {
     const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
     if (Math.hypot(event.clientX - p.x, event.clientY - p.y) > Math.max(34, radiusPx * 1.1)) return;
     vinylFound = true; positionVinylRing();
-    const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 3 : 2];
+    const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 4 : 3];
     showNookCaption(caption[nookLang], null, now >= 0 ? 6500 : 3500);
   };
   canvas.addEventListener("pointerdown", vinylPointerDown);
@@ -8511,7 +8522,7 @@ export async function start({ stage, onReady = () => {} }) {
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
     recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
-    recordMusicState: () => ({ side: recordSide, windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords,
+    recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
