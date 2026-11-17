@@ -33,9 +33,12 @@ test("Room 03 the credenza record player is a real, supported object (step 1: no
   expect(errors).toEqual([]);
 });
 
-test("Room 03 a glowing ring points at the record player until it is tapped, then the first tap only says hello", async ({ page }) => {
-  test.setTimeout(150000);
+test("Room 03 a glowing ring points at the record player; each tap walks the record: Brooklyn Windowsill, Afternoon Lane, stopped", async ({ page }) => {
+  test.setTimeout(240000);
   const errors = await openRoom(page);
+  const audioFiles = () => page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name).filter((n) => /\.mp3/i.test(n)));
+  expect(await audioFiles(), "no piano sample files (mp3) are fetched before the first tap").toEqual([]);
+  const state = () => page.evaluate(() => window.__room03.recordMusicState());
   // The "Record player" button walks the camera in to a close look at the credenza end.
   await page.locator("#recordView").click();
   await expect.poll(async () => (await page.evaluate(() => window.__room03.recordViewInfo()))?.distance ?? 99, { timeout: 8000, message: "the camera walks in to the record view" }).toBeLessThan(1.4);
@@ -44,14 +47,32 @@ test("Room 03 a glowing ring points at the record player until it is tapped, the
   await expect(page.locator("#vinylRing"), "the ring appears a few seconds after the room opens").toBeVisible({ timeout: 20000 });
   // A tap on the platter's edge counts, not only the exact centre.
   const ring = await page.locator("#vinylRing").boundingBox();
-  const hit = await page.evaluate(() => { const r = window.__room03; const rect = r.camera && document.querySelector("canvas").getBoundingClientRect(); const v = r.camera; const p = { x: 2.77 + 0.1, y: 0.875, z: 0.53 }; const q = new v.position.constructor(p.x, p.y, p.z).project(v); return { x: rect.left + (q.x + 1) * rect.width / 2, y: rect.top + (1 - q.y) * rect.height / 2 }; });
-  expect(Math.hypot(hit.x - (ring.x + ring.width / 2), hit.y - (ring.y + ring.height / 2)), "the platter edge is farther from the ring centre than a ring radius").toBeGreaterThan(20);
-  await page.mouse.click(hit.x, hit.y);
+  const spot = await page.evaluate(() => { const v = window.__room03.camera; const rect = document.querySelector("canvas").getBoundingClientRect(); const q = new v.position.constructor(2.77 + 0.1, 0.875, 0.53).project(v); return { x: rect.left + (q.x + 1) * rect.width / 2, y: rect.top + (1 - q.y) * rect.height / 2 }; });
+  expect(Math.hypot(spot.x - (ring.x + ring.width / 2), spot.y - (ring.y + ring.height / 2)), "the platter edge is farther from the ring centre than a ring radius").toBeGreaterThan(20);
+  // Tap 1: Brooklyn Windowsill (Room 02's piece).
+  await page.mouse.click(spot.x, spot.y);
   await expect(page.locator("#vinylRing"), "the ring goes away once the record player has been found").toBeHidden();
   expect((await page.evaluate(() => window.__room03.recordPlayerInfo())).hintSeen).toBe(true);
-  // Step 1 loads no sound: no audio files and no piano samples are requested by this tap.
-  const audioRequests = await page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name).filter((n) => /\.mp3|piano/i.test(n)));
-  expect(audioRequests).toEqual([]);
+  await expect.poll(async () => (await state()).windowsill.playing, { timeout: 8000, message: "the first tap starts the music" }).toBe(true);
+  expect((await state()).side).toBe(0);
+  expect((await state()).windowsill.title).toBe("布魯克林窗台");
+  await expect.poll(async () => (await state()).windowsill.piano, { timeout: 20000, message: "the real piano samples load after the tap" }).toBe(true);
+  await expect.poll(async () => (await state()).windowsill.notes, { timeout: 15000 }).toBeGreaterThan(12);
+  expect((await audioFiles()).length, "the piano samples were fetched by the tap").toBeGreaterThan(0);
+  // Tap 2: Afternoon Lane (Room 04's piece), and the first piece stops.
+  await page.waitForTimeout(1200);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await state()).side, { timeout: 8000 }).toBe(1);
+  expect((await state()).windowsill.playing, "the first piece has stopped").toBe(false);
+  await expect.poll(async () => (await state()).lane.playing, { timeout: 8000 }).toBe(true);
+  expect((await state()).lane.title).toBe("午後弄堂");
+  await expect.poll(async () => (await state()).lane.notes, { timeout: 15000 }).toBeGreaterThan(8);
+  // Tap 3: stopped.
+  await page.waitForTimeout(1200);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await state()).side, { timeout: 8000 }).toBe(-1);
+  expect((await state()).lane.playing).toBe(false);
+  expect((await state()).windowsill.playing).toBe(false);
   // Leaving the close view (here by the entry-wall button) restores the normal orbit.
   await page.locator("#plaqueView").click();
   expect(await page.evaluate(() => window.__room03.recordViewInfo())).toBeNull();
