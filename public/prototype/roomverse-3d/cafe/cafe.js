@@ -1362,6 +1362,19 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   part("black", new THREE.BoxGeometry(0.075, 0.003, 0.008).translate(RECORD.x + 0.061, recordDeckY + 0.006, RECORD.z + 0.119), { tile: 1 });
   part("gold", new THREE.BoxGeometry(0.009, 0.005, 0.012).translate(RECORD.x + 0.064, recordDeckY + 0.009, RECORD.z + 0.119), { tile: 1 });
 
+  // Paul 2026-11-17 (Room 03's record player shines, so this one does too): gold trim on the turntable, in the existing "gold" batch (no extra mesh): a thin
+  // frame round the top edge of the oak body, a pinstripe along the front (the side that faces the visitor), and a ring on the rim of the steel platter plate.
+  {
+    const frameY = recordDeckY + 0.0026;
+    for (const sz of [-1, 1]) part("gold", new THREE.BoxGeometry(0.346, 0.0022, 0.0045).translate(RECORD.x, frameY, RECORD.z + sz * 0.1345), { tile: 1 });
+    for (const sx of [-1, 1]) part("gold", new THREE.BoxGeometry(0.0045, 0.0022, 0.273).translate(RECORD.x + sx * 0.1725, frameY, RECORD.z), { tile: 1 });
+    part("gold", new THREE.BoxGeometry(0.33, 0.0020, 0.0012).translate(RECORD.x, recordBaseY + 0.034, RECORD.z + RECORD.depth / 2 + 0.0006), { tile: 1 });
+    part("gold", new THREE.TorusGeometry(0.1322, 0.0013, 6, 48).rotateX(Math.PI / 2).translate(RECORD.x, platterSupportY + 0.0042, RECORD.z), { tile: 1 });
+  }
+  // A cup of black coffee in front of the turntable, steaming (Paul asked for the same corner as Room 03): a small cup and saucer, 5 cm clear of the oak body.
+  const RECORD_CUP = new THREE.Vector3(RECORD.x + 0.07, c.height, RECORD.z + 0.31);
+  ceramicCup({ x: RECORD_CUP.x, y: RECORD_CUP.y, z: RECORD_CUP.z, scale: 1.1, coffee: true, latte: false });
+
   let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
   const ARM_REST = 0.28, ARM_PLAY = 2.34;
   const setArm = (value) => { armPivot.rotation.y = value; };
@@ -2804,7 +2817,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();
   const steamPositions = [];
-  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [GREETER_CUP.x, GREETER_CUP.y + 0.074, GREETER_CUP.z], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) {
+  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [GREETER_CUP.x, GREETER_CUP.y + 0.074, GREETER_CUP.z], [tx(0.13), tableTop + 0.075, tz(-0.06)], [RECORD_CUP.x, RECORD_CUP.y + 0.07, RECORD_CUP.z]]) {
     for (let i = 0; i < 4; i++) steamPositions.push(sx + Math.sin(i * 1.7) * 0.012, sy + 0.05 + i * 0.07, sz + Math.cos(i * 1.3) * 0.01);
   }
   const steamGeometry = new THREE.BufferGeometry(); steamGeometry.setAttribute("position", new THREE.Float32BufferAttribute(steamPositions, 3));
@@ -3177,6 +3190,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const station = (position, target, fov) => ({ position: new THREE.Vector3(...position), ...aim(position, target), fov });
   const STATIONS = {
     counter: compact ? station([1.9, 1.5, 1.55], [0.65, 1.52, -0.7], 62) : station([1.7, 1.5, 1.45], [0.2, 1.52, -0.7], 50),
+    // A close look at the turntable and the cup beside it (Paul 2026-11-17, like Room 03's "Record player" view): the camera comes round to the visitor side of the counter.
+    record: compact ? station([0.92, 1.42, 0.12], [0.52, 1.12, -0.68], 50) : station([0.88, 1.40, 0.06], [0.52, 1.12, -0.68], 34),
     window: compact ? station([0.3, 1.35, 2.1], [-2.5, 1.0, 0.5], 66) : station([-0.1, 1.4, 2.0], [-2.5, 1.0, 0.5], 54),
     lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
     // On a phone it faces the counter so both robots and both menu boards are whole (Paul, 2026-11-16: the greeter was cut in half; the room now opens in the middle, which shows the windows).
