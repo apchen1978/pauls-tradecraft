@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 112361, meshes: 138 }),
+  scene: Object.freeze({ vertices: 113666, meshes: 140 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 85, phone: 82 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -80,6 +80,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-11", change: "daylight water set: moved toward the table centre so it no longer sits on the cream chair back; transmissive glass was tried and dropped because it re-rendered the whole room (+70 draw calls); the glass is now a low-opacity MeshPhysicalMaterial with a clearcoat, a darker welded rim and foot, and the room env map actually assigned (the material now lives in makeMaterials), with a visible meniscus at three-quarters full in the pitcher and both tumblers, two opaque lemon slices, and a tighter contact shadow (+1,382 vertices, +1 mesh, +2 opening draw calls in the moods that show the centerpiece; dinner and thanksgiving hide it and are unchanged)", vertices: 110493, meshes: 134, desktopCalls: 85, phoneCalls: 82 },
     { date: "2026-11-11", change: "movie-night phone on the dining table (Paul, after Room 02): a rounded phone body, a lock-screen glass plane and an additive light pool, all hidden outside the movie mood; the screen pulses a notification every ~16 s and a tap reads the message (+1,004 vertices, +3 meshes, movie +3 draw calls, every other mood unchanged)", vertices: 111497, meshes: 137, desktopCalls: 85, phoneCalls: 82 },
     { date: "2026-11-11", change: "time and season touches (Paul): Sunday morning gets 44 dust motes in the sun and a steam curl over the mug (two additive point clouds, a ~15 fps loop only while that mood is on, still under reduced motion); Thanksgiving gets nine autumn leaves on the floor inside the open panel (one vertex-coloured mesh). Hidden elsewhere (+864 vertices, +1 mesh from the leaves; the two point clouds add no triangles; sunday +2 draw calls, every other mood unchanged)", vertices: 112361, meshes: 138, desktopCalls: 85, phoneCalls: 82 },
+    { date: "2026-11-17", change: "a compact record player stands on four embedded feet at the cleared credenza end; upright books leave, the cable-car keepsake moves onto the nook console; +1305 vertices, +2 meshes, opening and mood draw calls unchanged", vertices: 113666, meshes: 140, desktopCalls: 85, phoneCalls: 82 },
   ]),
 });
 
