@@ -1740,14 +1740,47 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // screen (a canvas, lit like a display), and a contactless pad in front with a cyan ring. It moved from x 0.55 to 0.90 so the record player could take the middle.
     partShift = 0; // the counter is straight here (x > 0.5), and everything built after this point (front wall, prints, doors) must not inherit the S-curve's shift
     const POS_X = 0.9, posZ = c.z1 - 0.2;
-    registerSupport("checkout-on-counter", "rest", { base: { x: POS_X, y: top, z: posZ, radius: 0.078 },
+    // Card H (Paul 2026-11-18): the post stood in FRONT of the screen. It now rises from the weighted base behind the screen, near its lower centre, into a hinge ball
+    // and a round back plate, the way a real tablet stand holds a screen. The base moved 3 cm back so its front edge is 17 mm clear of the payment pad.
+    const STAND_Z = posZ - 0.03;
+    registerSupport("checkout-on-counter", "rest", { base: { x: POS_X, y: top, z: STAND_Z, radius: 0.078 },
       surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
-    part("black", new THREE.CylinderGeometry(0.068, 0.078, 0.016, 28).translate(POS_X, top + 0.008, posZ), { tile: 1 });
-    part("steel", new THREE.CylinderGeometry(0.014, 0.018, 0.1, 14).translate(POS_X, top + 0.066, posZ), { tile: 1 });
-    part("steel", rodGeometry([POS_X, top + 0.1, posZ], [POS_X, top + 0.135, posZ - 0.018], 0.011), { tile: 1 });
+    part("black", new THREE.CylinderGeometry(0.068, 0.078, 0.016, 28).translate(POS_X, top + 0.008, STAND_Z), { tile: 1 }); // on the stone at 0 mm, top at +16 mm
+    part("steel", new THREE.CylinderGeometry(0.011, 0.013, 0.126, 14).translate(POS_X, top + 0.077, STAND_Z), { tile: 1 }); // 2 mm into the base, up to the ball centre
+    part("steel", new THREE.SphereGeometry(0.012, 14, 10).translate(POS_X, top + 0.14, STAND_Z), { tile: 1 }); // hinge ball, about 4 mm into the back plate
     part("black", roundedBox(0.234, 0.158, 0.014, 0.014, 0.003).rotateX(-0.32).translate(POS_X, top + 0.172, posZ - 0.025), { tile: 1 });
-    part("black", roundedBox(0.1, 0.014, 0.07, 0.012, 0.003).translate(POS_X + 0.015, top + 0.007, c.z1 - 0.1), { tile: 1 }); // the contactless pad
-    part("robotGlow", colorize(new THREE.TorusGeometry(0.022, 0.0022, 6, 28).rotateX(Math.PI / 2).translate(POS_X + 0.015, top + 0.0155, c.z1 - 0.1), 0xbff0ff), { tile: 1 });
+    // the round back plate, on the tablet's back face 3 cm below its centre (axis along the screen normal)
+    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.006, 24).rotateX(Math.PI / 2 - 0.32).translate(POS_X, top + 0.1400, posZ - 0.0239), { tile: 1 });
+    // The payment pad (Card H b): a matte black rounded body about 100 x 70 x 12 mm on four rubber feet (on the stone at 0 mm, 0.5 mm into the body), a fine steel edge
+    // band, a thin bright cyan contactless ring on the left and a slightly raised, slightly tilted scan window on the right (its drawn block code is on the atlas below).
+    // 5 mm left of where it was so the paper note on its right is 20 mm clear.
+    const PAD = { x: POS_X + 0.005, z: c.z1 - 0.1 };
+    for (const [dx, dz] of [[-0.04, -0.026], [0.04, -0.026], [-0.04, 0.026], [0.04, 0.026]]) part("black", new THREE.CylinderGeometry(0.004, 0.004, 0.003, 10).translate(PAD.x + dx, top + 0.0015, PAD.z + dz), { tile: 1 });
+    part("black", roundedBox(0.1, 0.07, 0.012, 0.01, 0.002).rotateX(-Math.PI / 2).translate(PAD.x, top + 0.0085, PAD.z), { tile: 1 }); // bottom at +2.5 mm, top at +14.5 mm
+    part("steel", roundedBox(0.1012, 0.0712, 0.002, 0.0106, 0).rotateX(-Math.PI / 2).translate(PAD.x, top + 0.0105, PAD.z), { tile: 1 }); // fine edge band
+    part("robotGlow", colorize(new THREE.TorusGeometry(0.016, 0.0011, 6, 32).rotateX(Math.PI / 2).translate(PAD.x - 0.022, top + 0.0148, PAD.z), 0x6ff6ff), { tile: 1 });
+    part("black", new THREE.BoxGeometry(0.036, 0.004, 0.042).rotateX(0.15).translate(PAD.x + 0.025, top + 0.0175, PAD.z), { tile: 1 }); // scan window block, 2 mm into the body
+    {
+      // One small atlas, one mesh: left half an abstract block code for the scan window (not a real code, no text), right half latte art for the cup by the record player.
+      const atlas = document.createElement("canvas"); atlas.width = 256; atlas.height = 128; const g = atlas.getContext("2d");
+      g.fillStyle = "#0b1418"; g.fillRect(0, 0, 128, 128); g.fillStyle = "#bfeff6";
+      let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      for (let r = 0; r < 9; r++) for (let q = 0; q < 9; q++) if (rnd() > 0.55) g.fillRect(19 + q * 10, 19 + r * 10, 9, 9);
+      for (const [x, y] of [[14, 14], [86, 14], [14, 86]]) { g.fillStyle = "#bfeff6"; g.fillRect(x, y, 28, 28); g.fillStyle = "#0b1418"; g.fillRect(x + 5, y + 5, 18, 18); g.fillStyle = "#bfeff6"; g.fillRect(x + 9, y + 9, 10, 10); }
+      g.strokeStyle = "#3fd6ea"; g.lineWidth = 3; g.strokeRect(4, 4, 120, 120);
+      const grad = g.createRadialGradient(192, 64, 10, 192, 64, 64); grad.addColorStop(0, "#8a5634"); grad.addColorStop(0.8, "#6b3f24"); grad.addColorStop(1, "#4a2a17");
+      g.fillStyle = grad; g.fillRect(128, 0, 128, 128);
+      g.fillStyle = "#f3e4cb"; g.beginPath(); g.moveTo(192, 100); g.bezierCurveTo(146, 72, 158, 30, 192, 50); g.bezierCurveTo(226, 30, 238, 72, 192, 100); g.fill();
+      g.strokeStyle = "#f3e4cb"; g.lineWidth = 3; g.beginPath(); g.moveTo(192, 112); g.lineTo(192, 40); g.stroke();
+      g.strokeStyle = "rgba(107,63,36,0.75)"; g.lineWidth = 2.5; for (const k of [0, 1, 2]) { g.beginPath(); g.ellipse(192, 64 + k * 9, 22 - k * 5, 8 - k * 2, 0, Math.PI * 0.05, Math.PI * 0.95); g.stroke(); }
+      const half = (geometry, u0) => { const uv = geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, u0 + uv.getX(i) * 0.5); return geometry; };
+      const scan = half(new THREE.PlaneGeometry(0.032, 0.036).rotateX(-Math.PI / 2 + 0.15), 0).translate(PAD.x + 0.025, top + 0.0175 + 0.00205, PAD.z + 0.0003);
+      const s = 1.1, cupSurface = RECORD_CUP.y + 0.009 * s + 0.047 * s; // ceramicCup's coffee surface for the record cup
+      const latte = half(new THREE.CircleGeometry(0.0262 * s, 28).rotateX(-Math.PI / 2), 0.5).translate(RECORD_CUP.x, cupSurface + 0.0009 * s, RECORD_CUP.z);
+      const texture = new THREE.CanvasTexture(atlas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+      const atlasMesh = new THREE.Mesh(mergeGeometries([scan, latte]), new THREE.MeshStandardMaterial({ map: texture, roughness: 0.45, polygonOffset: true, polygonOffsetFactor: -2 }));
+      atlasMesh.name = "checkout-scan-and-latte-atlas"; atlasMesh.receiveShadow = true; scene.add(atlasMesh);
+    }
     {
       const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 340; const g = canvas.getContext("2d");
       // The order on the screen is a real one from the chalk menus (Cappuccino 24 + Daily Cake 32 = 56), and the time in the corner is the time on the wall clock: it is redrawn
@@ -2197,10 +2230,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     partShift = counterShift(0.38);
     // cream pitcher
-    part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.036, 0.045], [0.03, 0.085], [0.034, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(0.38, T, zc), { tile: 1 });
+    part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.036, 0.045], [0.03, 0.085], [0.034, 0.09], [0.0315, 0.0895], [0.0285, 0.084], [0.0005, 0.084]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(0.38, T, zc), { tile: 1 });
     part("ceramic", new THREE.TorusGeometry(0.02, 0.0055, 8, 14, Math.PI).rotateZ(-Math.PI / 2).translate(0.418, T + 0.05, zc), { tile: 1 });
     part("gold", new THREE.TorusGeometry(0.0335, 0.0012, 6, 28).rotateX(Math.PI / 2).translate(0.38, T + 0.0905, zc), { tile: 1 }); // a gold line on the lip
     part("gold", new THREE.TorusGeometry(0.0285, 0.001, 6, 28).rotateX(Math.PI / 2).translate(0.38, T + 0.0035, zc), { tile: 1 }); // and one on the foot
+    // Card H e (Paul 2026-11-18): the logo cup was capped flat at the lip; it is now open with a 2.5 mm wall and holds dark coffee 5 mm below the lip (0.6 mm over
+    // the inner floor, 0.1 mm inside the inner wall), seen from the Record player view.
+    part("coffee", new THREE.CircleGeometry(0.0284, 24).rotateX(-Math.PI / 2).translate(0.38, T + 0.0846, zc), { tile: 1 });
     // Two small labels drawn in code on canvases (no download), on cylinder segments just outside each wall, turned toward the visitor. The cream pitcher carries
     // "Shanghai Slowly Cafe", the same name as the cup in Room 03 (Paul: a nod between the rooms); the sugar jar an ivory label, "砂糖 SUGAR".
     {

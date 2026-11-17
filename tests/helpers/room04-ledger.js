@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 213544, meshes: 142 }),
+  scene: Object.freeze({ vertices: 214651, meshes: 143 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 65, phone: 59 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -100,5 +100,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "record corner (Paul): gold trim on the turntable (a frame round the top edge, a pinstripe on the front, a ring on the platter plate) and a cup of black coffee with its steam in front of it, all in the existing gold and ceramic batches; a new \"Record player\" close view; +1665 vertices, no new mesh, no new draw call", vertices: 210174, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
     { date: "2026-11-17", change: "counter details near the record player (Paul): the sugar jar gets the brass lid and knob that had been left inside a comment, gold bands and a small ivory label; the cream pitcher gets gold lines and a \"Shanghai Slowly Cafe\" band; the oak strip becomes a pair of sugar tongs on a small gold-lined saucer; the takeaway cup sleeve is now wide enough to be seen (it was inside the cup wall); the stylus now comes down on the record while it plays (arm angle 2.34 -> 3.45 rad: it landed 0.195 m from the centre, the record is 0.113 m); +1965 vertices, +2 meshes (the two labels), opening draw calls unchanged", vertices: 212139, meshes: 142, desktopCalls: 65, phoneCalls: 59 },
     { date: "2026-11-18", change: "open the two top takeaway cups and stack seven 82 mm white lids beside them; measured +1405 vertices in existing batches, no new mesh or opening draw call", vertices: 213544, meshes: 142, desktopCalls: 65, phoneCalls: 59 },
+    { date: "2026-11-18", change: "Card H: the checkout post moves behind the screen (weighted base 3 cm back, post into a hinge ball and a round back plate); the payment pad becomes a rounded matte body on four feet with a steel edge, a thin bright cyan ring and a tilted scan window; the logo cup opens and holds coffee; latte art on the record cup; one small atlas mesh for the scan code and the latte", vertices: 214651, meshes: 143, desktopCalls: 65, phoneCalls: 59 },
   ]),
 });
