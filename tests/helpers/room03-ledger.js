@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 113666, meshes: 140 }),
+  scene: Object.freeze({ vertices: 114911, meshes: 144 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 85, phone: 82 }),
+  openingDrawCalls: Object.freeze({ desktop: 86, phone: 83 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 85, golden: 85, movie: 86, night: 85, dinner: 87, sunday: 87, thanksgiving: 90 }),
-    phone: Object.freeze({ daylight: 82, golden: 82, movie: 83, night: 82, dinner: 84, sunday: 84, thanksgiving: 87 }),
+    desktop: Object.freeze({ daylight: 86, golden: 86, movie: 87, night: 86, dinner: 88, sunday: 88, thanksgiving: 91 }),
+    phone: Object.freeze({ daylight: 83, golden: 83, movie: 84, night: 83, dinner: 85, sunday: 85, thanksgiving: 88 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -26,7 +26,7 @@ export const LEDGER = Object.freeze({
   resizedPhoneCalls: 92,
   // Opening draw calls when the desktop window is resized (more of the room is in view at the wider sizes). Measured 2026-11-05 on main 4af7e5f;
   // 1440 px is the ledger's own number (openingDrawCalls.desktop). These were red against the 1440 cap of 80 before.
-  desktopCallsByWidth: Object.freeze({ 1280: 88, 1920: 90 }),
+  desktopCallsByWidth: Object.freeze({ 1280: 89, 1920: 93 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -81,6 +81,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-11", change: "movie-night phone on the dining table (Paul, after Room 02): a rounded phone body, a lock-screen glass plane and an additive light pool, all hidden outside the movie mood; the screen pulses a notification every ~16 s and a tap reads the message (+1,004 vertices, +3 meshes, movie +3 draw calls, every other mood unchanged)", vertices: 111497, meshes: 137, desktopCalls: 85, phoneCalls: 82 },
     { date: "2026-11-11", change: "time and season touches (Paul): Sunday morning gets 44 dust motes in the sun and a steam curl over the mug (two additive point clouds, a ~15 fps loop only while that mood is on, still under reduced motion); Thanksgiving gets nine autumn leaves on the floor inside the open panel (one vertex-coloured mesh). Hidden elsewhere (+864 vertices, +1 mesh from the leaves; the two point clouds add no triangles; sunday +2 draw calls, every other mood unchanged)", vertices: 112361, meshes: 138, desktopCalls: 85, phoneCalls: 82 },
     { date: "2026-11-17", change: "a compact record player stands on four embedded feet at the cleared credenza end; upright books leave, the cable-car keepsake moves onto the nook console; +1305 vertices, +2 meshes, opening and mood draw calls unchanged", vertices: 113666, meshes: 140, desktopCalls: 85, phoneCalls: 82 },
+    { date: "2026-11-17", change: "record player corner (Paul): gold trim on the turntable (+1 mesh), the red mug moves to the credenza, the stone dish (smoother pebbles that rest on the dish floor) moves to the counter (+1 mesh for pebbles), the takeaway cup moves beside the water bottles and gets a small \"Shanghai Slowly Cafe\" label (+1 mesh), water bottles get a visible water body and surface, the napkin pack becomes a tissue box with two napkins pulled up; +1245 vertices, +4 meshes, opening draw calls +1; the 1280 px view +1 (88 -> 89) and the 1920 px view +3 (90 -> 93)", vertices: 114911, meshes: 144, desktopCalls: 86, phoneCalls: 83 },
   ]),
 });
 

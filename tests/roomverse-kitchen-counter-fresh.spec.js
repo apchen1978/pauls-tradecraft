@@ -49,11 +49,19 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
     expect(info.storageBoxCount).toBe(2);
     expect(info.counterMugCount, "one glazed mug, not two").toBe(1);
     const mugs = info.propBounds["counter-mugs"];
-    expect(mugs.min[1] - 0.955, "the mug sits on the counter").toBeGreaterThanOrEqual(-0.002);
-    expect(mugs.min[1] - 0.955).toBeLessThanOrEqual(0.002);
-    expect(mugs.max[2], "mugs stay inside the front edge of the counter").toBeLessThanOrEqual(-1.65);
-    expect(mugs.min[2], "the mug clears the coffee maker front").toBeGreaterThan(-1.85);
+    // Paul 2026-11-17: the brick-red mug moved from the counter to the credenza, right of the record player; the stone dish took its place on the counter.
+    expect(mugs.min[1] - 0.815, "the mug stands on the credenza top").toBeGreaterThanOrEqual(-0.002);
+    expect(mugs.min[1] - 0.815).toBeLessThanOrEqual(0.002);
+    expect(mugs.min[0], "the mug is on the credenza (x)").toBeGreaterThan(2.55);
+    expect(mugs.max[0], "the mug is on the credenza (x)").toBeLessThan(2.95);
+    expect(mugs.min[2], "the mug clears the record player's right edge").toBeGreaterThan(0.76);
+    expect(mugs.max[2], "the mug stays on the credenza, short of the wok counter").toBeLessThan(1.0);
     expect(mugs.max[0] - mugs.min[0], "a mug body with a handle, not a wide prop").toBeLessThan(0.13);
+    const dish = info.propBounds["counter-stone-dish"];
+    expect(dish.min[1] - 0.955, "the stone dish sits on the counter").toBeGreaterThanOrEqual(-0.002);
+    expect(dish.min[1] - 0.955).toBeLessThanOrEqual(0.0035);
+    expect(dish.max[2], "the dish stays inside the front edge of the counter").toBeLessThanOrEqual(-1.65);
+    expect(dish.min[2], "the dish clears the coffee maker front").toBeGreaterThan(-1.85);
     const bowl = info.propBounds["wok-wood-serving-bowl"];
     expect(bowl.min[1] - 0.955, "wooden bowl sits on the wok counter").toBeGreaterThanOrEqual(-0.002);
     expect(bowl.min[1] - 0.955).toBeLessThanOrEqual(0.002);
