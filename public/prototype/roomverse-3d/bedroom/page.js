@@ -163,8 +163,10 @@ function setImmersive(on, pushHistory = true) {
     ($("immersiveEnter").getClientRects().length ? $("immersiveEnter") : $("portalBtn")).focus({ preventScroll: true });
   }
   room.resize();
-  requestAnimationFrame(() => room.resize());
+  requestAnimationFrame(() => { room.resize(); syncDockHeight(); });
 }
+function syncDockHeight() { document.documentElement.style.setProperty("--r02-dock", immersive ? `${$("immersiveControls").offsetHeight}px` : "0px"); } // the hint line clears the full-screen chip rows
+addEventListener("resize", () => { if (immersive) requestAnimationFrame(syncDockHeight); });
 $("immersiveEnter").onclick = () => setImmersive(true);
 $("immersiveExit").onclick = () => { setImmersive(false); history.back(); };
 addEventListener("popstate", (event) => setImmersive(Boolean(event.state?.room02Immersive), false));
