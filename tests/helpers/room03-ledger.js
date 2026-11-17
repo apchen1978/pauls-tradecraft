@@ -15,8 +15,8 @@ export const LEDGER = Object.freeze({
   openingDrawCalls: Object.freeze({ desktop: 87, phone: 84 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 87, golden: 87, movie: 88, night: 87, dinner: 89, sunday: 88, thanksgiving: 92 }),
-    phone: Object.freeze({ daylight: 84, golden: 84, movie: 85, night: 84, dinner: 86, sunday: 85, thanksgiving: 89 }),
+    desktop: Object.freeze({ daylight: 87, golden: 87, movie: 88, night: 87, dinner: 89, sunday: 88, thanksgiving: 93 }),
+    phone: Object.freeze({ daylight: 84, golden: 84, movie: 85, night: 84, dinner: 86, sunday: 85, thanksgiving: 90 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -84,6 +84,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "record player corner (Paul): gold trim on the turntable (+1 mesh), the red mug moves to the credenza, the stone dish (smoother pebbles that rest on the dish floor) moves to the counter (+1 mesh for pebbles), the takeaway cup moves beside the water bottles and gets a small \"Shanghai Slowly Cafe\" label (+1 mesh), water bottles get a visible water body and surface, the napkin pack becomes a tissue box with two napkins pulled up; +1245 vertices, +4 meshes, opening draw calls +1; the 1280 px view +1 (88 -> 89) and the 1920 px view +3 (90 -> 93)", vertices: 114911, meshes: 144, desktopCalls: 86, phoneCalls: 83 },
     { date: "2026-11-17", change: "red mug detail (Paul): black coffee in the mug (in its own batch), a gold rim ring and foot band (+1 mesh), a gold lotus medallion drawn on a canvas (+1 mesh), and a faint steam curl over the mug (one Points object, still unless the close record view is open or the record plays; hidden in the Sunday mood, which has its own steam); the close record view is framed on the turntable and the mug together; +1142 vertices, +2 meshes, opening draw calls +1, the 1280 px view 89 -> 90 and the 1920 px view 93 -> 94", vertices: 116053, meshes: 146, desktopCalls: 87, phoneCalls: 84 },
     { date: "2026-11-18", change: "Card I record motion: the turntable platter (record, grooves, label with a small print block, spindle) and the tonearm are split out of the merged record-player mesh so they can turn and swing while a piece plays; a slim rest post joins the body mesh. +100 vertices, +2 meshes; opening and mood draw calls unchanged at 1440 and 390 (the credenza end is off-screen there). Headroom unchanged.", vertices: 116153, meshes: 148, desktopCalls: 87, phoneCalls: 84 },
+    { date: "2026-11-18", change: "Thanksgiving turkey steam: three wisps of the red mug's steam sprite (27 points, one Points object, larger and taller) rise from the roast, only in the Thanksgiving mood; vertices and meshes unchanged (points are not meshes); Thanksgiving draw calls +1 (desktop 93, phone 90). Headroom unchanged.", vertices: 116153, meshes: 148, desktopCalls: 87, phoneCalls: 84 },
   ]),
 });
 

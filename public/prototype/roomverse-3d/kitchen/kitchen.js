@@ -7763,6 +7763,42 @@ export async function start({ stage, onReady = () => {} }) {
     };
     requestAnimationFrame(step);
   }
+  // Paul 2026-11-18: the Thanksgiving roast steams like the red mug's coffee (the same soft sprite, drift and fade), as three wisps a little larger, from the
+  // top of the bird. Only in the Thanksgiving mood; it drifts at about 15 frames a second and holds one still frame for reduced motion.
+  const turkeySteam = (() => {
+    const WISPS = 3, PER = 9, COUNT = WISPS * PER, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+    for (let i = 0; i < COUNT; i++) data.seed[i] = ((i % PER) / PER + 0.07 * Math.sin(i * 5.3) + Math.floor(i / PER) * 0.31) % 1;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+    const material = mugSteamRig.points.material.clone(); material.size = 0.085; material.opacity = 0.22; material.name = "turkey-steam";
+    const points = new THREE.Points(geometry, material); points.name = "turkey-steam"; points.frustumCulled = false; points.visible = false; points.raycast = () => {};
+    scene.add(points);
+    let origins = null, run = 0;
+    const findOrigins = () => { // three spots along the top of the bird, from its world box
+      const food = tablewareGroup?.getObjectByName("room03-tableware-food"); if (!food) return null;
+      food.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(food), c = box.getCenter(new THREE.Vector3()), sx = (box.max.x - box.min.x) * 0.18, sz = (box.max.z - box.min.z) * 0.18;
+      return [[c.x - sx, box.max.y - 0.01, c.z - sz * 0.4], [c.x + sx * 0.3, box.max.y - 0.004, c.z + sz * 0.5], [c.x + sx, box.max.y - 0.014, c.z - sz * 0.2]];
+    };
+    const update = (t) => {
+      for (let i = 0; i < COUNT; i++) {
+        const [ox, oy, oz] = origins[Math.floor(i / PER)], life = (t * 0.22 + data.seed[i]) % 1, widen = 0.3 + life * 1.8;
+        const sway = Math.sin(t * 0.8 + life * 5.2 + data.seed[i] * 6) * 0.016 * widen, spread = Math.sin(data.seed[i] * 40) * 0.01 * widen;
+        data.pos[i * 3] = ox + sway + spread + life * 0.012; data.pos[i * 3 + 1] = oy + life * 0.24; data.pos[i * 3 + 2] = oz + Math.cos(t * 0.7 + life * 4.1 + data.seed[i] * 7) * 0.012 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * 0.5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * 0.97;
+      }
+      geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+    };
+    const apply = (name) => {
+      const on = name === "thanksgiving" && Boolean(tablewareGroup?.visible);
+      const thisRun = ++run; points.visible = on; if (!on) return;
+      origins = findOrigins(); if (!origins) { points.visible = false; return; }
+      update(5.1); if (morningReduced()) return;
+      const t0 = performance.now(); let last = 0;
+      const step = (now) => { if (thisRun !== run || !points.visible) return; if (!document.hidden && now - last > 66) { last = now; update((now - t0) / 1000 + 5.1); render(); } requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    };
+    return { points, apply, info: () => ({ visible: points.visible, wisps: WISPS, points: COUNT, looping: points.visible && !morningReduced() }) };
+  })();
   function morningTouchInfo() {
     return { dustVisible: morningRig.dustPoints.visible, steamVisible: morningRig.steamPoints.visible, dustCount: morningRig.dustPoints.geometry.attributes.position.count, steamCount: morningRig.steamPoints.geometry.attributes.position.count, looping: morningRun > 0 };
   }
@@ -7790,6 +7826,7 @@ export async function start({ stage, onReady = () => {} }) {
       if (look.tableware && tablewareGroup.parent !== scene) scene.add(tablewareGroup);
       else if (!look.tableware && tablewareGroup.parent === scene) scene.remove(tablewareGroup);
     }
+    turkeySteam.apply(name);
     sun.intensity = look.sun; sun.color.setHex(look.sunColor); sun.position.set(...look.sunPosition);
     hemi.intensity = look.hemi; hemi.color.setHex(look.hemiSky); hemi.groundColor.setHex(look.hemiGround);
     ambient.intensity = look.ambient; ambient.color.setHex(look.ambientColor);
@@ -8559,7 +8596,7 @@ export async function start({ stage, onReady = () => {} }) {
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
     recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
-    cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
+    cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, turkeySteamInfo: () => turkeySteam.info(), recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
