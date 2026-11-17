@@ -493,6 +493,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     black: new THREE.MeshStandardMaterial({ color: COLORS.black, roughness: 0.6 }),
     frame: new THREE.MeshStandardMaterial({ color: 0x24272a, roughness: 0.5, metalness: 0.2 }),
     steel: new THREE.MeshStandardMaterial({ color: 0xb3b9bc, map: brushedSteel, roughness: 0.35, roughnessMap: brushedSteel, bumpMap: brushedSteel, bumpScale: 0.008, metalness: 0.85 }),
+    champagne: new THREE.MeshStandardMaterial({ color: 0xbfa77e, map: brushedSteel, roughness: 0.3, roughnessMap: brushedSteel, bumpMap: brushedSteel, bumpScale: 0.006, metalness: 0.92, emissive: 0x2a2010, emissiveIntensity: 0.3 }), // Paul 2026-11-18: the checkout stand, a light brushed champagne metal like a retail tablet stand
     stone: new THREE.MeshStandardMaterial({ color: COLORS.stone, roughness: 0.5 }),
     trim: new THREE.MeshStandardMaterial({ color: 0xf6f2ea, roughness: 0.7 }),
     chalk: new THREE.MeshStandardMaterial({ color: COLORS.chalk, roughness: 0.95 }),
@@ -633,7 +634,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       state: () => ({ state: state(), blink, gaze }),
     };
   })();
-  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, robotVisor: 1.2, steel: 1.65, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
+  const reflectiveBase = { robotBody: 0.7, robotDark: 0.9, gold: 1.9, ceramic: 0.5, visor: 1.2, robotVisor: 1.2, steel: 1.65, champagne: 1.7, glass: 1.6, pane: 1.6, stone: 0.35, frame: 0.5 };
   for (const [key, intensity] of Object.entries(reflectiveBase)) { materials[key].envMap = reflectionEnv; materials[key].envMapIntensity = intensity; }
   // The Lounge wall as a feature wall (Paul, 2026-11-16: a designer's hand): the same plaster and the same look as the other walls, one step deeper and warmer (multiplied by a clay tint), so the
   // olive wainscot, the oak rail and the pictures sit against a colour instead of a flat grey-white. A wallpaper look shows as it is on every wall.
@@ -1745,8 +1746,38 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
 
   // A small paper note leaning against the pastry case foot, like the notes in Rooms 01 to 03 (reading it comes with the interaction in section 5).
-  const note = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.06, 0.003), materials.paper); note.name = "story-note";
-  note.position.set(1.02, top + 0.032, c.z1 - 0.12); note.rotation.set(-0.28, 0.12, 0); note.castShadow = true; scene.add(note);
+  // Paul 2026-11-18: it read as an empty business-card holder, so its front is now the robots' staff name card (drawn on a canvas, no download): the same mesh, the front face
+  // gets the card and the other faces stay paper. Its lowest edge was 2.8 mm over the counter; it now stands on it (0.5 mm in).
+  const noteCard = document.createElement("canvas"); noteCard.width = 512; noteCard.height = 362;
+  {
+    const g = noteCard.getContext("2d"), round = (x, y, w, h, r) => { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); };
+    g.fillStyle = "#fbf6ec"; g.fillRect(0, 0, 512, 362);
+    g.strokeStyle = "#b9893a"; g.lineWidth = 5; round(14, 14, 484, 334, 22); g.stroke();
+    g.fillStyle = "#2f5f73"; g.fillRect(14, 300, 484, 6);
+    const robot = (cx, cy, body, eye) => { // a tiny round robot face: antenna, head, two eyes and a smile
+      g.strokeStyle = "#3a2a1c"; g.lineWidth = 3; g.beginPath(); g.moveTo(cx, cy - 34); g.lineTo(cx, cy - 46); g.stroke(); g.fillStyle = "#e0703c"; g.beginPath(); g.arc(cx, cy - 49, 5, 0, Math.PI * 2); g.fill();
+      g.fillStyle = body; round(cx - 34, cy - 34, 68, 60, 18); g.fill(); g.stroke();
+      g.fillStyle = "#24343c"; round(cx - 25, cy - 23, 50, 30, 10); g.fill();
+      g.fillStyle = eye; g.beginPath(); g.arc(cx - 11, cy - 9, 5.5, 0, Math.PI * 2); g.arc(cx + 11, cy - 9, 5.5, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = eye; g.lineWidth = 3; g.beginPath(); g.arc(cx, cy - 2, 7, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
+      g.fillStyle = "#f2a7a0"; g.beginPath(); g.arc(cx - 24, cy + 14, 5, 0, Math.PI * 2); g.arc(cx + 24, cy + 14, 5, 0, Math.PI * 2); g.fill();
+    };
+    g.textBaseline = "middle"; g.textAlign = "left";
+    for (const [i, role, name, body, eye] of [[0, "機器人店長", "小白 Bai", "#f4f1ea", "#8ff0ff"], [1, "機器人小夥伴", "小宇 Yu", "#cfe3ec", "#ffd36b"]]) {
+      const y = 98 + i * 112; robot(78, y + 8, body, eye);
+      g.fillStyle = "#8a5a3a"; g.font = "700 28px 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif"; g.fillText(role, 136, y - 20);
+      g.fillStyle = "#2a2018"; g.font = "800 52px 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif"; g.fillText(name, 134, y + 24);
+    }
+    g.fillStyle = "#2f5f73"; g.font = "700 25px 'Noto Sans TC', 'PingFang TC', sans-serif, Georgia"; g.fillText("為你服務 · At your service", 40, 278);
+    g.textAlign = "center"; g.strokeStyle = "#b9893a"; g.lineWidth = 3; g.beginPath(); g.arc(446, 66, 30, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = "#3a2a1c"; g.font = "italic 700 26px Georgia, 'Times New Roman', serif"; g.fillText("SH", 446, 64); g.font = "600 13px Georgia, serif"; g.fillText("Slowly Cafe", 446, 112);
+    g.fillStyle = "#fbf6ec"; g.font = "700 12px system-ui, sans-serif"; g.fillText("SHANGHAI SLOWLY CAFE", 256, 332);
+  }
+  const noteTexture = new THREE.CanvasTexture(noteCard); noteTexture.colorSpace = THREE.SRGBColorSpace; noteTexture.anisotropy = 8;
+  const noteFront = new THREE.MeshStandardMaterial({ map: noteTexture, roughness: 0.7 });
+  const note = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.06, 0.003), [materials.paper, materials.paper, materials.paper, materials.paper, noteFront, materials.paper]); note.name = "story-note";
+  note.position.set(1.02, top + 0.0288 + 0.0004 - 0.0005, c.z1 - 0.12); note.rotation.set(-0.28, 0.12, 0); note.castShadow = true; scene.add(note); // lowest corner: 30 mm x cos 0.28 + 1.5 mm x sin 0.28 under the centre
+  registerSupport("story-note-name-card-on-counter", "rest", { base: { x: 1.02, y: top - 0.0005, z: c.z1 - 0.12, radius: 0.02 }, surface: { shape: "circle", x: 1.02, y: top, z: c.z1 - 0.12, radius: 0.1 } });
 
   // ---------- a more lived-in room (polish pass): wainscot, sconces and a clock on the right wall, a rug and a pendant at the window seat, counter details ----------
   {
@@ -1826,14 +1857,17 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // Card H (Paul 2026-11-18): the post stood in FRONT of the screen. It now rises from the weighted base behind the screen, near its lower centre, into a hinge ball
     // and a round back plate, the way a real tablet stand holds a screen. The base moved 3 cm back so its front edge is 17 mm clear of the payment pad.
     const STAND_Z = posZ - 0.03;
-    registerSupport("checkout-on-counter", "rest", { base: { x: POS_X, y: top, z: STAND_Z, radius: 0.078 },
+    // Paul 2026-11-18: the black dome-like base and the pole read like a plunger. The base is now a slim, flat 8 mm disc, and the base, pole, hinge ball and back plate
+    // are a light brushed champagne metal, like a retail tablet stand. The tablet and the pad are unchanged.
+    registerSupport("checkout-on-counter", "rest", { base: { x: POS_X, y: top, z: STAND_Z, radius: 0.076 },
       surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
-    part("black", new THREE.CylinderGeometry(0.068, 0.078, 0.016, 28).translate(POS_X, top + 0.008, STAND_Z), { tile: 1 }); // on the stone at 0 mm, top at +16 mm
-    part("steel", new THREE.CylinderGeometry(0.011, 0.013, 0.126, 14).translate(POS_X, top + 0.077, STAND_Z), { tile: 1 }); // 2 mm into the base, up to the ball centre
-    part("steel", new THREE.SphereGeometry(0.012, 14, 10).translate(POS_X, top + 0.14, STAND_Z), { tile: 1 }); // hinge ball, about 4 mm into the back plate
+    part("champagne", new THREE.CylinderGeometry(0.073, 0.076, 0.008, 40).translate(POS_X, top + 0.004, STAND_Z), { tile: 1 }); // on the stone at 0 mm, top at +8 mm
+    part("champagne", new THREE.TorusGeometry(0.0735, 0.0012, 6, 40).rotateX(Math.PI / 2).translate(POS_X, top + 0.0078, STAND_Z), { tile: 1 }); // a soft rolled edge on the top rim
+    part("champagne", new THREE.CylinderGeometry(0.009, 0.011, 0.134, 16).translate(POS_X, top + 0.073, STAND_Z), { tile: 1 }); // 2 mm into the base, up to the ball centre
+    part("champagne", new THREE.SphereGeometry(0.012, 14, 10).translate(POS_X, top + 0.14, STAND_Z), { tile: 1 }); // hinge ball, about 4 mm into the back plate
     part("black", roundedBox(0.234, 0.158, 0.014, 0.014, 0.003).rotateX(-0.32).translate(POS_X, top + 0.172, posZ - 0.025), { tile: 1 });
     // the round back plate, on the tablet's back face 3 cm below its centre (axis along the screen normal)
-    part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.006, 24).rotateX(Math.PI / 2 - 0.32).translate(POS_X, top + 0.1400, posZ - 0.0239), { tile: 1 });
+    part("champagne", new THREE.CylinderGeometry(0.03, 0.03, 0.006, 24).rotateX(Math.PI / 2 - 0.32).translate(POS_X, top + 0.1400, posZ - 0.0239), { tile: 1 });
     // The payment pad (Card H b): a matte black rounded body about 100 x 70 x 12 mm on four rubber feet (on the stone at 0 mm, 0.5 mm into the body), a fine steel edge
     // band, a thin bright cyan contactless ring on the left and a slightly raised, slightly tilted scan window on the right (its drawn block code is on the atlas below).
     // 5 mm left of where it was so the paper note on its right is 20 mm clear.
