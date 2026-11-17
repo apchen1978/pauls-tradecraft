@@ -146,3 +146,6 @@ $("enter").onclick = async () => {
 };
 text();
 if (arrivedFromRoom02 || arrivedFromRoom03) $("enter").click(); // arrivals from other rooms open directly into the living room
+
+// Desktop full screen: a compact, foldable controls plate instead of a full-width strip over the picture (Paul 2026-11-17). Phones keep the old strip.
+import("./immersive-dock.js?v=auto").then(({ initImmersiveDock }) => initImmersiveDock({ room: document.querySelector(".room"), controls: document.getElementById("immersiveControls") })).catch(() => {});

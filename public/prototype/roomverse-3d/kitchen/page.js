@@ -423,3 +423,6 @@ start({ stage: $("stage"), onReady: (instance) => {
   console.error(error);
   $("status").textContent = COPY[lang].failed;
 });
+
+// Desktop full screen: a compact, foldable controls plate instead of a full-width strip over the picture (Paul 2026-11-17). Phones keep the old strip.
+import("../immersive-dock.js?v=auto").then(({ initImmersiveDock }) => initImmersiveDock({ room: document.querySelector(".room"), controls: document.getElementById("immersiveControls") })).catch(() => {});

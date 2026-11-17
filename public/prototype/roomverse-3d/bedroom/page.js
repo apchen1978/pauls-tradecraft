@@ -190,3 +190,6 @@ $("enter").onclick = async () => {
 };
 text();
 if (arrivedFromRoom01 || arrivedFromRoom03 || returningFromRoom02) $("enter").click(); // portal arrivals continue straight into the room
+
+// Desktop full screen: a compact, foldable controls plate instead of a full-width strip over the picture (Paul 2026-11-17). Phones keep the old strip.
+import("../immersive-dock.js?v=auto").then(({ initImmersiveDock }) => initImmersiveDock({ room: document.querySelector(".room"), controls: document.getElementById("immersiveControls") })).catch(() => {});
