@@ -1108,7 +1108,7 @@ test("the vinyl corner keeps all 32 records in one draw call and its deck glows 
   expect(info.vertices, "the room stays under the relaxed geometry ceiling").toBeLessThanOrEqual(CAPS.vertices);
 });
 
-test("Room 02 the record player by the window plays one Brooklyn piece on a real piano when tapped, and stops with the next tap", async ({ page }) => {
+test("Room 02 the record player by the window plays side A on a real piano when tapped, flips to side B on the next tap, and stops on the third", async ({ page }) => {
   test.setTimeout(90000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
@@ -1120,9 +1120,17 @@ test("Room 02 the record player by the window plays one Brooklyn piece on a real
   await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
   await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 12000 }).toBeGreaterThan(12);
   await expect(page.locator("#propStory")).toContainText("布魯克林窗台");
+  expect((await page.evaluate(() => window.__bedroom.recordState())).side, "the first tap plays side A").toBe(0);
   await page.waitForTimeout(1500);
   await page.mouse.click(spot.x, spot.y);
-  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing).toBe(false);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).side, { timeout: 8000, message: "the next tap flips the record to side B" }).toBe(1);
+  expect((await page.evaluate(() => window.__bedroom.recordState())).playing, "side B is playing, not stopped").toBe(true);
+  expect((await page.evaluate(() => window.__bedroom.recordState())).title).toBe("防火梯的雨");
+  await expect(page.locator("#propStory")).toContainText("防火梯的雨");
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 15000, message: "side B plays notes" }).toBeGreaterThan(12);
+  await page.waitForTimeout(1500);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { message: "the third tap stops the record" }).toBe(false);
   expect(errors).toEqual([]);
 });
 
