@@ -1779,17 +1779,21 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     part(new THREE.BoxGeometry(.5, .007, .04), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY, .042, "whiteboard-ledge");
     part(new THREE.BoxGeometry(.5, .006, .006), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY + .003, .06, "whiteboard-ledge-lip");
     for (const [x, c] of [[-.16, "#1c1c1c"], [-.04, "#c43131"], [.09, "#1c1c1c"]]) part(new THREE.CapsuleGeometry(.008, .1, 4, 12), new THREE.MeshStandardMaterial({ color: c, roughness: .36 }), x, ledgeY + .0075 + .004, .044, "whiteboard-marker").rotation.z = Math.PI / 2; }
-  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
+  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque).
+  // Paul 2026-11-17: the left panel used to hang to the floor straight through the record console, its speaker and the turntable (a 1.0 m console stands under the
+  // window from x -1.2 to -0.2, and the panel gathers at x -0.94 to -0.66). Moving it outward would cover the house plaque, so both panels are now sill-length:
+  // the hem stops at 0.95 m, 15 cm above the highest thing on the console, and the two sides stay symmetrical.
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = chosen.window === "linen"; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
   { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
   for (const side of [-1, 1]) {
     // Gathered at the rod: keep the upper folds orderly, then let their spacing relax slightly toward the hem.
     // The two existing grids also turn the side edges and hem forward as shallow folded-return cues without adding vertices.
-    const H = wTop + .17, g = new THREE.PlaneGeometry(.3, H, 34, 12), pos = g.attributes.position, TAU = Math.PI * 2;
+    const CURTAIN_HEM = .95, H = wTop + .19 - CURTAIN_HEM, g = new THREE.PlaneGeometry(.3, H, 34, 12), pos = g.attributes.position, TAU = Math.PI * 2;
     const smooth = (a, b, x) => { const q = Math.max(0, Math.min(1, (x - a) / (b - a))); return q * q * (3 - 2 * q); };
     for (let i = 0; i < pos.count; i++) {
-      const u = pos.getX(i) / .3 + .5, t = (pos.getY(i) + H / 2) / H, open = Math.pow(1 - t, 1.3);
+      // t is clamped to 0..1: on the top row, rounding can leave it a hair over 1, and Math.pow of a negative number is NaN, which made that row vanish and its neighbour black
+      const u = pos.getX(i) / .3 + .5, t = Math.min(1, Math.max(0, (pos.getY(i) + H / 2) / H)), open = Math.pow(1 - t, 1.3);
       const upper = smooth(.42, .98, t), lower = 1 - upper, hem = 1 - smooth(0, .14, t);
       const phaseU = u + .045 * lower * Math.sin(TAU * (1.05 * u + side * .14));
       const ph = side * .18 + .08 * open + .11 * lower * Math.sin(TAU * (1.3 * u + side * .08));
@@ -1802,7 +1806,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     pos.needsUpdate = true;
     g.computeVertexNormals();
     const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
-    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), .02 + H / 2, -HD + .12); curtains.add(panel);
+    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), CURTAIN_HEM + H / 2, -HD + .12); curtains.add(panel);
   }
   // A sliding-door wardrobe on the south wall (behind the corner camera, so it only shows when you stand in the middle): light oak doors,
   // one slim mirror door, a dark rail top and bottom. 160 x 55 cm, 225 cm high, clear of the door (x < -0.7) and the light switch.
@@ -2146,7 +2150,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const swapWindow = () => { const v = chosen.window; if (v === "roller" || v === "bamboo") { blindFabric.material.map = (v === "bamboo" ? windowPaint.bamboo ?? bambooTex : windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true; } };
   art("room02-a4-roller-linen-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.roller = t; swapWindow(); } });
   art("room02-a4-bamboo-blind-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.bamboo = t; swapWindow(); } });
-  art("room02-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
+  art("room02-curtain-linen-v1.webp", { repeat: [.85, 3.65], /* sill-length: the weave keeps the same size on the shorter panel */ apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
   const rollerTex = blindFabric.material.map;
   const oakBorderRug = canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#1f2124"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#b8925f"; ctx.fillRect(14, 14, w - 28, h - 28);
