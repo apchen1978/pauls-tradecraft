@@ -462,10 +462,12 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
   const textureLoader = new THREE.TextureLoader();
   const artBase = new URL("./art/", import.meta.url).href;
+  const MOBILE_ART = new Set(["room04-brick-red-v1.webp", "room04-oak-panel-v1.webp", "room04-counter-stone-v1.webp", "room04-menu-board-b-v1.webp"]);
+  const artUrl = (file) => artBase + (compact && MOBILE_ART.has(file) ? file.replace(/-v(\d+)\.webp$/, "-mobile-v$1.webp") : file);
   const loadedArt = new Set();
   const maxAnisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   function paint(file, { srgb = true, repeat = [1, 1], then } = {}) {
-    textureLoader.load(artBase + file, (texture) => {
+    textureLoader.load(artUrl(file), (texture) => {
       texture.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(...repeat);
       loadedArt.add(file); then(texture); if (typeof reapplyLook === "function") reapplyLook(); render();
@@ -1945,7 +1947,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy; return atlas;
     };
     PRINT_FILES.push(...LOUNGE_FILES); PRINT_FILES_B.push(...LOUNGE_FILES); // both gallery sets carry the same three Lounge prints
-    const loadImages = (files, then) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.src = artBase + file; }); };
+    const loadImages = (files, then) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.src = artUrl(file); }); };
     const atlases = {}; let wallMaterial = null;
     function setGallery(key) {
       if (!wallMaterial) return;
@@ -2088,14 +2090,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     tvStillIndex = ((i % 3) + 3) % 3; const file = TV_STILLS[tvStillIndex], index = tvStillIndex;
     const done = (t) => { if (tvStillIndex === index) { materials.tvScreen.emissiveMap = t; materials.tvScreen.needsUpdate = true; render(); } };
     if (tvStillCache[file]) { done(tvStillCache[file]); return; }
-    textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; tvStillCache[file] = t; loadedArt.add(file); done(t); });
+    textureLoader.load(artUrl(file), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; tvStillCache[file] = t; loadedArt.add(file); done(t); });
   }
 
   // ---------- the wall clock (Codex card 49): three designs, hands showing the real time ----------
   const clockSets = { tech: new THREE.Group(), classic: new THREE.Group(), wood: new THREE.Group() };
   {
     const CK = { y: 2.3, z: 0.45, R: 0.225 }; // above the TV, 45 cm across
-    const dialTexture = (file, then) => textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; loadedArt.add(file); then(t); render(); });
+    const dialTexture = (file, then) => textureLoader.load(artUrl(file), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; loadedArt.add(file); then(t); render(); });
     const dialTech = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.62, emissive: 0xffffff, emissiveIntensity: 0.4 });
     const dialClassic = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
     afterFirstFrame.push(() => {
@@ -3010,7 +3012,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     if (file === MOOD_STREET[side].golden) return material.userData.dry ?? null; // the painting loaded first (the room opens at golden hour) stands in as the base; the morning one loads on demand
     if (!(file in streetTextures)) {
       streetTextures[file] = null;
-      textureLoader.load(artBase + file, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; t.userData.file = file; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
+      textureLoader.load(artUrl(file), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping; t.anisotropy = maxAnisotropy; t.userData.file = file; streetTextures[file] = t; loadedArt.add(file); applyStreet(currentMood); render(); });
     }
     return streetTextures[file];
   }
@@ -3068,7 +3070,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const altTextures = {}; // textures loaded on demand for a look: white and dark brick, terrazzo
   function altTexture(file, srgb, repeat, then) {
     if (altTextures[file]) { then(altTextures[file]); return; }
-    textureLoader.load(artBase + file, (t) => {
+    textureLoader.load(artUrl(file), (t) => {
       t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = maxAnisotropy; t.repeat.set(...repeat);
       altTextures[file] = t; loadedArt.add(file); then(t); render();
     });
@@ -3166,7 +3168,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     if (!paper) { materials.wall.map = null; materials.wall.color.setHex(LOOK_GROUPS.wall[currentLook.wall]); materials.wallFeature.map = null; materials.wallFeature.color.copy(materials.wall.color).multiply(CLAY_TINT); }
     else {
       const [file, size] = paper;
-      const texture = wallpaperTextures[file] ||= textureLoader.load(file.startsWith("room04-") ? artBase + file : new URL(`../tex/${file}`, import.meta.url).href, () => render());
+      const texture = wallpaperTextures[file] ||= textureLoader.load(file.startsWith("room04-") ? artUrl(file) : new URL(`../tex/${file}`, import.meta.url).href, () => render());
       texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = maxAnisotropy; texture.repeat.set(1 / size, 1 / size);
       materials.wall.map = texture; materials.wall.color.setHex(0xffffff); materials.wallFeature.map = texture; materials.wallFeature.color.setHex(0xffffff);
     }
