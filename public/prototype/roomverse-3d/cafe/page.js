@@ -34,7 +34,7 @@ const COPY = {
       menu: ["黑板菜單", { board: "素面黑板", chalk: "粉筆插畫", minimal: "極簡邊框", script: "手寫感版面" }],
       gallery: ["掛畫組", { a: "梧桐街與石庫門", b: "鐵花陽台與夜航渡輪" }],
     },
-    views: { counter: "吧台", window: "窗邊座位", lounge: "Lounge", entry: "初體驗", middle: "站到房間中間" },
+    views: { counter: "吧台", window: "窗邊座位", lounge: "Lounge", record: "看唱片機", entry: "初體驗", middle: "站到房間中間" },
     center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
     noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
     moods: {
@@ -81,7 +81,7 @@ const COPY = {
       menu: ["Chalk menus", { board: "Plain board", chalk: "Chalk drawings", minimal: "Minimal frame", script: "Handwritten layout" }],
       gallery: ["Prints", { a: "Plane trees and doorways", b: "Balcony and night ferry" }],
     },
-    views: { counter: "The counter", window: "Window seat", lounge: "Lounge", entry: "First step in", middle: "Stand in the middle" },
+    views: { counter: "The counter", window: "Window seat", lounge: "Lounge", record: "Record player", entry: "First step in", middle: "Stand in the middle" },
     center: "Stand in the middle", orbit: "Back to orbit view", centerHint: "Drag, or use the arrow keys, to turn all the way round.",
     noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", close: "Close",
     moods: {
