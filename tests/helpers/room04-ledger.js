@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 215455, meshes: 143 }),
+  scene: Object.freeze({ vertices: 216423, meshes: 144 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 65, phone: 59 }),
+  openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   // Paul, 2026-11-16: the room may grow to 200,000-230,000 vertices and 144-150 meshes; the caps take the top of that range. Phones are still checked by the draw-call caps.
   caps: Object.freeze({ vertices: 230000, meshes: 150, desktopCalls: 115, phoneCalls: 105 }),
@@ -102,5 +102,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "open the two top takeaway cups and stack seven 82 mm white lids beside them; measured +1405 vertices in existing batches, no new mesh or opening draw call", vertices: 213544, meshes: 142, desktopCalls: 65, phoneCalls: 59 },
     { date: "2026-11-18", change: "Card H: the checkout post moves behind the screen (weighted base 3 cm back, post into a hinge ball and a round back plate); the payment pad becomes a rounded matte body on four feet with a steel edge, a thin bright cyan ring and a tilted scan window; the logo cup opens and holds coffee; latte art on the record cup; one small atlas mesh for the scan code and the latte", vertices: 214651, meshes: 143, desktopCalls: 65, phoneCalls: 59 },
     { date: "2026-11-18", change: "pastry case polish: the upper tarts and the cake wedge seated on their plates (they floated 10 to 19 mm; physics-audit rest checks added), lower-shelf muffins, canele basket, cookies and eclairs seated, the bottle tray seated on its plate, the green-bottle labels wrap the glass, a plate with a croissant and two cookies at the free left end of the lower shelf; existing batches only", vertices: 215455, meshes: 143, desktopCalls: 65, phoneCalls: 59 },
+    { date: "2026-11-18", change: "the record-corner cup becomes Room 03's glazed brick-red mug (body, buried handle, coffee, gold rim and foot rings; one new glaze batch) with Room 03's rising steam (22 points, stepped while the record plays); the latte heart moves to the cup on the marble Lounge table (same atlas mesh); Card G: a sticker on each top takeaway cup; +1 opening draw call (the glaze batch)", vertices: 216423, meshes: 144, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
