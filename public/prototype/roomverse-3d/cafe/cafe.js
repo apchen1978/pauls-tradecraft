@@ -1769,8 +1769,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       g.fillStyle = "#2a2018"; g.font = "800 52px 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif"; g.fillText(name, 134, y + 24);
     }
     g.fillStyle = "#2f5f73"; g.font = "700 25px 'Noto Sans TC', 'PingFang TC', sans-serif, Georgia"; g.fillText("為你服務 · At your service", 40, 278);
-    g.textAlign = "center"; g.strokeStyle = "#b9893a"; g.lineWidth = 3; g.beginPath(); g.arc(446, 66, 30, 0, Math.PI * 2); g.stroke();
-    g.fillStyle = "#3a2a1c"; g.font = "italic 700 26px Georgia, 'Times New Roman', serif"; g.fillText("SH", 446, 64); g.font = "600 13px Georgia, serif"; g.fillText("Slowly Cafe", 446, 112);
+    // the round badge holds the whole name, "SH Slowly Cafe" (Paul 2026-11-18: "SH" alone in the ring read as just the city)
+    g.textAlign = "center"; g.strokeStyle = "#b9893a"; g.lineWidth = 3; g.beginPath(); g.arc(440, 76, 50, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 1.5; g.beginPath(); g.arc(440, 76, 44, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = "#3a2a1c"; g.font = "italic 700 30px Georgia, 'Times New Roman', serif"; g.fillText("SH", 440, 58);
+    g.font = "italic 700 19px Georgia, 'Times New Roman', serif"; g.fillText("Slowly", 440, 86); g.font = "600 13px Georgia, serif"; g.fillText("C A F E", 440, 106);
     g.fillStyle = "#fbf6ec"; g.font = "700 12px system-ui, sans-serif"; g.fillText("SHANGHAI SLOWLY CAFE", 256, 332);
   }
   const noteTexture = new THREE.CanvasTexture(noteCard); noteTexture.colorSpace = THREE.SRGBColorSpace; noteTexture.anisotropy = 8;
