@@ -456,6 +456,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const afterFirstFrame = [];
   const catRef = { group: null }; // the cat, once it has loaded
   let tabletRig = null; // its lit screen and pulse, built with the lounge
+  const atlasRef = { mesh: null, scan: null, half: null }; // the scan-code and latte atlas: its latte half is drawn on the marble Lounge cup (set when the Lounge is built)
   const tabletRef = { at: null }; // the tablet on the marble lounge table: where it lies (set where the table is built)
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
   let takeawayLidStock = null;
@@ -518,6 +519,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     robotGlow: new THREE.MeshBasicMaterial({ vertexColors: true }),
     scarf: new THREE.MeshStandardMaterial({ color: 0x66763f, roughness: 0.92 }),
     coffee: new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.35 }),
+    mugGlaze: new THREE.MeshStandardMaterial({ color: 0xb0533c, roughness: 0.30 }), // Room 03's brick-red glaze (the record-corner mug)
     warm: new THREE.MeshBasicMaterial({ color: 0xffe0aa }),
   });
   Object.assign(materials, {
@@ -1394,10 +1396,23 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     part("gold", new THREE.BoxGeometry(0.33, 0.0020, 0.0012).translate(RECORD.x, recordBaseY + 0.034, RECORD.z + RECORD.depth / 2 + 0.0006), { tile: 1 });
     part("gold", new THREE.TorusGeometry(0.1322, 0.0013, 6, 48).rotateX(Math.PI / 2).translate(RECORD.x, platterSupportY + 0.0042, RECORD.z), { tile: 1 });
   }
-  // A cup of black coffee in front of the turntable, steaming (Paul asked for the same corner as Room 03): a small cup and saucer, 5 cm clear of the oak body.
+  // A mug of black coffee in front of the turntable, steaming (Paul 2026-11-18: the same glazed brick-red mug as beside Room 03's record player, from kitchen.js:
+  // its hollow lathe body, rolled rim, buried half-loop handle with cap spheres, coffee 15 mm under the rim and the thin gold rim and foot rings). The cup and saucer
+  // with the latte heart moved to the marble Lounge table. 4 cm clear of the oak body.
   const RECORD_CUP = new THREE.Vector3(RECORD.x + 0.07, c.height, RECORD.z + 0.31);
-  ceramicCup({ x: RECORD_CUP.x, y: RECORD_CUP.y, z: RECORD_CUP.z, scale: 1.1, coffee: true, latte: false });
+  {
+    const { x, y, z } = RECORD_CUP, yaw = -0.62;
+    const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]].map(([r, h]) => new THREE.Vector2(r, h));
+    part("mugGlaze", weldSmooth(new THREE.LatheGeometry(profile, 48)).translate(x, y, z), { tile: 1 });
+    part("coffee", new THREE.CircleGeometry(0.0338, 40).rotateX(-Math.PI / 2).translate(x, y + 0.080, z), { tile: 1 });
+    const tubeRadius = 0.0052, loop = 0.0365, dirX = Math.cos(yaw), dirZ = -Math.sin(yaw);
+    part("mugGlaze", weldSmooth(new THREE.TorusGeometry(0.0255, tubeRadius, 12, 32, Math.PI).rotateZ(-Math.PI / 2).rotateY(yaw).translate(x + dirX * loop, y + 0.051, z + dirZ * loop)), { tile: 1 });
+    for (const side of [-1, 1]) part("mugGlaze", weldSmooth(new THREE.SphereGeometry(tubeRadius, 10, 8).translate(x + dirX * loop, y + 0.051 + side * 0.0255, z + dirZ * loop)), { tile: 1 });
+    part("gold", new THREE.TorusGeometry(0.0374, 0.0016, 8, 56).rotateX(Math.PI / 2).translate(x, y + 0.0948, z), { tile: 1 });
+    part("gold", new THREE.TorusGeometry(0.0403, 0.0011, 8, 56).rotateX(Math.PI / 2).translate(x, y + 0.016, z), { tile: 1 });
+  }
 
+  let mugSteam = null; // the record mug's rising steam (built with the other steam below)
   let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
   // Paul 2026-11-17: while the record played the stylus came down BEHIND the record, 0.195 m from its centre (the record is 0.113 m in radius), so the arm never touched it
   // (Rooms 02 and 03 rest on the record). The pivot is 0.160 m from the platter centre and the arm is about 0.134 m long, so the stylus lands where the arm points toward the
@@ -1422,6 +1437,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       setArm(armFrom + (armTo - armFrom) * eased);
       if (!reduced) {
         platterPivot.rotation.y = ((now - recordStart) / 1000) * Math.PI * 0.3;
+        mugSteam?.update((now - recordStart) / 1000 + 7.3);
         const nod = Math.max(0, Math.min(1, (now - recordStart - 180) / 1120));
         greeter.local.rotation.x = nod > 0 ? Math.sin(nod * Math.PI * 4) * 0.065 : 0; // the greeter, the robot beside the player, nods to the beat
       }
@@ -1714,6 +1730,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
     const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: false, sleeve: i === n - 1 }); };
     cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
+    // Card G (Paul 2026-11-18): a sticker on each top cup, facing the visitor, on the band that shows above the cup it is nested in (local 66 to 84 mm; the sleeve
+    // below sits inside that cup): a cream patch 19 mm wide with a terracotta mark, curved just outside the tapered wall (0.3 to 1.3 mm), in the existing detail batch.
+    for (const [x, z, n] of [[-0.42, c.z1 - 0.14, 5], [-0.3, c.z1 - 0.16, 4]]) {
+      const y = top + (n - 1) * 0.03 + 0.075;
+      part("loungeDetail", colorize(new THREE.CylinderGeometry(0.0376, 0.0372, 0.018, 10, 1, true, -0.25, 0.5).translate(x, y, z), 0xf3e6cc), { tile: 1 });
+      part("loungeDetail", colorize(new THREE.CylinderGeometry(0.0379, 0.0376, 0.008, 8, 1, true, -0.13, 0.26).translate(x, y + 0.002, z), 0xc0573a), { tile: 1 });
+    }
     takeawayLidStock = { x: -0.53, z: c.z1 - 0.14, count: 7, radius: 0.041, thickness: 0.006, baseY: top,
       nearestCupClearanceMm: Math.round((0.11 - 0.041 - 0.041) * 1000) };
     for (let i = 0; i < takeawayLidStock.count; i++) {
@@ -1794,11 +1817,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       g.strokeStyle = "rgba(107,63,36,0.75)"; g.lineWidth = 2.5; for (const k of [0, 1, 2]) { g.beginPath(); g.ellipse(192, 64 + k * 9, 22 - k * 5, 8 - k * 2, 0, Math.PI * 0.05, Math.PI * 0.95); g.stroke(); }
       const half = (geometry, u0) => { const uv = geometry.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, u0 + uv.getX(i) * 0.5); return geometry; };
       const scan = half(new THREE.PlaneGeometry(0.032, 0.036).rotateX(-Math.PI / 2 + 0.15), 0).translate(PAD.x + 0.025, top + 0.0175 + 0.00205, PAD.z + 0.0003);
-      const s = 1.1, cupSurface = RECORD_CUP.y + 0.009 * s + 0.047 * s; // ceramicCup's coffee surface for the record cup
-      const latte = half(new THREE.CircleGeometry(0.0262 * s, 28).rotateX(-Math.PI / 2), 0.5).translate(RECORD_CUP.x, cupSurface + 0.0009 * s, RECORD_CUP.z);
       const texture = new THREE.CanvasTexture(atlas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
-      const atlasMesh = new THREE.Mesh(mergeGeometries([scan, latte]), new THREE.MeshStandardMaterial({ map: texture, roughness: 0.45, polygonOffset: true, polygonOffsetFactor: -2 }));
+      const atlasMesh = new THREE.Mesh(scan, new THREE.MeshStandardMaterial({ map: texture, roughness: 0.45, polygonOffset: true, polygonOffsetFactor: -2 }));
       atlasMesh.name = "checkout-scan-and-latte-atlas"; atlasMesh.receiveShadow = true; scene.add(atlasMesh);
+      Object.assign(atlasRef, { mesh: atlasMesh, scan, half });
     }
     {
       const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 340; const g = canvas.getContext("2d");
@@ -2447,6 +2469,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const yawBox = (key, w, h, d, x, y, zz, yaw, r = 0.012) => part(key, roundedBox(w, h, d, r, Math.min(r / 2, h / 4), 4).rotateY(yaw).translate(x, y, zz));
       if (surface === "stone") {
         ceramicCup({ x: tx + 0.145, y: 0.45, z: z + 0.062, scale: 1.05, coffee: true });
+        // The latte heart (Card H f) moved here from the record corner (Paul 2026-11-18): the atlas's latte half on this cup's coffee, 0.9 mm over the surface and
+        // inside the crema ring; the atlas mesh takes it as its second piece, so it stays one mesh.
+        if (atlasRef.mesh) {
+          const s = 1.05, cupSurface = 0.45 + 0.009 * s + 0.047 * s;
+          const latte = atlasRef.half(new THREE.CircleGeometry(0.0262 * s, 28).rotateX(-Math.PI / 2), 0.5).translate(tx + 0.145, cupSurface + 0.0009 * s, z + 0.062 + partShift);
+          const merged = mergeGeometries([atlasRef.scan, latte]); atlasRef.mesh.geometry = merged;
+        }
         yawBox("black", 0.155, 0.013, 0.235, tx - 0.064, 0.4565, z - 0.056, 0.32);
         tabletRef.at = { x: tx - 0.064, top: 0.4565 + 0.0065, z: z - 0.056, yaw: 0.32, tableTop: 0.45 };
         yawBox("oakDeep", 0.098, 0.012, 0.068, tx - 0.04, 0.456, z + 0.131, -0.18);
@@ -2930,12 +2959,35 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // Steam rising from the barista's cup and from the cup on the window table: a few soft puffs, drifting up and widening.
   const steamTexture = makeSteamTexture();
   const steamPositions = [];
-  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [GREETER_CUP.x, GREETER_CUP.y + 0.074, GREETER_CUP.z], [tx(0.13), tableTop + 0.075, tz(-0.06)], [RECORD_CUP.x, RECORD_CUP.y + 0.07, RECORD_CUP.z]]) {
+  for (const [sx, sy, sz] of [[PITCHER.x, PITCHER.y + 0.04, PITCHER.z], [GREETER_CUP.x, GREETER_CUP.y + 0.074, GREETER_CUP.z], [tx(0.13), tableTop + 0.075, tz(-0.06)]]) { // the record mug has its own rising curl (below)
     for (let i = 0; i < 4; i++) steamPositions.push(sx + Math.sin(i * 1.7) * 0.012, sy + 0.05 + i * 0.07, sz + Math.cos(i * 1.3) * 0.01);
   }
   const steamGeometry = new THREE.BufferGeometry(); steamGeometry.setAttribute("position", new THREE.Float32BufferAttribute(steamPositions, 3));
   const steam = new THREE.Points(steamGeometry, new THREE.PointsMaterial({ map: steamTexture, size: 0.11, sizeAttenuation: true, transparent: true, opacity: 0.3, depthWrite: false, color: 0xffffff }));
   steam.name = "steam"; scene.add(steam);
+  // Room 03's rising steam over the red mug (kitchen.js mugSteamRig): 22 soft additive points that curl up 16 cm and fade. A still curl is always there; it drifts
+  // while the record plays (stepped from the record's own animation frame, so it costs no loop of its own).
+  mugSteam = (() => {
+    const COUNT = 22, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+    for (let i = 0; i < COUNT; i++) data.seed[i] = (i * 0.618034 + 0.07 * Math.sin(i * 5.3)) % 1;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+    const material = new THREE.PointsMaterial({ map: steamTexture, size: 0.058, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false });
+    const points = new THREE.Points(geometry, material); points.name = "record-mug-steam"; points.frustumCulled = false; points.raycast = () => {};
+    scene.add(points);
+    const RIM = { x: RECORD_CUP.x, y: RECORD_CUP.y + 0.098, z: RECORD_CUP.z };
+    const update = (t) => {
+      for (let i = 0; i < COUNT; i++) {
+        const life = (t * 0.26 + data.seed[i]) % 1, widen = 0.25 + life * 1.6;
+        const sway = Math.sin(t * 0.9 + life * 5.2 + data.seed[i] * 6) * 0.012 * widen, spread = Math.sin(data.seed[i] * 40) * 0.008 * widen;
+        data.pos[i * 3] = RIM.x + sway + spread + life * 0.014; data.pos[i * 3 + 1] = RIM.y + life * 0.16; data.pos[i * 3 + 2] = RIM.z + Math.cos(t * 0.7 + life * 4.1 + data.seed[i] * 7) * 0.009 * widen + Math.cos(data.seed[i] * 31) * 0.006 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * 0.5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * 0.97;
+      }
+      geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+    };
+    update(7.3);
+    return { points, update };
+  })();
 
   // ---------- lights ----------
   // Track light over the counter: one black rail and four heads. The warmest light in the room is the one on the menus.
