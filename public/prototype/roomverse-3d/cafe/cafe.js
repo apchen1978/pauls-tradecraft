@@ -1566,12 +1566,15 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const a = i * 1.26 + 0.4, lean = 0.05 + rnd() * 0.05, h = 0.2 + rnd() * 0.06;
       const rootX = vx + 0.011 * Math.cos(a), rootZ = vz + 0.011 * Math.sin(a);
       const bx = vx + Math.cos(a) * lean, bz = vz + Math.sin(a) * lean;
-      const midX = (rootX + bx) / 2, midZ = (rootZ + bz) / 2, leafY = tableTop + 0.155 + i * 0.009;
-      part("leaf", tubeGeometry([[rootX, tableTop + 0.035, rootZ], [midX, tableTop + 0.14, midZ], [bx, tableTop + h, bz]], 0.0035, 8, 5), { tile: 1 });
+      // Every stem rises inside the glass and leaves through the mouth (Paul 2026-11-17: a stem came out through the side of the vase): a point in the
+      // neck at r 12 mm (stem centre + radius 15.5 mm, inside the 22 mm neck) and one straight above it just over the rim, so the stem only bends
+      // towards its bloom above the glass. Same 8 segments, so no new vertices; no extra rnd() calls, so the blooms stay where they were.
+      const MOUTH_R = 0.012, mouthX = vx + MOUTH_R * Math.cos(a), mouthZ = vz + MOUTH_R * Math.sin(a), leafY = tableTop + 0.16 + i * 0.009;
+      part("leaf", tubeGeometry([[rootX, tableTop + 0.035, rootZ], [mouthX, tableTop + 0.14, mouthZ], [mouthX, tableTop + 0.167, mouthZ], [bx, tableTop + h, bz]], 0.0035, 8, 5), { tile: 1 });
       for (let k = 0; k < 18; k++) { const b = new THREE.SphereGeometry(0.0085 + rnd() * 0.004, 6, 4);
         b.scale(1, 0.58, 0.86); part("bloom", b.translate(bx + (rnd() - 0.5) * 0.085, tableTop + h + 0.018 + (rnd() - 0.2) * 0.05, bz + (rnd() - 0.5) * 0.085), { tile: 1 }); }
-      const leafX = midX + Math.cos(a) * 0.032, leafZ = midZ + Math.sin(a) * 0.032;
-      part("leaf", rodGeometry([midX, leafY, midZ], [leafX, leafY, leafZ], 0.0018, 5), { tile: 1 });
+      const leafX = mouthX + Math.cos(a) * 0.032, leafZ = mouthZ + Math.sin(a) * 0.032; // the leaf stalk starts on the stem just above the rim
+      part("leaf", rodGeometry([mouthX, leafY, mouthZ], [leafX, leafY, leafZ], 0.0018, 5), { tile: 1 });
       const leaf = new THREE.SphereGeometry(0.036, 8, 4); leaf.scale(1, 0.12, 0.62);
       part("leafDark", leaf.rotateY(a).translate(leafX + Math.cos(a) * 0.016, leafY, leafZ + Math.sin(a) * 0.016), { tile: 1 });
     }
