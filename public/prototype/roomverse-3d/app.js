@@ -4009,6 +4009,48 @@ let lanternMat = null;
     const tex=canvasTex(128,128,(ctx,w,h)=>{const g=ctx.createRadialGradient(w/2,h/2,w*.06,w/2,h/2,w*.48);g.addColorStop(0,'rgba(24,18,16,.42)');g.addColorStop(1,'rgba(24,18,16,0)');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);});
     const shadow=new THREE.Mesh(new THREE.PlaneGeometry(.42,.38),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false}));shadow.name='room01-backpack-contact';shadow.rotation.x=-Math.PI/2;shadow.position.set(2.18,.0025,-.025);scene.add(shadow);render();
   }).catch(e=>{casualBackpackError=String(e);console.warn('Optional backpack unavailable',e);});
+  // Paul 2026-11-18: the floor under the 福杯滿溢 scroll and the home board was empty. A second copy of Room 02's campus backpack (the same model, 1.15x its
+  // 46 cm, so about 53 cm tall) stands there, back to the left wall, front to the room, set on the floor by its measured lowest point (0.5 mm in) and its back
+  // 2 mm off the skirting face, in a mustard-and-olive colourway (Room 02's is navy, the bag by the door is rose). A small mint bear charm hangs on its front,
+  // touching the fabric. The bag is one vertex-coloured mesh; the charm another.
+  let wallBackpack = null, wallBackpackError = null;
+  loader.loadAsync(new URL("./bedroom/models/campus-backpack-v1.glb", import.meta.url).href).then((asset) => {
+    const bag = asset.scene, S = 1.15, palette = { body: "#c6963a", strap: "#4b4a36", zip: "#8a3b2b", base: "#3b382c" };
+    bag.scale.setScalar(S); bag.rotation.y = Math.PI / 2 - .12; bag.updateMatrixWorld(true);
+    const inverse = new THREE.Matrix4(), parts = [];
+    bag.traverse((o) => { if (!o.isMesh) return; const geo = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); geo.applyMatrix4(o.matrixWorld);
+      const col = new THREE.Color(palette[o.material.name] || palette.body), n = geo.attributes.position.count, values = new Float32Array(n * 3);
+      geo.computeBoundingBox(); const bb = geo.boundingBox;
+      for (let i = 0; i < n; i++) { const t = (geo.attributes.position.getY(i) - bb.min.y) / Math.max(.001, bb.max.y - bb.min.y), k = o.material.name === "body" ? .9 + .08 * t : .96; values[i * 3] = col.r * k; values[i * 3 + 1] = col.g * k; values[i * 3 + 2] = col.b * k; }
+      geo.setAttribute("color", new THREE.BufferAttribute(values, 3)); for (const key of Object.keys(geo.attributes)) if (key !== "position" && key !== "normal" && key !== "color") geo.deleteAttribute(key); parts.push(geo); });
+    const merged = mergeGeometries(parts, false); merged.computeBoundingBox();
+    const b = merged.boundingBox, cz = -.36;
+    merged.translate(-W / 2 + .02 + .002 - b.min.x, -b.min.y - .0005, cz - (b.min.z + b.max.z) / 2);
+    const mesh = new THREE.Mesh(merged, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 }));
+    mesh.name = "room01-wall-backpack"; mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh); wallBackpack = mesh;
+    // the charm: raycast the bag's front at 60% of its height, and hang the bear so its body just meets the fabric
+    merged.computeBoundingBox(); const box = merged.boundingBox, hy = box.min.y + (box.max.y - box.min.y) * .6, hz = cz + .03;
+    const hit = new THREE.Raycaster(new THREE.Vector3(box.max.x + .5, hy, hz), new THREE.Vector3(-1, 0, 0)).intersectObject(mesh, false)[0];
+    const charm = new THREE.Group(); charm.name = "room01-wall-backpack-charm";
+    const cloth = new THREE.MeshStandardMaterial({ color: 0x9fd1bf, roughness: 1 }), dark = new THREE.MeshStandardMaterial({ color: 0x3e4a44, roughness: 1 });
+    const part = (r, x, y, z, mat = cloth) => { const o = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), mat); o.position.set(x, y, z); charm.add(o); };
+    part(.025, 0, 0, 0); part(.020, 0, .036, 0); part(.009, 0, .052, -.014); part(.009, 0, .052, .014); part(.010, 0, -.024, -.016); part(.010, 0, -.024, .016);
+    part(.003, .019, .039, -.007, dark); part(.003, .019, .039, .007, dark);
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(.0015, .0015, .035, 6), dark); cord.position.set(-.012, .072, 0); cord.rotation.z = .35; charm.add(cord);
+    charm.position.set((hit ? hit.point.x : box.max.x) + .025 - .001, hy - .06, hz); scene.add(charm); // the bear's 25 mm body 1 mm into the fabric; the cord leans back to the bag
+  }).catch((e) => { wallBackpackError = String(e); console.warn("Optional backpack unavailable", e); });
+  // The big-leaf plant's pot had no soil (Paul 2026-11-18), the same fix as Room 02's: a soil disc 8 mm below the lip (lip about y 0.38, outer radius about 0.23 around
+  // (-2.336, -1.725), measured on the model) with a little colour noise and six pebbles; one vertex-coloured mesh.
+  { const soilParts = [], soilColor = new THREE.Color(), SOIL = { x: -2.336, z: -1.725, y: .372, r: .198 };
+    const tint = (geo, pick) => { const n = geo.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) pick(i).toArray(arr, i * 3); geo.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return geo; };
+    let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const disc = new THREE.RingGeometry(0, SOIL.r, 32, 4).rotateX(-Math.PI / 2); disc.deleteAttribute("uv");
+    soilParts.push(tint(disc, () => soilColor.set("#3b2a1e").offsetHSL(0, 0, (rnd() - .5) * .06)).translate(SOIL.x, SOIL.y, SOIL.z));
+    for (let i = 0; i < 6; i++) { const a = i * 1.9 + .4, d = .07 + (i % 3) * .035, pr = .008 + (i % 2) * .003;
+      const pebble = new THREE.SphereGeometry(pr, 6, 4).scale(1.2, .55, 1).translate(SOIL.x + Math.cos(a) * d, SOIL.y + pr * .3, SOIL.z + Math.sin(a) * d);
+      pebble.deleteAttribute("uv"); soilParts.push(tint(pebble, () => soilColor.set(i % 2 ? "#a49a8c" : "#cfc6b8"))); }
+    const soil = new THREE.Mesh(mergeGeometries(soilParts, false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+    soil.name = "room01-plant-soil"; soil.receiveShadow = true; scene.add(soil); }
 
   fit(); apply();
   // Let the first room frame paint before the optional TV materials request any image bytes.
@@ -4333,6 +4375,12 @@ let lanternMat = null;
         collisions: Object.entries({ floorLamp: lampObj, plant: plantObj, chair: chairObj, plaque })
           .filter(([, obj]) => box.intersectsBox(new THREE.Box3().setFromObject(obj))).map(([name]) => name),
       };
+    },
+    wallBackpackInfo() { // local QA: the second backpack against the left wall and its charm
+      if (!wallBackpack) return { ready: false, error: wallBackpackError };
+      scene.updateMatrixWorld(true); const bag = new THREE.Box3().setFromObject(wallBackpack), charm = scene.getObjectByName("room01-wall-backpack-charm"), cb = charm ? new THREE.Box3().setFromObject(charm) : null;
+      const hits = Object.entries({ plant: plantObj, board: homeBoard, couplet: scene.getObjectByName("blessing-couplet"), sideboard: sideboard.oak, plaque }).filter(([, o]) => o && new THREE.Box3().setFromObject(o).intersectsBox(bag)).map(([k]) => k);
+      return { ready: true, floorGapMm: Math.round(bag.min.y * 10000) / 10, wallGapMm: Math.round((bag.min.x + W / 2) * 10000) / 10, heightMm: Math.round((bag.max.y - bag.min.y) * 1000), hits, charmTouches: !!cb && cb.intersectsBox(bag), charmFloorMm: cb ? Math.round(cb.min.y * 1000) : null };
     },
     casualBackpackInfo() {
       if (!casualBackpack) return {ready:false,error:casualBackpackError};

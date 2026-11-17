@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 220166, meshes: 146 }),
+  scene: Object.freeze({ vertices: 228422, meshes: 148 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -105,5 +105,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "the record-corner cup becomes Room 03's glazed brick-red mug (body, buried handle, coffee, gold rim and foot rings; one new glaze batch) with Room 03's rising steam (22 points, stepped while the record plays); the latte heart moves to the cup on the marble Lounge table (same atlas mesh); Card G: a sticker on each top takeaway cup; +1 opening draw call (the glaze batch)", vertices: 216423, meshes: 144, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "pastry case polish: the macarons (8 mm into their plate) and the two croissants (one 11 mm in, one leaning 6 mm over) are seated 0.5 mm into their plates, a muffin moves in off the plate rim; four more muffins stand in a back row on the oak (same batches); the green bottles' labels wrap the full body on its own 16 facets 0.3 mm out; the two plain clear bottles become Room 03's Evian-style bottle at 0.8 scale (glass shell, water, fluted cap) with a canvas 'SH Slowly Cafe' label (one new mesh); 14 new pastry-seat rest checks; draw calls unchanged in the opening view (measured 65 before and after on the same runner)", vertices: 219795, meshes: 145, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "checkout stand restyled: a slim flat 8 mm champagne-metal disc with a rolled rim (was a 16 mm black cone) and a champagne pole, hinge ball and back plate (one new brushed champagne material batch); the story-note card becomes the robots' staff name card (a canvas on its front face, same mesh) and now stands on the counter (it was 2.8 mm over)", vertices: 220166, meshes: 146, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-18", change: "soil (Paul): the window big-leaf plant's pot gets Room 02's soil disc with six pebbles 8 mm under its lip (one new mesh, 375 vertices); the lounge corner plant's soil rises from 18 to 7 mm under the lip in the same treatment, a slightly warmer brown, with six pebbles (in its existing batch, +345 vertices), its stems start 20 mm under the new level; and its leaf instances go from 108 to the 154 its stems ask for, so the two bare left stems carry leaves (same instanced mesh, no new draw call)", vertices: 220886, meshes: 147, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-18", change: "Lounge meeting (Paul): a second pouf, the same, in front of the marble table (in the existing lounge batches) and Room 02's campus backpack in plum and cream standing on the rug between the two poufs, 38 mm clear of each (one new mesh); together +7,536 vertices, +1 mesh; 8.4k under the 230,000 vertex cap, which is unchanged", vertices: 228422, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
