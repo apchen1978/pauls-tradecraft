@@ -3,6 +3,8 @@ import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
+import { createRoomRecord } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
+import { createRoomSound } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
@@ -6686,7 +6688,27 @@ export async function start({ stage, onReady = () => {} }) {
     nookHintShown = true;
     showNookCaption(nookLang === "zh" ? "點一下：帆布袋、軟木板、鑰匙層板。" : "Tap: totes, board, key shelf.", null, 4200);
   }
-  // A discoverable record-player cue; the first tap acknowledges the object without loading or playing audio.
+  // The record player plays two pieces that already exist (Paul, 2026-11-17): Room 02's "布魯克林窗台" and Room 04's "午後弄堂". One tap walks the record:
+  // stopped -> 布魯克林窗台 -> 午後弄堂 -> stopped. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before.
+  const recordA = createRoomRecord(), recordB = createRoomSound();
+  let recordSide = -1; // -1 stopped, 0 布魯克林窗台, 1 午後弄堂
+  const stopRecords = () => { recordA.stop(); recordB.stop(); recordSide = -1; };
+  const nextRecord = () => {
+    if (recordSide === -1) recordSide = recordA.start(0) ? 0 : -1;
+    else if (recordSide === 0) { recordA.stop(); recordSide = recordB.start(1, false, { playlist: false }) ? 1 : -1; }
+    else stopRecords();
+    return recordSide;
+  };
+  const RECORD_CAPTIONS = [ // short on purpose: the line sits over the picture and must not cover the turntable
+    { zh: "♪ 布魯克林窗台　再點換歌", en: "♪ Brooklyn Windowsill · tap for next" },
+    { zh: "♪ 午後弄堂　再點停止", en: "♪ Afternoon Lane · tap to stop" },
+    { zh: "唱片收起來了", en: "Record put away" },
+    { zh: "這台裝置放不出聲音", en: "No sound on this device" },
+  ];
+
+  const onRecordHidden = () => { if (document.hidden && recordSide !== -1) stopRecords(); }; // a phone that leaves the page stops the record
+  document.addEventListener("visibilitychange", onRecordHidden);
+  // A discoverable record-player cue (a glowing ring until it is found) and the tap that plays the record.
   let vinylFound = false, vinylTap = null;
   const vinylReadyAt = performance.now(), vinylRing = document.createElement("div"), vinylStyle = document.createElement("style");
   vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
@@ -6708,14 +6730,15 @@ export async function start({ stage, onReady = () => {} }) {
   const vinylPointerUp = (event) => {
     if (!vinylTap || !event.isPrimary) return;
     const start = vinylTap; vinylTap = null;
-    if (vinylFound || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
+    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
     const p = vinylPoint(); if (!p) return;
     // the hit area follows how big the turntable looks on screen (a 14 cm platter radius), never smaller than a finger
     const edge = new THREE.Vector3(2.77, 0.875, 0.53 + 0.14).project(camera), rect = canvas.getBoundingClientRect();
     const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
     if (Math.hypot(event.clientX - p.x, event.clientY - p.y) > Math.max(34, radiusPx * 1.1)) return;
     vinylFound = true; positionVinylRing();
-    showNookCaption(nookLang === "zh" ? "這張唱片在等一個好午後。" : "A record waiting for a slow afternoon.");
+    const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 3 : 2];
+    showNookCaption(caption[nookLang], null, now >= 0 ? 6500 : 3500);
   };
   canvas.addEventListener("pointerdown", vinylPointerDown);
   canvas.addEventListener("pointerup", vinylPointerUp);
@@ -8285,6 +8308,7 @@ export async function start({ stage, onReady = () => {} }) {
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
     recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
+    recordMusicState: () => ({ side: recordSide, windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords,
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
@@ -8324,6 +8348,7 @@ export async function start({ stage, onReady = () => {} }) {
       controls.update(); render();
     },
     dispose: () => {
+      stopRecords(); document.removeEventListener("visibilitychange", onRecordHidden);
       clearInterval(vinylTimer); vinylRing.remove(); vinylStyle.remove();
       canvas.removeEventListener("pointerdown", vinylPointerDown); canvas.removeEventListener("pointerup", vinylPointerUp);
       canvas.removeEventListener('pointerdown', centerPointerDown);
