@@ -523,8 +523,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (hitRobot) { tapRobot(); return; }
     tapClient = [event.clientX, event.clientY];
     const story = storyAt();
-    if (story === "vinyl-corner") { // the record corner: a tap starts the music, the next tap stops it
-      if (recordMusic.state().playing) { recordMusic.stop(); showPropStory("vinyl-corner"); } else { const started = recordMusic.start(); if (started) vinylFound = true; showPropStory(started ? "vinyl-music" : "vinyl-corner"); }
+    if (story === "vinyl-corner") { // the record corner: a tap starts side A, the next tap flips to side B, the third stops it
+      const now = recordMusic.next(); if (now >= 0) vinylFound = true;
+      showPropStory(now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
       return;
     }
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
@@ -536,7 +537,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const PROP_STORIES = {
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
-    "vinyl-music": { zh: "♪ 布魯克林窗台。🎹 鋼琴和老派節拍。再點一下就停。", en: "♪ Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to stop." },
+    "vinyl-music": { zh: "♪ A 面：布魯克林窗台。🎹 鋼琴和老派節拍。再點一下翻到 B 面。", en: "♪ Side A: Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to flip to side B." },
+    "vinyl-music-b": { zh: "♪ B 面：防火梯的雨。🎹 慢一點的深夜鋼琴，窗外下著雨。再點一下就停。", en: "♪ Side B: Fire Escape Rain. 🎹 A slower late-night piano, rain at the window. Tap again to stop." },
     "hint-vinyl": { zh: "點一下發光圈裡的唱片機，有音樂喔 🎵", en: "Tap the record player in the glowing ring for some music 🎵" },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
