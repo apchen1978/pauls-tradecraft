@@ -532,7 +532,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     tapClient = [event.clientX, event.clientY];
     const story = storyAt();
     if (story === "vinyl-corner") { // the record corner: a tap starts side A, the next tap flips to side B, the third stops it
-      const now = recordMusic.next(); if (now >= 0) vinylFound = true;
+      const now = recordMusic.next(); if (now >= 0) vinylFound = true; deckSync();
       showPropStory(now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
       return;
     }
@@ -1565,13 +1565,23 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     ctx.fillStyle = "#b8714f"; ctx.beginPath(); ctx.arc(128, 128, 34, 0, 7); ctx.fill();
     ctx.fillStyle = "#d8c8a8"; ctx.beginPath(); ctx.arc(128, 128, 26, 0, 7); ctx.fill();
     ctx.fillStyle = "#7c4a34"; ctx.beginPath(); ctx.arc(128, 128, 4, 0, 7); ctx.fill();
+    // Card I: one small off-centre print block on the label (still no words), so a turning record can be seen turning; rings alone look still.
+    ctx.fillStyle = "#7c4a34"; ctx.fillRect(136, 112, 16, 3); ctx.fillRect(136, 118, 10, 2); ctx.fillStyle = "#b8714f"; ctx.beginPath(); ctx.arc(116, 142, 3, 0, 7); ctx.fill();
   });
   const record = vp(new THREE.CylinderGeometry(.148, .148, .003, 56), [new THREE.MeshStandardMaterial({ color: "#101012", roughness: .28 }), new THREE.MeshStandardMaterial({ map: recordTex, roughness: .32 }), new THREE.MeshStandardMaterial({ color: "#101012" })], "turntable-record", TT.x - .05, platterY + TT.platterH / 2 + .0035, TT.z);
   record.rotation.y = .35;
   // tonearm: pivot, counterweight, a gently curved chrome tube, headshell and stylus
+  // Card I (2026-11-18): the moving part of the arm (counterweight, tube, headshell, stylus) hangs in one group on the pivot's axis, so it can swing
+  // from a rest post beside the platter onto the record while the music plays. Its "on the record" pose is the old static pose, lifted 7 mm so the
+  // stylus tip touches the vinyl instead of sinking into it; the tube still starts 1 mm inside the pivot cap. A short stub now joins the
+  // counterweight to the pivot (it used to hang 14 mm away from it in the air).
   const armBase = new THREE.Vector3(.17, TT.top + TT.plinthH + .012, -.11);
   vp(new THREE.CylinderGeometry(.016, .018, .03, 14), blackMat, "tonearm-pivot", armBase.x, armBase.y, armBase.z);
-  vp(new THREE.CylinderGeometry(.014, .014, .026, 14), blackGloss, "tonearm-counterweight", armBase.x - .045, armBase.y + .004, armBase.z).rotation.z = Math.PI / 2;
+  const ARM = { lift: .007, play: 0, rest: .7, swingMs: 650 }; // rest: 40 degrees towards the front, the stylus 33 mm outside the platter
+  const armGroup = new THREE.Group(); armGroup.name = "tonearm-swing"; armGroup.position.set(armBase.x, ARM.lift, armBase.z); vin.add(armGroup);
+  const ap = (geo, mat, name, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x - armBase.x, y, z - armBase.z); m.castShadow = true; m.receiveShadow = true; armGroup.add(m); return m; };
+  ap(new THREE.CylinderGeometry(.014, .014, .026, 14), blackGloss, "tonearm-counterweight", armBase.x - .045, armBase.y + .004, armBase.z).rotation.z = Math.PI / 2;
+  ap(new THREE.CylinderGeometry(.0035, .0035, .028, 8), brassMetal, "tonearm-counterweight-stub", armBase.x - .02, armBase.y + .006, armBase.z).rotation.z = Math.PI / 2;
   const armCurve = new THREE.CatmullRomCurve3([
     new THREE.Vector3(armBase.x - .01, armBase.y + .012, armBase.z),
     new THREE.Vector3(.115, armBase.y + .026, -.085),
@@ -1579,9 +1589,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     new THREE.Vector3(.012, armBase.y + .018, .012),
   ]);
   const armTube = new THREE.Mesh(new THREE.TubeGeometry(armCurve, 18, .005, 8, false), brassMetal);
-  armTube.name = "tonearm"; armTube.castShadow = true; armTube.receiveShadow = true; vin.add(armTube);
-  vp(softBox(.032, .01, .02, .004, { bevelSegments: 1, curveSegments: 2 }), blackGloss, "tonearm-headshell", .006, armBase.y + .014, .02);
-  vp(new THREE.CylinderGeometry(.0016, .0012, .008, 6), brassMetal, "tonearm-stylus", .006, armBase.y + .008, .028);
+  armTube.name = "tonearm"; armTube.castShadow = true; armTube.receiveShadow = true; armTube.position.set(-armBase.x, 0, -armBase.z); armGroup.add(armTube);
+  ap(softBox(.032, .01, .02, .004, { bevelSegments: 1, curveSegments: 2 }), blackGloss, "tonearm-headshell", .006, armBase.y + .014, .02);
+  const stylusMesh = ap(new THREE.CylinderGeometry(.0016, .0012, .008, 6), brassMetal, "tonearm-stylus", .006, armBase.y + .008, .028);
+  // The rest post stands on the top plate (1 mm into it) under the tube, where the tube lies when the arm is parked; its top meets the tube's underside.
+  const restAt = armCurve.getPoint(.62), restOff = new THREE.Vector3(restAt.x - armBase.x, 0, restAt.z - armBase.z).applyAxisAngle(new THREE.Vector3(0, 1, 0), ARM.rest);
+  const plateTop = TT.top + TT.plinthH + .001, restTop = restAt.y + ARM.lift - .005 + .001;
+  vp(new THREE.CylinderGeometry(.004, .005, restTop - plateTop + .001, 10), blackMat, "tonearm-rest", armBase.x + restOff.x, (restTop + plateTop - .001) / 2, armBase.z + restOff.z);
+  armGroup.rotation.y = ARM.rest; // stopped: parked on the rest post
   // controls: pitch knob, speed button, start/stop button and the power LED (the LED is what glows at night)
   vp(new THREE.CylinderGeometry(.013, .014, .011, 16), blackGloss, "turntable-pitch-knob", .15, TT.top + TT.plinthH + .004, .13);
   vp(box(.03, .006, .014), blackMat, "turntable-speed-button", .195, TT.top + TT.plinthH + .001, .115);
@@ -1598,6 +1613,38 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   ledGlowPlane.name = "turntable-led-glow";
   ledGlowPlane.rotation.x = -Math.PI / 2; ledGlowPlane.position.set(.112, TT.top + TT.plinthH + .002, .152);
   ledGlowPlane.renderOrder = 2; vin.add(ledGlowPlane);
+  // Card I (2026-11-18), copied from Room 04's deck: while the music plays the record turns at 33 1/3 rpm and the arm swings from its rest onto the
+  // record in 650 ms; when it stops the arm swings back and the loop ends, so a stopped room draws nothing extra. The power lamp is bright while
+  // playing and back to its mood level (the old standby look) when stopped.
+  const feltMesh = vin.getObjectByName("turntable-felt-mat");
+  const deck = { playing: false, arm: ARM.rest, from: ARM.rest, swingAt: 0, spin: 0, last: 0, loop: 0 };
+  const RPM33 = (33.333 / 60) * Math.PI * 2;
+  function applyDeckLed(name = mood) {
+    const base = TURNTABLE_LED[name] ?? 0, glow = TURNTABLE_GLOW[name] ?? 0;
+    turntableLedMat.emissiveIntensity = deck.playing ? Math.max(1.6, base) : base;
+    turntableGlowMat.opacity = deck.playing ? Math.max(.16, glow) : glow;
+  }
+  function deckFrame(now) {
+    deck.loop = 0;
+    const dt = Math.min(.1, (now - (deck.last || now)) / 1000); deck.last = now;
+    const target = deck.playing ? ARM.play : ARM.rest, k = Math.min(1, (now - deck.swingAt) / ARM.swingMs), e = k * k * (3 - 2 * k);
+    deck.arm = deck.from + (target - deck.from) * e; armGroup.rotation.y = deck.arm;
+    if (deck.playing && !reducedMotion()) { deck.spin -= RPM33 * dt; record.rotation.y = .35 + deck.spin; if (feltMesh) feltMesh.rotation.y = deck.spin; }
+    render();
+    if (deck.playing || k < 1) deck.loop = requestAnimationFrame(deckFrame);
+  }
+  // Card I: a "Record player" look, like Room 03's record view: the camera walks to a spot 1 m in front of, to the right of and above the deck (clear of the desk chair) and looks down at it
+  // (an absolute look, the way "Stand in the middle" works); any other look button walks back out.
+  { const tt = new THREE.Vector3(TT.x - .05, platterY, TT.z).add(vin.position), off = new THREE.Vector3(.5, .54, .85);
+    LOOKS.record = { pos: tt.clone().add(off), yaw: Math.atan2(off.x, off.z), pitch: -Math.atan2(off.y, Math.hypot(off.x, off.z)), zoom: compact ? 1.1 : 1.6 }; }
+  function deckSync() { // call after anything that may start or stop the music
+    const playing = !!recordMusic.state().playing;
+    if (playing === deck.playing) return;
+    deck.playing = playing; deck.from = deck.arm; deck.swingAt = performance.now(); deck.last = 0;
+    applyDeckLed();
+    if (reducedMotion()) { deck.arm = playing ? ARM.play : ARM.rest; armGroup.rotation.y = deck.arm; render(); return; }
+    if (!deck.loop) deck.loop = requestAnimationFrame(deckFrame);
+  }
   // Compact two-way speakers: match Room 01's layered cabinet/baffle/driver language,
   // while the darker walnut veneer sits naturally beside the records and oak console.
   // Pair geometry is merged by material to keep this detail to two draw calls.
@@ -2109,8 +2156,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow; applyLed();
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
-    turntableLedMat.emissiveIntensity = TURNTABLE_LED[name] ?? 0; // the deck's power lamp: dim in daylight, bright at night
-    turntableGlowMat.opacity = TURNTABLE_GLOW[name] ?? 0;
+    applyDeckLed(name); // the deck's power lamp: its mood level (dim in daylight, bright at night) when stopped, fully lit while the record plays
     applyTv(name);
     setBlind(m.blind);
     applyEnv(name);
@@ -2322,7 +2368,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   };
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
-  document.addEventListener("visibilitychange", () => { if (document.hidden) recordMusic.stop(); }); // the music stops when the page is hidden
+  document.addEventListener("visibilitychange", () => { if (document.hidden) { recordMusic.stop(); deckSync(); } }); // the music stops when the page is hidden
   // The record corner hint (Paul, 2026-11-17: the music is good; make sure visitors find the record player): while the visitor has not started it, a soft pulsing ring marks the turntable whenever it is on
   // screen (after a few seconds), and the hint line comes back every half minute. Both stop for good once the music has been started.
   vinylRing = document.createElement("div"); vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
@@ -2347,7 +2393,17 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }, 1200);
   return {
     vinylRing: () => ({ visible: !vinylRing.hidden, found: vinylFound }), // QA: the hint ring
-    recordState: () => recordMusic.state(), stopRecord: () => recordMusic.stop(),
+    recordState: () => recordMusic.state(), stopRecord: () => { recordMusic.stop(); deckSync(); },
+    deckMotion() { // QA (Card I): the turning record and the swinging arm, plus where the stylus is relative to the vinyl
+      scene.updateMatrixWorld(true);
+      const tip = new THREE.Vector3(0, -.004, 0).applyMatrix4(stylusMesh.matrixWorld), rec = new THREE.Box3().setFromObject(record), c = rec.getCenter(new THREE.Vector3());
+      const pivot = new THREE.Box3().setFromObject(vin.getObjectByName("tonearm-pivot")), tube = new THREE.Box3().setFromObject(armTube), post = new THREE.Box3().setFromObject(vin.getObjectByName("tonearm-rest"));
+      const mm = (v) => Number((v * 1000).toFixed(1));
+      return { playing: deck.playing, looping: !!deck.loop, armAngle: Number(armGroup.rotation.y.toFixed(4)), armRest: ARM.rest, armPlay: ARM.play, recordAngle: Number(record.rotation.y.toFixed(4)),
+        stylusFromCentreMm: mm(Math.hypot(tip.x - c.x, tip.z - c.z)), recordRadiusMm: mm(record.geometry.parameters.radiusTop), labelRadiusMm: mm(record.geometry.parameters.radiusTop * 34 / 128),
+        stylusAboveVinylMm: mm(tip.y - rec.max.y), tubeIntoPivotMm: mm(pivot.max.y - tube.min.y), restIntoPlateMm: mm(TT.top + TT.plinthH + .001 - post.min.y),
+        led: Number(turntableLedMat.emissiveIntensity.toFixed(2)), view: lookName };
+    },
     vinylPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = new THREE.Box3().setFromObject(root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner")).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the turntable on screen
     tvState() { // local QA only
       const m = tvFace.material, on = !!m.emissiveMap;
