@@ -1633,10 +1633,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     render();
     if (deck.playing || k < 1) deck.loop = requestAnimationFrame(deckFrame);
   }
-  // Card I: a "Record player" look, like Room 03's record view: the camera walks to a spot 1 m in front of, to the right of and above the deck (clear of the desk chair) and looks down at it
+  // Card I: a "Record player" look, like Room 03's record view: the camera walks to a spot in front of, to the right of and above the deck and looks down at it
   // (an absolute look, the way "Stand in the middle" works); any other look button walks back out.
-  { const tt = new THREE.Vector3(TT.x - .05, platterY, TT.z).add(vin.position), off = new THREE.Vector3(.5, .54, .85);
-    LOOKS.record = { pos: tt.clone().add(off), yaw: Math.atan2(off.x, off.z), pitch: -Math.atan2(off.y, Math.hypot(off.x, off.z)), zoom: compact ? 1.1 : 1.6 }; }
+  { const tt = new THREE.Vector3(TT.x - .05, platterY, TT.z).add(vin.position), off = new THREE.Vector3(.55, .26, .62); // same framing as Rooms 03/04: about 17 degrees down, 0.87 m out, from the front-right (the desk chair stays at the left edge, the speaker clear on the right)
+    LOOKS.record = { pos: tt.clone().add(off), yaw: Math.atan2(off.x, off.z), pitch: -Math.atan2(off.y, Math.hypot(off.x, off.z)), zoom: compact ? .95 : 1.15 }; }
   function deckSync() { // call after anything that may start or stop the music
     const playing = !!recordMusic.state().playing;
     if (playing === deck.playing) return;
