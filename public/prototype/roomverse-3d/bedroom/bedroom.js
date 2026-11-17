@@ -82,8 +82,16 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   let ready = false;
   const redraw = () => { if (ready) render(); };
   const painted = {};
+  // Phone-size copies (Paul 2026-11-17: the first seconds on a phone matter): on a phone-sized window the big pictures load a smaller copy of themselves
+  // (about 70 percent of the width, same picture), named like the project's other phone files: "-mobile-v1.webp" in place of "-v1.webp". The sizes
+  // came from a Chrome canvas resize at quality 0.82. Only pictures that really got smaller have one; the rest load as before.
+  const MOBILE_ART = new Set(["bedroom-poster-A1-v2.webp", "bedroom-poster-A2-v1.webp", "bedroom-poster-A3-v1.webp", "bedroom-poster-C3-v1.webp", "room02-a6-game-screen-v1.webp",
+    "room02-brooklyn-oak-floor-v1.webp", "room02-c1-full-bookshelf-v1.webp", "room02-c2-seven-tenths-bookshelf-v1.webp", "room02-c3-hardback-bookshelf-v1.webp",
+    "room02-c4-sparse-bookshelf-v1.webp", "room02-rug-modern-v1.webp", "room02-rug-oat-v1.webp", "room02-rug-runner-v1.webp", "room02-window-foreground-day-v1.webp",
+    "room02-window-foreground-night-v1.webp", "room02-window-frame-v1.webp", "studio-window-day-v1.webp", "studio-window-night-v1.webp"]);
+  const artUrl = (file) => new URL(`./art/${compact && MOBILE_ART.has(file) ? file.replace(/-v(\d+)\.webp$/, "-mobile-v$1.webp") : file}`, import.meta.url).href;
   const art = (file, { repeat, apply } = {}) => {
-    const t = new THREE.TextureLoader().load(new URL(`./art/${file}`, import.meta.url).href, (tex) => {
+    const t = new THREE.TextureLoader().load(artUrl(file), (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
       if (repeat) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(...repeat); }
       painted[file] = true; apply?.(tex); redraw();
@@ -675,7 +683,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // The west wall, behind the desk, the TV and the posters, is wallpaper (Paul 2026-10-23: the view outside reads as New York, and American flats
   // paper their walls): Room 01's botanical leaf paper (Paul chose it): cream with soft sage vines, one picture about 1.1 m wide.
   // The colour options below swap it for plain colour as before.
-  const stripeTex = new THREE.TextureLoader().load(new URL("../tex/wallpaper-botanical-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
+  const stripeTex = new THREE.TextureLoader().load(new URL(compact ? "../tex/wallpaper-botanical-mobile-v1.webp" : "../tex/wallpaper-botanical-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
   stripeTex.wrapS = stripeTex.wrapT = THREE.RepeatWrapping; stripeTex.repeat.set((ROOM.d + .2) / 1.1, ROOM.h / 1.1); stripeTex.anisotropy = 8;
   const featureMat = new THREE.MeshStandardMaterial({ color: "#ffffff", map: stripeTex, roughness: .95 }); // the west wall: wallpaper, or a swappable colour
   art("room02-e2-warm-wall-v1.webp", { repeat: [2.2, 1.6], apply: wallTexApply }); // a soft micro-cement / paint finish, multiplied by each wall colour
@@ -713,7 +721,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const texLoader = new THREE.TextureLoader();
   const skyTex = {};
   const loadSky = (time) => skyTex[time] ??= new Promise((resolve) => {
-    texLoader.load(new URL(`./art/studio-window-${time}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null));
+    texLoader.load(artUrl(`studio-window-${time}-v1.webp`), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null));
   });
   const SKY = { w: 4.8, h: 3.0, y: 1.6, z: -HD - 1.2 };
   const skyMat = new THREE.MeshBasicMaterial({ color: "#cfe2f2", toneMapped: false });
@@ -732,8 +740,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     fgMat.map = t; fgMat.color.setScalar(fgTex[skyTime] ? 1 : .38); fgMat.needsUpdate = true; fg.visible = true; redraw();
   };
   art("room02-window-foreground-day-v1.webp", { apply: (t) => { fgTex.day = t; updateForeground(); } });
-  art("room02-window-foreground-night-v1.webp", { apply: (t) => { fgTex.night = t; updateForeground(); } }); // the same railing and plants, in blue night light
+  // The night version (the same railing and plants, in blue night light) is only fetched when the room first goes to night: by day it is never seen.
+  let fgNightRequested = false;
+  const ensureNightForeground = () => { if (fgNightRequested) return; fgNightRequested = true; art("room02-window-foreground-night-v1.webp", { apply: (t) => { fgTex.night = t; updateForeground(); } }); };
   async function setTime(time) {
+    if (time === "night") ensureNightForeground();
     const t = await loadSky(time);
     if (!t) return false;
     skyTime = time; skyMat.map = t; skyMat.color.set("#ffffff"); skyMat.needsUpdate = true; updateForeground(); render();
@@ -796,8 +807,15 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
   zoneRug(1.6, 2.3, .55, 1.3, loungeRugMat, "zone-lounge-rug"); // the sofa's front legs stand on its east end
   const rugArt = {};
-  for (const [k, file] of [["modern", "room02-rug-modern-v1.webp"], ["stripe", "room02-a1-living-rug-v1.webp"], ["oat", "room02-rug-oat-v1.webp"]])
-    art(file, { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; if (k === "modern" || k === "oat") cutout(loungeRugMat); loungeRugMat.needsUpdate = true; } } });
+  // The modern rug is the default and the oat rug also lies in the TV zone, so both load at the start. The striped rug (the biggest file here)
+  // is only fetched when a visitor picks it; until it arrives the code-drawn stripes show, as they always did while it loaded.
+  const RUG_FILES = { modern: "room02-rug-modern-v1.webp", stripe: "room02-a1-living-rug-v1.webp", oat: "room02-rug-oat-v1.webp" };
+  const rugRequested = {};
+  const loadRugArt = (k) => {
+    if (rugRequested[k]) return; rugRequested[k] = true;
+    art(RUG_FILES[k], { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; if (k === "modern" || k === "oat") cutout(loungeRugMat); loungeRugMat.needsUpdate = true; } } });
+  };
+  loadRugArt("modern"); loadRugArt("oat");
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
@@ -1643,7 +1661,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const POSTER = { w: .4, h: .4 * 1020 / 720, y: 1.82, z: -1.75, gap: .08 }; // A2-like portrait, over the desk (Paul: a young person hangs favourites above the desk); the TV wall gets Room 01's morning harbour
   const posterSets = { A: ["A1-v2", "A2-v1", "A3-v1"], B: ["B1-v1", "B2-v1", "B3-v1"], C: ["C1-v1", "C2-v1", "C3-v1"] };
   const posterTex = {};
-  const loadPoster = (id) => posterTex[id] ??= new Promise((resolve) => texLoader.load(new URL(`./art/bedroom-poster-${id}.webp`, import.meta.url).href,
+  const loadPoster = (id) => posterTex[id] ??= new Promise((resolve) => texLoader.load(artUrl(`bedroom-poster-${id}.webp`),
     (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null)));
   const posters = new THREE.Group(); posters.name = "posters"; posters.position.set(-HW, 0, POSTER.z); posters.rotation.y = Math.PI / 2; root.add(posters);
   const frameBlack = new THREE.MeshStandardMaterial({ color: "#1d1f22", roughness: .5 });
@@ -1745,7 +1763,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const frameOak = new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 });
     ["san-francisco", "new-york", "brooklyn"].forEach((city, i) => {
       const x = (i - 1) * (PW + GAP + .03), fr = new THREE.Mesh(new THREE.BoxGeometry(PW + .03, PH + .03, .03), frameOak); fr.position.set(x, 0, 0); fr.castShadow = true; fr.receiveShadow = true; g.add(fr);
-      const tex = texLoader.load(new URL(`../art/room02-city-${city}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
+      const tex = texLoader.load(new URL(`../art/room02-city-${city}${compact ? "-mobile" : ""}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
       const pic = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: tex, roughness: .85 })); pic.position.set(x, 0, .0155); pic.receiveShadow = true; g.add(pic);
     }); }
   // (2) Room 01's glass planning board, on the west wall beside the desk, between the desk and the plant (its own words: a work list, the red line is
@@ -2151,7 +2169,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   async function setChoice(kind, value) {
     if (kind === "posters") { if (!(await setPosters(value))) return false; chosen.posters = value; return true; }
     if (kind === "wall" && CHOICES.wall[value]) { featureMat.color.set(CHOICES.wall[value]); featureMat.map = value === "paper" ? stripeTex : wallCement; featureMat.needsUpdate = true; }
-    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); const cut = (value === "modern" && !!rugArt.modern) || (value === "oat" && !!rugArt.oat); loungeRugMat.transparent = cut; loungeRugMat.alphaTest = cut ? .45 : 0; loungeRugMat.needsUpdate = true; }
+    else if (kind === "rug" && CHOICES.rug[value]) { if (value === "stripe") loadRugArt("stripe"); loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); const cut = (value === "modern" && !!rugArt.modern) || (value === "oat" && !!rugArt.oat); loungeRugMat.transparent = cut; loungeRugMat.alphaTest = cut ? .45 : 0; loungeRugMat.needsUpdate = true; }
     else if (kind === "window" && CHOICES.window.includes(value)) {
       blindFabric.material.map = value === "bamboo" ? (windowPaint.bamboo ?? bambooTex) : (windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true;
       curtains.visible = value === "linen";
@@ -2339,6 +2357,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       const bx = (n) => { const o = root.getObjectByName(n) ?? scene.getObjectByName(n); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
       const lamp = bx("ring-lamp");
       const skin = bx("game-console-skin"), glow = bx("ceiling-glow");
+      ensureNightForeground(); // QA only: ask for the night picture, then report whether it has arrived
       return { ready: !!(lamp && skin && glow && fgTex.night), lamp, glow, skin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
     },
     windowParts() { // local QA only

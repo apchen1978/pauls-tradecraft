@@ -555,6 +555,13 @@ test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
+  // Two of the 29 are fetched only when used (2026-11-17): the striped rug when a visitor picks it, and the night balcony picture when the room first goes to night.
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 27, null, { timeout: 60000 });
+  const atStart = await page.evaluate(() => window.__bedroom.info().painted);
+  expect(Object.keys(atStart).some((file) => file.includes("a1-living-rug")), "the striped rug is not fetched at the start").toBe(false);
+  expect(Object.keys(atStart).some((file) => file.includes("window-foreground-night")), "the night balcony picture is not fetched at the start").toBe(false);
+  await page.evaluate(() => window.__bedroom.setChoice("rug", "stripe"));
+  await page.evaluate(() => window.__bedroom.setMood("night"));
   await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 29, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
