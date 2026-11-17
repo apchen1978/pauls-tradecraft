@@ -1523,10 +1523,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const side of [-1, 1]) {
       const pages = new THREE.BoxGeometry(0.155, 0.011, 0.205).rotateZ(side * 0.04).translate(side * 0.082, tableTop + 0.0135, 0);
       part("paper", place(pages, nx, nz, yaw), { tile: 1 });
-      for (let i = 0; i < 6; i++) part("black", place(new THREE.BoxGeometry(0.11 - (i % 3) * 0.02, 0.0006, 0.0016).translate(side * 0.082 + (i % 2) * 0.004, tableTop + 0.0195 - side * 0.0035, -0.07 + i * 0.027), nx, nz, yaw), { tile: 1 });
+      for (let i = 0; i < 6; i++) part("black", place(new THREE.BoxGeometry(0.11 - (i % 3) * 0.02, 0.0006, 0.0016)
+        .rotateZ(side * 0.04).translate(side * 0.082 + (i % 2) * 0.004, tableTop + 0.0193, -0.07 + i * 0.027), nx, nz, yaw), { tile: 1 });
     }
-    part("black", place(new THREE.CylinderGeometry(0.0045, 0.0045, 0.15, 10).rotateZ(Math.PI / 2).rotateY(0.5).translate(0.02, tableTop + 0.0245, 0.05), nx, nz, yaw), { tile: 1 });
-    part("steel", place(new THREE.CylinderGeometry(0.0048, 0.0048, 0.014, 10).rotateZ(Math.PI / 2).rotateY(0.5).translate(0.07, tableTop + 0.0245, 0.028), nx, nz, yaw), { tile: 1 });
+    // A dark lacquer pen with a metal cap, fine point and arrow-like clip; an original nod to a classic writing instrument, without a mark or logo.
+    const penPart = (key, geometry) => part(key, place(geometry.rotateZ(Math.PI / 2).rotateY(0.5)
+      .translate(0.02, tableTop + 0.0245, 0.05), nx, nz, yaw), { tile: 1 });
+    penPart("black", new THREE.CylinderGeometry(0.0046, 0.004, 0.103, 10).translate(0, -0.0165, 0));
+    penPart("steel", new THREE.CylinderGeometry(0.0052, 0.0052, 0.045, 10).translate(0, 0.0575, 0));
+    penPart("gold", new THREE.TorusGeometry(0.00525, 0.0007, 4, 10).rotateX(Math.PI / 2).translate(0, 0.034, 0));
+    penPart("steel", new THREE.ConeGeometry(0.0038, 0.018, 10).rotateX(Math.PI).translate(0, -0.077, 0));
+    penPart("gold", rodGeometry([0, 0.076, 0.0056], [0, 0.045, 0.0056], 0.0009, 4));
+    for (const side of [-1, 1]) penPart("gold", rodGeometry([side * 0.0035, 0.048, 0.0056], [0, 0.039, 0.0056], 0.0008, 4));
   }
   // A glass vase of hydrangea: round white blooms on bent stems with big leaves.
   {
@@ -1535,10 +1543,17 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     part("water", new THREE.CylinderGeometry(0.036, 0.034, 0.06, 20).translate(vx, tableTop + 0.04, vz), { tile: 1 });
     let seed = 31; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
     for (let i = 0; i < 5; i++) {
-      const a = i * 1.26 + 0.4, lean = 0.05 + rnd() * 0.05, h = 0.2 + rnd() * 0.06, bx = vx + Math.cos(a) * lean, bz = vz + Math.sin(a) * lean;
-      part("leaf", tubeGeometry([[vx, tableTop + 0.07, vz], [(vx + bx) / 2, tableTop + 0.14, (vz + bz) / 2], [bx, tableTop + h, bz]], 0.0035, 8, 5), { tile: 1 });
-      for (let k = 0; k < 18; k++) { const b = new THREE.SphereGeometry(0.0085 + rnd() * 0.004, 6, 4); part("bloom", b.translate(bx + (rnd() - 0.5) * 0.085, tableTop + h + 0.018 + (rnd() - 0.2) * 0.05, bz + (rnd() - 0.5) * 0.085), { tile: 1 }); }
-      const leaf = new THREE.SphereGeometry(0.036, 8, 4); leaf.scale(1, 0.12, 0.62); part("leafDark", leaf.rotateY(a).translate(vx + Math.cos(a) * (lean + 0.035), tableTop + 0.165 + i * 0.012, vz + Math.sin(a) * (lean + 0.035)), { tile: 1 });
+      const a = i * 1.26 + 0.4, lean = 0.05 + rnd() * 0.05, h = 0.2 + rnd() * 0.06;
+      const rootX = vx + 0.011 * Math.cos(a), rootZ = vz + 0.011 * Math.sin(a);
+      const bx = vx + Math.cos(a) * lean, bz = vz + Math.sin(a) * lean;
+      const midX = (rootX + bx) / 2, midZ = (rootZ + bz) / 2, leafY = tableTop + 0.155 + i * 0.009;
+      part("leaf", tubeGeometry([[rootX, tableTop + 0.035, rootZ], [midX, tableTop + 0.14, midZ], [bx, tableTop + h, bz]], 0.0035, 8, 5), { tile: 1 });
+      for (let k = 0; k < 18; k++) { const b = new THREE.SphereGeometry(0.0085 + rnd() * 0.004, 6, 4);
+        b.scale(1, 0.58, 0.86); part("bloom", b.translate(bx + (rnd() - 0.5) * 0.085, tableTop + h + 0.018 + (rnd() - 0.2) * 0.05, bz + (rnd() - 0.5) * 0.085), { tile: 1 }); }
+      const leafX = midX + Math.cos(a) * 0.032, leafZ = midZ + Math.sin(a) * 0.032;
+      part("leaf", rodGeometry([midX, leafY, midZ], [leafX, leafY, leafZ], 0.0018, 5), { tile: 1 });
+      const leaf = new THREE.SphereGeometry(0.036, 8, 4); leaf.scale(1, 0.12, 0.62);
+      part("leafDark", leaf.rotateY(a).translate(leafX + Math.cos(a) * 0.016, leafY, leafZ + Math.sin(a) * 0.016), { tile: 1 });
     }
   }
 
