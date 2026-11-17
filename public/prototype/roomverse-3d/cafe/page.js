@@ -165,6 +165,7 @@ function renderCopy() {
   $("enter").textContent = copy.enter;
   $("immersiveEnter").textContent = copy.fullScreen;
   $("immersiveExit").textContent = copy.exitFullScreen;
+  renderControlsToggle();
   $("immersiveDoor").textContent = copy.portal;
   $("views").setAttribute("aria-label", copy.viewsLabel);
   $("title").textContent = copy.title; $("subtitle").textContent = copy.subtitle; $("lead").textContent = copy.lead; $("note").textContent = copy.note;
@@ -299,6 +300,30 @@ function placePortfolioHome(on) {
     headerActions.append($("lang"));
   }
 }
+
+// Full-screen control bar (Paul 2026-11-18): one handle folds the view and time chips down to a slim strip and brings them back, on desktop and phone.
+// It opens expanded; the choice is kept for this tab (sessionStorage).
+var CONTROLS_KEY = "room04.controls.collapsed";
+var controlsCollapsed = false; // var: renderCopy() can run before this line
+try { controlsCollapsed = sessionStorage.getItem(CONTROLS_KEY) === "1"; } catch { /* storage blocked: start expanded */ }
+function renderControlsToggle() {
+  const toggle = $("controlsToggle"); if (!toggle) return;
+  toggle.textContent = controlsCollapsed ? (lang === "en" ? "▴ Show controls" : "▴ 展開") : (lang === "en" ? "▾ Hide" : "▾ 收合");
+  toggle.setAttribute("aria-expanded", String(!controlsCollapsed));
+}
+function placeControlsToggle() { $("stage").parentElement.style.setProperty("--controls-h", `${Math.round($("immersiveControls").offsetHeight)}px`); }
+function applyControlsCollapsed() {
+  $("stage").parentElement.classList.toggle("controls-collapsed", controlsCollapsed);
+  renderControlsToggle(); placeControlsToggle();
+  if (immersive) requestAnimationFrame(placeUi);
+}
+$("controlsToggle").addEventListener("click", () => {
+  controlsCollapsed = !controlsCollapsed;
+  try { sessionStorage.setItem(CONTROLS_KEY, controlsCollapsed ? "1" : "0"); } catch { /* not remembered, still works */ }
+  applyControlsCollapsed();
+});
+if (window.ResizeObserver) new ResizeObserver(placeControlsToggle).observe($("immersiveControls"));
+applyControlsCollapsed();
 
 function setImmersive(on) {
   if (!room || immersive === on) return;
