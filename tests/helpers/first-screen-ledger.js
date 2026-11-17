@@ -30,9 +30,10 @@ export const LEDGER = Object.freeze({
   // Bytes at desktop 1440 px, after entering the room, default mood.
   baselineBytes: Object.freeze({ room01: 2910568, room02: 4550656, room03: 2235922, room04: 3684556 }),
   // Bytes at a 390 x 844 phone window, same rules. Room 02 starts lower than its desktop number because it loads phone-size pictures there.
-  baselineBytesPhone: Object.freeze({ room01: 2843227, room02: 3610426, room03: 2256615, room04: 3488533 }),
+  baselineBytesPhone: Object.freeze({ room01: 2843227, room02: 3610426, room03: 2256615, room04: 2988705 }),
   history: Object.freeze([
     Object.freeze({ date: "2026-11-17", note: "Ledger created from the first measurement (main a63f0af1, after #938)." }),
     Object.freeze({ date: "2026-11-17", note: "Room 02 phone-size pictures (19 smaller copies, about 70 percent of the width, same pictures) plus the striped rug and the night balcony picture fetched only when used: Room 02 phone 4.66 -> 3.44 MB, desktop 4.91 -> 4.55 MB. Phone baselines added for all four rooms (measured, no change to Rooms 01, 03, 04)." }),
+    Object.freeze({ date: "2026-11-17", note: "Room 04 phone copies for red brick, oak panel, counter stone and menu board B: static first-screen measure 3.33 -> 2.85 MB (3494617 -> 2988705 bytes); desktop art remains original." }),
   ]),
 });
