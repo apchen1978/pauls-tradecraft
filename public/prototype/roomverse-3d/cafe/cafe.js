@@ -1116,7 +1116,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3)); g.setIndex(indices); g.computeVertexNormals();
       part("croissant", g.rotateY(turn).translate(x, y, z), { tile: 1 });
     };
-    croissant(1.48, shelfY + 0.009, pz - 0.026, 0.22); croissant(1.56, shelfY + 0.026, pz + 0.022, -0.35); croissant(1.98, shelfY + 0.009, pz, 0.62);
+    croissant(1.48, shelfY + 0.009, pz - 0.026, 0.22); croissant(1.56, shelfY + 0.026, pz + 0.022, -0.35);
     const detail = (g, hex) => part("loungeDetail", colorize(g, hex), { tile: 1 });
     // Four small macarons on their own plate add colour without hiding the larger pastries.
     for (const [mx, mz, shell] of [[1.286, pz - 0.027, 0xc98684], [1.344, pz - 0.027, 0x8da98b],
@@ -1134,13 +1134,19 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       });
       part("cookie", tubeGeometry(rim, 0.006, 48, 6), { tile: 1 });
     };
-    tart(1.75, shelfY + 0.061, pz, 0.062);
-    for (let i = 0; i < 9; i++) { const a = i * Math.PI * 2 / 9, hex = [0xc53b36, 0x344c81, 0xe9b743][i % 3]; detail(new THREE.SphereGeometry(0.012, 8, 6).translate(1.75 + Math.cos(a) * 0.033, shelfY + 0.087, pz + Math.sin(a) * 0.033), hex); }
+    // Seated (Paul 2026-11-18: the upper cakes floated 15 to 19 mm over their plates): a tart's 26 mm shell is centred on y, so y = plate top + 13 mm - 0.5 mm.
+    const plateTop = (px) => plates.find(([x, y]) => x === px && y > shelfY)[1] + 0.009, seat = (px) => plateTop(px) + 0.013 - 0.0005;
+    const bigTartY = seat(1.74), smallTartY = seat(2.17);
+    tart(1.75, bigTartY, pz, 0.062);
+    for (let i = 0; i < 9; i++) { const a = i * Math.PI * 2 / 9, hex = [0xc53b36, 0x344c81, 0xe9b743][i % 3]; detail(new THREE.SphereGeometry(0.012, 8, 6).translate(1.75 + Math.cos(a) * 0.033, bigTartY + 0.026, pz + Math.sin(a) * 0.033), hex); }
     for (const [x, z] of [[2.13, pz - 0.036], [2.20, pz - 0.036], [2.13, pz + 0.035], [2.20, pz + 0.035]]) {
-      tart(x, shelfY + 0.058, z, 0.026);
-      part("ceramic", new THREE.SphereGeometry(0.021, 12, 8).scale(1, 0.65, 1).translate(x, shelfY + 0.078, z), { tile: 1 });
+      tart(x, smallTartY, z, 0.026);
+      part("ceramic", new THREE.SphereGeometry(0.021, 12, 8).scale(1, 0.65, 1).translate(x, smallTartY + 0.02, z), { tile: 1 });
     }
     // A cut wedge shows its sponge, cream and fruit layers on both exposed faces.
+    // The wedge sat 10 mm over its plate and its back corner reached the tart stand: it moves to x 2.00 (all of it over the 1.98 plate, whose croissant moved to the
+    // lower shelf) and down so its lowest bevel is 0.5 mm into the plate top (shelfY + 0.012; the lowest layer bottom was shelfY + 0.022).
+    const WEDGE_X = 2.0, WEDGE_DY = -0.0105;
     const cakeOutline = new THREE.Shape();
     cakeOutline.moveTo(-0.057, 0.039); cakeOutline.lineTo(0.057, 0.039);
     cakeOutline.lineTo(0.006, -0.073); cakeOutline.quadraticCurveTo(0, -0.080, -0.006, -0.073);
@@ -1148,32 +1154,43 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const [y, h, hex] of [[0.029, 0.012, 0xe5b57a], [0.042, 0.009, 0xf4e6cf], [0.052, 0.005, 0xb94b49], [0.06, 0.012, 0xe5b57a]]) {
       const layer = new THREE.ExtrudeGeometry(cakeOutline, { depth: h, bevelEnabled: true,
         bevelSize: 0.001, bevelThickness: 0.001, bevelSegments: 1, curveSegments: 4 });
-      detail(layer.rotateX(-Math.PI / 2).translate(2.04, shelfY + y - h / 2, pz - 0.01), hex);
+      detail(layer.rotateX(-Math.PI / 2).translate(WEDGE_X, shelfY + y - h / 2 + WEDGE_DY, pz - 0.01), hex);
     }
-    detail(new THREE.SphereGeometry(0.012, 8, 6).translate(2.04, shelfY + 0.077, pz - 0.01), 0xc53b36);
+    detail(new THREE.SphereGeometry(0.012, 8, 6).translate(WEDGE_X, shelfY + 0.077 + WEDGE_DY, pz - 0.01), 0xc53b36);
     for (const [dx, dz] of [[-0.022, -0.01], [0.022, 0.008]])
-      detail(new THREE.SphereGeometry(0.009, 8, 6).scale(1.3, 0.65, 1).translate(2.04 + dx, shelfY + 0.073, pz + dz - 0.01), 0xf6ead7);
+      detail(new THREE.SphereGeometry(0.009, 8, 6).scale(1.3, 0.65, 1).translate(WEDGE_X + dx, shelfY + 0.073 + WEDGE_DY, pz + dz - 0.01), 0xf6ead7);
+    // Contact checks (physics audit, 'rest'): each seated cake's lowest point against its plate top, inside the plate.
+    const onPlate = (name, x, y, z, radius, px) => registerSupport(name, "rest", { base: { x, y, z, radius }, surface: { shape: "circle", x: px, y: plateTop(px), z: pz, radius: 0.09 } });
+    onPlate("pastry-seat-fruit-tart", 1.75, bigTartY - 0.013, pz, 0.062, 1.74);
+    for (const [x, z] of [[2.13, pz - 0.036], [2.20, pz - 0.036], [2.13, pz + 0.035], [2.20, pz + 0.035]]) onPlate(`pastry-seat-small-tart-${x}-${z > pz ? "front" : "back"}`, x, smallTartY - 0.013, z, 0.026, 2.17);
+    onPlate("pastry-seat-cake-wedge", WEDGE_X, shelfY + 0.029 - 0.006 - 0.001 + WEDGE_DY, pz + 0.01, 0.06, 1.98);
     const muffin = (x, y, z) => {
       part("muffinCup", new THREE.LatheGeometry([[0.026, 0], [0.037, 0.042]].map((p) => new THREE.Vector2(p[0], p[1])), 16).translate(x, y, z), { tile: 1 });
       const dome = new THREE.SphereGeometry(0.043, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.scale(1, 0.85, 1); part("muffin", dome.translate(x, y + 0.038, z), { tile: 1 });
       for (let i = 0; i < 5; i++) { const a = i * 1.3; part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(a) * 0.026, y + 0.058 + (i % 2) * 0.004, z + Math.sin(a) * 0.026), { tile: 1 }); }
     };
-    muffin(1.46, base + 0.01, pz - 0.015); muffin(1.56, base + 0.01, pz + 0.03);
+    muffin(1.46, base + 0.0085, pz - 0.015); muffin(1.56, base + 0.0085, pz + 0.03); // on the plate top (base + 9 mm), 0.5 mm in
     // Low basket of six dark canelés beside the muffins.
-    part("kraft", new THREE.CylinderGeometry(0.075, 0.068, 0.018, 18).translate(1.78, base + 0.02, pz - 0.065), { tile: 1 });
+    part("kraft", new THREE.CylinderGeometry(0.075, 0.068, 0.018, 18).translate(1.78, base + 0.0085, pz - 0.065), { tile: 1 }); // on the oak, 0.5 mm in (it hung 11 mm over)
     for (let i = 0; i < 6; i++) {
       const a = i * Math.PI * 2 / 6;
-      part("chip", new THREE.CylinderGeometry(0.018, 0.014, 0.038, 9).translate(1.78 + Math.cos(a) * 0.042, base + 0.049, pz - 0.065 + Math.sin(a) * 0.042), { tile: 1 });
+      part("chip", new THREE.CylinderGeometry(0.018, 0.014, 0.038, 9).translate(1.78 + Math.cos(a) * 0.042, base + 0.0175 + 0.019 - 0.0005, pz - 0.065 + Math.sin(a) * 0.042), { tile: 1 });
     }
     const cookie = (x, y, z) => { part("cookie", new THREE.CylinderGeometry(0.036, 0.036, 0.012, 20).translate(x, y + 0.006, z), { tile: 1 }); for (let i = 0; i < 4; i++) part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(i * 1.7) * 0.02, y + 0.013, z + Math.sin(i * 1.7) * 0.02), { tile: 1 }); };
-    cookie(1.62, base + 0.01, pz + 0.07); cookie(1.68, base + 0.012, pz + 0.08); cookie(1.72, base + 0.01, pz + 0.045);
+    // on the oak (they hung 10 mm over it); the middle one leans on the other two, 0.5 mm into each
+    cookie(1.62, base - 0.0005, pz + 0.07); cookie(1.68, base + 0.0115, pz + 0.08); cookie(1.72, base - 0.0005, pz + 0.045);
+    // Paul 2026-11-18, a few more pastries in the existing batches: a plate at the free left end of the lower shelf (on the oak at 0 mm) with a croissant (its tube's
+    // lowest point is y - 0.0078; 0.8 mm into the plate) and two cookies.
+    part("ceramic", new THREE.CylinderGeometry(0.075, 0.07, 0.009, 24).translate(1.31, base + 0.0045, pz + 0.02), { tile: 1 });
+    croissant(1.31, base + 0.009 + 0.0078 - 0.0008, pz + 0.0, 0.15);
+    cookie(1.285, base + 0.0085, pz + 0.075); cookie(1.345, base + 0.0085, pz + 0.07);
     // Two petite éclairs sit at the front of the lower shelf, clear of the bottle tray.
     for (const [ex, glaze] of [[1.78, 0x8a4d34], [1.84, 0xe9d3a5]]) {
-      part("cookie", new THREE.CapsuleGeometry(0.012, 0.044, 4, 8).rotateZ(Math.PI / 2).translate(ex, base + 0.019, pz + 0.13), { tile: 1 });
-      detail(new THREE.SphereGeometry(1, 12, 8).scale(0.034, 0.004, 0.011).translate(ex, base + 0.031, pz + 0.13), glaze);
+      part("cookie", new THREE.CapsuleGeometry(0.012, 0.044, 4, 8).rotateZ(Math.PI / 2).translate(ex, base + 0.0115, pz + 0.13), { tile: 1 });
+      detail(new THREE.SphereGeometry(1, 12, 8).scale(0.034, 0.004, 0.011).translate(ex, base + 0.0235, pz + 0.13), glaze);
     }
     // A compact bottle tray: four generic green sparkling waters and two clear mineral waters.
-    slab("kraft", [1.87, 2.27], [base + 0.01, base + 0.018], [pz - 0.105, pz + 0.105], { tile: 1 });
+    slab("kraft", [1.87, 2.27], [base + 0.0088, base + 0.018], [pz - 0.105, pz + 0.105], { tile: 1 }); // bottom 0.2 mm into the plate under it (it hung 1 mm over)
     for (let i = 0; i < 6; i++) {
       const x = 1.94 + (i % 3) * 0.12, z = pz + (i < 3 ? -0.055 : 0.055), green = i < 4;
       // Bake the geometry into the existing material batches; the fourth bottle leans slightly.
@@ -1187,8 +1204,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       part("loungeDetail", colorize(bottle, green ? 0x286443 : 0x9cc4d6));
       part("gold", new THREE.CylinderGeometry(0.014, 0.014, 0.014, 10).rotateZ(tilt).translate(x - Math.sin(tilt) * 0.247, base + 0.265, z), { tile: 1 });
       if (green) {
-        part("paper", new THREE.CircleGeometry(0.025, 12).scale(0.88, 1.35, 1).translate(x, base + 0.108, z + 0.032), { tile: 1 });
-        slab("terracotta", [x - 0.016, x + 0.016], [base + 0.11, base + 0.112], [z + 0.032, z + 0.034], { tile: 1 });
+        // The label wraps the glass (Paul 2026-11-18: the flat white ovals stood off the bottle): a band 0.8 mm outside the 31 mm body, facing the visitor, with a thin
+        // terracotta stripe; built upright at the bottle's own origin and leaned with it.
+        part("paper", new THREE.CylinderGeometry(0.0318, 0.0318, 0.052, 14, 1, true, -0.85, 1.7).translate(0, 0.09, 0).rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
+        part("terracotta", new THREE.CylinderGeometry(0.0322, 0.0322, 0.003, 12, 1, true, -0.6, 1.2).translate(0, 0.092, 0).rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
       }
     }
     // PROVISIONAL Today card, rendered as tiny strokes within the existing chalk/paper batches.

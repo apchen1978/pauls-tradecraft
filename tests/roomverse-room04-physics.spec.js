@@ -26,6 +26,14 @@ test("Room 04 audits registered support, joints, container walls and barriers", 
     expect(contact.ok, contact.name).toBe(true);
     expect(contact.detail, contact.name).toContain("vertical gap 0 mm");
   }
+  // Pastry case (Paul 2026-11-18): the upper cakes and tarts sit on their plates, 0 to 1 mm in, never above.
+  const seats = result.checks.filter(({ name }) => name.startsWith("pastry-seat-"));
+  expect(seats.length).toBe(6);
+  for (const seat of seats) {
+    const gap = Number(seat.detail.match(/vertical gap (-?[\d.]+) mm/)[1]);
+    expect(gap, seat.name).toBeLessThanOrEqual(0);
+    expect(gap, seat.name).toBeGreaterThanOrEqual(-1);
+  }
   expect(result.checks.length).toBeGreaterThan(100);
   expect(new Set(result.checks.map(({ name }) => name)).size).toBe(result.checks.length);
   for (const prefix of ["window-chair", "bar-stool-bentwood", "bar-stool-leather", "bar-stool-metal", "lounge-",
