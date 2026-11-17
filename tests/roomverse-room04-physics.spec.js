@@ -17,6 +17,15 @@ test("Room 04 audits registered support, joints, container walls and barriers", 
   const result = await page.evaluate(() => ({ checks: window.__room04.physicsAudit(), info: window.__room04.info() }));
   expect(result.info.vertices).toBe(LEDGER.scene.vertices);
   expect(result.info.meshes).toBe(LEDGER.scene.meshes);
+  const stock = result.info.takeawayLidStock;
+  expect(stock).toMatchObject({ count: 7, radius: 0.041, thickness: 0.006, baseY: 1.05 });
+  expect(stock.nearestCupClearanceMm).toBeGreaterThanOrEqual(20);
+  const lidContacts = result.checks.filter(({ name }) => name.startsWith("takeaway-lid-"));
+  expect(lidContacts).toHaveLength(stock.count);
+  for (const contact of lidContacts) {
+    expect(contact.ok, contact.name).toBe(true);
+    expect(contact.detail, contact.name).toContain("vertical gap 0 mm");
+  }
   expect(result.checks.length).toBeGreaterThan(100);
   expect(new Set(result.checks.map(({ name }) => name)).size).toBe(result.checks.length);
   for (const prefix of ["window-chair", "bar-stool-bentwood", "bar-stool-leather", "bar-stool-metal", "lounge-",

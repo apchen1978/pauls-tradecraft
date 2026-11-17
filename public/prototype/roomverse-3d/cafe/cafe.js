@@ -458,6 +458,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let tabletRig = null; // its lit screen and pulse, built with the lounge
   const tabletRef = { at: null }; // the tablet on the marble lounge table: where it lies (set where the table is built)
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
+  let takeawayLidStock = null;
   let shadowsDirty = true; const dirtyShadows = () => { shadowsDirty = true; };
   const clockHands = []; // {pivot, kind} for the wall clock; updated on every render so the hands show the real time
   const textureLoader = new THREE.TextureLoader();
@@ -1687,10 +1688,20 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   // (the window pendant is built below with the other lamps)
   {
-    // Counter details on the customer side: two stacks of kraft takeaway cups with white lids, a tip jar and a card reader on a stand.
+    // Counter details on the customer side: two stacks of open kraft takeaway cups and a small stock of white lids.
     partShift = counterShift(-0.3); // the cups and the tip jar stand on the backward lobe of the wave
-    const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: i === n - 1, sleeve: i === n - 1 }); };
+    const cupStack = (x, z, n) => { for (let i = 0; i < n; i++) takeawayCup({ x, y: top + i * 0.03, z, lid: false, sleeve: i === n - 1 }); };
     cupStack(-0.42, c.z1 - 0.14, 5); cupStack(-0.3, c.z1 - 0.16, 4);
+    takeawayLidStock = { x: -0.53, z: c.z1 - 0.14, count: 7, radius: 0.041, thickness: 0.006, baseY: top,
+      nearestCupClearanceMm: Math.round((0.11 - 0.041 - 0.041) * 1000) };
+    for (let i = 0; i < takeawayLidStock.count; i++) {
+      const y = top + i * takeawayLidStock.thickness;
+      part("lid", new THREE.CylinderGeometry(0.041, 0.041, 0.006, 24).translate(takeawayLidStock.x, y + 0.003, takeawayLidStock.z), { tile: 1 });
+      part("loungeDetail", colorize(new THREE.TorusGeometry(0.0407, 0.00045, 4, 24).rotateX(Math.PI / 2).translate(takeawayLidStock.x, y + 0.0055, takeawayLidStock.z), 0xd7d2c9), { tile: 1 });
+      registerSupport(`takeaway-lid-${i}-on-${i ? "lid" : "counter"}`, "rest", { base: { x: takeawayLidStock.x, y, z: takeawayLidStock.z + partShift, radius: 0.041 },
+        surface: i ? { shape: "circle", x: takeawayLidStock.x, z: takeawayLidStock.z + partShift, radius: 0.041, y } :
+          { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0 + partShift, z1: c.z1 + partShift, y: top } });
+    }
     // The straw holder beside the cup stacks: a dark brown enamel cup with a solid bottom and a rim, and 46 eco straws in natural browns standing nearly upright (Paul: a straw never
     // comes out through the side of its cup; it may lean a little, but it must stay inside the wall). Physics check, by the numbers: the cup's inside radius is 0.034 m at the rim; a straw
     // starts on the floor of the cup within 0.020 m of the axis and leans so that, where it crosses the rim (49% of its length), it is still within 0.031 m of the axis. Above the rim it keeps
@@ -3388,7 +3399,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         partShiftLeft: partShift, // must be 0 once the room is built: a leftover counter-curve shift moves every wall frame away from its print
         recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
         dripTower: { widthMm: Math.round(DRIP.width * 1000), depthMm: Math.round(DRIP.depth * 1000), heightMm: Math.round(DRIP.height * 1000), xMm: Math.round(DRIP.x * 1000), zMm: Math.round(DRIP.z * 1000), baseYmm: Math.round(DRIP.barTop * 1000), framePostsInBaseMm: 10, playing: dripPlaying },
-        loungePlantFit,
+        loungePlantFit, takeawayLidStock,
         blockout,
       };
     },
