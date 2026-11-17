@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 116053, meshes: 146 }),
+  scene: Object.freeze({ vertices: 116153, meshes: 148 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 87, phone: 84 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -83,6 +83,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "a compact record player stands on four embedded feet at the cleared credenza end; upright books leave, the cable-car keepsake moves onto the nook console; +1305 vertices, +2 meshes, opening and mood draw calls unchanged", vertices: 113666, meshes: 140, desktopCalls: 85, phoneCalls: 82 },
     { date: "2026-11-17", change: "record player corner (Paul): gold trim on the turntable (+1 mesh), the red mug moves to the credenza, the stone dish (smoother pebbles that rest on the dish floor) moves to the counter (+1 mesh for pebbles), the takeaway cup moves beside the water bottles and gets a small \"Shanghai Slowly Cafe\" label (+1 mesh), water bottles get a visible water body and surface, the napkin pack becomes a tissue box with two napkins pulled up; +1245 vertices, +4 meshes, opening draw calls +1; the 1280 px view +1 (88 -> 89) and the 1920 px view +3 (90 -> 93)", vertices: 114911, meshes: 144, desktopCalls: 86, phoneCalls: 83 },
     { date: "2026-11-17", change: "red mug detail (Paul): black coffee in the mug (in its own batch), a gold rim ring and foot band (+1 mesh), a gold lotus medallion drawn on a canvas (+1 mesh), and a faint steam curl over the mug (one Points object, still unless the close record view is open or the record plays; hidden in the Sunday mood, which has its own steam); the close record view is framed on the turntable and the mug together; +1142 vertices, +2 meshes, opening draw calls +1, the 1280 px view 89 -> 90 and the 1920 px view 93 -> 94", vertices: 116053, meshes: 146, desktopCalls: 87, phoneCalls: 84 },
+    { date: "2026-11-18", change: "Card I record motion: the turntable platter (record, grooves, label with a small print block, spindle) and the tonearm are split out of the merged record-player mesh so they can turn and swing while a piece plays; a slim rest post joins the body mesh. +100 vertices, +2 meshes; opening and mood draw calls unchanged at 1440 and 390 (the credenza end is off-screen there). Headroom unchanged.", vertices: 116153, meshes: 148, desktopCalls: 87, phoneCalls: 84 },
   ]),
 });
 

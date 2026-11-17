@@ -78,3 +78,37 @@ test("Room 03 a glowing ring points at the record player; each tap walks the rec
   expect(await page.evaluate(() => window.__room03.recordViewInfo())).toBeNull();
   expect(errors).toEqual([]);
 });
+
+test("Room 03 (Card I) the platter turns and the arm drops onto the vinyl only while a piece plays", async ({ page }) => {
+  test.setTimeout(240000);
+  const errors = await openRoom(page);
+  const motion = async () => (await page.evaluate(() => window.__room03.recordPlayerInfo())).motion;
+  const stopped = await motion();
+  expect(stopped.playing).toBe(false);
+  expect(stopped.looping, "no animation loop while stopped").toBe(false);
+  expect(stopped.armAngle).toBeCloseTo(stopped.armRest, 3);
+  expect(stopped.stylusFromCentreMm, "parked: the stylus is clear of the platter").toBeGreaterThan(stopped.platterRadiusMm + 8);
+  // Physics: the rest post stands in the deck top and its top meets the tube's underside (0-2 mm).
+  expect(stopped.restIntoDeckMm).toBeGreaterThanOrEqual(0); expect(stopped.restIntoDeckMm).toBeLessThanOrEqual(2);
+  expect(stopped.restTopToTubeMm).toBeGreaterThanOrEqual(-2); expect(stopped.restTopToTubeMm).toBeLessThanOrEqual(0);
+  await page.locator("#recordView").click();
+  await expect.poll(async () => (await page.evaluate(() => window.__room03.recordViewInfo()))?.distance ?? 99, { timeout: 8000 }).toBeLessThan(1.4);
+  await page.waitForTimeout(1200);
+  const spot = await page.evaluate(() => { const v = window.__room03.camera; const rect = document.querySelector("canvas").getBoundingClientRect(); const q = new v.position.constructor(2.77, 0.87, 0.475).project(v); return { x: rect.left + (q.x + 1) * rect.width / 2, y: rect.top + (1 - q.y) * rect.height / 2 }; });
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__room03.recordMusicState())).side, { timeout: 8000 }).toBe(0);
+  await expect.poll(async () => (await motion()).armAngle, { timeout: 5000, message: "the arm swings onto the record" }).toBeCloseTo(stopped.armPlay, 3);
+  const playing = await motion();
+  expect(playing.looping).toBe(true);
+  expect(playing.stylusFromCentreMm, "the stylus lands on the vinyl").toBeLessThan(playing.vinylRadiusMm - 5);
+  expect(playing.stylusFromCentreMm, "on the grooves, not the label").toBeGreaterThan(playing.labelRadiusMm + 5);
+  await page.waitForTimeout(600);
+  expect((await motion()).platterAngle, "the platter turns").not.toBeCloseTo(playing.platterAngle, 2);
+  // The stylus still rests on the vinyl, as in step 1.
+  const info = await page.evaluate(() => window.__room03.recordPlayerInfo());
+  expect(info.tonearmEndAboveVinylMm).toBeGreaterThanOrEqual(0); expect(info.tonearmEndAboveVinylMm).toBeLessThanOrEqual(12);
+  await page.evaluate(() => window.__room03.stopRecord());
+  await expect.poll(async () => (await motion()).looping, { timeout: 5000, message: "the loop ends once the arm is parked" }).toBe(false);
+  expect((await motion()).armAngle).toBeCloseTo(stopped.armRest, 3);
+  expect(errors).toEqual([]);
+});
