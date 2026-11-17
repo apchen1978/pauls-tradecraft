@@ -739,8 +739,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     part("kraft", new THREE.TorusGeometry(0.038, 0.003, 6, 16).rotateX(Math.PI / 2).translate(x, y + 0.09, z), { tile: 1 });
     for (const [h, r] of [[0.018, 0.029], [0.073, 0.036]]) part("kraft", new THREE.TorusGeometry(r, 0.0008, 4, 16).rotateX(Math.PI / 2).translate(x, y + h, z), { tile: 1 });
     if (sleeve) {
-      part("cover", new THREE.CylinderGeometry(0.035, 0.032, 0.034, 16, 1, true).translate(x, y + 0.05, z), { tile: 1 });
-      for (let i = 0; i < 14; i++) { const a = i * Math.PI * 2 / 14; part("kraft", rodGeometry([x + 0.034 * Math.cos(a), y + 0.034, z + 0.034 * Math.sin(a)], [x + 0.035 * Math.cos(a), y + 0.066, z + 0.035 * Math.sin(a)], 0.0007, 4), { tile: 1 }); }
+      // The sleeve is 34 mm tall from y 0.033 to 0.067; the cup wall there is 0.0314 to 0.0352 in radius, so the sleeve (0.0334 to 0.0372) wraps it. (It was 0.032 to 0.035, inside the wall and never visible: Paul 2026-11-17.)
+      part("cover", new THREE.CylinderGeometry(0.0372, 0.0334, 0.034, 16, 1, true).translate(x, y + 0.05, z), { tile: 1 });
+      for (let i = 0; i < 14; i++) { const a = i * Math.PI * 2 / 14; part("kraft", rodGeometry([x + 0.0336 * Math.cos(a), y + 0.034, z + 0.0336 * Math.sin(a)], [x + 0.0374 * Math.cos(a), y + 0.066, z + 0.0374 * Math.sin(a)], 0.0007, 4), { tile: 1 }); }
     }
     if (lid) {
       part("lid", new THREE.CylinderGeometry(0.041, 0.039, 0.008, 16).translate(x, y + 0.095, z), { tile: 1 });
@@ -1376,7 +1377,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   ceramicCup({ x: RECORD_CUP.x, y: RECORD_CUP.y, z: RECORD_CUP.z, scale: 1.1, coffee: true, latte: false });
 
   let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
-  const ARM_REST = 0.28, ARM_PLAY = 2.34;
+  // Paul 2026-11-17: while the record played the stylus came down BEHIND the record, 0.195 m from its centre (the record is 0.113 m in radius), so the arm never touched it
+  // (Rooms 02 and 03 rest on the record). The pivot is 0.160 m from the platter centre and the arm is about 0.134 m long, so the stylus lands where the arm points toward the
+  // centre and a little short of it: 3.25 rad puts it on the record's playing band, between the label and the rim.
+  const ARM_REST = 0.28, ARM_PLAY = 3.45;
   const setArm = (value) => { armPivot.rotation.y = value; };
   const recordTrackListeners = []; let recordTrack = -1; // each tap that starts the record plays the next of the three tracks (the first start at night plays 夜色外灘)
   const roomSound = createRoomSound(); // the slow record (sound.js): it starts inside the tap on the record player and stops with it
@@ -2156,13 +2160,51 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     slab("black", [0.05 - 0.07, 0.05 + 0.07], [T, T + 0.08], [zc - 0.045, zc + 0.045], { tile: 1 }); slab("paper", [0.05 - 0.055, 0.05 + 0.055], [T + 0.03, T + 0.092], [zc - 0.035, zc + 0.035], { tile: 1 });
     partShift = counterShift(0.22);
     // sugar jar: glass, a steel lid, six cubes and a pair of oak tongs
-    part("loungeDetail", colorize(new THREE.CylinderGeometry(0.045, 0.045, 0.11, 24).translate(0.22, T + 0.055, zc), 0x34424f), { tile: 1 }); // charcoal ceramic, not see-through glass part("steel", new THREE.CylinderGeometry(0.048, 0.048, 0.016, 24).translate(0.22, T + 0.118, zc), { tile: 1 }); part("steel", new THREE.SphereGeometry(0.009, 10, 8).translate(0.22, T + 0.134, zc), { tile: 1 });
+    // Paul 2026-11-17 (the record corner, close view): the jar's steel lid and knob had been left inside a comment on this line and were never built, so it was a bare black
+    // cylinder. It is now a charcoal ceramic jar with softly rounded shoulders, a brass lid with a knob, two thin gold bands and a small ivory label (drawn below).
+    part("loungeDetail", colorize(new THREE.LatheGeometry([[0.0005, 0], [0.040, 0], [0.045, 0.012], [0.046, 0.04], [0.046, 0.088], [0.043, 0.104], [0.0005, 0.106]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(0.22, T, zc), 0x34424f), { tile: 1 });
+    part("gold", new THREE.CylinderGeometry(0.0485, 0.0485, 0.014, 28).translate(0.22, T + 0.112, zc), { tile: 1 });
+    part("gold", new THREE.SphereGeometry(0.0095, 12, 8).translate(0.22, T + 0.1285, zc), { tile: 1 });
+    for (const [y, r] of [[0.016, 0.0455], [0.098, 0.0447]]) part("gold", new THREE.TorusGeometry(r, 0.0011, 6, 36).rotateX(Math.PI / 2).translate(0.22, T + y, zc), { tile: 1 });
     for (let i = 0; i < 6; i++) slab("paper", [0.22 - 0.028 + (i % 3) * 0.02, 0.22 - 0.012 + (i % 3) * 0.02], [T + 0.004 + Math.floor(i / 3) * 0.016, T + 0.018 + Math.floor(i / 3) * 0.016], [zc - 0.012, zc + 0.004], { tile: 1 });
-    slab("oak", [0.265, 0.33], [T, T + 0.006], [zc + 0.045, zc + 0.052], { tile: 1 });
+    // Sugar tongs (Paul 2026-11-17: the plain oak strip beside the jar read as a stick): a small saucer with a gold line, and a pair of oak tongs lying on it, two arms
+    // that meet at a brass hinge on the left and open to the right into small flat scoops.
+    {
+      const TX = 0.307, TZ = zc + 0.072;
+      part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.032, 0.004], [0.034, 0.007], [0.030, 0.0075], [0.0005, 0.0045]].map((p) => new THREE.Vector2(p[0], p[1])), 24).translate(TX, T, TZ), { tile: 1 });
+      part("gold", new THREE.TorusGeometry(0.0335, 0.0008, 5, 28).rotateX(Math.PI / 2).translate(TX, T + 0.0072, TZ), { tile: 1 });
+      for (const side of [-1, 1]) {
+        part("oak", new THREE.BoxGeometry(0.058, 0.0035, 0.0055).rotateY(-side * 0.115).translate(TX, T + 0.0095, TZ + side * 0.00325), { tile: 0.5 });
+        part("oak", new THREE.SphereGeometry(0.0065, 10, 6).scale(1, 0.35, 1.3).translate(TX + 0.029, T + 0.0095, TZ + side * 0.0068), { tile: 0.5 });
+      }
+      part("gold", new THREE.SphereGeometry(0.0035, 8, 6).translate(TX - 0.029, T + 0.0115, TZ), { tile: 1 });
+    }
     partShift = counterShift(0.38);
     // cream pitcher
     part("ceramic", new THREE.LatheGeometry([[0.0005, 0], [0.028, 0], [0.036, 0.045], [0.03, 0.085], [0.034, 0.09], [0.0005, 0.09]].map((p) => new THREE.Vector2(p[0], p[1])), 22).translate(0.38, T, zc), { tile: 1 });
     part("ceramic", new THREE.TorusGeometry(0.02, 0.0055, 8, 14, Math.PI).rotateZ(-Math.PI / 2).translate(0.418, T + 0.05, zc), { tile: 1 });
+    part("gold", new THREE.TorusGeometry(0.0335, 0.0012, 6, 28).rotateX(Math.PI / 2).translate(0.38, T + 0.0905, zc), { tile: 1 }); // a gold line on the lip
+    part("gold", new THREE.TorusGeometry(0.0285, 0.001, 6, 28).rotateX(Math.PI / 2).translate(0.38, T + 0.0035, zc), { tile: 1 }); // and one on the foot
+    // Two small labels drawn in code on canvases (no download), on cylinder segments just outside each wall, turned toward the visitor. The cream pitcher carries
+    // "Shanghai Slowly Cafe", the same name as the cup in Room 03 (Paul: a nod between the rooms); the sugar jar an ivory label, "砂糖 SUGAR".
+    {
+      const labelMesh = (name, canvas, radiusTop, radiusBottom, height, x, y, z, facing, arc, opaque) => {
+        const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+        const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radiusTop, radiusBottom, height, 32, 1, true, facing - arc / 2, arc),
+          new THREE.MeshStandardMaterial({ map: texture, transparent: !opaque, roughness: 0.6, depthWrite: opaque, polygonOffset: true, polygonOffsetFactor: -2 }));
+        mesh.name = name; mesh.position.set(x, y, z); scene.add(mesh); return mesh;
+      };
+      const pitcherCanvas = document.createElement("canvas"); pitcherCanvas.width = 400; pitcherCanvas.height = 260;
+      { const g = pitcherCanvas.getContext("2d"); g.clearRect(0, 0, 400, 260); g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#3a2a1c";
+        g.font = "italic 700 74px Georgia, 'Times New Roman', serif"; g.fillText("Shanghai", 200, 66); g.fillText("Slowly", 200, 140);
+        g.font = "600 40px Georgia, 'Times New Roman', serif"; g.fillText("C A F E", 200, 205); g.fillStyle = "#b9893a"; g.fillRect(110, 232, 180, 4); }
+      labelMesh("slowly-cream-pitcher-label", pitcherCanvas, 0.0318 + 0.0005, 0.0357 + 0.0005, 0.035, 0.38, T + 0.060, zc + counterShift(0.38), 0.45, 1.6, false);
+      const jarCanvas = document.createElement("canvas"); jarCanvas.width = 256; jarCanvas.height = 164;
+      { const g = jarCanvas.getContext("2d"); g.fillStyle = "#f3ead6"; g.fillRect(0, 0, 256, 164); g.strokeStyle = "#b9893a"; g.lineWidth = 6; g.strokeRect(8, 8, 240, 148);
+        g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = "#2a2018"; g.font = "700 62px 'PingFang TC', 'Microsoft JhengHei', sans-serif"; g.fillText("砂糖", 128, 66);
+        g.font = "600 36px Georgia, 'Times New Roman', serif"; g.fillText("S U G A R", 128, 124); }
+      labelMesh("slowly-sugar-jar-label", jarCanvas, 0.0467, 0.0467, 0.036, 0.22, T + 0.058, zc + counterShift(0.22), 0.45, 1.2, true);
+    }
     partShift = counterShift(-1.45);
     // open menu folder: two brown covers and two cream pages, lying open
     slab("cover", [-1.56, -1.45], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 }); slab("cover", [-1.45, -1.34], [T, T + 0.006], [zc - 0.075, zc + 0.075], { tile: 1 });
