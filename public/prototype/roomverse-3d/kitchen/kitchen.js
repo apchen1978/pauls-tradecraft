@@ -8,6 +8,9 @@ import { createRoomSound } from "../cafe/sound.js?v=auto"; // Room 04's records;
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
+// Paul 2026-11-17: the brick-red mug moves from the counter (x -0.30, z -1.752, base 0.954) to the credenza, right of the record player
+// (x 2.70, z 0.84, standing on the 0.815 top). Both the mug and its morning steam use this one shift.
+const RED_MUG_SHIFT = Object.freeze([3.0, -0.139, 2.592]);
 // The room's door (Paul 2026-10-30: every room has one; beside the cable-car painting on the right wall). A doorway is cut through the 120 mm wall
 // (face x 2.94), the wall panel and the skirting; leaf 0.85 x 2.04 m, hinged on the painting side, so the leaf opens into the room.
 const ROOM_DOOR = Object.freeze({ wallFaceX: 2.94, wallBackX: 3.06, zMid: -1.58, halfHole: 0.443, holeHeight: 2.07, casing: 0.06, leafWidth: 0.85, leafHeight: 2.04 });
@@ -404,6 +407,10 @@ function makeMaterials() {
     sinkSteel: std(0x969d9e, 0.46, { metalness: 0.30 }),
     faucetSteel: std(0xaab1b2, 0.29, { metalness: 0.45 }),
     waterClear: new THREE.MeshStandardMaterial({ color: 0xc9e2e4, roughness: 0.12, transparent: true, opacity: 0.30, depthWrite: false }),
+    // Paul 2026-11-17: close up the big water bottles read as empty. The water is now a visible pale blue-green body with a bright surface, under the clear shell.
+    bottleWater: new THREE.MeshStandardMaterial({ color: 0x86c3cf, roughness: 0.06, transparent: true, opacity: 0.62, depthWrite: false }),
+    bottleWaterTop: new THREE.MeshStandardMaterial({ color: 0xe4f6f7, roughness: 0.05, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide }),
+    pebble: std(0x8f8a7e, 0.9),
     waterBottleGlass: new THREE.MeshPhysicalMaterial({ color: 0xc6d8d5, roughness: 0.19, metalness: 0, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false }),
     // Daylight table pitcher and tumblers (Paul 2026-11-11): real clear glass, not a milky shell. Transmission was tried
     // and dropped: three.js renders the whole room into a refraction buffer, which doubled the opening draw calls
@@ -2162,29 +2169,30 @@ function buildThanksgivingDecor(scene) {
   // Bulk pack of paper napkins (Paul 2026-10-31): a soft-plastic wrapped white stack with a generic red band and an abstract,
   // unreadable label block (no real brand name or logo). Slightly squashed: flat base on the table, bulging sides, pinched seams at both ends.
   {
-    const pack = new THREE.BoxGeometry(0.19, 0.074, 0.105, 16, 6, 10);
-    const packPos = pack.attributes.position;
-    for (let i = 0; i < packPos.count; i++) {
-      const x = packPos.getX(i), y = packPos.getY(i), z = packPos.getZ(i);
-      const u = x / 0.095, v = (y + 0.037) / 0.074, w = z / 0.0525;
-      const bulge = Math.sin(Math.PI * Math.min(1, v * 1.05)) * (1 - u * u * 0.6);
-      const pinch = Math.max(0, Math.abs(u) - 0.86) / 0.14;
-      const nz = z * (1 + 0.06 * bulge) * (1 - 0.10 * pinch);
-      const ny = (y + 0.037) * (1 - 0.06 * pinch) * (1 + 0.035 * (1 - w * w) * (1 - u * u)) + 0.0012 * Math.sin(x * 140 + z * 60) * v * v;
-      packPos.setXYZ(i, x * (1 - 0.02 * v * v), ny, nz);
-    }
+    // Paul 2026-11-17: the wrapped pack looked like a plain white brick next to the record player. It is now a paper-napkin dispenser box (same footprint,
+    // same spot): a cream carton with a soft sage band, an oval opening on top and two white napkins pulled up through it, rippled and leaning,
+    // fanning out from the middle. No brand, no text. The two napkins stand 4 mm inside the carton so they grow out of the opening.
+    const BODY_H = 0.062;
+    const body = new THREE.BoxGeometry(0.19, BODY_H, 0.105, 6, 3, 4);
+    paint(body, (y) => (y < -0.012 ? 0xe8e2d3 : y < 0.016 ? 0xc9d6c4 : 0xefeadd));
+    body.translate(0, BODY_H / 2, 0);
+    const opening = new THREE.CircleGeometry(1, 24).scale(0.062, 0.022, 1).rotateX(-Math.PI / 2).translate(0, BODY_H + 0.0004, 0);
+    paint(opening, () => 0x3b3732);
+    const napkin = (w, h, baseX, tiltZ, tiltY, phase, curl) => {
+      const g = new THREE.BoxGeometry(w, h, 0.0016, 12, 10, 1);
+      const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), y = pos.getY(i) + h / 2, rise = y / h; // 0 at the opening, 1 at the free edge
+        pos.setZ(i, pos.getZ(i) + (0.002 + 0.011 * rise) * Math.sin((x / w) * Math.PI * 2.6 + phase) + curl * rise * rise);
+        pos.setX(i, x * (1 + 0.1 * rise)); // a tissue opens out a little as it rises
+        pos.setY(i, y);
+      }
+      g.rotateZ(tiltZ); g.rotateY(tiltY); g.translate(baseX, BODY_H - 0.004, 0);
+      paint(g, (y, n) => (n > 0.9 ? 0xeceae3 : 0xf8f7f2));
+      return g;
+    };
+    const pack = mergeGeometries([body, opening, napkin(0.066, 0.078, -0.006, 0.07, 0.12, 0.4, 0.016), napkin(0.058, 0.052, 0.018, -0.2, -0.28, 2.2, -0.012)], false);
     pack.rotateY(0.18);
-    paint(pack, () => 0xf1f0ea);
-    const colors = pack.attributes.color, local = new THREE.Vector3(), rot = new THREE.Matrix4().makeRotationY(-0.18), c = new THREE.Color();
-    for (let i = 0; i < packPos.count; i++) {
-      local.fromBufferAttribute(packPos, i).applyMatrix4(rot);
-      const n = Math.abs(Math.sin(local.x * 191.3 + local.y * 83.7 + local.z * 151.1) * 43758.5453) % 1;
-      if (Math.abs(local.x) < 0.034) c.set(0xb0242b);
-      else c.set(n > 0.85 ? 0xdfe0dc : 0xf2f1eb);
-      // Abstract label: a cream block with a few darker bars on the band's front face (deliberately unreadable).
-      if (Math.abs(local.x) < 0.024 && local.z > 0.045 && local.y > 0.022 && local.y < 0.052) c.set(Math.sin(local.x * 900) > 0.6 && local.y > 0.034 ? 0x6e1a20 : 0xeee3cf);
-      c.toArray(colors.array, i * 3);
-    }
     // Paul 2026-10-31: on the dining table it crowded a glass, so it lives on the free front end of the small wok counter, beside the clay-red
     // credenza. Seated on the measured stone top (0 mm), kept 20 mm+ clear of the wok kitchen props (checked in the decor test).
     const wokCounter = scene.getObjectByName("merged-wok-counter");
@@ -2258,6 +2266,7 @@ function buildThanksgivingDecor(scene) {
   }
   const materials = {
     decor: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, vertexColors: true }),
+    paper: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.86, vertexColors: true }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true }),
     liquid: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22, transparent: true, opacity: 0.78, depthWrite: false, vertexColors: true }),
   };
@@ -2270,7 +2279,7 @@ function buildThanksgivingDecor(scene) {
     if (!geometry) throw new Error(`Could not merge Room 03 Thanksgiving ${kind}`);
     geometry.computeVertexNormals();
     if (kind !== "paperNapkin") vertices += geometry.attributes.position.count;
-    const material = kind === "paperNapkin" ? materials.decor : materials[kind];
+    const material = kind === "paperNapkin" ? materials.paper : materials[kind];
     const mesh = new THREE.Mesh(geometry, material);
     if (kind === "paperNapkin") {
       paperNapkinVertices = geometry.attributes.position.count;
@@ -3933,7 +3942,24 @@ function buildRoom03CredenzaDecor(scene) {
     cupFits.push({ name, bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() }, bodyColour: `#${bodyColour.toString(16).padStart(6, "0")}`, sleeveColour: `#${sleeveColour.toString(16).padStart(6, "0")}`, lidColour: "#343431" });
   };
   takeawayCup("cream-sage", -0.34, 0xf0e8dc, 0x78866f);
-  takeawayCup("mist-blue-kraft", 0.36, 0xb8c4c4, 0xc0a27b);
+  // Paul 2026-11-17: the mist-blue cup moves in beside the two water bottles so the whole record player shows, and it carries a small easter egg:
+  // "Shanghai Slowly Cafe", Room 04's cafe, as if the owner had just flown home from Shanghai with a favourite cup. Drawn in code on a curved
+  // label over the kraft sleeve (no download); the text is our own fictional cafe, not a real brand.
+  takeawayCup("mist-blue-kraft", 0.12, 0xb8c4c4, 0xc0a27b);
+  {
+    const canvas = document.createElement("canvas"); canvas.width = 560; canvas.height = 400;
+    const g = canvas.getContext("2d");
+    g.clearRect(0, 0, 560, 400); g.fillStyle = "#3a2a1c"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "italic 700 92px Georgia, 'Times New Roman', serif"; g.fillText("Shanghai", 280, 118); g.fillText("Slowly", 280, 218);
+    g.font = "600 60px Georgia, 'Times New Roman', serif"; g.fillText("C A F E", 280, 318);
+    g.fillRect(150, 358, 260, 4);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    const arc = 1.3, facing = -0.8; // radians; the label faces into the room (toward the camera side)
+    const label = new THREE.Mesh(new THREE.CylinderGeometry(0.0421, 0.0391, 0.04, 28, 1, true, facing - arc / 2, arc),
+      new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.85, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    label.name = "room03-takeaway-cup-label"; label.position.set(2.55, TOP_Y - 0.001 + 0.055, 0.12); label.userData.category = "credenza";
+    scene.add(label);
+  }
   // Faceted vessel with dried stems (z about -0.22).
   const vesselProfile = [[0, 0.004], [0.030, 0.004], [0.046, 0.020], [0.054, 0.075], [0.050, 0.150], [0.038, 0.202], [0.024, 0.222], [0.022, 0.265], [0.029, 0.28], [0.018, 0.28], [0, 0.26]];
   add(lathe(vesselProfile, 8), 0xc9b79c, [X, TOP_Y, -0.22]);
@@ -4002,11 +4028,6 @@ function buildRoom03CredenzaDecor(scene) {
   keepsakeMesh.castShadow = true; keepsakeMesh.receiveShadow = true;
   scene.add(keepsakeMesh);
   const keepsake = { type: "unbranded-sf-cable-car-keepsake", bounds: { min: keepsakeBounds.min.toArray(), max: keepsakeBounds.max.toArray() }, vertices: keepsakeVertices, consoleGapMm: Math.round((keepsakeBounds.min.y - 0.575) * 1000) };
-  // Shallow dish with three stones (z about 0.85), kept clear of the wok counter at z 1.023.
-  add(lathe([[0, 0.003], [0.05, 0.003], [0.07, 0.014], [0.078, 0.03], [0.072, 0.034], [0.062, 0.018], [0, 0.012]], 14), CERAMIC, [X, TOP_Y, 0.84], [0, 0, 0], [1.25, 1, 0.8]);
-  for (const [dz, dx, r, tone] of [[-0.05, -0.01, 0.026, 0x9a9488], [0.0, 0.02, 0.022, 0xb5ac9a], [0.05, -0.012, 0.024, 0x7f7a6e]]) {
-    add(new THREE.SphereGeometry(r, 8, 6), tone, [X + dx, TOP_Y + 0.02 + r * 0.55, 0.84 + dz], [0, 0, 0], [1, 0.65, 1.15]);
-  }
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   geometry.computeVertexNormals();
@@ -4054,6 +4075,20 @@ function buildRoom03RecordPlayer(scene) {
   add(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(...pivot), new THREE.Vector3(...elbow), new THREE.Vector3(...tip)]), 14, 0.003, 6, false), 0xc6c6bb);
   const stylus = new THREE.BoxGeometry(0.012, 0.01, 0.015).translate(tip[0], 0.874, tip[2]);
   stylus.computeBoundingBox(); const stylusBox = stylus.boundingBox.clone(); add(stylus, 0x363632);
+  // Gold trim (Paul 2026-11-17: make the record player shine and stand out): a thin frame around the top edge, a pinstripe on the room-facing side,
+  // a ring at the platter's rim and a cap on the tonearm pivot. One merged mesh with a warm metal material.
+  const gold = [];
+  const addGold = (geometry) => { gold.push(geometry); };
+  const FRAME_Y = 0.8625;
+  for (const sz of [-1, 1]) addGold(new THREE.BoxGeometry(0.318, 0.0026, 0.004).translate(C.x, FRAME_Y, C.z + sz * 0.205));
+  for (const sx of [-1, 1]) addGold(new THREE.BoxGeometry(0.004, 0.0026, 0.406).translate(C.x + sx * 0.155, FRAME_Y, C.z));
+  addGold(new THREE.BoxGeometry(0.0022, 0.0024, 0.37).translate(C.x - 0.1601, 0.8445, C.z)); // pinstripe on the side that faces the room
+  addGold(new THREE.TorusGeometry(platter.radius + 0.0012, 0.0014, 6, 48).rotateX(Math.PI / 2).translate(platter.x, 0.8668, platter.z));
+  addGold(new THREE.CylinderGeometry(0.0085, 0.0085, 0.0022, 16).translate(pivot[0], 0.8826, pivot[2]));
+  const goldGeometry = mergeGeometries(gold, false);
+  gold.forEach((part) => part.dispose()); goldGeometry.computeVertexNormals();
+  const goldMesh = new THREE.Mesh(goldGeometry, new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 0.78, roughness: 0.28, emissive: 0x3a2808, emissiveIntensity: 0.4 }));
+  goldMesh.name = "room03-credenza-record-player-gold"; goldMesh.userData.category = "credenza"; goldMesh.castShadow = false; goldMesh.receiveShadow = false; scene.add(goldMesh);
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
   const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.59, metalness: 0.08 }));
@@ -4064,7 +4099,7 @@ function buildRoom03RecordPlayer(scene) {
     footIntoTopMm: Math.round((C.top - Math.max(...footBoxes.map((b) => b.min.y))) * 1000),
     footIntoPlinthMm: Math.round((Math.min(...footBoxes.map((b) => b.max.y)) - deckBox.min.y) * 1000),
     tonearmEndAboveVinylMm: Math.round((stylusBox.min.y - vinylBox.max.y) * 1000),
-    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count }) };
+    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count + goldGeometry.attributes.position.count, goldVertices: goldGeometry.attributes.position.count }) };
 }
 
 function buildDishDryer(scene, m) {
@@ -4444,7 +4479,8 @@ function buildHouseholdProps(scene, m) {
         .map(([radius, y]) => new THREE.Vector2(radius, y));
       shape(new THREE.LatheGeometry(profile, 28), m.waterBottleGlass, [0, 0, 0], [0, yaw, 0]);
       const fill = [[0, 0.004], [0.039, 0.006], [0.039, 0.194], [0.036, 0.212], [0, 0.212]].map(([radius, y]) => new THREE.Vector2(radius, y));
-      shape(new THREE.LatheGeometry(fill, 24), m.waterClear);
+      shape(new THREE.LatheGeometry(fill, 24), m.bottleWater);
+      shape(new THREE.CircleGeometry(0.0375, 24).rotateX(-Math.PI / 2), m.bottleWaterTop, [0, 0.2125, 0]); // the water surface
       shape(new THREE.CylinderGeometry(0.0425, 0.0425, 0.062, 28, 1, true), m.waterLabel, [0, 0.105, 0], [0, yaw, 0]);
       // Ridged screw cap: 28 flutes on the side.
       const cap = new THREE.CylinderGeometry(0.0175, 0.0175, 0.022, 56, 1);
@@ -4460,7 +4496,7 @@ function buildHouseholdProps(scene, m) {
   // One opaque ceramic mug, using Room 01's hollow body and embedded handle. Paul 2026-11-04: two mugs side by
   // side read as one shape split by a seam, so there is now a single glazed brick-red mug, turned so its handle
   // faces away from the brewer and its rim catches the window light.
-  const counterMugs = buildPropGroup(scene, "counter-mugs", [0, 0, 0], ({ shape }) => {
+  const counterMugs = buildPropGroup(scene, "counter-mugs", [...RED_MUG_SHIFT], ({ shape }) => {
     // One clean hollow body: the old inherited profile climbed the outside, crossed over the rim and then ran
     // back DOWN at a LARGER radius than the outer wall, so the two walls intersected and the lathe drew thin
     // vertical slivers on both sides of the mug (Paul 2026-11-04). This profile goes up the outside, over a
@@ -4496,6 +4532,26 @@ function buildHouseholdProps(scene, m) {
   // A 30-40 mm-tall glaze surface picks up shadow-map acne that reads as flat facets, so the mug only casts.
   counterMugs.traverse((child) => { if (child.isMesh) child.receiveShadow = false; });
   counterMugs.userData.mugCount = 1;
+  // Paul 2026-11-17: the shallow dish with three pebbles leaves the credenza (the middle pebble hovered about 5 mm over the dish floor and two sat on the wall)
+  // and stands on the counter where the red mug was, beside the coffee maker. Each pebble is placed from the dish's own floor height so it rests on it
+  // (0.5 mm in), stays inside the wall, and is a smooth, slightly tilted, irregular stone rather than a flat sphere.
+  const stoneDish = buildPropGroup(scene, "counter-stone-dish", [-0.30, counterY + 0.002, -1.752], ({ shape }) => {
+    const SX = 1.25, SZ = 0.8; // the dish is an oval: scaled in x and z
+    const dish = new THREE.LatheGeometry([[0, 0], [0.05, 0], [0.07, 0.011], [0.078, 0.027], [0.072, 0.031], [0.062, 0.015], [0, 0.009]].map(([r, y]) => new THREE.Vector2(r, y)), 28);
+    dish.scale(SX, 1, SZ);
+    shape(weldSmooth(dish), m.porcelain);
+    const floorAt = (x, z) => 0.009 + (0.006 / 0.062) * Math.min(0.062, Math.hypot(x / SX, z / SZ)); // the inside floor of the dish
+    [[-0.040, -0.012, 0.024, 0.25, 1.15], [0.022, -0.022, 0.020, -0.6, 1.05], [0.008, 0.020, 0.022, 1.1, 1.2]].forEach(([x, z, r, yaw, flat], index) => {
+      const stone = new THREE.SphereGeometry(r, 16, 12);
+      const pos = stone.attributes.position;
+      for (let i = 0; i < pos.count; i++) { // a little unevenness, smooth enough to read as a river stone
+        const k = 1 + 0.07 * Math.sin(pos.getX(i) * 140 + index * 2.1) * Math.cos(pos.getZ(i) * 120 + index) + 0.04 * Math.sin(pos.getY(i) * 190 + index * 3);
+        pos.setXYZ(i, pos.getX(i) * k, pos.getY(i) * k, pos.getZ(i) * k);
+      }
+      const half = r * 0.62; // the stone is squashed to 62 percent of its width
+      shape(weldSmooth(stone), m.pebble, [x, floorAt(x, z) + half - 0.0005, z], [0.05 * (index - 1), yaw, 0.04 * (1 - index)], [1, 0.62, flat]);
+    });
+  });
   // Empty turned wooden serving bowl, on the free end of the wok counter.
   // The 220 mm rim stays clear of the 480 mm cooktop and the counter edges.
   const wokServingBowl = buildPropGroup(scene, "wok-wood-serving-bowl", [2.64, 0.954, 2.14], ({ shape }) => {
@@ -4529,7 +4585,7 @@ function buildHouseholdProps(scene, m) {
     });
     group.userData.qaGeometry = { vertices, meshes };
   };
-  [coffeeMaker, counterMugs, kettle, utensilCrock, pantryJar, ...waterBottles, wokServingBowl, riceCooker, saucepan].forEach(savePropMeasure);
+  [coffeeMaker, counterMugs, stoneDish, kettle, utensilCrock, pantryJar, ...waterBottles, wokServingBowl, riceCooker, saucepan].forEach(savePropMeasure);
   const mergeWorldMaterialMeshes = (groups, material, name, renderOrder = 0) => {
     const sourceMeshes = groups.flatMap((group) => group.children.filter((child) => child.isMesh && child.material === material));
     const geometries = sourceMeshes.map((mesh) => mesh.geometry.clone().applyMatrix4(mesh.matrixWorld));
@@ -4573,11 +4629,13 @@ function buildHouseholdProps(scene, m) {
     return combined;
   };
   mergeWorldMaterialMeshes([utensilCrock, pantryJar, wokServingBowl], m.oak, "prop-countertop-oak-shared");
-  mergeWorldMaterialMeshes([coffeeMaker, counterMugs], m.porcelain, "prop-countertop-ceramics-shared");
+  mergeWorldMaterialMeshes([coffeeMaker, counterMugs, stoneDish], m.porcelain, "prop-countertop-ceramics-shared");
+  mergeWorldMaterialMeshes([stoneDish], m.pebble, "prop-counter-pebbles", 0);
   const sharedCounterGlass = mergeWorldMaterialMeshes([coffeeMaker, pantryJar], m.glass, "prop-countertop-glass-shared", 2);
   sharedCounterGlass.castShadow = false;
   sharedCounterGlass.receiveShadow = false;
-  mergeWorldMaterialMeshes(waterBottles, m.waterClear, "prop-mineral-water-liquid", 1);
+  mergeWorldMaterialMeshes(waterBottles, m.bottleWater, "prop-mineral-water-liquid", 1);
+  mergeWorldMaterialMeshes(waterBottles, m.bottleWaterTop, "prop-mineral-water-surface", 1);
   mergeWorldMaterialMeshes(waterBottles, m.waterBottleGlass, "prop-mineral-water-shells", 2);
   mergeWorldMaterialMeshes(waterBottles, m.waterLabel, "prop-mineral-water-labels", 0);
   // Preserve the steel/black distinction as per-vertex color while merging
@@ -7442,7 +7500,7 @@ export async function start({ stage, onReady = () => {} }) {
     steamMat.name = "morning-steam"; const steamPoints = new THREE.Points(steamGeo, steamMat); steamPoints.name = "morning-steam"; steamPoints.frustumCulled = false; steamPoints.visible = false;
     dustPoints.raycast = steamPoints.raycast = () => {}; // atmosphere, not objects: taps and the plaque's visibility probe pass straight through
     scene.add(dustPoints, steamPoints);
-    const MUG = Object.freeze({ x: -0.292, y: 1.05, z: -1.752 }); // the rim of the mug standing beside the coffee maker
+    const MUG = Object.freeze({ x: -0.292 + RED_MUG_SHIFT[0], y: 1.05 + RED_MUG_SHIFT[1], z: -1.752 + RED_MUG_SHIFT[2] }); // the rim of the red mug, now on the credenza
     const update = (t) => {
       for (let i = 0; i < DUST; i++) {
         const ph = dust.phase[i], tw = 0.5 + 0.5 * Math.sin(t * 0.55 + ph * 3);
@@ -7826,7 +7884,7 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "counter-mugs", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "wok-olive-oil", "oak-utensil-crock", "glass-pantry-jar", "mineral-water-bottle-1", "mineral-water-bottle-2", "wok-wood-serving-bowl", "steel-saucepan", "tabletop-meyer-lemon-bowl", "tabletop-water-set", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
+    const propKeys = ["drip-coffee-maker", "counter-mugs", "counter-stone-dish", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "wok-olive-oil", "oak-utensil-crock", "glass-pantry-jar", "mineral-water-bottle-1", "mineral-water-bottle-2", "wok-wood-serving-bowl", "steel-saucepan", "tabletop-meyer-lemon-bowl", "tabletop-water-set", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];

@@ -32,7 +32,8 @@ test("the credenza top carries two takeaway cups, and the small Bay Area keepsak
   }
   expect(decor.cups[0].bodyColour).not.toBe(decor.cups[1].bodyColour);
   expect(decor.cups[0].sleeveColour).not.toBe(decor.cups[1].sleeveColour);
-  expect(decor.cups[1].bounds.min[2] - decor.cups[0].bounds.max[2], "the two cups have clear space between them").toBeGreaterThan(0.5);
+  // the second cup now stands beside the water bottles (Paul 2026-11-17), so the two cups are closer than before but still apart
+  expect(decor.cups[1].bounds.min[2] - decor.cups[0].bounds.max[2], "the two cups have clear space between them").toBeGreaterThan(0.3);
   expect(decor.keepsake.type).toBe("unbranded-sf-cable-car-keepsake");
   expect(decor.keepsake.vertices).toBeGreaterThan(250);
   // Paul, 2026-11-17: the cable car moved to the little entry nook (more to look at there, and the credenza end is cleared for the record player).
