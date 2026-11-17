@@ -1118,13 +1118,16 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); g.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3)); g.setIndex(indices); g.computeVertexNormals();
       part("croissant", g.rotateY(turn).translate(x, y, z), { tile: 1 });
     };
-    croissant(1.48, shelfY + 0.009, pz - 0.026, 0.22); croissant(1.56, shelfY + 0.026, pz + 0.022, -0.35);
+    // Paul 2026-11-18 (pastry polish): the two croissants on the 1.52 plate were 11 mm into it and 6 mm over it (one leaned on the other). Both now lie side by side on the plate,
+    // their lowest point (y - 7.8 mm) 0.5 mm into its top (shelfY + 12 mm), 80 mm apart so they no longer meet.
+    const CROISSANT_Y = shelfY + 0.012 + 0.0078 - 0.0005;
+    croissant(1.52, CROISSANT_Y, pz - 0.045, 0.12); croissant(1.52, CROISSANT_Y, pz + 0.035, -0.18);
     const detail = (g, hex) => part("loungeDetail", colorize(g, hex), { tile: 1 });
     // Four small macarons on their own plate add colour without hiding the larger pastries.
     for (const [mx, mz, shell] of [[1.286, pz - 0.027, 0xc98684], [1.344, pz - 0.027, 0x8da98b],
       [1.286, pz + 0.031, 0xd2a25e], [1.344, pz + 0.031, 0x9b839f]]) {
       for (const [dy, h, color] of [[0.008, 0.008, shell], [0.014, 0.004, 0xf3e6d0], [0.020, 0.008, shell]])
-        detail(new THREE.CylinderGeometry(0.023, 0.023, h, 16).translate(mx, shelfY + dy, mz), color);
+        detail(new THREE.CylinderGeometry(0.023, 0.023, h, 16).translate(mx, shelfY + dy + 0.0075, mz), color); // +7.5 mm: the lower shell was 8 mm inside the plate; now 0.5 mm in
     }
     // Fruit tart, two small French tarts and a layered slice fill the raised upper plates.
     const tart = (x, y, z, radius) => {
@@ -1166,12 +1169,20 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     onPlate("pastry-seat-fruit-tart", 1.75, bigTartY - 0.013, pz, 0.062, 1.74);
     for (const [x, z] of [[2.13, pz - 0.036], [2.20, pz - 0.036], [2.13, pz + 0.035], [2.20, pz + 0.035]]) onPlate(`pastry-seat-small-tart-${x}-${z > pz ? "front" : "back"}`, x, smallTartY - 0.013, z, 0.026, 2.17);
     onPlate("pastry-seat-cake-wedge", WEDGE_X, shelfY + 0.029 - 0.006 - 0.001 + WEDGE_DY, pz + 0.01, 0.06, 1.98);
+    // Pastry polish: the macarons and croissants on the upper plates, and the muffins, bottles and other lower-shelf pieces against what they stand on.
+    for (const [mx, mz] of [[1.286, pz - 0.027], [1.344, pz - 0.027], [1.286, pz + 0.031], [1.344, pz + 0.031]]) onPlate(`pastry-seat-macaron-${mx}-${mz > pz ? "front" : "back"}`, mx, shelfY + 0.004 + 0.0075, mz, 0.023, 1.32);
+    for (const z of [pz - 0.045, pz + 0.035]) onPlate(`pastry-seat-croissant-${z > pz ? "front" : "back"}`, 1.52, CROISSANT_Y - 0.0078, z - 0.013, 0.02, 1.52);
+    const onLower = (name, x, y, z, radius, surface) => registerSupport(name, "rest", { base: { x, y, z, radius }, surface });
     const muffin = (x, y, z) => {
       part("muffinCup", new THREE.LatheGeometry([[0.026, 0], [0.037, 0.042]].map((p) => new THREE.Vector2(p[0], p[1])), 16).translate(x, y, z), { tile: 1 });
       const dome = new THREE.SphereGeometry(0.043, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2); dome.scale(1, 0.85, 1); part("muffin", dome.translate(x, y + 0.038, z), { tile: 1 });
       for (let i = 0; i < 5; i++) { const a = i * 1.3; part("chip", new THREE.SphereGeometry(0.0055, 6, 5).translate(x + Math.cos(a) * 0.026, y + 0.058 + (i % 2) * 0.004, z + Math.sin(a) * 0.026), { tile: 1 }); }
     };
-    muffin(1.46, base + 0.0085, pz - 0.015); muffin(1.56, base + 0.0085, pz + 0.03); // on the plate top (base + 9 mm), 0.5 mm in
+    muffin(1.46, base + 0.0085, pz - 0.015); muffin(1.545, base + 0.0085, pz + 0.028); // on the plate top (base + 9 mm), 0.5 mm in; the second moved 1.6 cm in so its foot no longer hangs past the plate rim
+    // Paul 2026-11-18: the bottom shelf looked thin; the muffin is the pastry it already repeats, so four more stand in a back row on the oak (0.5 mm in), clear of the plate
+    // and the canelé basket. They are baked into the same muffin, cup and chip batches, so the draw calls do not change.
+    const BACK_MUFFINS = [[1.30, pz - 0.15], [1.40, pz - 0.165], [1.50, pz - 0.15], [1.60, pz - 0.165]];
+    for (const [x, z] of BACK_MUFFINS) muffin(x, base - 0.0005, z);
     // Low basket of six dark canelés beside the muffins.
     part("kraft", new THREE.CylinderGeometry(0.075, 0.068, 0.018, 18).translate(1.78, base + 0.0085, pz - 0.065), { tile: 1 }); // on the oak, 0.5 mm in (it hung 11 mm over)
     for (let i = 0; i < 6; i++) {
@@ -1193,25 +1204,55 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     // A compact bottle tray: four generic green sparkling waters and two clear mineral waters.
     slab("kraft", [1.87, 2.27], [base + 0.0088, base + 0.018], [pz - 0.105, pz + 0.105], { tile: 1 }); // bottom 0.2 mm into the plate under it (it hung 1 mm over)
-    for (let i = 0; i < 6; i++) {
-      const x = 1.94 + (i % 3) * 0.12, z = pz + (i < 3 ? -0.055 : 0.055), green = i < 4;
-      // Bake the geometry into the existing material batches; the fourth bottle leans slightly.
-      const tilt = i === 3 ? 0.09 : 0;
+    // Four green sparkling waters, then (Paul 2026-11-18) two small still waters in place of the plain clear ones: Room 03's Evian-style bottle by its record player
+    // (the same lathe profile, grip ribs, water to the shoulder and fluted cap) at 0.8 scale, so its 248 mm fits under the glass shelf with 11 mm to spare, with a
+    // "Shanghai Slowly Cafe" label drawn on a canvas.
+    const WATER_X = [2.06, 2.18], WATER_S = 0.8;
+    for (let i = 0; i < 4; i++) {
+      const x = 1.94 + (i % 3) * 0.12, z = pz + (i < 3 ? -0.055 : 0.055);
+      const tilt = i === 3 ? 0.09 : 0; // the fourth bottle leans slightly
       // One continuous bottle profile gives the foot, shoulder, neck and rolled lip real silhouettes.
       const bottle = new THREE.LatheGeometry([[0.018, 0], [0.027, 0.004], [0.031, 0.012],
         [0.031, 0.152], [0.028, 0.171], [0.014, 0.19], [0.012, 0.202],
         [0.012, 0.236], [0.015, 0.241], [0.015, 0.246], [0.011, 0.247]]
         .map(([r, h]) => new THREE.Vector2(r, h)), 16);
       bottle.rotateZ(tilt).translate(x, base + 0.018, z);
-      part("loungeDetail", colorize(bottle, green ? 0x286443 : 0x9cc4d6));
+      part("loungeDetail", colorize(bottle, 0x286443));
       part("gold", new THREE.CylinderGeometry(0.014, 0.014, 0.014, 10).rotateZ(tilt).translate(x - Math.sin(tilt) * 0.247, base + 0.265, z), { tile: 1 });
-      if (green) {
-        // The label wraps the glass (Paul 2026-11-18: the flat white ovals stood off the bottle): a band 0.8 mm outside the 31 mm body, facing the visitor, with a thin
-        // terracotta stripe; built upright at the bottle's own origin and leaned with it.
-        part("paper", new THREE.CylinderGeometry(0.0318, 0.0318, 0.052, 14, 1, true, -0.85, 1.7).translate(0, 0.09, 0).rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
-        part("terracotta", new THREE.CylinderGeometry(0.0322, 0.0322, 0.003, 12, 1, true, -0.6, 1.2).translate(0, 0.092, 0).rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
-      }
+      // The label wraps all the way round (Paul 2026-11-18: it should follow the glass): the same 16 facets as the body, 0.3 mm outside it, so no edge stands off.
+      part("paper", new THREE.CylinderGeometry(0.0313, 0.0313, 0.052, 16, 1, true).translate(0, 0.09, 0).rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
+      part("terracotta", new THREE.CylinderGeometry(0.0316, 0.0316, 0.003, 16, 1, true).translate(0, 0.092, 0).rotateZ(tilt).translate(x, base + 0.018, z), { tile: 1 });
     }
+    {
+      const scaled = (list) => list.map(([r, y]) => new THREE.Vector2(r * WATER_S, y * WATER_S));
+      const shell = [[0, 0.001], [0.030, 0.001], [0.038, 0.004], [0.0415, 0.012], [0.042, 0.030], [0.0395, 0.040], [0.042, 0.050], [0.042, 0.150], [0.0395, 0.160], [0.042, 0.170],
+        [0.042, 0.196], [0.039, 0.214], [0.031, 0.236], [0.022, 0.256], [0.0165, 0.272], [0.0155, 0.280], [0.018, 0.283], [0.018, 0.286], [0.0155, 0.288], [0, 0.288]];
+      const fill = [[0, 0.004], [0.039, 0.006], [0.039, 0.194], [0.036, 0.212], [0, 0.212]];
+      const labels = [];
+      for (const [i, x] of WATER_X.entries()) {
+        const y0 = base + 0.018 - 0.0013, z = pz + 0.055, yaw = i ? -0.5 : 0.35;
+        part("glass", new THREE.LatheGeometry(scaled(shell), 28).rotateY(yaw).translate(x, y0, z), { tile: 1 });
+        part("loungeDetail", colorize(new THREE.LatheGeometry(scaled(fill), 20).translate(x, y0, z), 0x86c3cf));
+        const cap = new THREE.CylinderGeometry(0.0175 * WATER_S, 0.0175 * WATER_S, 0.022 * WATER_S, 56, 1), cp = cap.attributes.position;
+        for (let k = 0; k < cp.count; k++) { const px = cp.getX(k), pzz = cp.getZ(k); if (Math.hypot(px, pzz) > 0.017 * WATER_S) { const f = Math.round(Math.atan2(pzz, px) / (Math.PI / 28)) % 2 ? 0.93 : 1; cp.setX(k, px * f); cp.setZ(k, pzz * f); } }
+        part("ceramic", cap.translate(x, y0 + 0.299 * WATER_S, z), { tile: 1 });
+        // the label: 12 of the shell's 28 facets, facing the visitor, 0.4 mm outside the 33.6 mm body band
+        const step = Math.PI * 2 / 28;
+        labels.push(new THREE.CylinderGeometry(0.042 * WATER_S + 0.0004, 0.042 * WATER_S + 0.0004, 0.062 * WATER_S, 12, 1, true, -6 * step, 12 * step).rotateY(yaw).translate(x, y0 + 0.105 * WATER_S, z));
+      }
+      const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 256;
+      { const g = canvas.getContext("2d"); g.fillStyle = "#f6efe2"; g.fillRect(0, 0, 512, 256); g.fillStyle = "#2f5f73"; g.fillRect(0, 0, 512, 22); g.fillRect(0, 234, 512, 22);
+        g.textAlign = "center"; g.textBaseline = "middle"; g.strokeStyle = "#b9893a"; g.lineWidth = 6; g.beginPath(); g.arc(256, 92, 52, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = "#3a2a1c"; g.font = "italic 700 58px Georgia, 'Times New Roman', serif"; g.fillText("SH", 256, 94);
+        g.font = "italic 700 40px Georgia, 'Times New Roman', serif"; g.fillText("Slowly Cafe", 256, 176); g.fillStyle = "#2f5f73"; g.font = "600 20px Georgia, serif"; g.fillText("STILL WATER", 256, 212); }
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+      const label = new THREE.Mesh(mergeGeometries(labels), new THREE.MeshStandardMaterial({ map: texture, roughness: 0.55, polygonOffset: true, polygonOffsetFactor: -2 }));
+      label.name = "pastry-slowly-water-labels"; scene.add(label);
+    }
+    const oakFloor = { shape: "circle", x: cx, y: base, z: pz, radius: 0.6 }, lowerPlate = { shape: "circle", x: 1.5, y: base + 0.009, z: pz, radius: 0.09 };
+    onLower("pastry-seat-muffin-plate-left", 1.46, base + 0.0085, pz - 0.015, 0.026, lowerPlate); onLower("pastry-seat-muffin-plate-right", 1.545, base + 0.0085, pz + 0.028, 0.026, lowerPlate);
+    for (const [x, z] of BACK_MUFFINS) onLower(`pastry-seat-muffin-back-${x}`, x, base - 0.0005, z, 0.026, oakFloor);
+    for (const [i, x] of WATER_X.entries()) onLower(`pastry-seat-slowly-water-${i + 1}`, x, base + 0.018 - 0.0005, pz + 0.055, 0.024, { shape: "circle", x: 2.07, y: base + 0.018, z: pz, radius: 0.2 });
     // PROVISIONAL Today card, rendered as tiny strokes within the existing chalk/paper batches.
     slab("chalk", [1.215, 1.345], [shelfY + 0.069, shelfY + 0.161], [zf - 0.047, zf - 0.041], { tile: 1 });
     const glyphs = { T:["11111","00100","00100","00100","00100"], O:["01110","10001","10001","10001","01110"], D:["11110","10001","10001","10001","11110"], A:["01110","10001","11111","10001","10001"], Y:["10001","01010","00100","00100","00100"], R:["11110","10001","11110","10100","10010"], C:["01111","10000","10000","10000","01111"], K:["10001","10010","11100","10010","10001"], E:["11111","10000","11110","10000","11111"] };
