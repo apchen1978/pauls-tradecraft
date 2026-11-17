@@ -742,6 +742,17 @@ test("the linen curtains never cover the house plaque", async ({ page }) => {
   }
 });
 
+test("the linen curtains do not pass through the record console, its speakers or the turntable (Paul 2026-11-17)", async ({ page }) => {
+  await enter(page);
+  await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
+  await page.waitForFunction(() => window.__bedroom.info().curtains === true);
+  const { curtainPanels, vinyl } = await page.evaluate(() => window.__bedroom.info());
+  for (const c of curtainPanels) {
+    const overlapsX = c.max[0] > vinyl.min[0] && c.min[0] < vinyl.max[0];
+    if (overlapsX) expect(c.min[1], "a curtain over the record console hangs clear above its highest part").toBeGreaterThanOrEqual(vinyl.max[1] + 0.03);
+  }
+});
+
 test("two prints hang on the wall behind the sofa, over its length and above its back; the bed's head has two channels, none reaching the window sill", async ({ page }) => {
   await enter(page);
   await page.waitForFunction(() => window.__bedroom.info().wallArt, null, { timeout: 30000 });
