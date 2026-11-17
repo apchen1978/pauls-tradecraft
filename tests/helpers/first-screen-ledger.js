@@ -2,7 +2,8 @@
 // before a room is usable. Added 2026-11-17 after the size measurement (Desktop\AI交接文件\2026-11-17\RoomVerse_體積量測報告.md).
 //
 // TWO RULES (Paul, 2026-11-17):
-//   - HARD LIMIT: a room's first screen may never get bigger than its `baselineBytes` (plus the small `tolerance`). A test fails if it does.
+//   - HARD LIMIT: a room's first screen may never get bigger than its `baselineBytes` (desktop) or `baselineBytesPhone` (a 390 px phone window, added
+//     2026-11-17), plus the small tolerance. A test fails if it does.
 //   - TARGET: 3 MB. Going over the target only prints a warning; it never fails a run. Rooms 02 and 04 start above it on purpose.
 //
 // HOW TO UPDATE after a change that makes a room's first screen smaller (the good case):
@@ -27,8 +28,11 @@ export const ROOMS = Object.freeze([
 
 export const LEDGER = Object.freeze({
   // Bytes at desktop 1440 px, after entering the room, default mood.
-  baselineBytes: Object.freeze({ room01: 2910568, room02: 4914749, room03: 2235922, room04: 3684556 }),
+  baselineBytes: Object.freeze({ room01: 2910568, room02: 4550656, room03: 2235922, room04: 3684556 }),
+  // Bytes at a 390 x 844 phone window, same rules. Room 02 starts lower than its desktop number because it loads phone-size pictures there.
+  baselineBytesPhone: Object.freeze({ room01: 2843227, room02: 3610426, room03: 2256615, room04: 3488533 }),
   history: Object.freeze([
     Object.freeze({ date: "2026-11-17", note: "Ledger created from the first measurement (main a63f0af1, after #938)." }),
+    Object.freeze({ date: "2026-11-17", note: "Room 02 phone-size pictures (19 smaller copies, about 70 percent of the width, same pictures) plus the striped rug and the night balcony picture fetched only when used: Room 02 phone 4.66 -> 3.44 MB, desktop 4.91 -> 4.55 MB. Phone baselines added for all four rooms (measured, no change to Rooms 01, 03, 04)." }),
   ]),
 });
