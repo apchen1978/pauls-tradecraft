@@ -1039,7 +1039,7 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   }
   const info = await page.evaluate(() => { window.__bedroom.render(); return window.__bedroom.info(); });
   const pocket = info.bedsidePocket;
-  expect(pocket.names).toEqual(["glasses-case", "soft-pouch", "cable-coil", "charge-puck"]);
+  expect(pocket.names).toEqual(["glasses-case", "matchbox", "cable-coil", "charge-puck", "vitamins"]);
   expect(pocket.names.length).toBeGreaterThanOrEqual(3);
   expect(pocket.names.length).toBeLessThanOrEqual(5);
   expect(pocket.meshNames).toEqual(["bedside-pocket-set", "bedside-pocket-puck"]);
@@ -1055,15 +1055,11 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
     expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
   }
   const tableParts = pocket.fit.filter((row) => row.support === "bedside-top");
-  expect(tableParts.map((row) => row.name)).toEqual(["soft-pouch", "cable-coil", "cable-lead", "charge-puck"]);
-  expect(pocket.fit.find((row) => row.name === "glasses-case").support).toBe("bedside-book");
-  const bookTouch = pocket.clearance.filter((row) => row.piece === "glasses-case" && row.obstacle === "bedside-book").map((row) => row.gapMm);
-  expect(bookTouch.length).toBeGreaterThan(0);
-  expect(Math.min(...bookTouch), "glasses case rests on the upper book").toBeGreaterThanOrEqual(-3);
-  expect(Math.min(...bookTouch), "glasses case rests on the upper book").toBeLessThanOrEqual(1);
+  // Paul 2026-11-18: the book stack is gone (it ran into the lamp base); everything stands on the walnut top, and the case, matchbox and vitamin bottles keep 15 mm.
+  expect(tableParts.map((row) => row.name)).toEqual(["glasses-case", "matchbox", "vitamin-white", "vitamin-orange", "cable-coil", "cable-lead", "charge-puck"]);
   for (const row of pocket.clearance) {
-    if (row.piece === "glasses-case" && row.obstacle === "bedside-book") continue;
     expect(row.gapMm, `${row.piece} vs ${row.obstacle}`).toBeGreaterThan(0);
+    if (/^(glasses|matchbox|vitamin)/.test(row.piece) && (row.obstacle === "lamp-base" || row.obstacle === "bedside-mug")) expect(row.gapMm, `${row.piece} vs ${row.obstacle}`).toBeGreaterThanOrEqual(15);
   }
   expect(pocket.clearance.some((row) => row.obstacle === "bedside-mug")).toBe(true);
   expect(pocket.clearance.some((row) => row.obstacle === "lamp-base")).toBe(true);

@@ -1015,10 +1015,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   part(box(.34, .06, .34), new THREE.MeshStandardMaterial({ color: "#1f1d1b", roughness: .7 }), "bedside-plinth", tx, .03, tz);
   for (const y of [.18, .385]) part(rb(.34, .185, .012), creamBody, "bedside-drawer", tx, y, tz + .19 + .003);
   part(box(.34, .01, .008), new THREE.MeshStandardMaterial({ color: "#5a3f2c", roughness: .6 }), "bedside-drawer-gap", tx, .283, tz + .193);
-  // lived-in clutter on the bedside table (Paul 2026-10-24: someone lives here): two books in a short stack, one turned a little, and a phone lying face down
-  { const bookA = part(box(.15, .032, .22), new THREE.MeshStandardMaterial({ color: "#2f4258", roughness: .8 }), "bedside-book", tx - .1, .5 + .016, tz + .06); bookA.rotation.y = .25;
-    const bookB = part(box(.13, .022, .2), new THREE.MeshStandardMaterial({ color: "#b8643a", roughness: .8 }), "bedside-book", tx - .098, .5 + .032 + .011, tz + .062); bookB.rotation.y = -.1;
-    const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5;
+  // lived-in clutter on the bedside table (Paul 2026-10-24: someone lives here): a phone lying face down. The two-book stack is gone (Paul 2026-11-18: it ran
+  // into the lamp base and read as two plain blocks); the glasses case now lies on the wood and two vitamin bottles stand at the back left (in the pocket set below).
+  { const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5;
     // Series night (Paul 2026-11-11): the phone is turned face up and its screen lights a notification now and then. The glass is on the face that
     // lies against the wood (local -y), so it only shows once the phone is flipped. No text on the glass; the message appears when it is tapped.
     const screenCanvas = document.createElement("canvas"); screenCanvas.width = 128; screenCanvas.height = 272;
@@ -1084,22 +1083,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       boxes[name] = geo.boundingBox.clone();
       return geo;
     };
-    const books = [];
-    root.traverse((o) => { if (o.isMesh && o.name === "bedside-book") books.push(o); });
-    const upperBook = books.sort((a, b) => b.position.y - a.position.y)[0];
-    if (!upperBook) throw new Error("bedside pocket could not find the upper book");
-    const bookY = (x, z) => {
-      ray.set(new THREE.Vector3(x, .9, z), new THREE.Vector3(0, -1, 0));
-      const hit = ray.intersectObject(upperBook, false)[0];
-      if (!hit) throw new Error(`glasses case missed the upper book at ${x.toFixed(3)}, ${z.toFixed(3)}`);
-      return hit.point.y;
-    };
-    const caseSize = [.036, .018, .1], caseYaw = upperBook.rotation.y, caseHalfY = caseSize[1] / 2;
-    const caseX = upperBook.position.x - .01, caseZ = upperBook.position.z + .028;
+    const caseSize = [.036, .018, .1], caseYaw = .25, caseHalfY = caseSize[1] / 2;
+    const caseX = tx - .12, caseZ = tz + .09; // front left of the top, where the books were: 28 mm clear of the lamp base
     const caseFoot = [[0, 0], [caseSize[0] / 2, caseSize[2] / 2], [caseSize[0] / 2, -caseSize[2] / 2], [-caseSize[0] / 2, caseSize[2] / 2], [-caseSize[0] / 2, -caseSize[2] / 2]];
     const seamH = .003, claspH = .006;
     const caseGeo = paint(new THREE.BoxGeometry(...caseSize), "#6d7a62");
-    const caseYs = caseFoot.map(([lx, lz]) => { const [dx, dz] = yawOf(lx, lz, caseYaw); return bookY(caseX + dx, caseZ + dz); });
+    const caseYs = caseFoot.map(([lx, lz]) => { const [dx, dz] = yawOf(lx, lz, caseYaw); return supportY(caseX + dx, caseZ + dz); });
     const caseBottomY = caseYs[0] - BEDSIDE_POCKET_EMBED;
     const caseCenterYLive = caseBottomY + caseHalfY;
     caseGeo.rotateY(caseYaw);
@@ -1107,7 +1096,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     caseGeo.computeBoundingBox();
     boxes["glasses-case"] = caseGeo.boundingBox.clone();
     const caseGaps = caseYs.map((y) => (caseBottomY - y) * 1000);
-    fit.push({ name: "glasses-case", support: "bedside-book", gapMm: +((caseBottomY - caseYs[0]) * 1000).toFixed(2), minGapMm: +Math.min(...caseGaps).toFixed(2), maxGapMm: +Math.max(...caseGaps).toFixed(2) });
+    fit.push({ name: "glasses-case", support: "bedside-top", gapMm: +((caseBottomY - caseYs[0]) * 1000).toFixed(2), minGapMm: +Math.min(...caseGaps).toFixed(2), maxGapMm: +Math.max(...caseGaps).toFixed(2) });
     solids.push(caseGeo);
     const lid = (geo, name, hex, height, ly, local) => {
       geo.translate(local[0], ly, local[1]);
@@ -1121,9 +1110,32 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     };
     lid(new THREE.BoxGeometry(.0045, seamH, .09), "glasses-seam", "#3c4338", seamH, caseHalfY - BEDSIDE_POCKET_CASE_EMBED + seamH / 2, [0, 0]);
     lid(new THREE.BoxGeometry(.012, claspH, .014), "glasses-clasp", "#b08a5a", claspH, caseHalfY - BEDSIDE_POCKET_CASE_EMBED + claspH / 2, [0, .032]);
-    const pouchSize = [.044, .016, .028], pouchYaw = .35, pouchX = tx + .16, pouchZ = tz + .185;
+    // The plain beige block on the front-right corner was a "soft pouch" that read as nothing (Paul 2026-11-18). It is now a matchbox (for the candle-and-records
+    // evenings): 50 x 15 x 36 mm, an ivory tray, a blue top label with a small mustard sun and a red bar (shapes only), and a brown striker strip on each long side.
+    const pouchSize = [.05, .015, .036], pouchYaw = 0, pouchX = tx + .185, pouchZ = tz + .19; // square to the corner; the mug moved 1 cm toward the lamp so it keeps 15 mm
     const pouchFoot = [[0, 0], [pouchSize[0] / 2, pouchSize[2] / 2], [pouchSize[0] / 2, -pouchSize[2] / 2], [-pouchSize[0] / 2, pouchSize[2] / 2], [-pouchSize[0] / 2, -pouchSize[2] / 2]];
-    solids.push(paint(seat(new THREE.BoxGeometry(...pouchSize), { name: "soft-pouch", support: "bedside-top", x: pouchX, z: pouchZ, yaw: pouchYaw, halfY: pouchSize[1] / 2, footprint: pouchFoot }), "#c4a27a"));
+    const matchbox = seat(new THREE.BoxGeometry(...pouchSize), { name: "matchbox", support: "bedside-top", x: pouchX, z: pouchZ, yaw: pouchYaw, halfY: pouchSize[1] / 2, footprint: pouchFoot });
+    solids.push(paint(matchbox, "#efe6d2"));
+    const boxBottom = matchbox.boundingBox.min.y;
+    const onBox = (geo, hex, lx, ly, lz) => { geo.translate(lx, ly, lz); geo.rotateY(pouchYaw); geo.translate(pouchX, boxBottom, pouchZ); solids.push(paint(geo, hex)); };
+    onBox(new THREE.BoxGeometry(.044, .001, .03), "#2f5d7c", 0, pouchSize[1] + .0002, 0); // label, 0.3 mm into the top
+    onBox(new THREE.CylinderGeometry(.006, .006, .0008, 10), "#e0b24a", -.008, pouchSize[1] + .0008, -.002);
+    onBox(new THREE.BoxGeometry(.016, .0008, .003), "#c4472f", .01, pouchSize[1] + .0008, .006);
+    for (const side of [-1, 1]) onBox(new THREE.BoxGeometry(.044, .009, .001), "#5a3826", 0, pouchSize[1] / 2, side * (pouchSize[2] / 2 + .0002));
+    // Two vitamin bottles at the back left (Room 01's pair, vertex coloured here): white with red bands and a white screw cap, and a cream one with an orange
+    // flip-top. 78 and 82 mm clear of the lamp base. Both stand 2 mm into the wood like every pocket piece.
+    const bottle = (name, x, z, r, h, bodyHex, bands, capR, capY0, capY1, capHex) => {
+      const foot = [[0, 0]]; for (let i = 0; i < 8; i++) foot.push([r * .9 * Math.cos(i * Math.PI / 4), r * .9 * Math.sin(i * Math.PI / 4)]);
+      const prof = [[0, 0], [r - .003, 0], [r, .003], [r, h - .006], [r - .004, h], [r * .78, h + .002], [r * .78, capY0 + .002], [0, capY0 + .002]];
+      const body = seat(new THREE.LatheGeometry(prof.map(([a, b]) => new THREE.Vector2(a, b)), 16), { name, support: "bedside-top", x, z, halfY: 0, footprint: foot });
+      solids.push(paint(body, bodyHex));
+      const bottom = body.boundingBox.min.y;
+      for (const [y0, y1, hex] of bands) solids.push(paint(new THREE.CylinderGeometry(r + .0004, r + .0004, y1 - y0, 16, 1, true).translate(x, bottom + (y0 + y1) / 2, z), hex));
+      const cap = new THREE.CylinderGeometry(capR, capR, capY1 - capY0, 16).translate(x, bottom + (capY0 + capY1) / 2, z);
+      cap.computeBoundingBox(); boxes[name + "-cap"] = cap.boundingBox.clone(); solids.push(paint(cap, capHex));
+    };
+    bottle("vitamin-white", tx - .13, tz - .11, .0275, .072, "#f7f6f1", [[.012, .02, "#d9262b"], [.058, .066, "#d9262b"], [.028, .05, "#d9262b"]], .03, .08, .105, "#f2f1ec");
+    bottle("vitamin-orange", tx - .07, tz - .155, .025, .08, "#f6f4ed", [[.03, .034, "#79976b"], [.044, .05, "#c66b3e"]], .0255, .08, .102, "#e58124");
     const coilR = .016, coilTube = .0032, coilX = tx + .175, coilZ = tz + .02;
     const coilFoot = [[0, 0]];
     for (let i = 0; i < 8; i++) coilFoot.push([(coilR + coilTube) * Math.cos(i * Math.PI / 4), (coilR + coilTube) * Math.sin(i * Math.PI / 4)]);
@@ -1146,12 +1158,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     set.name = "bedside-pocket-set"; set.castShadow = false; set.receiveShadow = true; group.add(set);
     const puck = new THREE.Mesh(puckGeo, pocketGlowMat);
     puck.name = "bedside-pocket-puck"; puck.castShadow = false; puck.receiveShadow = true; group.add(puck);
-    const names = ["glasses-case", "soft-pouch", "cable-coil", "charge-puck"];
+    const names = ["glasses-case", "matchbox", "cable-coil", "charge-puck", "vitamins"];
     return {
       names, meshes: 2, meshNames: [set.name, puck.name], vertices: merged.attributes.position.count + puckGeo.attributes.position.count, fit, boxes,
       pieces: {
         "glasses-case": { w: caseSize[0], h: caseSize[1], d: caseSize[2] },
-        "soft-pouch": { w: pouchSize[0], h: pouchSize[1], d: pouchSize[2] },
+        "matchbox": { w: pouchSize[0], h: pouchSize[1], d: pouchSize[2] },
         "cable-coil": { outer: (coilR + coilTube) * 2, tube: coilTube * 2 },
         "charge-puck": { d: puckR * 2, h: puckH },
       },
@@ -1348,7 +1360,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }).catch(() => {});
   loadGlb(new URL("./models/campus-backpack-v1.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
     recolour(g, { body: "#33405a", strap: "#2f3136", zip: "#c4622d", base: "#1f2125" });
-    g.name = "backpack"; g.position.set(-.5, 0, -1.2); g.rotation.order = "YXZ"; g.rotation.set(-.12, .9, 0); root.add(g); redraw(); // leaning back a little, as if just put down
+    // Paul 2026-11-18: from the Record player view (north-east of it, looking down) the bag showed its thin side and its back strap, and leaning back it sank
+    // 6 mm into the floor at the back and lifted at the front. It now stands upright with its front turned toward the turntable corner, and is set on the floor
+    // by its measured lowest point (0.5 mm in).
+    g.name = "backpack"; g.position.set(-.5, 0, -1.2); g.rotation.order = "YXZ"; g.rotation.set(0, 2.3, 0); root.add(g);
+    g.updateMatrixWorld(true); g.position.y -= new THREE.Box3().setFromObject(g).min.y + .0005; redraw();
   }).catch(() => {});
 
   // A pair of flip-flops under the desk, in front of the chair (Paul: it should look like a young person has just slipped them off; Taiwanese blue-and-white
@@ -1419,7 +1435,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // The coffee table is gone (Paul: the middle of the room should breathe). The game pad lies on the TV unit and Codex's mug stands on the bedside table.
   const padG = new THREE.Group(); padG.name = "game-pad-group"; root.add(padG); // moved onto the TV unit below
   const cp = hold(padG);
-  loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "bedside-mug"; g.position.set(tx + .1, .5, tz + .11); g.rotation.y = -.7; root.add(g); redraw(); }).catch(() => {});
+  loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "bedside-mug"; g.position.set(tx + .09, .5, tz + .1); g.rotation.y = -.7; root.add(g); redraw(); }).catch(() => {});
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
@@ -1743,6 +1759,19 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }
   // Room 01's plant on the west wall, between the desk and the TV
   const plant = await loadModel("plant", { height: 1.2 }); plant.name = "floor-plant"; plant.position.set(-HW + .55, 0, -.5); root.add(plant);
+  // The pot had no soil (Paul 2026-11-18): from above its open top showed the floor through the shell. A soil disc 6 mm below the lip (lip at y 0.331, outer
+  // radius 0.183 about (-1.458, -0.476), measured on the model) with a little colour noise and six pebbles; one mesh, vertex coloured.
+  { const soilParts = [], soilColor = new THREE.Color(), SOIL = { x: -1.458, z: -.476, y: .325, r: .172 };
+    const disc = new THREE.RingGeometry(0, SOIL.r, 32, 4).rotateX(-Math.PI / 2);
+    const tint = (geo, pick) => { const n = geo.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) pick(i).toArray(arr, i * 3); geo.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return geo; };
+    let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    soilParts.push(tint(disc, () => soilColor.set("#3b2a1e").offsetHSL(0, 0, (rnd() - .5) * .06)).translate(SOIL.x, SOIL.y, SOIL.z));
+    for (let i = 0; i < 6; i++) { const a = i * 1.9 + .4, d = .06 + (i % 3) * .03, pr = .007 + (i % 2) * .003;
+      const pebble = new THREE.SphereGeometry(pr, 6, 4).scale(1.2, .55, 1).translate(SOIL.x + Math.cos(a) * d, SOIL.y + pr * .3, SOIL.z + Math.sin(a) * d);
+      pebble.deleteAttribute("uv"); soilParts.push(tint(pebble, () => soilColor.set(i % 2 ? "#a49a8c" : "#cfc6b8"))); }
+    soilParts[0].deleteAttribute("uv");
+    const soil = new THREE.Mesh(mergeGeometries(soilParts, false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+    soil.name = "floor-plant-soil"; soil.receiveShadow = true; root.add(soil); }
   // Codex's coffee bar (batch 12): a 39 cm oak cabinet with a sage door and the espresso machine on top, against the west wall just north of the TV unit.
   // Its colours are written as linear factors and wash out to cream and mint here, so the wood and the door get the room's own oak and sage.
   const barColours = { pale_oak: "#b38759", oak_grain: "#a07549", oak_interior: "#80603d", sage_door: "#6f8568" };
@@ -2341,7 +2370,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
           if (dx < 0 && dy < 0 && dz < 0) return Math.max(dx, dy, dz);
           return Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0));
         };
-        const watch = ["bedside-book", "bedside-phone", "lamp-base", "lamp-shade"];
+        const watch = ["bedside-phone", "lamp-base", "lamp-shade"];
         const obstacles = [];
         root.traverse((o) => { if (o.isMesh && watch.includes(o.name)) obstacles.push([o.name, new THREE.Box3().setFromObject(o)]); });
         const mug = root.getObjectByName("bedside-mug");
