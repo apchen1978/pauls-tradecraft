@@ -2277,6 +2277,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       if (surface === "oak") {
         // Cool smoked-sage finish separates the small table from the terracotta upholstery while keeping the room's quiet wood-and-stone palette.
         part("loungeDetail", colorize(new THREE.CylinderGeometry(0.275, 0.265, 0.038, 32).translate(tx, 0.431, z), 0x6f7b75));
+        // A hairline brass inlay follows the upper edge and makes the slim top read as a finished object.
+        part("gold", new THREE.TorusGeometry(0.272, 0.0018, 4, 32).rotateX(Math.PI / 2).translate(tx, 0.445, z), { tile: 1 });
       } else disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
       if (surface === "stone") {
         const tableBase = disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
