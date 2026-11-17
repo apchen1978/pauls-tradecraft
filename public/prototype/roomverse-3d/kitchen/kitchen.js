@@ -4535,7 +4535,8 @@ function buildHouseholdProps(scene, m) {
   counterMugs.traverse((child) => { if (child.isMesh) child.receiveShadow = false; });
   counterMugs.userData.mugCount = 1;
   // Paul 2026-11-17: the red mug gets a little gold. A thin gilded ring on the rim and a thin band near the foot, and on the side that faces the room a small
-  // gold lotus medallion (a ring, a dotted ring, eight petals and a sun at the centre), drawn in code on a canvas, no download. The mug stands at the credenza.
+  // gold Golden Gate Bridge (two towers, the main cable and its hangers, the deck and a few lines of water), a band round the side that faces the room, drawn in
+  // code on a canvas, no download. (Paul 2026-11-17: the first design, a round flower medallion, read a little Japanese, like a family crest; the bridge says Bay Area.)
   {
     const MX = -0.30 + RED_MUG_SHIFT[0], MY = 0.954 + RED_MUG_SHIFT[1], MZ = -1.752 + RED_MUG_SHIFT[2];
     const goldMaterial = new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 0.78, roughness: 0.28, emissive: 0x3a2808, emissiveIntensity: 0.4 });
@@ -4544,26 +4545,32 @@ function buildHouseholdProps(scene, m) {
     const goldRings = new THREE.Mesh(mergeGeometries([rim, foot], false), goldMaterial);
     goldRings.name = "room03-red-mug-gold"; goldRings.userData.category = "credenza"; goldRings.castShadow = false; goldRings.receiveShadow = false;
     scene.add(goldRings);
-    const canvas = document.createElement("canvas"); canvas.width = 256; canvas.height = 256;
-    const g = canvas.getContext("2d"), cx = 128, cy = 128;
-    const gradient = g.createLinearGradient(30, 30, 226, 226);
+    const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 224;
+    const g = canvas.getContext("2d");
+    const gradient = g.createLinearGradient(0, 0, 512, 224);
     gradient.addColorStop(0, "#f7e19a"); gradient.addColorStop(0.5, "#c9962f"); gradient.addColorStop(1, "#f1d98e");
-    g.clearRect(0, 0, 256, 256);
-    g.strokeStyle = gradient; g.fillStyle = gradient; g.lineWidth = 6;
-    g.beginPath(); g.arc(cx, cy, 118, 0, Math.PI * 2); g.stroke();
-    g.lineWidth = 2.5; g.beginPath(); g.arc(cx, cy, 108, 0, Math.PI * 2); g.stroke();
-    for (let i = 0; i < 36; i++) { const a = (i / 36) * Math.PI * 2; g.beginPath(); g.arc(cx + Math.cos(a) * 98, cy + Math.sin(a) * 98, 2.6, 0, Math.PI * 2); g.fill(); }
-    for (let i = 0; i < 8; i++) { // eight petals
-      g.save(); g.translate(cx, cy); g.rotate((i / 8) * Math.PI * 2);
-      g.beginPath(); g.moveTo(0, -20); g.bezierCurveTo(26, -50, 26, -82, 0, -92); g.bezierCurveTo(-26, -82, -26, -50, 0, -20); g.closePath();
-      g.globalAlpha = 0.9; g.fill(); g.globalAlpha = 1; g.lineWidth = 2; g.strokeStyle = "#7a5516"; g.stroke();
-      g.restore();
-    }
-    g.fillStyle = gradient; g.beginPath(); g.arc(cx, cy, 17, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "#7a5516"; g.lineWidth = 2; g.beginPath(); g.arc(cx, cy, 17, 0, Math.PI * 2); g.stroke();
+    g.clearRect(0, 0, 512, 224);
+    const DECK = 138, TOWER_X = [148, 364], TOP = 22, LEFT = 18, RIGHT = 494;
+    const cable = (p0, p1, p2) => (t) => [(1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0], (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]];
+    const spans = [cable([LEFT, DECK - 8], [(LEFT + TOWER_X[0]) / 2 - 8, 66], [TOWER_X[0], TOP + 6]), cable([TOWER_X[0], TOP + 6], [(TOWER_X[0] + TOWER_X[1]) / 2, 128], [TOWER_X[1], TOP + 6]), cable([TOWER_X[1], TOP + 6], [(TOWER_X[1] + RIGHT) / 2 + 8, 66], [RIGHT, DECK - 8])];
+    const draw = (width, style) => { // a dark thin underlay first, then the gold on top, so the lines read on the red glaze
+      g.strokeStyle = style; g.fillStyle = style; g.lineCap = "round"; g.lineJoin = "round";
+      g.lineWidth = width; g.beginPath(); g.moveTo(LEFT - 6, DECK); g.lineTo(RIGHT + 6, DECK); g.stroke(); // the deck
+      g.lineWidth = width * 0.55; g.beginPath(); g.moveTo(LEFT - 6, DECK + 7); g.lineTo(RIGHT + 6, DECK + 7); g.stroke(); // its lower edge
+      for (const x of TOWER_X) { // Art Deco towers: two legs, three struts, a stepped cap
+        for (const dx of [-11, 11]) { g.lineWidth = width * 1.5; g.beginPath(); g.moveTo(x + dx, DECK); g.lineTo(x + dx, TOP + 4); g.stroke(); }
+        g.lineWidth = width * 0.8; for (const y of [50, 82, 112]) { g.beginPath(); g.moveTo(x - 11, y); g.lineTo(x + 11, y); g.stroke(); }
+        g.lineWidth = width * 1.1; g.beginPath(); g.moveTo(x - 14, TOP + 4); g.lineTo(x + 14, TOP + 4); g.stroke(); g.beginPath(); g.moveTo(x - 8, TOP - 4); g.lineTo(x + 8, TOP - 4); g.stroke();
+      }
+      g.lineWidth = width * 0.9; for (const f of spans) { g.beginPath(); for (let i = 0; i <= 24; i++) { const [x, y] = f(i / 24); if (i) g.lineTo(x, y); else g.moveTo(x, y); } g.stroke(); } // the cables
+      g.lineWidth = width * 0.4; // the hangers, from the cable down to the deck
+      for (const f of spans) for (let i = 1; i < 14; i++) { const [x, y] = f(i / 14); if (x > TOWER_X[0] - 12 && x < TOWER_X[0] + 12 || x > TOWER_X[1] - 12 && x < TOWER_X[1] + 12) continue; g.beginPath(); g.moveTo(x, y); g.lineTo(x, DECK); g.stroke(); }
+      g.lineWidth = width * 0.7; for (const [y, half] of [[166, 190], [182, 140], [198, 90]]) { g.beginPath(); g.moveTo(256 - half, y); g.lineTo(256 + half, y); g.stroke(); } // water
+    };
+    draw(9, "#5a3a0a"); draw(5.5, gradient);
     const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
-    const arc = 1.0, facing = -1.3; // radians around the mug; the medallion faces into the room, away from the handle
-    const medallion = new THREE.Mesh(new THREE.CylinderGeometry(0.0403, 0.0403, 0.04, 36, 1, true, facing - arc / 2, arc),
+    const arc = 1.7, facing = -1.3; // radians around the mug; the band is centred on the side that faces into the room, away from the handle
+    const medallion = new THREE.Mesh(new THREE.CylinderGeometry(0.0403, 0.0403, 0.03, 48, 1, true, facing - arc / 2, arc),
       new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.4, metalness: 0.25, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
     medallion.name = "room03-red-mug-medallion"; medallion.position.set(MX, MY + 0.049, MZ); medallion.userData.category = "credenza";
     scene.add(medallion);
