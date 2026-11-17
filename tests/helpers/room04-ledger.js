@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 208157, meshes: 140 }),
+  scene: Object.freeze({ vertices: 208509, meshes: 140 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 65, phone: 59 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -96,5 +96,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "the graphite entrance mat carries a subtle 歡迎光臨 print on one transparent plane; four vertices and one mesh, adding one desktop opening draw call", vertices: 207414, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
     { date: "2026-11-17", change: "the wash sink reads as a used cafe sink (Codex draft, taken over by CC): a drain, a terracotta pump bottle, a two-colour sponge and a folded cloth, all merged into the existing material batches; +578 vertices, no new mesh or draw call", vertices: 207992, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
     { date: "2026-11-17", change: "a hairline brass inlay defines the smoked-sage Lounge tea table edge; +165 vertices in the existing gold batch, no new mesh or draw call", vertices: 208157, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
+    { date: "2026-11-17", change: "window-table notebook ink follows its shallow page angle; five cut hydrangea stems spread within the vase and their leaves join via short petioles; a dark lacquer pen gains metal cap, tip and arrow-like clip; +352 vertices in existing batches, no new mesh or opening draw call", vertices: 208509, meshes: 140, desktopCalls: 65, phoneCalls: 59 },
   ]),
 });
