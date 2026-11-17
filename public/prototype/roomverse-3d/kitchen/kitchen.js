@@ -7122,6 +7122,43 @@ export async function start({ stage, onReady = () => {} }) {
   const credenzaDecor = buildRoom03CredenzaDecor(scene);
   const recordPlayer = buildRoom03RecordPlayer(scene);
   syncRecordMotion = () => recordPlayer.setPlaying(recordSide >= 0, render);
+  // Paul 2026-11-18, a desktop-only easter egg: the mist-blue "Shanghai Slowly Cafe" cup by the record player is a way to Room 04. With a mouse (fine pointer that can hover),
+  // the cup glows softly and shows a pointer and a small tip under the cursor; a click (not a drag) goes to the cafe. The ray is tested against the cup's own box only, so
+  // nothing else in the room reacts, and phones and tablets are unchanged.
+  const cupPortal = (() => {
+    const fit = credenzaDecor?.cups?.find((cup) => cup.name === "mist-blue-kraft"), label = scene.getObjectByName("room03-takeaway-cup-label");
+    if (!fit) return null;
+    const fine = matchMedia("(hover: hover) and (pointer: fine)");
+    const box = new THREE.Box3(new THREE.Vector3(...fit.bounds.min), new THREE.Vector3(...fit.bounds.max)), ray = new THREE.Raycaster();
+    const tip = document.createElement("div"); tip.id = "cupPortalTip"; tip.hidden = true;
+    tip.style.cssText = "position:absolute;z-index:6;padding:5px 10px;border-radius:999px;background:#2b2118e6;color:#fff;font:700 12px/1.2 system-ui,'Noto Sans TC',sans-serif;pointer-events:none;white-space:nowrap;transform:translate(14px,-130%)";
+    (canvas.parentElement || document.body).append(tip);
+    const url = () => `/prototype/roomverse-3d/cafe/?lang=${nookLang}`;
+    let hover = false, down = null;
+    const over = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      ray.setFromCamera({ x: ((event.clientX - rect.left) / rect.width) * 2 - 1, y: -((event.clientY - rect.top) / rect.height) * 2 + 1 }, camera);
+      return ray.ray.intersectsBox(box);
+    };
+    const setHover = (on, event) => {
+      if (on && event) { const rect = tip.parentElement.getBoundingClientRect(); tip.style.left = `${event.clientX - rect.left}px`; tip.style.top = `${event.clientY - rect.top}px`; }
+      if (on === hover) return;
+      hover = on; canvas.style.cursor = on ? "pointer" : "";
+      tip.textContent = nookLang === "zh" ? "去 Shanghai Slowly Cafe →" : "To Shanghai Slowly Cafe →"; tip.hidden = !on;
+      if (label) { label.material.emissive.setHex(on ? 0xffc27a : 0x000000); label.material.emissiveIntensity = on ? 0.45 : 0; }
+      render();
+    };
+    const usable = (event) => fine.matches && event.pointerType === "mouse" && event.isPrimary;
+    canvas.addEventListener("pointermove", (event) => { if (down && Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) down.moved = true; if (!usable(event)) return; if (event.buttons) { if (hover) setHover(false); return; } setHover(over(event), event); });
+    canvas.addEventListener("pointerleave", () => { if (hover) setHover(false); });
+    canvas.addEventListener("pointerdown", (event) => { down = usable(event) && over(event) ? { x: event.clientX, y: event.clientY } : null; });
+    canvas.addEventListener("pointerup", (event) => {
+      const start = down; down = null;
+      if (!start || start.moved || !usable(event) || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6 || !over(event)) return; // a drag turns the camera, it does not travel
+      location.assign(url());
+    });
+    return { box, url, hovering: () => hover, fine: () => fine.matches };
+  })();
   const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
   const mediaWoodwork = addRoom03Woodwork(scene, materials.oak, woodGeometries);
   const moodSlots = { screen: mediaUnit.screen, tabletopCenterpiece: scene.getObjectByName("mood-slot-tabletop-centerpiece"), tableware: null };
@@ -8522,7 +8559,7 @@ export async function start({ stage, onReady = () => {} }) {
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
     recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
-    recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
+    cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
