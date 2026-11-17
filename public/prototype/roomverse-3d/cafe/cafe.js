@@ -1,6 +1,7 @@
 import * as THREE from "../vendor/three.module.min.js";
 import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
+import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { loadModel } from "../bedroom/models.js?v=auto";
 import { auditRoom04 } from "./physics-audit.js?v=auto";
 import { createRoomSound } from "./sound.js?v=auto";
@@ -697,6 +698,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const auditEntries = [];
   const registerSupport = (name, kind, data) => auditEntries.push({ name, kind, ...data });
   let loungePlantFit = null;
+  let loungeBackpackFit = null; // the backpack between the Lounge poufs: measured gaps, set once it loads
   const part = (key, geometry, { tile = 0.9, grain = "y" } = {}) => {
     const g = indexed(geometry);
     if (partShift) g.translate(0, 0, partShift);
@@ -1663,7 +1665,22 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const floorPlant = (name, x, z, height) => plantSource.then((src) => {
     if (!src) return; const g = src.clone(); g.name = name; g.scale.setScalar(height); g.position.set(x, 0, z); scene.add(g); dirtyShadows(); render();
   });
-  floorPlant("floor-plant-window", -2.88, -0.62, 1.55);
+  floorPlant("floor-plant-window", -2.88, -0.62, 1.55).then(() => {
+    // The pot had no soil (Paul 2026-11-18), the same fix as Rooms 02 and 01: a soil disc 8 mm (at Room 01's size) below the lip with a little colour noise and six
+    // pebbles, one vertex-coloured mesh. Measured on Room 01's copy of this model (lip at 0.281 of the plant's height, pot centre 0.027 h left of and 0.019 h behind
+    // the plant's box centre, inner radius 0.147 h), scaled to this one's 1.55 m.
+    if (!scene.getObjectByName("floor-plant-window")) return;
+    const H = 1.55, soilParts = [], soilColor = new THREE.Color(), SOIL = { x: -2.88 - .0267 * H, z: -.62 + .0188 * H, y: .2756 * H, r: .1467 * H };
+    const tint = (geo, pick) => { const n = geo.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) pick(i).toArray(arr, i * 3); geo.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return geo; };
+    let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const disc = new THREE.RingGeometry(0, SOIL.r, 32, 4).rotateX(-Math.PI / 2); disc.deleteAttribute("uv");
+    soilParts.push(tint(disc, () => soilColor.set("#3b2a1e").offsetHSL(0, 0, (rnd() - .5) * .06)).translate(SOIL.x, SOIL.y, SOIL.z));
+    for (let i = 0; i < 6; i++) { const a = i * 1.9 + .4, d = .08 + (i % 3) * .04, pr = .009 + (i % 2) * .003;
+      const pebble = new THREE.SphereGeometry(pr, 6, 4).scale(1.2, .55, 1).translate(SOIL.x + Math.cos(a) * d, SOIL.y + pr * .3, SOIL.z + Math.sin(a) * d);
+      pebble.deleteAttribute("uv"); soilParts.push(tint(pebble, () => soilColor.set(i % 2 ? "#a49a8c" : "#cfc6b8"))); }
+    const soil = new THREE.Mesh(mergeGeometries(soilParts, false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+    soil.name = "floor-plant-window-soil"; soil.receiveShadow = true; scene.add(soil); dirtyShadows(); render();
+  });
 
   // Shelf things: four plates and two mugs on the lower shelf; two jars with oak lids and a trailing pothos on the upper one.
   {
@@ -2501,9 +2518,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     addContactShadow(bx + 0.02, bz, 0.72, 1.96, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
-    const px = 1.61, pz = 1.52;
+    // Two poufs (Paul 2026-11-18: a second one, the same, at the marble table, so the Lounge reads like a small meeting): the first beside the sage table, the second
+    // in front of the marble one, 6 cm clear of its top's edge and on the rug like the first.
+    for (const [px, pz, tag] of [[1.61, 1.52, ""], [1.61, 0.80, "-2"]]) {
     const footstoolBase = disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
-    footstoolBase.computeBoundingBox(); registerSupport("lounge-footstool-plinth-ground", "ground", { bottomY: footstoolBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
+    footstoolBase.computeBoundingBox(); registerSupport(`lounge-footstool${tag}-plinth-ground`, "ground", { bottomY: footstoolBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
     const profile = [[0, 0.05], [0.18, 0.05], [0.214, 0.075], [0.225, 0.13], [0.225, 0.29],
       [0.21, 0.333], [0.175, 0.351], [0, 0.36]];
     detail(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), 40)
@@ -2512,6 +2531,24 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const a = i * Math.PI / 20, x = px + 0.224 * Math.cos(a), z = pz + 0.224 * Math.sin(a);
       detail(rodGeometry([x, 0.14, z], [x, 0.30, z], 0.003, 4), 0xa57a2c);
     }
+    }
+    // A backpack set down between the two poufs (the same model as Room 02's, unscaled, in plum with cream straps; Room 02's is navy, Room 01's are rose and
+    // mustard): upright on the rug by its measured lowest point (0.5 mm in), its back to the counter, turned a little, about 3 cm clear of each pouf. One mesh.
+    new GLTFLoader().loadAsync(new URL("../bedroom/models/campus-backpack-v1.glb", import.meta.url).href).then((asset) => {
+      const bag = asset.scene, palette = { body: "#6e3b52", strap: "#e6dcc6", zip: "#c9a04a", base: "#3b2a33" };
+      bag.rotation.y = Math.PI + 0.1; bag.updateMatrixWorld(true); const parts = [];
+      bag.traverse((o) => { if (!o.isMesh) return; const geo = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); geo.applyMatrix4(o.matrixWorld);
+        const col = new THREE.Color(palette[o.material.name] || palette.body), n = geo.attributes.position.count, values = new Float32Array(n * 3);
+        geo.computeBoundingBox(); const bb = geo.boundingBox;
+        for (let i = 0; i < n; i++) { const t = (geo.attributes.position.getY(i) - bb.min.y) / Math.max(.001, bb.max.y - bb.min.y), k = o.material.name === "body" ? .9 + .08 * t : .96; values[i * 3] = col.r * k; values[i * 3 + 1] = col.g * k; values[i * 3 + 2] = col.b * k; }
+        geo.setAttribute("color", new THREE.BufferAttribute(values, 3)); for (const key of Object.keys(geo.attributes)) if (key !== "position" && key !== "normal" && key !== "color") geo.deleteAttribute(key); parts.push(geo); });
+      const merged = mergeGeometries(parts, false); merged.computeBoundingBox(); const b = merged.boundingBox;
+      merged.translate(1.66 - (b.min.x + b.max.x) / 2, 0.012 - 0.0005 - b.min.y, 1.16 - (b.min.z + b.max.z) / 2); merged.computeBoundingBox();
+      const mesh = new THREE.Mesh(merged, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); mesh.name = "lounge-backpack"; mesh.castShadow = true; mesh.receiveShadow = true;
+      scene.add(mesh); const bb = merged.boundingBox, gapTo = (pz) => Math.round((Math.hypot(Math.max(0, Math.abs(1.61 - 1.66) - (bb.max.x - bb.min.x) / 2), Math.max(0, Math.abs(pz - 1.16) - (bb.max.z - bb.min.z) / 2)) - 0.225) * 1000);
+      loungeBackpackFit = { floorGapMm: Math.round((bb.min.y - 0.012) * 10000) / 10, gapToPoufMm: gapTo(1.52), gapToPouf2Mm: gapTo(0.80), onRug: bb.min.x >= 1.45 && bb.max.x <= 3.05 && bb.min.z >= 0.28 && bb.max.z <= 2.68 };
+      dirtyShadows(); render();
+    }).catch((e) => console.warn("Optional backpack unavailable", e));
 
     const tx = 2.17;
     for (const [z, surface] of [[0.77, "stone"], [1.48, "oak"]]) {
@@ -2624,10 +2661,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         part("loungeDetail", pot);
       }
       detail(new THREE.TorusGeometry(0.162, 0.012, 6, 32).rotateX(Math.PI / 2).translate(px, 0.398, pz), 0xb55a36);
-      detail(new THREE.CircleGeometry(0.139, 28).rotateX(-Math.PI / 2).translate(px, 0.384, pz), 0x3a2a1e);
+      // Paul 2026-11-18: the soil sat 18 mm under the lip and read as a dark hole. It now sits 7 mm under the lip (the inner wall is 145 mm across there) in Room 02's
+      // treatment, a disc with a little colour noise in a slightly warmer brown, with the mulch and six pale pebbles on it; the stems start 20 mm under it as before.
+      const SOIL_Y = 0.395;
+      { let s2 = 11; const n2 = () => ((s2 = (s2 * 16807) % 2147483647) / 2147483647), c2 = new THREE.Color();
+        const disc = new THREE.RingGeometry(0, 0.143, 32, 4).rotateX(-Math.PI / 2).translate(px, SOIL_Y, pz), dp = disc.attributes.position.count, dc = new Float32Array(dp * 3);
+        for (let i = 0; i < dp; i++) c2.set("#4a3526").offsetHSL(0, 0, (n2() - .5) * .06).toArray(dc, i * 3);
+        disc.setAttribute("color", new THREE.Float32BufferAttribute(dc, 3)); disc.deleteAttribute("uv"); part("loungeDetail", disc); }
+      for (let i = 0; i < 6; i++) { const a = i * 1.9 + .4, d = .035 + (i % 3) * .03, pr = .008 + (i % 2) * .003;
+        detail(new THREE.SphereGeometry(pr, 6, 4).scale(1.2, .55, 1).translate(px + Math.cos(a) * d, SOIL_Y + pr * .3, pz + Math.sin(a) * d), i % 2 ? 0xa49a8c : 0xcfc6b8); }
       for (let m = 0; m < 16; m++) { // mulch chips and a few pale pebbles on the soil
         const ang = rnd() * Math.PI * 2, rad = Math.sqrt(rnd()) * 0.125, pebble = m % 5 === 0;
-        detail(new THREE.SphereGeometry(pebble ? 0.011 : 0.014 + rnd() * 0.008, 6, 3).scale(1.2, 0.45, 0.9).rotateY(rnd() * 3).translate(px + Math.cos(ang) * rad, 0.388, pz + Math.sin(ang) * rad), pebble ? 0x8f887c : [0x5a4026, 0x4a3320, 0x6b5236][m % 3]);
+        detail(new THREE.SphereGeometry(pebble ? 0.011 : 0.014 + rnd() * 0.008, 6, 3).scale(1.2, 0.45, 0.9).rotateY(rnd() * 3).translate(px + Math.cos(ang) * rad, SOIL_Y + 0.004, pz + Math.sin(ang) * rad), pebble ? 0x8f887c : [0x5a4026, 0x4a3320, 0x6b5236][m % 3]);
       }
       // (no saucer: its inner floor lay exactly on the Lounge rug's surface and flickered on phones; Paul, 2026-11-16)
       const flower = (x, y, z, scale) => {
@@ -2655,7 +2700,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       leafGeometry.setAttribute("position", new THREE.Float32BufferAttribute(leafPositions, 3));
       leafGeometry.setAttribute("color", new THREE.Float32BufferAttribute(leafColors, 3));
       leafGeometry.setIndex(leafIndices); leafGeometry.computeVertexNormals();
-      const leaves = new THREE.InstancedMesh(leafGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, roughness: 0.62 }), 108);
+      const leaves = new THREE.InstancedMesh(leafGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, side: THREE.DoubleSide, roughness: 0.62 }), 154);
+      // 154, not 108 (Paul 2026-11-18): the seven stems ask for 154 leaves (12 on each stem and 5 on each of its two branches), but only 108 instances were made, so the
+      // last two stems (the left side from the counter) stood bare and the canopy seemed to float off to the right. Same instanced mesh, still one draw call.
       leaves.name = "lounge-corner-plant-leaves"; leaves.castShadow = true; leaves.receiveShadow = true;
       const leafDummy = new THREE.Object3D(), up = new THREE.Vector3(0, 1, 0);
       const stemRoots = [], branchJoins = [];
@@ -2671,7 +2718,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       };
       for (let i = 0; i < 7; i++) {
         const angle = i * Math.PI * 2 / 7 + 0.17, rootRadius = 0.052 + i * 0.006;
-        const root = new THREE.Vector3(px + Math.cos(angle) * rootRadius, 0.364, pz + Math.sin(angle) * rootRadius);
+        const root = new THREE.Vector3(px + Math.cos(angle) * rootRadius, SOIL_Y - 0.02, pz + Math.sin(angle) * rootRadius);
         const height = 0.98 + (i % 3) * 0.105;
         const spread = 0.15 + (i % 2) * 0.045;
         const mainCurve = new THREE.CatmullRomCurve3([root,
@@ -2681,8 +2728,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         const mainRadius = 0.0065 - i * 0.00025, mainSamples = mainCurve.getSpacedPoints(240);
         detail(new THREE.TubeGeometry(mainCurve, 16, mainRadius, 6, false), 0x735a3b);
         // Short root collars emerge from below the soil surface and visibly meet each main stem.
-        detail(new THREE.CylinderGeometry(0.009, 0.012, 0.044, 8).translate(root.x, 0.378, root.z), 0x705439);
-        stemRoots.push({ depthMm: Math.round((0.384 - root.y) * 1000), radiusMm: Math.round(rootRadius * 1000) });
+        detail(new THREE.CylinderGeometry(0.009, 0.012, 0.044, 8).translate(root.x, SOIL_Y - 0.006, root.z), 0x705439);
+        stemRoots.push({ depthMm: Math.round((SOIL_Y - root.y) * 1000), radiusMm: Math.round(rootRadius * 1000) });
         for (let k = 0; k < 12; k++) {
           const t = 0.2 + k * 0.066, anchor = mainCurve.getPoint(t);
           addLeaf(anchor, angle + (k % 2 ? 1 : -1) * (0.7 + rnd() * 0.45), k >= 9, k >= 10 ? NEW : GREENS);
@@ -3587,7 +3634,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         partShiftLeft: partShift, // must be 0 once the room is built: a leftover counter-curve shift moves every wall frame away from its print
         recordPlayer: { widthMm: Math.round(RECORD.width * 1000), depthMm: Math.round(RECORD.depth * 1000), heightMm: Math.round(RECORD.height * 1000), xMm: Math.round(RECORD.x * 1000), zMm: Math.round(RECORD.z * 1000), vertices: platterPivot.children[0].geometry.attributes.position.count + armPivot.children[0].geometry.attributes.position.count, attached: platterPivot.parent === scene && armPivot.parent === scene, playing: recordPlaying },
         dripTower: { widthMm: Math.round(DRIP.width * 1000), depthMm: Math.round(DRIP.depth * 1000), heightMm: Math.round(DRIP.height * 1000), xMm: Math.round(DRIP.x * 1000), zMm: Math.round(DRIP.z * 1000), baseYmm: Math.round(DRIP.barTop * 1000), framePostsInBaseMm: 10, playing: dripPlaying },
-        loungePlantFit, takeawayLidStock,
+        loungePlantFit, loungeBackpackFit, takeawayLidStock,
         blockout,
       };
     },
