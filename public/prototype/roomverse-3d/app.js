@@ -106,7 +106,10 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   function plaqueWindowFov() {
     if (!(camera.aspect > 0)) return 0;
     const radius = camera.aspect < .8 ? 1.82 : 1.9;
-    const depth = orbitCenter.z + radius - (BACK + .015);
+    // Depth along the view axis, not the flat distance to the wall: above 0.8 the eye stands DESKTOP_EYE_RISE over the plaque and looks down at the orbit centre, so the flat distance was
+    // about 1.4% too long and the edge landed at 0.973 instead of 0.96 (four phone sizes failed the 0.97 framing test). Below 0.8 the pose is level and this equals the old value.
+    const phi = camera.aspect < .8 ? Math.PI / 2 : Math.acos(DESKTOP_EYE_RISE / radius), eye = cameraAt(0, radius, phi), axis = orbitCenter.clone().sub(eye).normalize();
+    const depth = new THREE.Vector3(TX + .35, 1.5, BACK + .015).sub(eye).dot(axis);
     const tanHalf = (TX + .35) / (depth * camera.aspect * .96);
     return 2 * Math.atan(tanHalf) * 180 / Math.PI;
   }
