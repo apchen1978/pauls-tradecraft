@@ -2337,8 +2337,7 @@ let lanternMat = null;
       handle.translate(mugAt.x + Math.cos(handleYaw) * (MUG.radius - .002), mugY + .052, mugAt.z - Math.sin(handleYaw) * (MUG.radius - .002));
       propParts.push(handle);
     }
-    // Bulk paper-napkin pack (same build as Room 03's): white soft plastic over a stack, 190 x 105 mm, a red band, an unreadable label block,
-    // slightly squashed with pinched ends. No brand or logo.
+    // Paper-napkin pack: a cream wrapper over a 190 x 105 mm stack, a muted clay band and a folded sheet.
     // Paul 2026-11-18: the record player takes this end of the sideboard, so the pack moves to the coffee table: the first free spot (clear of the laptop, mug,
     // book and the book stack by 15 mm, inside the top by 4 cm) where five rays down find the table top level within 1 mm. It is its own small mesh there.
     const coffeeHits = [laptopObj, mugObj, coffeeBook].map((obj) => new THREE.Box3().setFromObject(obj)).concat(soft.propBounds);
@@ -2359,29 +2358,67 @@ let lanternMat = null;
     })();
     const packAt = packSpot ? { x: packSpot.x, z: packSpot.z, yaw: packSpot.yaw } : { x: -2.45, z: 1.15, yaw: .38 };
     const packY = packSpot ? packSpot.y : topAt(packAt.x, packAt.z);
-    const packParts = [];
-    {
-      const pack = new THREE.BoxGeometry(.19, .074, .105, 16, 6, 10);
-      const pp = pack.attributes.position, col = new Float32Array(pp.count * 3), c = new THREE.Color();
-      for (let k = 0; k < pp.count; k++) {
-        const x = pp.getX(k), y = pp.getY(k), z = pp.getZ(k);
-        const u = x / .095, v = (y + .037) / .074, w = z / .0525;
-        const bulge = Math.sin(Math.PI * Math.min(1, v * 1.05)) * (1 - u * u * .6);
-        const pinch = Math.max(0, Math.abs(u) - .86) / .14;
-        const nz = z * (1 + .06 * bulge) * (1 - .10 * pinch);
-        const ny = (y + .037) * (1 - .06 * pinch) * (1 + .035 * (1 - w * w) * (1 - u * u)) + .0012 * Math.sin(x * 140 + z * 60) * v * v;
-        pp.setXYZ(k, x * (1 - .02 * v * v), ny, nz);
-        const n = Math.abs(Math.sin(x * 191.3 + y * 83.7 + z * 151.1) * 43758.5453) % 1;
-        if (Math.abs(x) < .034) c.set(0xb0242b); else c.set(n > .85 ? 0xdfe0dc : 0xf2f1eb);
-        if (Math.abs(x) < .024 && z > .045 && ny > .022 && ny < .052) c.set(Math.sin(x * 900) > .6 && ny > .034 ? 0x6e1a20 : 0xeee3cf);
-        col.set([c.r, c.g, c.b], k * 3);
+    const packGeometry = (() => {
+      const height = .058;
+      const pack = new THREE.BoxGeometry(.19, height, .105, 16, 6, 10);
+      const position = pack.attributes.position, colors = new Float32Array(position.count * 3);
+      const paper = new THREE.Color(0xeae0ca), band = new THREE.Color(0xa65e48), tint = new THREE.Color();
+      for (let i = 0; i < position.count; i++) {
+        const x = position.getX(i), y = position.getY(i), z = position.getZ(i);
+        const u = x / .095, v = (y + height / 2) / height, w = z / .0525;
+        const pinch = Math.max(0, Math.abs(u) - .79) / .21;
+        const shoulder = Math.sin(Math.PI * v) * (1 - .6 * u * u);
+        const top = v * height - (.004 * w ** 4 + .009 * pinch) * v;
+        const fold = .0009 * Math.sin(u * 29 + w * 6) * (pinch + Math.abs(w) ** 6) * v;
+        position.setXYZ(i, x, top + fold, z * (1 + .045 * shoulder - .1 * pinch));
+        const stripe = 1 - THREE.MathUtils.smoothstep(Math.abs(x), .023, .036);
+        tint.copy(paper).lerp(band, stripe).multiplyScalar(.94 + .06 * v + .025 * Math.sin(u * 23 - w * 6));
+        tint.toArray(colors, i * 3);
       }
-      pack.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
-      pack.rotateY(Math.PI / 2 + packAt.yaw); // long side runs along the wall, turned a little
-      pack.computeBoundingBox();
-      pack.translate(packAt.x, packY - pack.boundingBox.min.y, packAt.z);
-      packParts.push(pack);
-    }
+      pack.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      pack.computeVertexNormals();
+
+      // A dark opening lies against the top, with the paper folded out from its centre.
+      const opening = new THREE.CircleGeometry(1, 24).rotateX(-Math.PI / 2).scale(.038, 1, .010).translate(0, height + .0004, 0);
+      const sheetPositions = [], sheetColors = [], sheetUVs = [], sheetIndices = [];
+      const sheetTint = new THREE.Color();
+      const columns = 9, rows = 6;
+      for (let row = 0; row < rows; row++) {
+        const rise = row / (rows - 1);
+        for (let col = 0; col < columns; col++) {
+          const across = 2 * col / (columns - 1) - 1;
+          const crease = Math.cos(across * Math.PI * 1.7);
+          sheetPositions.push(across * (.030 + .005 * rise), height - .0008 + rise * (.034 - .008 * across * across + .004 * crease),
+            rise * rise * (.012 + .004 * crease) + across * rise * .003);
+          sheetUVs.push((across + 1) / 2, rise);
+          sheetTint.setHex(0xf6efdd).multiplyScalar(.88 + .12 * rise + .055 * crease).toArray(sheetColors, sheetColors.length);
+        }
+      }
+      for (let row = 0; row < rows - 1; row++) for (let col = 0; col < columns - 1; col++) {
+        const a = row * columns + col, b = a + columns;
+        sheetIndices.push(a, a + 1, b, a + 1, b + 1, b);
+      }
+      const makeSheet = (back) => {
+        const sheet = new THREE.BufferGeometry();
+        sheet.setAttribute("position", new THREE.Float32BufferAttribute(sheetPositions, 3));
+        sheet.setAttribute("color", new THREE.Float32BufferAttribute(sheetColors, 3));
+        sheet.setAttribute("uv", new THREE.Float32BufferAttribute(sheetUVs, 2));
+        sheet.setIndex(back ? sheetIndices.slice().reverse() : sheetIndices);
+        sheet.computeVertexNormals();
+        if (back) sheet.translate(0, 0, -.00025);
+        return sheet;
+      };
+      const openingColors = new Float32Array(opening.attributes.position.count * 3);
+      const ink = new THREE.Color(0x51382c);
+      for (let i = 0; i < opening.attributes.position.count; i++) ink.toArray(openingColors, i * 3);
+      opening.setAttribute("color", new THREE.BufferAttribute(openingColors, 3));
+
+      const result = mergeGeometries([pack, opening, makeSheet(false), makeSheet(true)]);
+      result.rotateY(Math.PI / 2 + packAt.yaw);
+      result.computeBoundingBox();
+      result.translate(packAt.x, packY - result.boundingBox.min.y, packAt.z);
+      return result;
+    })();
     // Generic vitamin bottle beside the mug (Paul's photo, 2026-10-31): white HDPE, 55 mm across, a ribbed white screw cap 60 x 25 mm, 105 mm
     // overall. Wrap label: white with bold red bands top and bottom and a big red block in the middle. No words, brand or logo.
     // Paul 2026-11-19 (t255u): the three supplement bottles stand in a tidy row against the wall, 10 mm apart edge to edge, and every label front (u = .375 on
@@ -2462,8 +2499,7 @@ let lanternMat = null;
     propGeometry.computeVertexNormals();
     const props = new THREE.Mesh(propGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .5 }));
     props.name = "left-sideboard-props"; props.castShadow = true; props.receiveShadow = true; scene.add(props);
-    packParts[0].computeVertexNormals();
-    const pack = new THREE.Mesh(packParts[0], new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .5 }));
+    const pack = new THREE.Mesh(packGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .75 }));
     pack.name = "coffee-table-napkin-pack"; pack.castShadow = true; pack.receiveShadow = true; scene.add(pack);
     // The record player stands on the far end of the top (toward the coat stand), its front and gold pinstripe toward the room, its feet 2.5 mm into the oak.
     const recordAt = { x: -2.405, z: 1.17 }, recordPlayer = buildRoom01RecordPlayer(scene, { ...recordAt, top: topAt(recordAt.x, recordAt.z), yaw: Math.PI });
