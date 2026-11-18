@@ -2631,12 +2631,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       decorPlace("magazines", canvas, mergeGeometries(coverPlanes)); }
     boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, magTop + 0.005, sz);
     detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, magTop + 0.010, sz), 0x627b87);
-    // One white cable, a single tube with no joints: out of the phone, over the table edge, down to the floor, along it with a little slack, then up the wall base into a plug. White,
-    // so it still reads on a dark rug in the closing and series moods. Over the rug (a flat sheet at y 0.012) it rides at y 0.0175 so it is never buried in it.
-    part("paper", tubeGeometry([[sx + 0.01, magTop + 0.005, sz + 0.063], [sx + 0.03, magTop - 0.003, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
+    // The phone's warm-grey cord has the scale of a real charging lead. It drops over the table edge, rests above the rug, then reaches the wall plug in one continuous tube.
+    detail(tubeGeometry([[sx + 0.01, magTop + 0.005, sz + 0.063], [sx + 0.03, magTop - 0.003, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
       [sx + 0.06, 0.25, sz + 0.205], [sx + 0.075, 0.03, sz + 0.25], [sx + 0.11, 0.0175, sz + 0.31], [2.45, 0.0175, 2.6], [2.7, 0.0175, 2.66], [2.9, 0.012, 2.72], [3.04, 0.0065, 2.74],
-      [3.12, 0.007, 2.73], [3.15, 0.06, 2.73], [3.152, 0.2, 2.73], [3.152, 0.27, 2.73]], 0.0045, 120, 8));
-    boxPart("paper", 0.03, 0.045, 0.032, 3.15, 0.292, 2.73, 0.008); // the plug
+      [3.12, 0.007, 2.73], [3.15, 0.06, 2.73], [3.152, 0.2, 2.73], [3.152, 0.27, 2.73]], 0.0032, 120, 8), 0xb8bab0);
+    detail(roundedBox(0.03, 0.045, 0.032, 0.008, 0.004, 4).translate(3.15, 0.292, 2.73), 0xb8bab0); // matching plug
     boxPart("paper", 0.013, 0.052, 0.168, 3.151, 0.29, 2.73);
     for (const offset of [-0.045, 0, 0.045]) {
       for (const y of [0.282, 0.298]) boxPart("black", 0.003, 0.004, 0.012, 3.143, y, 2.73 + offset, 0.002);
