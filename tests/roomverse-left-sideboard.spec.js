@@ -108,9 +108,14 @@ for (const width of [1280, 390]) test(`Room 01 sideboard top: two water bottles 
   expect(t.labels.sharedWaterGeometry && t.labels.sharedVitaminGeometry, "the copies share geometry").toBe(true);
   expect(t.labels.greenVitamin, "the third vitamin bottle has its own label").toBe(true);
   // Paul 2026-11-19: a tidy row against the wall, 10 mm apart, and the orange-cap bottle clearly taller than the other two
-  const row = ["redVitamin", "greenVitamin", "orangeVitamin"].map((k) => t[k]);
-  expect(Math.max(...row.map((r) => r.wallGapMm)) - Math.min(...row.map((r) => r.wallGapMm)), "one row along the wall").toBeLessThanOrEqual(8);
+  // Paul 2026-11-19 (later): the roomverse 3d bottle (red band) stands forward by the mug; the green and orange vitamins stay in the tidy back row with the waters.
+  const row = ["greenVitamin", "orangeVitamin"].map((k) => t[k]);
+  expect(Math.max(...row.map((r) => r.wallGapMm)) - Math.min(...row.map((r) => r.wallGapMm)), "the back row of two lies along the wall").toBeLessThanOrEqual(8);
   for (const r of row) { expect(r.gapMm).toBeGreaterThanOrEqual(8); expect(r.gapMm).toBeLessThanOrEqual(15); }
+  expect(t.redVitamin.nearest, "the red-band bottle stands by the mug").toBe("mug");
+  expect(t.redVitamin.gapMm, "a small clear gap to the mug").toBeGreaterThanOrEqual(8);
+  expect(t.redVitamin.gapMm).toBeLessThanOrEqual(20);
+  expect(t.redVitamin.wallGapMm - t.greenVitamin.wallGapMm, "it stands well forward of the back row").toBeGreaterThanOrEqual(100);
   expect(t.redVitamin.heightMm).toBe(t.greenVitamin.heightMm);
   expect(t.orangeVitamin.heightMm / t.redVitamin.heightMm).toBeGreaterThan(1.12);
 });

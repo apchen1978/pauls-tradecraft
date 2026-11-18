@@ -2358,7 +2358,7 @@ let lanternMat = null;
     // Paul 2026-11-19 (t255u): the three supplement bottles stand in a tidy row against the wall, 10 mm apart edge to edge, and every label front (u = .375 on
     // each lathe, phi .75 pi) is turned to face the record-player view camera, which looks from about x -1.965, z .974. The orange-cap one is 18 % taller.
     const REC_EYE = { x: -1.965, z: .974 }, LABEL_FRONT = .75 * Math.PI, faceView = (x, z) => Math.atan2(REC_EYE.x - x, REC_EYE.z - z) - LABEL_FRONT;
-    const bottleAt = { x: -2.535, z: .71 }; bottleAt.yaw = faceView(bottleAt.x, bottleAt.z);
+    const bottleAt = { x: -2.34, z: .72 }; // Paul 2026-11-19: the roomverse 3d bottle stands forward beside the ivory mug (10 mm clear of it), off the record camera's line past the mug so its label is not hidden; the green and orange vitamins and the two waters stay in the back row bottleAt.yaw = faceView(bottleAt.x, bottleAt.z);
     const bottleY = topAt(bottleAt.x, bottleAt.z);
     const bottleParts = [];
     // The front label reads "roomverse 3d😋" (our own name, Paul; no brand or logo). If the emoji font draws nothing in colour, a small drawn smiley stands in.
