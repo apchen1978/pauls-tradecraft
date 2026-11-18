@@ -1469,7 +1469,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // centre and a little short of it: 3.25 rad puts it on the record's playing band, between the label and the rim.
   const ARM_REST = 0.28, ARM_PLAY = 3.45;
   const setArm = (value) => { armPivot.rotation.y = value; };
-  const recordTrackListeners = []; let recordTrack = -1; // each tap that starts the record plays the next of the three tracks (the first start at night plays 夜色外灘)
+  const recordTrackListeners = []; let recordTrack = -1; // each tap that starts the record plays the next of the four tracks (the first start at night plays 夜色外灘)
   const roomSound = createRoomSound(); // the slow record (sound.js): it starts inside the tap on the record player and stops with it
   const stopRecordPlayback = () => {
     if (!recordPlaying) return false;
@@ -1478,7 +1478,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   };
   const playRecord = () => {
     if (recordPlaying) return false;
-    recordTrack = recordTrack < 0 && (currentMood === "closing" || currentMood === "series") ? 2 : (recordTrack + 1) % 3; recordPlaying = true; roomSound.start(recordTrack, currentMood === "rain", { playlist: true, onTrack: (index) => { recordTrack = index; for (const listener of recordTrackListeners) listener(index); } }); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
+    recordTrack = recordTrack < 0 && (currentMood === "closing" || currentMood === "series") ? 2 : (recordTrack + 1) % roomSound.tracks().length; recordPlaying = true; roomSound.start(recordTrack, currentMood === "rain", { playlist: true, onTrack: (index) => { recordTrack = index; for (const listener of recordTrackListeners) listener(index); } }); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
     /* no time limit (Paul, 2026-11-17): the three records follow one another until the visitor stops them or leaves */
     const reduced = reducedMotion();
     const tick = (now) => {
@@ -3621,7 +3621,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     floorLampLight: () => floorLampLight.intensity,
-    soundState: () => roomSound.state(),
+    soundState: () => roomSound.state(), soundTracks: () => roomSound.tracks(),
     vibeState: () => ({ neon: neonSign.material.opacity, neonVisible: neonSign.visible, haloVisible: neonHalo.visible }),
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
     playRecord, stopRecordPlayback, onRecordTrack: (listener) => { recordTrackListeners.push(listener); }, recordNext: () => roomSound.next(), pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
