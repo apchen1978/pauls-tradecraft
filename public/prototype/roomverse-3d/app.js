@@ -4067,7 +4067,7 @@ let lanternMat = null;
   const autumnPlant = buildAutumnPlant();
   // Reuse the original Room 02 procedural backpack; optional loading must not block the room.
   let casualBackpack = null, casualBackpackError = null;
-  loader.loadAsync(new URL("./bedroom/models/campus-backpack-v1.glb", import.meta.url).href).then((asset) => {
+  loader.loadAsync(new URL("./bedroom/models/campus-backpack-v2.glb", import.meta.url).href).then((asset) => {
     const bag=place(asset,{height:.42,x:2.18,z:-.025});
     bag.rotation.y=-Math.PI/2 + .10; bag.updateMatrixWorld(true);
     const b=new THREE.Box3().setFromObject(bag); const c=b.getCenter(new THREE.Vector3());
@@ -4117,7 +4117,7 @@ let lanternMat = null;
   // 2 mm off the skirting face, in a mustard-and-olive colourway (Room 02's is navy, the bag by the door is rose). A small mint bear charm hangs on its front,
   // touching the fabric. The bag is one vertex-coloured mesh; the charm another.
   let wallBackpack = null, wallBackpackError = null;
-  loader.loadAsync(new URL("./bedroom/models/campus-backpack-v1.glb", import.meta.url).href).then((asset) => {
+  loader.loadAsync(new URL("./bedroom/models/campus-backpack-v2.glb", import.meta.url).href).then((asset) => {
     const bag = asset.scene, S = 1.15, palette = { body: "#c6963a", strap: "#4b4a36", zip: "#8a3b2b", base: "#3b382c" };
     bag.scale.setScalar(S); bag.rotation.y = Math.PI / 2 - .12; bag.updateMatrixWorld(true);
     const inverse = new THREE.Matrix4(), parts = [];

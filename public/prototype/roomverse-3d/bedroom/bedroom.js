@@ -1358,7 +1358,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     recolour(g, { upper: "#ece6dc", sole: "#d9cdb8", accent: "#c4622d", laces: "#f1ece3", lining: "#3a3a3e" });
     g.name = "sneakers"; g.position.set(DOOR.x - .02, .012, HD - .42); g.rotation.y = Math.PI + .5; root.add(g); redraw(); // toes towards the room, the way they come off at the door
   }).catch(() => {});
-  loadGlb(new URL("./models/campus-backpack-v1.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
+  loadGlb(new URL("./models/campus-backpack-v2.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
     recolour(g, { body: "#33405a", strap: "#2f3136", zip: "#c4622d", base: "#1f2125" });
     // Paul 2026-11-18: from the Record player view (north-east of it, looking down) the bag showed its thin side and its back strap, and leaning back it sank
     // 6 mm into the floor at the back and lifted at the front. It now stands upright with its front turned toward the turntable corner, and is set on the floor
