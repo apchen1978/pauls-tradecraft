@@ -1359,7 +1359,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     g.name = "sneakers"; g.position.set(DOOR.x - .02, .012, HD - .42); g.rotation.y = Math.PI + .5; root.add(g); redraw(); // toes towards the room, the way they come off at the door
   }).catch(() => {});
   loadGlb(new URL("./models/campus-backpack-v2.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
-    recolour(g, { body: "#33405a", strap: "#2f3136", zip: "#c4622d", base: "#1f2125" });
+    // Paul 2026-11-18: Room 02's navy bag is now a copy of Room 04's Lounge backpack: plum body, cream straps, gold zip, dark plum base, the same soft
+    // bottom-to-top shading baked into vertex colours and the same matte finish (cafe.js "lounge-backpack"). Same spot, size and pose as before.
+    const plum = { body: "#6e3b52", strap: "#e6dcc6", zip: "#c9a04a", base: "#3b2a33" }, bagMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 });
+    bagMat.name = "room02-backpack-plum";
+    g.traverse((o) => { if (!o.isMesh) return; const geo = o.geometry, n = geo.attributes.position.count, values = new Float32Array(n * 3), name = o.material.name;
+      const col = new THREE.Color(plum[name] || plum.body); geo.computeBoundingBox(); const bb = geo.boundingBox;
+      for (let i = 0; i < n; i++) { const t = (geo.attributes.position.getY(i) - bb.min.y) / Math.max(.001, bb.max.y - bb.min.y), k = name === "body" ? .9 + .08 * t : .96; values[i * 3] = col.r * k; values[i * 3 + 1] = col.g * k; values[i * 3 + 2] = col.b * k; }
+      geo.setAttribute("color", new THREE.BufferAttribute(values, 3)); o.material.dispose?.(); o.material = bagMat; o.userData.part = name; });
     // Paul 2026-11-18: from the Record player view (north-east of it, looking down) the bag showed its thin side and its back strap, and leaning back it sank
     // 6 mm into the floor at the back and lifted at the front. It now stands upright with its front turned toward the turntable corner, and is set on the floor
     // by its measured lowest point (0.5 mm in).
