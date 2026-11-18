@@ -2065,6 +2065,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const lens = new THREE.Mesh(new THREE.CircleGeometry(.028, 20), lensMat); lens.position.z = .106; head.add(lens);
     if (col) { const sp = new THREE.SpotLight(col, 0, 3.8, .5, .75, 2); sp.position.copy(head.position); sp.target.position.set(tx, ty, tz); scene.add(sp, sp.target); roomSpots.push(sp); }
   }
+  // Paul 2026-11-19: a matching recessed downlight on the bed side, the desk downlight mirrored across the room (same trim and lens), for symmetry. It lights
+  // the bed below it with one shadowless spot and is on the bedside switch with the track (its lens glow and strength follow the track spots).
+  const bedDownlightTrim = new THREE.Mesh(downlightTrim.geometry, downlightTrim.material); bedDownlightTrim.name = "bed-downlight";
+  bedDownlightTrim.position.set(1.55, ROOM.h - .006, -1.75); scene.add(bedDownlightTrim);
+  const bedDownlightLens = new THREE.Mesh(downlightLens.geometry, lensMat); bedDownlightLens.name = "bed-downlight-lens";
+  bedDownlightLens.rotation.x = Math.PI / 2; bedDownlightLens.position.set(1.55, ROOM.h - .013, -1.75); scene.add(bedDownlightLens);
+  const bedDownSpot = new THREE.SpotLight("#ffe3bd", 0, 3.2, .55, .8, 2); bedDownSpot.name = "bed-downlight-spot"; bedDownSpot.position.set(1.55, ROOM.h - .03, -1.75);
+  bedDownSpot.target.position.set(1.5, .5, -1.75); scene.add(bedDownSpot, bedDownSpot.target);
 
   // ---------- four moods: each one sets the window, daylight, room fill and the lamps that really glow ----------
   // The bedside lamp and the screen are real lights (no shadows, short reach), so a dark mood is lit by what is on in the room.
@@ -2131,6 +2139,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (name === "bed") {
       const on = switchOverrides.bed;
       for (const sp of roomSpots) sp.intensity = on ? preset.deskSpot * .7 : 0;
+      bedDownSpot.intensity = on ? preset.deskSpot * .7 : 0;
       lensMat.emissiveIntensity = on ? preset.deskSpot * .4 : 0;
     } else {
       deskSpot.intensity = switchOverrides.desk ? preset.deskSpot : 0;
@@ -2186,7 +2195,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     hemi.intensity = m.hemi[0]; hemi.color.set(m.hemi[1]); hemi.groundColor.set(m.hemi[2]);
     sun.intensity = m.sun[0]; sun.color.set(m.sun[1]); sun.position.y = m.sun[2]; // a lower sun in the early morning reaches further in
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
-    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
+    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; bedDownSpot.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
     pocketGlowMat.emissiveIntensity = BEDSIDE_POCKET_GLOW[name] ?? 0;
     applyBedsidePhone(name);
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);

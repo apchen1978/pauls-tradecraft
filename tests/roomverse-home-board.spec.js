@@ -22,7 +22,7 @@ test("home board fills the left wall without covering the painting or the plaque
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e)));
   await enter(page);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
   await page.evaluate(() => { window.__room.setOrbitAngle(90); return window.__room.loadLeftWallArt(); });
   await page.waitForFunction(() => window.__room.leftWallArt().ready);
   const placed = await page.evaluate(() => {
@@ -30,7 +30,7 @@ test("home board fills the left wall without covering the painting or the plaque
     const art = window.__room.leftWallArt();
     return { board, artZ: art.painting.min[2], lights: window.__room.tableLampLighting().lightCount };
   });
-  expect(placed.lights).toBe(7);
+  expect(placed.lights).toBe(8);
   expect(placed.board.visible).toBe(true);
   expect(placed.board.markers).toBe(3);
   expect(placed.board.rotation[0]).toBe(0);

@@ -37,7 +37,7 @@ for (const width of [390, 1440]) {
     expect(stack?.bay).toBe("right-lower"); expect(stack.max[1] - stack.min[1]).toBeGreaterThan(.14); // three books lying flush on one another
     const cooker = data.objects.find((o) => o.name === "shelf-mini-tatung-cooker"); // bottom shelf by the entrance door, beside the dish (Paul 2026-11-19)
     expect(cooker?.bay).toBe("left-lower"); expect(cooker.max[1] - cooker.min[1]).toBeGreaterThan(.1);
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
     const before = requests.length;
     await page.evaluate(() => __room.loadConsoleDecor());
     expect(requests.length).toBe(before);

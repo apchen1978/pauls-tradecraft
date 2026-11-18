@@ -50,7 +50,7 @@ test("central-air slot stays, and the smart panel sits on the door's latch side"
   expect(climate.vent.max[2]).toBeLessThan(-1.8);
   expect(climate.plaqueClear).toBe(true);
   expect(climate.doorClear).toBe(true);
-  expect(climate.lightCount).toBe(6);
+  expect(climate.lightCount).toBe(7);
   expect(climate.fixtureLights).toBe(0);
   expect(climate.emissive).toBeGreaterThan(0);
   expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
@@ -73,7 +73,7 @@ test("central-air slot stays, and the smart panel sits on the door's latch side"
 
   await enter(page, 390);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  expect(await page.evaluate(() => window.__room.climate().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.climate().lightCount)).toBe(7);
   expect(await page.evaluate(() => window.__room.plaqueView().firstHit)).toBe("house-plaque");
   await page.evaluate(() => window.__room.loadDoorTexture());
   await page.evaluate(() => window.__room.frameClimate("entry"));

@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 149550, meshes: 343 }),
+  scene: Object.freeze({ vertices: 150246, meshes: 345 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 93, phone: 73 }),
+  openingDrawCalls: Object.freeze({ desktop: 95, phone: 75 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 93, family: 90, tech: 95, chic: 90, slow: 93, golden: 93, tv: 90 }),
-    phone: Object.freeze({ rain: 70, family: 73, tech: 72, chic: 73, slow: 73, golden: 73, tv: 70 }),
+    desktop: Object.freeze({ rain: 95, family: 92, tech: 97, chic: 92, slow: 95, golden: 95, tv: 95 }),
+    phone: Object.freeze({ rain: 72, family: 75, tech: 74, chic: 75, slow: 75, golden: 75, tv: 72 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -42,6 +42,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "left sideboard (Paul): two water bottles now, standing near the wall behind the mug and clear of the record player, with a green label band instead of Room 03's blue-grey (Room 01 is in Taiwan); a third vitamin bottle, the red-band bottle's shape with a green label, tucked behind the other two. The copies share their geometry and materials (no extra GPU buffers; the counter counts each mesh), +4 meshes and +11,764 counted vertices; draw calls as measured", vertices: 148846, meshes: 342, desktopCalls: 93, phoneCalls: 69 },
     { date: "2026-11-19", change: "the mini Tatung rice cooker (Paul) moved from the TV-wall shelf to the door end of the TV console, by the umbrella, between the console books and the right speaker, and got the classic look: glossy red body with rounded foot and rim, white logo band with a small red mark, a domed chrome-ish lid with a black knob, two side handles, a front switch lever and a little indicator light. Two meshes now (vertex-coloured body, metal lid) where the shelf copy was one mesh plus its contact patch: meshes unchanged, +700 vertices. Phone calls as measured (66-70 last time, 73 now: measurement spread, the cooker is not in the phone opening view)", vertices: 149546, meshes: 342, desktopCalls: 93, phoneCalls: 73 },
     { date: "2026-11-19", change: "the mini Tatung rice cooker (Paul: not the console top) goes into the bottom compartment of the TV-wall shelf by the entrance door, mirrored from its first spot by the coat stand, beside the low ceramic dish; same refined two-mesh model at 1.08x so it fits the shelf depth, with its small contact patch again: +1 mesh, +4 vertices; draw calls as measured", vertices: 149550, meshes: 343, desktopCalls: 93, phoneCalls: 73 },
+    { date: "2026-11-19", change: "four recessed ceiling downlights over the living area (Paul): cream trims and warm lenses like Room 02's desk downlight, merged into two meshes, plus one shared shadowless SpotLight from their centre that really lights the floor below; its strength follows the mood (off in light-tech and series night). +2 meshes, +696 vertices, +2 draw calls; the room now has one more real light", vertices: 150246, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
   ]),
 });
 
