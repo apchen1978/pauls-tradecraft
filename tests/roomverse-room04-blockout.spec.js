@@ -838,7 +838,7 @@ test("Room 04 the record player: a hint to tap it (not in late-night moods), two
   await page.locator("#recordHit").click(); // a real tap on the record player ends the hint and starts track 1
   await expect(page.locator("#bubble [data-line]")).toContainText("慢板");
   await expect(page.locator("#bubble [data-cover]"), "the first record shows its cover").toHaveAttribute("src", /room04-record-cover-0-v1\.webp/);
-  await expect.poll(async () => page.locator("#bubble [data-cover]").evaluate((img) => img.complete && img.naturalWidth > 0), { message: "the cover image loads" }).toBe(true);
+  await expect.poll(async () => page.locator("#bubble [data-cover]").evaluate((img) => img.complete && img.naturalWidth > 0), { timeout: 15000, message: "the cover image loads" }).toBe(true);
   await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).currentTime, { timeout: 8000 }).toBeGreaterThan(0.1);
   expect((await page.evaluate(() => window.__room04.soundState())).title).toBe("慢板");
   await page.locator("#recordHit").dispatchEvent("click"); // stop

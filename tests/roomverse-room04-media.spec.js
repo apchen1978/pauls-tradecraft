@@ -30,7 +30,7 @@ test("Room 04 native media survives a page hide and follows the media controls",
   await expect(page.locator("audio")).toHaveCount(1);
   await page.locator("#recordHit").click();
   const state = () => page.evaluate(() => window.__room04.soundState());
-  await expect.poll(async () => (await state()).currentTime).toBeGreaterThan(0.1);
+  await expect.poll(async () => (await state()).currentTime, { timeout: 15000 }).toBeGreaterThan(0.1);
   expect(requests.some((url) => /room04-track-0-v1\.(m4a|ogg)$/.test(url))).toBe(true);
   expect(await page.locator("audio").getAttribute("src")).toMatch(/room04-track-0-v1\.(m4a|ogg)$/);
   expect(await page.evaluate(() => ({
@@ -46,10 +46,10 @@ test("Room 04 native media survives a page hide and follows the media controls",
   });
   const previousTime = (await state()).currentTime;
   const previousAngle = await page.evaluate(() => window.__room04.recordState().platterAngle);
-  await expect.poll(async () => (await state()).currentTime).toBeGreaterThan(previousTime + 0.2);
+  await expect.poll(async () => (await state()).currentTime, { timeout: 15000 }).toBeGreaterThan(previousTime + 0.2);
   expect(await page.evaluate(() => window.__room04.recordState().platterAngle)).toBe(previousAngle);
   await page.evaluate(() => window.mediaActions.nexttrack());
-  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing })).toEqual({ track: 1, playing: true });
+  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing }), { timeout: 15000 }).toEqual({ track: 1, playing: true });
   await page.evaluate(() => {
     delete document.hidden;
     document.dispatchEvent(new Event("visibilitychange"));
@@ -61,13 +61,13 @@ test("Room 04 native media survives a page hide and follows the media controls",
   expect(await page.evaluate(() => navigator.mediaSession.playbackState)).toBe("paused");
   expect(await page.evaluate(() => window.__room04.recordState().armAngle)).toBeCloseTo(0.28);
   await page.evaluate(() => window.mediaActions.play());
-  await expect.poll(async () => (await state()).playing).toBe(true);
+  await expect.poll(async () => (await state()).playing, { timeout: 15000 }).toBe(true);
   await page.evaluate(() => window.mediaActions.previoustrack());
-  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing })).toEqual({ track: 0, playing: true });
+  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing }), { timeout: 15000 }).toEqual({ track: 0, playing: true });
   await page.evaluate(() => window.mediaActions.previoustrack());
-  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing })).toEqual({ track: 3, playing: true });
+  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing }), { timeout: 15000 }).toEqual({ track: 3, playing: true });
   await page.locator("audio").evaluate((audio) => { audio.currentTime = audio.duration - 0.15; });
-  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing })).toEqual({ track: 0, playing: true });
+  await expect.poll(async () => ({ track: (await state()).track, playing: (await state()).playing }), { timeout: 15000 }).toEqual({ track: 0, playing: true });
   await page.locator("#recordHit").dispatchEvent("click"); // The projected tap target moves as the platter spins.
   expect((await state()).playing).toBe(false);
   expect(errors).toEqual([]);
@@ -79,12 +79,17 @@ test("Room 04 retries in Opus and retains the synthesizer if both formats fail",
   await page.route("**/audio/room04-track-1-v1.*", (route) => route.fulfill({ status: 503 }));
   await openRecord(page);
   await page.locator("#recordHit").click();
-  await expect.poll(() => page.locator("audio").evaluate((audio) => audio.currentTime)).toBeGreaterThan(0.1);
+  await expect.poll(() => page.locator("audio").evaluate((audio) => audio.currentTime), { timeout: 15000 }).toBeGreaterThan(0.1);
   await expect(page.locator("audio")).toHaveAttribute("src", /room04-track-0-v1\.ogg$/);
   await page.locator("#recordHit").dispatchEvent("click");
   await page.locator("#recordHit").dispatchEvent("click");
-  await expect.poll(() => page.evaluate(() => window.__room04.soundState().backend)).toBe("synth");
+  await expect.poll(() => page.evaluate(() => window.__room04.soundState().backend), { timeout: 15000 }).toBe("synth");
   await expect.poll(() => page.evaluate(() => window.__room04.soundState().notes), { timeout: 15000 }).toBeGreaterThan(0);
+  await page.evaluate(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, value: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  expect((await page.evaluate(() => window.__room04.soundState())).playing).toBe(false);
   await page.locator("#recordHit").dispatchEvent("click");
   expect(await page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
 });

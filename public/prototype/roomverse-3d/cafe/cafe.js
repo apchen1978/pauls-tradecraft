@@ -1495,6 +1495,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     onTrack: announceRecord,
     onState: ({ playing }) => syncRecordPlayback(playing),
     onError: (index) => {
+      if (document.hidden) {
+        syncRecordPlayback(false);
+        return;
+      }
       usingSynth = roomSound.start(index, !document.hidden && currentMood === "rain", {
         playlist: true, onTrack: announceRecord,
       });
@@ -3526,6 +3530,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function syncRecordVisibility() {
     if (document.hidden) {
+      if (usingSynth) {
+        stopRecordPlayback();
+        return;
+      }
       cancelAnimationFrame(recordRaf); recordRaf = 0;
       robotFace.setMusic(false); syncRecordRain();
       return;
