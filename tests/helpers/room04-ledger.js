@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 228998, meshes: 148 }),
+  scene: Object.freeze({ vertices: 229154, meshes: 148 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -109,5 +109,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "Lounge meeting (Paul): a second pouf, the same, in front of the marble table (in the existing lounge batches) and Room 02's campus backpack in plum and cream standing on the rug between the two poufs, 38 mm clear of each (one new mesh); together +7,536 vertices, +1 mesh; 8.4k under the 230,000 vertex cap, which is unchanged", vertices: 228422, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "two track bands in the existing spinning vinyl mesh and a warm paper label", vertices: 228554, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "round the counter napkin dispenser and shape its folded paper in the existing material batches", vertices: 228998, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-18", change: "give the Lounge notebook a saddle-brown cover and elastic band, with its pen seated on the cover", vertices: 229154, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
