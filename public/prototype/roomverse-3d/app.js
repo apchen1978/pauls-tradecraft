@@ -3228,16 +3228,16 @@ let lanternMat = null;
   let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now(), musicStopped = false, musicAuto = false;
   const musicOptions = { playlist: true, fade: 0.5, onTrack: (index) => { musicTrack = index; if (roomMusic.state().playing) announceMusic(index); } }; // the two pieces follow one another; each change shows its line
   const MUSIC_LINES = {
-    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴。再點我，就換下一首！", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。再點我，就換下一首！"],
-    en: ["♪ Afternoon at the window. 🎹 Bright piano. Tap me again for the next one!", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap me again for the next one!"],
+    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴。再點我，就換下一首！", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。再點我，就換下一首！", "♪ 十里洋場。🎺 單簧管和小號的搖擺樂，好開心！再點我，就換下一首！"],
+    en: ["♪ Afternoon at the window. 🎹 Bright piano. Tap me again for the next one!", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap me again for the next one!", "♪ Bund Swing (十里洋場). 🎺 Clarinet and trumpet swing, so happy! Tap me again for the next one!"],
     auto: { zh: "♪ 電視喇叭輕輕放著音樂。點喇叭可以關掉。", en: "♪ Music from the TV speakers. Tap a speaker to turn it off." },
     hint: { zh: "點一下我、電視螢幕或旁邊的喇叭，就有音樂喔 🎵", en: "Tap me, the TV screen or a speaker and some music will play 🎵" },
   };
-  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-0-v1.webp", "./cafe/art/room04-record-cover-2-v1.webp"]; // Room 04's covers: 慢板 (the day piece) and 夜色外灘 (for series night)
+  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-0-v1.webp", "./cafe/art/room04-record-cover-2-v1.webp", "./cafe/art/room04-record-cover-3-v1.webp"]; // Room 04's covers: 慢板 (the day piece), 夜色外灘 (for series night) and 十里洋場 (the swing)
   // Paul 2026-11-18: started from the record player, the same card (cover and line) pops up over the record player instead, with the piece now playing and the next one.
   const RECORD_LINES = {
-    zh: ["♪ 正在播放：窗邊的午後 🎹 明亮的鋼琴。下一首：追劇夜。再點唱片機就停。", "♪ 正在播放：追劇夜 🎬 電影感的配樂。下一首：窗邊的午後。再點唱片機就停。"],
-    en: ["♪ Now playing: Afternoon at the window 🎹 Bright piano. Next: Series night. Tap the record player again to stop.", "♪ Now playing: Series night 🎬 A cinematic score. Next: Afternoon at the window. Tap the record player again to stop."],
+    zh: ["♪ 正在播放：窗邊的午後 🎹 明亮的鋼琴。下一首：追劇夜。再點唱片機就停。", "♪ 正在播放：追劇夜 🎬 電影感的配樂。下一首：十里洋場。再點唱片機就停。", "♪ 正在播放：十里洋場 🎺 開心的搖擺樂。下一首：窗邊的午後。再點唱片機就停。"],
+    en: ["♪ Now playing: Afternoon at the window 🎹 Bright piano. Next: Series night. Tap the record player again to stop.", "♪ Now playing: Series night 🎬 A cinematic score. Next: Bund Swing. Tap the record player again to stop.", "♪ Now playing: Bund Swing (十里洋場) 🎺 A happy swing. Next: Afternoon at the window. Tap the record player again to stop."],
   };
   let musicFromRecord = false; // who started the music: the record player's card follows the pieces it started; everything else keeps the robot's
   function recordPlayerInView() {
@@ -3246,13 +3246,13 @@ let lanternMat = null;
   }
   function announceMusic(track) { // the robot says which piece is playing, with its cover (a caption if the robot is not in view)
     const cover = new URL(MUSIC_COVERS[track], import.meta.url).href;
-    if (musicFromRecord && recordPlayerInView()) { showRobotLine({ zh: RECORD_LINES.zh[track], en: RECORD_LINES.en[track] }, 7000, cover, sideboard.recordPlayer.group); return; }
+    if (musicFromRecord && (currentView === "record" || recordPlayerInView())) { /* the record view counts while the camera is still gliding there */ showRobotLine({ zh: RECORD_LINES.zh[track], en: RECORD_LINES.en[track] }, 7000, cover, sideboard.recordPlayer.group); return; }
     const copy = { zh: MUSIC_LINES.zh[track], en: MUSIC_LINES.en[track] };
     if (!robotSleeping && robotInView()) showRobotLine(copy, 7000, cover); else showCaption(copy[state.lang] || copy.zh, 6000);
   }
   function djTap() { // the window-side robot is the DJ (Paul, 2026-11-17): a tap starts the music, and each next tap changes the piece
     musicHinted = true; musicStopped = false; musicAuto = true; musicFromRecord = false;
-    musicTrack = roomMusic.state().playing ? (musicTrack === 0 ? 1 : 0) : (state.mood === "tv" ? 1 : 0);
+    musicTrack = roomMusic.state().playing ? (musicTrack + 1) % MUSIC_COVERS.length : (state.mood === "tv" ? 1 : 0); // the three pieces in turn
     roomMusic.start(musicTrack, musicOptions); announceMusic(musicTrack);
   }
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
@@ -4245,7 +4245,7 @@ let lanternMat = null;
     },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : robotCustomLine ? (robotCustomLine[l] || robotCustomLine.zh) : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
-    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), tapRecordPlayer: () => toggleMusic(true), recordCard: () => ({ shown: !robotBubble.hidden && bubbleTarget === sideboard.recordPlayer.group, text: robotBubble.querySelector("[data-bubble-copy]").textContent, cover: robotBubble.querySelector("[data-cover]")?.hidden === false ? robotBubble.querySelector("[data-cover]").src : null }), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
+    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), musicTracks: () => roomMusic.tracks(), tapRecordPlayer: () => toggleMusic(true), recordCard: () => ({ shown: !robotBubble.hidden && bubbleTarget === sideboard.recordPlayer.group, text: robotBubble.querySelector("[data-bubble-copy]").textContent, cover: robotBubble.querySelector("[data-cover]")?.hidden === false ? robotBubble.querySelector("[data-cover]").src : null }), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre
