@@ -4386,7 +4386,7 @@ let lanternMat = null;
         propsInsideTop: propBox.min.x > oakBox.min.x && propBox.max.x < oakBox.max.x && propBox.min.z > oakBox.min.z && propBox.max.z < oakBox.max.z,
         paintingClearMm: mm(paintingBottom - Math.max(oakBox.max.y, propBox.max.y)), paintingBottomY: paintingBottom,
         standClearMm: stand ? mm(stand.min.z - Math.max(oakBox.max.z, propBox.max.z)) : null,
-        meshes: [sideboard.oak, sideboard.pulls, sideboard.props, sideboard.bottle].length,
+        meshes: [sideboard.oak, sideboard.pulls, sideboard.props, sideboard.bottle].filter((m) => m.parent).length,
         vertices: [sideboard.oak, sideboard.pulls, sideboard.props, sideboard.bottle].reduce((n, m) => n + m.geometry.attributes.position.count, 0),
       };
     },
