@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 128635, meshes: 345 }),
+  scene: Object.freeze({ vertices: 127913, meshes: 350 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 92, phone: 72 }),
+  openingDrawCalls: Object.freeze({ desktop: 93, phone: 73 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 92, family: 89, tech: 94, chic: 89, slow: 92, golden: 92, tv: 92 }),
-    phone: Object.freeze({ rain: 69, family: 72, tech: 71, chic: 72, slow: 72, golden: 72, tv: 69 }),
+    desktop: Object.freeze({ rain: 93, family: 93, tech: 92, chic: 90, slow: 93, golden: 93, tv: 90 }),
+    phone: Object.freeze({ rain: 70, family: 73, tech: 72, chic: 73, slow: 73, golden: 73, tv: 70 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -33,6 +33,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "Room 01 opens in golden hour (Paul: the drifting light motes and the bright music suit it best), also from the home cover; the dust layer is drawn in the opening view, so the opening draw calls rise by one (89 desktop, 70 phone); no geometry change", vertices: 121528, meshes: 333, desktopCalls: 89, phoneCalls: 70 },
     { date: "2026-11-17", change: "golden hour looks like the sun comes in (Paul): brighter light (hemisphere 0.95 to 1.3, window sun 4.8 to 8, lantern fill 1.2 to 1.8, exposure 1.08 to 1.2, a slightly higher sun) and a soft beam of sunlight from the window (two crossed additive planes in one mesh, 8 vertices) that the dust motes drift through; the sunny moods draw it, so their calls rise by two (91 desktop, 72 phone in the opening view)", vertices: 121536, meshes: 334, desktopCalls: 91, phoneCalls: 72 },
     { date: "2026-11-18", change: "a second campus backpack (Room 02's model at 1.15x, mustard and olive, one vertex-coloured mesh) on the floor under the 福杯滿溢 scroll and the home board, with a mint bear charm (9 small meshes), and a soil disc with six pebbles in the big-leaf plant's pot (one mesh): +11 meshes, +7,099 vertices; desktop draw calls re-measured (the mood numbers moved by up to 4 in both directions, so part of that is measurement spread, not only the new meshes)", vertices: 128635, meshes: 345, desktopCalls: 92, phoneCalls: 72 },
+    { date: "2026-11-18", change: "a record player on the left sideboard (a copy of Room 03's turntable: body, gold trim, platter and tonearm, 4 meshes, 2,304 vertices; a tap switches the room music, the platter turns while it plays) and the napkin pack moved from the sideboard to the coffee table as its own indexed mesh (+1 mesh, 3,026 fewer vertices than its old unindexed copy inside the sideboard props): +5 meshes, -722 vertices, opening draw calls +1", vertices: 127913, meshes: 350, desktopCalls: 93, phoneCalls: 73 },
   ]),
 });
 
