@@ -79,11 +79,13 @@ test("Room 04 provisional chalk menus have priced items only on the blank boards
   const menu = await page.evaluate(() => window.__room04.menuCopy);
   expect(menu.coffee.heading).toBe("Coffee");
   expect(menu.other.heading).toBe("Not coffee");
+  expect([menu.coffee.headingZh, menu.other.headingZh]).toEqual(["咖啡", "其他饮品"]);
   for (const board of [menu.coffee, menu.other]) {
     expect(board.items.length).toBeGreaterThanOrEqual(6);
     expect(board.items.length).toBeLessThanOrEqual(8);
     for (const line of board.items) {
       expect(line).toMatch(/^.+ \d+元$/);
+      expect(line, "English first, then a Simplified Chinese name").toMatch(/^[A-Za-z ]+ [一-鿿]+ \d+元$/);
       const price = Number(line.match(/(\d+)元$/)[1]);
       expect(price).toBeGreaterThanOrEqual(12);
       expect(price).toBeLessThanOrEqual(40);

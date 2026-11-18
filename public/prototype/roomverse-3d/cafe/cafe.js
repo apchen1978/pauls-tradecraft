@@ -57,14 +57,15 @@ const MOODS = Object.freeze({
 // PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
 export const PROVISIONAL_MENUS = Object.freeze({
   coffee: Object.freeze({
-    heading: "Coffee",
-    items: Object.freeze(["Americano 18元", "Espresso 18元", "Cappuccino 24元", "Latte 26元", "Flat White 28元", "Mocha 30元", "Osmanthus Latte 36元"]),
-    footer: "Slow down · 慢慢來",
+    heading: "Coffee", headingZh: "咖啡",
+    // English first, then the Shanghai Simplified-Chinese name (Paul, 2026-11-19): 澳白 is what mainland cafes call a flat white, 拿铁 a latte.
+    items: Object.freeze(["Americano 美式咖啡 18元", "Espresso 浓缩咖啡 18元", "Cappuccino 卡布奇诺 24元", "Latte 拿铁 26元", "Flat White 澳白 28元", "Mocha 摩卡 30元", "Osmanthus Latte 桂花拿铁 36元"]),
+    footer: "Slow down · 慢慢来",
   }),
   other: Object.freeze({
-    heading: "Not coffee",
-    items: Object.freeze(["Apple Juice 22元", "Orange Juice 24元", "Iced Tea 18元", "Hot Chocolate 28元", "Sparkling Water 16元", "Osmanthus Tea 26元", "Daily Cake 32元"]),
-    footer: "Slow down · 慢慢來",
+    heading: "Not coffee", headingZh: "其他饮品",
+    items: Object.freeze(["Apple Juice 苹果汁 22元", "Orange Juice 橙汁 24元", "Iced Tea 冰红茶 18元", "Hot Chocolate 热巧克力 28元", "Sparkling Water 气泡水 16元", "Osmanthus Tea 桂花茶 26元", "Daily Cake 今日蛋糕 32元"]),
+    footer: "Slow down · 慢慢来",
   }),
 });
 
@@ -85,7 +86,9 @@ function chalkMenuTexture(image, copy) {
     ctx.strokeText(text, x + 0.5, y + 0.6);
     ctx.fillText(text, x, y);
   };
+  const zhFont = "'Noto Serif SC', 'Songti SC', 'SimSun', 'Microsoft YaHei', serif";
   jitter(86, 85, copy.heading, "bold 54px Georgia, serif", 1.4);
+  if (copy.headingZh) { ctx.font = "bold 54px Georgia, serif"; jitter(86 + ctx.measureText(copy.heading).width + 30, 84, copy.headingZh, `bold 46px ${zhFont}`, 1.2); }
   ctx.strokeStyle = "rgba(250,246,231,.52)"; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(86, 126); ctx.lineTo(938, 126); ctx.stroke();
   const rowHeight = copy.items.length > 6 ? 43 : 47;
@@ -93,13 +96,15 @@ function chalkMenuTexture(image, copy) {
     const y = 172 + index * rowHeight;
     const match = line.match(/^(.*) (\d+元)$/);
     if (!match) return;
-    jitter(91, y, match[1], "38px Georgia, serif", 1.1);
+    const cut = match[1].search(/[一-鿿]/), en = cut < 0 ? match[1] : match[1].slice(0, cut).trim(), zh = cut < 0 ? "" : match[1].slice(cut);
+    jitter(91, y, en, "38px Georgia, serif", 1.1);
+    if (zh) { ctx.font = "38px Georgia, serif"; jitter(91 + ctx.measureText(en).width + 24, y, zh, `32px ${zhFont}`, 1); }
     ctx.textAlign = "right";
     jitter(933, y, match[2], "bold 35px Georgia, serif", 1.1);
     ctx.textAlign = "left";
   });
   ctx.globalAlpha = 0.8;
-  jitter(91, 472, copy.footer, "italic 19px Georgia, serif", 0.8);
+  jitter(91, 472, copy.footer, `italic 19px Georgia, ${zhFont}`, 0.8);
   ctx.restore();
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
