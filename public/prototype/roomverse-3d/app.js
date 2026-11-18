@@ -2298,11 +2298,11 @@ let lanternMat = null;
       const body = new THREE.LatheGeometry(MUG.profile.map(([r, y]) => new THREE.Vector2(r, y)), 32);
       const pos = body.attributes.position, col = new Float32Array(pos.count * 3), c = new THREE.Color();
       const ring = MUG.profile.length; // LatheGeometry lays its vertices out segment by segment, one profile point after another
-      for (let k = 0; k < pos.count; k++) { const point = k % ring, y = pos.getY(k); c.set(point >= ring - MUG.innerCount ? 0x93a487 : y < .005 ? 0x76a3cc : 0x8cbbe4); col.set([c.r, c.g, c.b], k * 3); }
+      for (let k = 0; k < pos.count; k++) { const point = k % ring, y = pos.getY(k); c.set(point >= ring - MUG.innerCount ? 0xd9c6a0 : y < .005 ? 0xd9cdb4 : 0xf1e8d6); col.set([c.r, c.g, c.b], k * 3); }
       body.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
       body.translate(mugAt.x, mugY, mugAt.z); propParts.push(body);
       // Half-ring handle on the side away from the pack, toward the room; both ends sink 2 mm into the wall of the mug.
-      const handle = tint(new THREE.TorusGeometry(.026, .0055, 8, 20, Math.PI), 0x8cbbe4);
+      const handle = tint(new THREE.TorusGeometry(.026, .0055, 8, 20, Math.PI), 0xf1e8d6);
       const handleYaw = -.7; // direction (cos, 0, -sin): +x is into the room, -z toward the near end
       handle.rotateZ(-Math.PI / 2); handle.rotateY(handleYaw);
       handle.translate(mugAt.x + Math.cos(handleYaw) * (MUG.radius - .002), mugY + .052, mugAt.z - Math.sin(handleYaw) * (MUG.radius - .002));
@@ -2364,11 +2364,11 @@ let lanternMat = null;
     // The front label reads "roomverse 3d😋" (our own name, Paul; no brand or logo). If the emoji font draws nothing in colour, a small drawn smiley stands in.
     const labelTex = canvasTex(512, 128, (ctx, w, h) => {
       ctx.fillStyle = "#f7f6f1"; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#d9262b"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
+      ctx.fillStyle = "#b5382e"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
       const cx = w * .375, text = "roomverse 3d";
       ctx.font = "bold 25px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
       const tw = Math.min(ctx.measureText(text).width, 132), face = 24, x0 = cx - (tw + 6 + face) / 2, y = h / 2 - 2;
-      ctx.fillStyle = "#b8202a"; ctx.fillText(text, x0, y, 132);
+      ctx.fillStyle = "#9a2f28"; ctx.fillText(text, x0, y, 132);
       const fx = x0 + tw + 6 + face / 2;
       const probe = document.createElement("canvas"); probe.width = probe.height = 24; const p2 = probe.getContext("2d");
       p2.font = "20px 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif"; p2.textBaseline = "middle"; p2.fillText("😋", 1, 12);
@@ -2408,8 +2408,8 @@ let lanternMat = null;
     // Paul 2026-11-19: a third bottle, the same shape as the red-band one (it shares its geometry), with a green label, tucked behind the other two toward the wall.
     const greenLabelTex = canvasTex(256, 128, (ctx, w, h) => { // a plain coloured label: green bands and a soft green field, no words or marks
       ctx.fillStyle = "#f5f6f0"; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#2f8a5c"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
-      ctx.fillStyle = "#8fc4a4"; ctx.fillRect(0, 44, w * .9, 30); // stops short of u .97, where the cap samples its plain colour
+      ctx.fillStyle = "#3d9a74"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
+      ctx.fillStyle = "#a9d1bd"; ctx.fillRect(0, 44, w * .9, 30); // stops short of u .97, where the cap samples its plain colour
     });
     const greenBottleAt = { x: -2.535, z: .638 };
     const greenBottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: greenLabelTex, color: "#ffffff", roughness: .42 }));
@@ -2420,12 +2420,12 @@ let lanternMat = null;
     const orangeBottleY = topAt(orangeBottleAt.x, orangeBottleAt.z);
     const orangeLabel = canvasTex(256, 128, (ctx, w, h) => { // plain: cream with an orange band and a thin sage line
       ctx.fillStyle = '#f6f4ed'; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = '#e58124'; ctx.fillRect(0, h * .34, w, h * .3);
+      ctx.fillStyle = '#dc8532'; ctx.fillRect(0, h * .34, w, h * .3);
       ctx.fillStyle = '#79976b'; ctx.fillRect(0, h * .7, w, 4);
     });
     const orangeBody = new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.022,0],[.025,.004],[.025,.093],[.023,.1],[.021,.104],[0,.104]].map(([r,y]) => new THREE.Vector2(r,y)),32), new THREE.MeshStandardMaterial({map:orangeLabel,roughness:.65}));
     orangeBody.position.set(orangeBottleAt.x, orangeBottleY-.001, orangeBottleAt.z); orangeBody.rotation.y = faceView(orangeBottleAt.x, orangeBottleAt.z); orangeBody.castShadow=true; orangeBody.name='orange-cap-vitamin-body'; scene.add(orangeBody);
-    const orangeCap = new THREE.Mesh(new THREE.CylinderGeometry(.0255,.0255,.022,32),new THREE.MeshStandardMaterial({color:0xe58124,roughness:.42}));
+    const orangeCap = new THREE.Mesh(new THREE.CylinderGeometry(.0255,.0255,.022,32),new THREE.MeshStandardMaterial({color:0xdc8532,roughness:.42}));
     orangeCap.position.set(orangeBottleAt.x, orangeBottleY+.113, orangeBottleAt.z); orangeCap.castShadow=true; orangeCap.name='orange-cap-vitamin-lid'; scene.add(orangeCap);
     for (const g of propParts) { if (!g.attributes.uv) continue; g.deleteAttribute("uv"); }
     for (const g of propParts) if (g.attributes.normal) g.deleteAttribute("normal");
@@ -2472,7 +2472,7 @@ let lanternMat = null;
     // Room 03's Evian-style water bottle by its record player (the same profile, water to the shoulder, label band and fluted cap; Room 04 uses it at 0.8 too), at 0.8 scale
     // so it stays a desk bottle beside the mug: between the mug and the player, toward the wall, standing 0.5 mm into the oak. Glass, water and label-with-cap: three meshes.
     // Paul 2026-11-19: two bottles now, closer to the wall (behind the mug, before the player), and a green label band: this is a Taiwanese living room, not Room 03's.
-    const WATER_S = .8, waterAt = { x: -2.54, z: .83 }, water2At = { x: -2.548, z: .902 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
+    const WATER_S = .8, waterAt = { x: -2.54, z: .83 }, water2At = { x: -2.548, z: .915 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
     const sc = (list) => list.map(([r, y]) => new THREE.Vector2(r * WATER_S, y * WATER_S));
     const shellProfile = [[0, .001], [.030, .001], [.038, .004], [.0415, .012], [.042, .030], [.0395, .040], [.042, .050], [.042, .150], [.0395, .160], [.042, .170],
       [.042, .196], [.039, .214], [.031, .236], [.022, .256], [.0165, .272], [.0155, .280], [.018, .283], [.018, .286], [.0155, .288], [0, .288]];
