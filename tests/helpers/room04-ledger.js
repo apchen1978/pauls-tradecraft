@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 229844, meshes: 149 }),
+  scene: Object.freeze({ vertices: 228704, meshes: 149 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -113,5 +113,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "the right-wall sconces light the Lounge after dark (one warm point light between the shades, off by day; it was nearly black at closing time while the shades glowed); no geometry, no draw call", vertices: 229154, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-19", change: "the Lounge notebook pen is now the window-seat pen copied (dark lacquer body, steel cap with gold ring and clip, steel point, 166 mm) instead of a plain steel rod that read as a white stick; same batches, +270 vertices", vertices: 229424, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-19", change: "a storage door in the right wall behind the counter (Paul): dark oak casing, planked oak leaf with rails, steel kick plate, brass pull, and a green enamel STORAGE sign above (one canvas-textured mesh); parts join existing batches", vertices: 229844, meshes: 149, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-19", change: "Lounge poufs in ochre and smoky blue with soft pleats, inset cushion seams and contact shadows; the shaped covers replace the separate rib rods", vertices: 228704, meshes: 149, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });

@@ -2644,19 +2644,46 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     addContactShadow(bx + 0.02, bz, 0.72, 1.96, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
-    // Two poufs (Paul 2026-11-18: a second one, the same, at the marble table, so the Lounge reads like a small meeting): the first beside the sage table, the second
-    // in front of the marble one, 6 cm clear of its top's edge and on the rug like the first.
-    for (const [px, pz, tag] of [[1.61, 1.52, ""], [1.61, 0.80, "-2"]]) {
-    const footstoolBase = disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
-    footstoolBase.computeBoundingBox(); registerSupport(`lounge-footstool${tag}-plinth-ground`, "ground", { bottomY: footstoolBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
-    const profile = [[0, 0.05], [0.18, 0.05], [0.214, 0.075], [0.225, 0.13], [0.225, 0.29],
-      [0.21, 0.333], [0.175, 0.351], [0, 0.36]];
-    detail(new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), 40)
-      .translate(px, 0, pz), 0xc4963f);
-    for (let i = 0; i < 40; i++) {
-      const a = i * Math.PI / 20, x = px + 0.224 * Math.cos(a), z = pz + 0.224 * Math.sin(a);
-      detail(rodGeometry([x, 0.14, z], [x, 0.30, z], 0.003, 4), 0xa57a2c);
-    }
+    // Soft pleats fade into an inset seam under the rounded seat. Both colours share the Lounge detail batch.
+    const poufProfile = [
+      [0, 0.045, 0, 0.83], [0.177, 0.045, 0, 0.82], [0.210, 0.071, 0.001, 0.90],
+      [0.225, 0.123, 0.004, 0.95], [0.224, 0.274, 0.004, 1], [0.217, 0.303, 0.0015, 0.95],
+      [0.212, 0.309, 0, 0.68], [0.218, 0.316, 0, 0.96], [0.213, 0.336, 0, 1.03],
+      [0.187, 0.351, 0, 1.06], [0.126, 0.357, 0, 1.04], [0, 0.360, 0, 1.02],
+    ];
+    const poufSegments = 72;
+    for (const [pz, tag, color] of [[1.52, "", 0xc4963f], [0.80, "-2", 0x607c9b]]) {
+      const px = 1.61;
+      const footstoolBase = disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
+      footstoolBase.computeBoundingBox();
+      registerSupport(`lounge-footstool${tag}-plinth-ground`, "ground", { bottomY: footstoolBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
+      const cover = new THREE.LatheGeometry(poufProfile.map(([r, y]) => new THREE.Vector2(r, y + 0.012)), poufSegments);
+      const positions = cover.attributes.position;
+      const colors = new Float32Array(positions.count * 3);
+      const fabric = new THREE.Color(color);
+      for (let slice = 0; slice <= poufSegments; slice++) {
+        const angle = (slice % poufSegments) * Math.PI * 2 / poufSegments;
+        const fold = (1 - Math.cos(18 * angle)) * 0.5;
+        for (const [row, [radius, , depth, shade]] of poufProfile.entries()) {
+          const i = slice * poufProfile.length + row;
+          const r = radius - depth * fold;
+          positions.setX(i, r * Math.sin(angle)); positions.setZ(i, r * Math.cos(angle));
+          const tone = shade * (1 - depth * 18 * fold + Math.min(1, radius * 8) * 0.022 * Math.sin(angle * 7 + row * 0.5));
+          colors.set([fabric.r * tone, fabric.g * tone, fabric.b * tone], i * 3);
+        }
+      }
+      cover.computeVertexNormals();
+      // Share the normals at the LatheGeometry wrap so the cloth has no artificial vertical seam.
+      const normals = cover.attributes.normal, wrapNormal = new THREE.Vector3(), otherNormal = new THREE.Vector3();
+      for (let row = 0; row < poufProfile.length; row++) {
+        const last = poufSegments * poufProfile.length + row;
+        wrapNormal.fromBufferAttribute(normals, row).add(otherNormal.fromBufferAttribute(normals, last)).normalize();
+        normals.setXYZ(row, wrapNormal.x, wrapNormal.y, wrapNormal.z);
+        normals.setXYZ(last, wrapNormal.x, wrapNormal.y, wrapNormal.z);
+      }
+      cover.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      part("loungeDetail", cover.translate(px, 0, pz));
+      addContactShadow(px, pz, 0.52, 0.52, 0.0135);
     }
     // A backpack set down between the two poufs (the same model as Room 02's, unscaled, in plum with cream straps; Room 02's is navy, Room 01's are rose and
     // mustard): upright on the rug by its measured lowest point (0.5 mm in), its back to the counter, turned a little, about 3 cm clear of each pouf. One mesh.
@@ -2760,7 +2787,6 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
 
     const sx = 2.18, sz = 2.34;
-    addContactShadow(1.61, 1.52, 0.52, 0.52, 0.0135);
     disc("oak", sx, 0.512, sz, 0.165, 0.036);
     const sideTableBase = disc("oakDeep", sx, 0.023, sz, 0.11, 0.022);
     sideTableBase.computeBoundingBox(); registerSupport("lounge-side-table-base-ground", "ground", { bottomY: sideTableBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
