@@ -101,7 +101,7 @@ export function createRoomSound() {
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
     osc.connect(g); g.connect(master); osc.start(time); osc.stop(time + 0.2);
   };
-  const scheduleBar = () => { if (playlist && barIndex >= (TRACKS[trackIndex].length || BARS_PER_TRACK)) { trackIndex = (trackIndex + 1) % TRACKS.length; seed = 7 + trackIndex * 31; barIndex = 0; const changed = trackIndex; setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // the next piece starts on the next bar; the page hears about it when its first note sounds
+  const writeBar = () => {
     const track = TRACKS[trackIndex], beat = 60 / (tempo || track.bpm), barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime;
     for (const [at, level] of track.stabs) bar.chord.forEach((note, i) => piano(t0 + at * beat + (track.lead && at % 1 ? track.swing * beat : 0) + i * (track.strum ?? 0.045), note, level, barLength * (track.short ?? (at ? 0.4 : 0.95)), track.filter)); // the strum, and a stab where the loop has one
     for (const [at, shift, length] of track.bass) bass(t0 + at * beat, bar.bass + shift, beat * length);
@@ -117,10 +117,18 @@ export function createRoomSound() {
     let at = 0.5 + rnd() * 0.5; // a few sparse melody notes, in the gaps
     while ((track.sparse !== false || chorus === 2) && at < 3.7) { const note = bar.melody[Math.floor(rnd() * bar.melody.length)]; piano(t0 + at * beat, note, 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
     barIndex += 1; nextTime += barLength;
+  };
+  const scheduleBar = () => {
+    if (playlist && barIndex >= (TRACKS[trackIndex].length || BARS_PER_TRACK)) {
+      trackIndex = (trackIndex + 1) % TRACKS.length; seed = 7 + trackIndex * 31; barIndex = 0;
+      const changed = trackIndex;
+      setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000));
+    }
+    writeBar();
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
-  const startRain = () => { // a soft, steady rain under the music (band-passed noise); only while a record plays
-    if (!ctx || !playing || rainNode) return;
+  const startRain = (ambience = false) => { // a soft, steady rain under the music (band-passed noise)
+    if (!ctx || (!playing && !ambience) || rainNode) return;
     const src = ctx.createBufferSource(), band = ctx.createBiquadFilter(), high = ctx.createBiquadFilter(), g = ctx.createGain();
     rainBuffer ??= noiseBuffer(4, "noise"); src.buffer = rainBuffer; src.loop = true;
     band.type = "bandpass"; band.frequency.value = 1500; band.Q.value = 0.35; high.type = "highpass"; high.frequency.value = 500;
@@ -134,6 +142,37 @@ export function createRoomSound() {
     setTimeout(() => { try { src.stop(); } catch { /* already stopped */ } }, 1200);
   };
   return {
+    // Render short sections so offline processing has a bounded number of
+    // live nodes. Mix their releases into the next section, including the loop.
+    async renderTrack(index, sampleRate = 44100) {
+      if (ctx) throw new Error("Offline rendering needs a fresh Room 04 sound engine.");
+      const track = TRACKS[index];
+      const bars = (track.length ?? BARS_PER_TRACK) * 2;
+      const frameAt = (bar) => Math.round(bar * 240 / track.bpm * sampleRate);
+      const frames = frameAt(bars);
+      ctx = new OfflineAudioContext(2, 1, sampleRate);
+      if (!await realPiano.load(ctx)) throw new Error("Room 04 piano samples could not be loaded.");
+      const buffer = ctx.createBuffer(2, frames, sampleRate);
+      trackIndex = index;
+      seed = 7 + index * 31;
+      while (barIndex < bars) {
+        const start = frameAt(barIndex);
+        const end = Math.min(bars, barIndex + 4);
+        ctx = new OfflineAudioContext(2, frameAt(end) - start + sampleRate * 4, sampleRate);
+        master = ctx.createGain();
+        master.gain.value = 0.9;
+        master.connect(ctx.destination);
+        nextTime = 0;
+        while (barIndex < end) writeBar();
+        const section = await ctx.startRendering();
+        for (let channel = 0; channel < 2; channel++) {
+          const output = buffer.getChannelData(channel);
+          const input = section.getChannelData(channel);
+          for (let i = 0; i < input.length; i++) output[(start + i) % frames] += input[i];
+        }
+      }
+      return buffer;
+    },
     // Call from inside a tap. track: 0 or 1; rain: true in the rain mood. Returns true if it started. options.level scales the volume (default 1; Room 03 asks for more so this softer piece sits beside Room 02's).
     start(track = 0, rain = false, options = {}) {
       if (playing) return true;
@@ -158,6 +197,23 @@ export function createRoomSound() {
       setTimeout(() => { try { oldCrackle?.stop(); old?.disconnect(); } catch { /* already stopped */ } }, 1400);
     },
     setRain(on) { if (on) startRain(); else stopRain(); },
+    // The native media element never enters this graph. A separate engine
+    // supplies just the foreground rain while the site is visible.
+    setRainAmbience(on) {
+      if (!on) { stopRain(); return; }
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass || rainNode) return;
+      try {
+        if (!ctx) {
+          ctx = new AudioContextClass();
+          master = ctx.createGain();
+          master.gain.value = 0.9;
+          master.connect(ctx.destination);
+        }
+        ctx.resume().catch(() => {});
+        startRain(true);
+      } catch { /* Music still plays if the browser declines the ambience. */ }
+    },
     next() { if (playing) { playlist = true; barIndex = 9999; } }, // QA: jump to the next piece at the next bar
     tracks: () => TRACKS.map((t) => t.title),
     state: () => ({ playing, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, track: trackIndex, title: TRACKS[trackIndex].title, rain: Boolean(rainNode), playlist }),

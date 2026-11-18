@@ -136,7 +136,7 @@ function renderSwaps() {
 }
 function lookIsDefault() { return LOOK_KEYS.every((g) => look[g] === room?.lookDefaults?.[g]); }
 let catLine = -1, baristaLine = -1, tabletLine = -1, recordTrackShown = 0, recordHintDone = false, recordHintTimer = 0;
-let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, recordTimer = 0, dripTimer = 0, moodLineKey = "golden";
+let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, dripTimer = 0, moodLineKey = "golden";
 
 function renderMoods() {
   const copy = COPY[lang], group = $("moods");
@@ -161,6 +161,7 @@ function renderCopy() {
   const copy = COPY[lang];
   $("viewScrollHint").textContent = lang === "en" ? "Swipe for more →" : "左滑看更多 →";
   document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
+  room?.refreshRecordMetadata();
   document.title = `${ROOM_TITLE} · ROOMVERSE 3D`;
   $("enter").textContent = copy.enter;
   $("immersiveEnter").textContent = copy.fullScreen;
@@ -257,12 +258,11 @@ $("baristaHit").addEventListener("click", () => { baristaLine += 1; room?.pokeRo
 $("tabletHit").addEventListener("click", () => { tabletLine += 1; room?.pokeTablet?.(); openBubble("tablet", 6500); }); // the lounge tablet: day lines, and notifications at night
 $("recordHit").addEventListener("click", () => {
   if (!room) return;
-  if (room.recordPlaying()) {
-    room.stopRecordPlayback(); clearTimeout(recordTimer); recordTimer = 0; closeBubble();
+  if (room.recordPlaying() || room.soundState().pending) {
+    room.stopRecordPlayback(); closeBubble();
     return;
   }
-  room.playRecord(); recordHintDone = true; clearTimeout(recordHintTimer); recordTrackShown = room.soundState().track || 0; openBubble("record", 7000);
-  /* no time limit: the three records play one after another until the visitor stops them or leaves */
+  if (room.playRecord()) { recordHintDone = true; clearTimeout(recordHintTimer); recordTrackShown = room.soundState().track; openBubble("record", 7000); }
 });
 $("dripHit").addEventListener("click", () => {
   if (!room) return;
@@ -394,7 +394,8 @@ async function enterRoom() {
  try {
   const { start } = await import("./cafe.js?v=auto");
   room = await start({ stage: $("stage"), onMenuTap: () => { room?.pokeRobot?.(); openBubble("menu", 7000); } });
-  room.onRecordTrack?.((index) => { recordTrackShown = index; if (room.recordPlaying() && ($("bubble").hidden || bubbleOwner === "record")) openBubble("record", 7000); }); // each new record shows its cover for a moment
+  room.onRecordTrack?.((index) => { recordTrackShown = index; if (!document.hidden && room.recordPlaying() && ($("bubble").hidden || bubbleOwner === "record")) openBubble("record", 7000); });
+  room.onRecordPlayback?.((playing) => { if (!playing && bubbleOwner === "record") closeBubble(); });
   const canvas = $("stage").querySelector("canvas");
   canvas.setAttribute("role", "img"); canvas.setAttribute("aria-label", COPY[lang].canvas);
   room.onRender(placeUi);
