@@ -1394,8 +1394,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     colorize(new THREE.CylinderGeometry(0.125, 0.125, 0.006, 28), 0x131416),
     colorize(new THREE.CylinderGeometry(0.113, 0.113, 0.0015, 28).translate(0, 0.00375, 0), 0x090a0b),
     colorize(new THREE.TorusGeometry(0.091, 0.00045, 3, 24).rotateX(Math.PI / 2).translate(0, 0.0048, 0), 0x252729),
-    colorize(new THREE.CylinderGeometry(0.023, 0.023, 0.0018, 24).translate(0, 0.005, 0), 0xb77b35),
+    colorize(new THREE.CylinderGeometry(0.023, 0.023, 0.0018, 24).translate(0, 0.005, 0), 0xd4b482),
   ];
+  // Two quiet track bands sit just above the vinyl and turn with the paper label.
+  for (const radius of [0.062, 0.105]) {
+    const band = new THREE.RingGeometry(radius, radius + 0.0014, 32)
+      .rotateX(-Math.PI / 2).translate(0, 0.00465, 0);
+    platterParts.push(colorize(band, 0x36383b));
+  }
   const labelMarks = [
     [[-0.008, 0.0062, 0.005], [0.008, 0.0062, 0.005]], [[-0.009, 0.0062, 0.001], [0.006, 0.0062, 0.001]],
     [[-0.008, 0.0062, -0.003], [0.008, 0.0062, -0.003]], [[-0.005, 0.0062, -0.007], [0.004, 0.0062, -0.007]],
