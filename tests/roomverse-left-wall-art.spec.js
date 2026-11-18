@@ -97,7 +97,7 @@ for (const width of [390, 1440]) {
     expect(art.collisions).toEqual([]);
     await page.evaluate(() => __room.setOrbitAngle(0));
     expect((await page.evaluate(() => __room.plaqueView())).firstHit).toBe("house-plaque");
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(8);
     expect((await page.evaluate(() => __room.leftWallArt())).spot.castShadow).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => __room.loadLeftWallArt());
@@ -140,7 +140,7 @@ test("left-wall glow follows the mood and both image variants stay in budget", a
     expect(art.spot.penumbra).toBeGreaterThan(.6);
     expect(art.spot.color).toBe("#ffbe7a");
     expect(art.spot.bulb).toBe(art.spot.color);
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(8);
   }
   const fixture = await page.evaluate(() => __room.leftWallArt().fixture);
   expect(fixture.max[2] - fixture.min[2]).toBeGreaterThan(.3);

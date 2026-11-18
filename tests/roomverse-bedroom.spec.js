@@ -134,7 +134,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-lounge-rug"]); // no rug under the desk chair: nobody lays one there
   expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // full-room geometry ceiling; the settled scene now includes the procedural sofa, cushions and loaded room assets
-  expect(info.lights).toBe(9); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight and three more (the track light: plaque, bed, print)
+  expect(info.lights).toBe(10); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight, three more (the track light: plaque, bed, print) and the bed-side downlight (Paul 2026-11-19)
   expect(errors).toEqual([]);
 });
 
@@ -1076,7 +1076,7 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   const after = await page.evaluate(() => window.__bedroom.info());
   expect(after.vertices).toBe(info.vertices);
   expect(after.meshes).toBe(info.meshes);
-  expect(after.lights).toBe(9);
+  expect(after.lights).toBe(10);
 });
 
 test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints without changing scene geometry", async ({ page }) => {

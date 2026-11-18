@@ -1338,6 +1338,20 @@ let lanternMat = null;
     const fixture = add(fittings, new THREE.MeshStandardMaterial({ color: "#efe6d6", roughness: .7 }), LANTERN.x, cy, LANTERN.z, false); fixture.name = "living-room-lantern-fittings";
     fill.position.set(LANTERN.x, cy, LANTERN.z); /* Paul, 2026-11-16: the light must come from the fixture: the room's soft fill light now sits at the lantern's centre, not in the middle of the room */ }
 
+  // Paul 2026-11-19: four recessed ceiling downlights over the living area (cream trim, warm lens, the same model as Room 02's desk downlight), in a rectangle
+  // clear of the paper lantern and at least 1.2 m from the walls. They really light the room: one shared, shadowless SpotLight from their centre throws a wide
+  // warm pool on the floor below them. Its strength follows the mood (off in 未來輕科技宅男, "skip the ceiling light", and in 追劇夜, so series night stays dark).
+  // Two meshes (four trims, four lenses) and one light.
+  const DOWNLIGHTS = [[-1.2, -.3], [1.2, -.3], [-1.2, 1.2], [1.2, 1.2]], DOWNLIGHT_CANDELA = 7;
+  const DOWNLIGHT_LEVEL = { rain: .8, family: .35, tech: 0, chic: .45, slow: .7, golden: .3, tv: 0 };
+  const downTrim = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CylinderGeometry(.05, .05, .012, 24).translate(x, H - .006, z))), new THREE.MeshStandardMaterial({ color: "#f2efe8", roughness: .5 }), 0, 0, 0, false);
+  downTrim.name = "ceiling-downlight-trims";
+  const downLensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
+  const downLens = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CircleGeometry(.035, 24).rotateX(Math.PI / 2).translate(x, H - .013, z))), downLensMat, 0, 0, 0, false);
+  downLens.name = "ceiling-downlight-lenses";
+  const downSpot = new THREE.SpotLight("#ffe3bd", 0, 5.5, 1.05, .9, 2); downSpot.name = "ceiling-downlight-spot";
+  downSpot.position.set(0, H - .03, .45); downSpot.target.position.set(0, 0, .45); scene.add(downSpot, downSpot.target);
+
   // ---------- furniture from illustrations (quantised GLB, ~100 KB each) ----------
   const fabric = new THREE.MeshStandardMaterial({ color: "#e6dccb", roughness: 1 });
   function place(g, { height, width, x, z, baseY = 0 }) {
@@ -2482,7 +2496,7 @@ let lanternMat = null;
     const screenLevel = ({ rain: .1, family: .08, tech: .15, chic: .08, slow: .07, golden: .07, tv: .46 })[mood];
     return {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, sunY: m.sunY ?? 2.6, shadowRadius: m.shadowRadius ?? 8, led: m.led ? .5 : 0,
-      floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow,
+      floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow, down: DOWNLIGHT_LEVEL[mood] ?? 0,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
       winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), hemiSky: new THREE.Color(tint.hemiSky), sideWall: new THREE.Color(tint.sideWall), entryWall: new THREE.Color(tint.entryWall), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
     };
@@ -2491,7 +2505,7 @@ let lanternMat = null;
   let standGroup = null, standContact = null, standWall = null, standScarfMat = null, standBrass = null, standBaseMat = null;
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
-    lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
+    downSpot.intensity = v.down * DOWNLIGHT_CANDELA; downLensMat.emissiveIntensity = v.down * 1.6; lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
     floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
     dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02; sunBeamMaterial.opacity = dustAmount(v.win) * .85; sunBeam.visible = sunBeamMaterial.opacity > .01;
     shadeGlow.value = v.shade; if (lanternMat) lanternMat.emissiveIntensity = Math.min(1.25, .35 + v.fill * .6); /* follows the main light: bright by day, dim at night */ tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;

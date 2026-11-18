@@ -250,7 +250,7 @@ for (const width of [390, 1440]) {
       await page.evaluate((value) => window.__room.set("wall", value), wall);
       expect((await page.evaluate(() => window.__room.roomDoor())).textureLoaded).toBe(true);
     }
-    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (await page.locator("#panelToggle").isVisible()) await page.locator("#panelToggle").click();
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "存成明信片", exact: true }).click()]);
@@ -301,7 +301,7 @@ for (const width of [390, 1440]) {
       expect(obj.min[2]).toBeGreaterThan(1.88); expect(obj.max[2]).toBeLessThan(2.28);
     }
     expect(requests).toHaveLength(1);
-    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(await page.evaluate(() => { const card = window.__room.postcard(); return card.width > 0 && card.height > 0; })).toBe(true);
     expect(errors).toEqual([]);
@@ -345,7 +345,7 @@ test("TV wall uses four small painted maps, independent repeats, and consistent 
   const console = painted.find((m) => m.name === "tv-console");
   expect(console.repeat[0]).toBeCloseTo(2.05 / .8);
   expect(console.repeat).not.toEqual(board.repeat);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
 });
 
 test("regular entry paints before TV textures; the TV button loads them together", async ({ page }) => {
@@ -1040,7 +1040,7 @@ for (const width of [390, 1440]) {
     expect(initial.sourceInsideShade).toBe(true);
     expect(initial.closedLampCastsShadow).toBe(false); // the closed GLB must not trap its own bulb's light
     expect(initial.decay).toBe(2);
-    expect(initial.lightCount).toBe(6); // the picture spot is added only when the left wall is built
+    expect(initial.lightCount).toBe(7); // the picture spot is added only when the left wall is built
     expect(initial.shadowNear).toBeLessThan(.1);
     expect(initial.source[1]).toBeGreaterThan(initial.shadeMin[1]);
     expect(initial.source[1]).toBeLessThan((initial.shadeMin[1] + initial.shadeMax[1]) / 2);
@@ -1054,7 +1054,7 @@ for (const width of [390, 1440]) {
         expect(lighting.halo).toEqual(lighting.source);
         expect(lighting.sourceInsideShade).toBe(true);
         const left = await page.evaluate(() => window.__room.leftWallArt());
-        expect(lighting.lightCount).toBe(left.built ? 7 : 6);
+        expect(lighting.lightCount).toBe(left.built ? 8 : 7);
         if (left.built) { expect(left.spot.castShadow).toBe(true); expect(left.spot.shadowMap).toBe(512); }
       }
     }
@@ -1304,7 +1304,7 @@ test("mobile yaw opens the TV wall from the plaque-fit window fov to at least 76
   const updates = await page.evaluate(() => window.__room.fovProjectionUpdates());
   await page.evaluate(() => window.__room.setOrbitAngle(180));
   expect(await page.evaluate(() => window.__room.fovProjectionUpdates())).toBe(updates);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7); // left wall was opened at 90°, so its picture spot is present
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(8); // left wall was opened at 90°, so its picture spot is present
   expect(await page.evaluate(() => window.__room.leftWallArt().spot.castShadow)).toBe(true);
   expect(await page.evaluate(() => window.__room.leftWallArt().spot.shadowMap)).toBe(512);
   const fromTv = await page.evaluate(() => window.__room.postcard().toDataURL());
@@ -1507,7 +1507,7 @@ test("the two coffee-table books sit on the table and the red suitcase stands on
     expect(handle.min.every(Number.isFinite) && handle.max.every(Number.isFinite)).toBe(true);
   }
   expect(d.suitcase.insideRoom).toBe(true);
-  expect(d.lights, "no new light was added").toBe(6);
+  expect(d.lights, "no new light was added").toBe(7); // 7 since the ceiling downlights (Paul 2026-11-19)
 });
 
 test("Room 01 light and music: dust motes drift in strong sun only, a tap on a speaker plays quiet piano, and the next tap stops it", async ({ page }) => {

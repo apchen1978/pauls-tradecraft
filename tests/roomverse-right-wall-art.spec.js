@@ -29,7 +29,7 @@ for (const width of [390, 1440]) {
     expect(art.collisions).toEqual([]);
     expect(art.bounds.max[0]).toBeLessThan(2.6);
     expect(art.bounds.max[2]).toBeLessThan(.72); // door begins here, including the soft wash
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.evaluate(() => __room.loadRightWallArt());
     expect(requests).toHaveLength(1);
@@ -61,7 +61,7 @@ test("gallery lighting is local, mood-aware, and image variants stay in budget",
   const levels = {};
   for (const mood of ["rain", "tv", "family", "tech", "chic", "slow"]) {
     levels[mood] = await page.evaluate((m) => { __room.set("mood", m); return __room.rightWallArt().glow; }, mood);
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
   }
   expect(levels.rain).toBeGreaterThan(levels.family);
   expect(levels.tv).toBeGreaterThan(levels.family);
