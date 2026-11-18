@@ -2614,9 +2614,30 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         yawBox("paper", 0.091, 0.008, 0.062, tx - 0.04, 0.462, z + 0.131, -0.18);
       } else {
         ceramicCup({ x: tx - 0.135, y: 0.45, z: z - 0.1, scale: 1.05, coffee: true, latte: true });
-        yawBox("cover", 0.15, 0.018, 0.21, tx + 0.06, 0.4585, z + 0.01, -0.42);
-        yawBox("paper", 0.138, 0.006, 0.198, tx + 0.062, 0.4695, z + 0.011, -0.42, 0.004);
-        part("steel", rodGeometry([tx + 0.02, 0.4815, z + 0.07], [tx + 0.12, 0.4815, z - 0.06], 0.0028, 6), { tile: 1 });
+        const bookX = tx + 0.06, bookZ = z + 0.01, bookYaw = -0.42;
+        const bookBase = 0.45, bookTop = bookBase + 0.021;
+        const onBook = (geometry) => geometry.rotateY(bookYaw).translate(bookX, 0, bookZ);
+        const bookCover = (y) => roundedBox(0.15, 0.004, 0.21, 0.009, 0.001, 2).translate(0, y, 0);
+        part("cover", onBook(bookCover(bookBase + 0.002)));
+        yawBox("paper", 0.138, 0.013, 0.198, bookX, bookBase + 0.0105, bookZ, bookYaw, 0.004);
+        detail(onBook(bookCover(bookTop - 0.002)), 0xa37152);
+        detail(onBook(new THREE.BoxGeometry(0.006, 0.0008, 0.203).translate(0.054, bookTop + 0.0003, 0)), 0x44312c);
+
+        const penStart = [-0.016, 0, 0.071], penEnd = [0.025, 0, -0.088], penRadius = 0.0028;
+        const pen = rodGeometry(penStart, penEnd, penRadius, 6);
+        pen.computeBoundingBox();
+        part("steel", onBook(pen.translate(0, bookTop - pen.boundingBox.min.y, 0)), { tile: 1 });
+        registerSupport("lounge-notebook-on-table", "rest", {
+          base: { x: bookX, y: bookBase, z: bookZ, radius: Math.hypot(0.075, 0.105) },
+          surface: { shape: "circle", x: tx, y: bookBase, z, radius: 0.275 },
+        });
+        for (const [i, [x, , zz]] of [penStart, penEnd].entries()) {
+          // Audit in notebook-local coordinates so the support turns with the cover.
+          registerSupport(`lounge-notebook-pen-end-${i}`, "rest", {
+            base: { x, y: bookTop, z: zz, radius: penRadius },
+            surface: { shape: "rect", x0: -0.075, x1: 0.075, z0: -0.105, z1: 0.105, y: bookTop },
+          });
+        }
         yawBox("black", 0.07, 0.008, 0.138, tx + 0.15, 0.454, z + 0.145, 0.55, 0.008);
       }
     }
