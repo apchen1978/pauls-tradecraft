@@ -1673,7 +1673,10 @@ let lanternMat = null;
   // coffee table, table lamp, plant: Codex's single-item drawings → image-to-3D → colours from the drawing
   // (lamp and plant coloured by measured height zones; see Desktop trial tools/zone_colors.py)
   const vcol = (opts) => () => new THREE.MeshStandardMaterial({ vertexColors: true, ...opts });
-  const coffeeObj = place(coffee, { width: 1.0, x: SX, z: SZ + 1.05 });
+  // Give the table six percent more room in plan while keeping the top and feet at their original heights.
+  const coffeeWidth = 1.06;
+  coffee.scene.scale.multiply(new THREE.Vector3(coffeeWidth, 1, coffeeWidth));
+  const coffeeObj = place(coffee, { width: coffeeWidth, x: SX, z: SZ + 1.05 });
   prepare(coffeeObj, vcol({ roughness: .55 }));
   const coffeeBounds = new THREE.Box3().setFromObject(coffeeObj);
   const screenReflectionMat = new THREE.MeshStandardMaterial({ color: "#9db9cf", emissive: "#506a7f", emissiveIntensity: .12, roughness: .45, transparent: true, opacity: 0, depthWrite: false });
