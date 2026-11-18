@@ -1892,6 +1892,34 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     // (the wall clock is built below, in three designs)
   }
+  // A storage door in the right wall behind the counter (Paul, 2026-11-19: "a low door a robot can go in to fetch supplies; at a glance you know it is storage"). Not fancy: a dark oak
+  // casing stands 8.5 cm proud of the wall (over the wainscot), the planked oak leaf sits 2 cm back inside it, with a steel kick plate, a brass pull and a small STORAGE sign above.
+  // 0.78 m wide and 1.6 m tall: low enough for a robot (its egg is about 1.3 m). It faces the aisle between the back bar and the counter; the parts join the existing batches.
+  {
+    const dz0 = -1.89, dz1 = -1.11, dTop = 1.6, cw = 0.07, cd = 0.085, ld = 0.065; // opening, height, casing width and depth, leaf depth (the leaf stands proud of the wainscot's oak cap rail, 6 cm, so the rail ends behind it)
+    slab("oakDeep", [X1 - cd, X1], [0, dTop], [dz0 - cw, dz0], { grain: "y" }); slab("oakDeep", [X1 - cd, X1], [0, dTop], [dz1, dz1 + cw], { grain: "y" });
+    const head = slab("oakDeep", [X1 - cd - 0.012, X1], [dTop, dTop + 0.075], [dz0 - cw - 0.012, dz1 + cw + 0.012], { grain: "z" }); // a head board that overhangs the posts by 12 mm
+    head.computeBoundingBox(); registerSupport("storage-door-head-wall", "wall", { back: head.boundingBox.max.x, plane: X1 });
+    slab("oak", [X1 - ld, X1 - 0.005], [0.012, dTop], [dz0, dz1], { grain: "y" }); // the leaf
+    for (let k = 1; k < 5; k++) { const z = dz0 + (k * (dz1 - dz0)) / 5; slab("oakDeep", [X1 - ld - 0.002, X1 - ld + 0.004], [0.012, dTop], [z - 0.0025, z + 0.0025], { grain: "y" }); } // five planks
+    for (const y of [0.34, 1.26]) slab("oakDeep", [X1 - ld - 0.006, X1 - ld], [y - 0.045, y + 0.045], [dz0 + 0.02, dz1 - 0.02], { grain: "z" }); // two rails across the planks
+    slab("steel", [X1 - ld - 0.012, X1 - ld - 0.006], [0.02, 0.2], [dz0 + 0.03, dz1 - 0.03], { tile: 1 }); // a kick plate
+    const pullZ = dz1 - 0.09;
+    part("brassRail", rodGeometry([X1 - ld - 0.052, 0.86, pullZ], [X1 - ld - 0.052, 1.18, pullZ], 0.011, 8), { tile: 1 });
+    for (const y of [0.88, 1.16]) part("brassRail", rodGeometry([X1 - ld - 0.006, y, pullZ], [X1 - ld - 0.052, y, pullZ], 0.007, 6), { tile: 1 });
+    // The sign: a dark green enamel plate with a brass edge and cream capitals, centred over the door, flat on the wall (face toward -x).
+    const canvas = document.createElement("canvas"); canvas.width = 900; canvas.height = 300;
+    const g = canvas.getContext("2d");
+    g.fillStyle = "#23382c"; g.fillRect(0, 0, 900, 300);
+    g.strokeStyle = "#c9a24a"; g.lineWidth = 9; g.strokeRect(14, 14, 872, 272); g.lineWidth = 3; g.strokeRect(30, 30, 840, 240);
+    g.fillStyle = "#f1e6c8"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "700 118px Georgia, 'Times New Roman', serif"; g.fillText("STORAGE", 450, 125);
+    g.font = "600 62px 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"; g.fillText("儲物間", 450, 222);
+    const face = new THREE.CanvasTexture(canvas); face.colorSpace = THREE.SRGBColorSpace; face.anisotropy = 8;
+    const sign = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.19, 0.57), [materials.oakDeep, new THREE.MeshStandardMaterial({ map: face, roughness: 0.5 }), materials.oakDeep, materials.oakDeep, materials.oakDeep, materials.oakDeep]);
+    sign.name = "storage-sign"; sign.position.set(X1 - 0.01, dTop + 0.075 + 0.015 + 0.095, (dz0 + dz1) / 2); scene.add(sign);
+    registerSupport("storage-sign-wall", "wall", { back: X1, plane: X1 });
+  }
   // (the window pendant is built below with the other lamps)
   {
     // Counter details on the customer side: two stacks of open kraft takeaway cups and a small stock of white lids.
