@@ -47,13 +47,34 @@ for (const room of ROOMS) {
     expect(errors).toEqual([]);
   });
 
-  test(`${room.id} phone full screen keeps its own strip: no fold button, full-width controls`, async ({ page }) => {
+  test(`${room.id} phone full screen: the controls rest in the background and float up on a tap`, async ({ page }) => {
     test.setTimeout(150000);
     const errors = []; page.on("pageerror", (error) => errors.push(error.message));
     await enterFullScreen(page, room, 390, 844);
-    await expect(page.locator(".dock-toggle"), "no fold button on a phone-sized window").toBeHidden();
-    const strip = await page.locator("#immersiveControls").boundingBox();
-    expect(strip.width, "the phone strip is still the full width").toBeGreaterThanOrEqual(388);
+    const controls = page.locator("#immersiveControls");
+    const tag = page.locator(".dock-toggle");
+    // Entering full screen leaves the picture clear: only a small tag at the bottom.
+    await expect(controls, "the strip is out of the way when full screen opens").toBeHidden();
+    await expect(tag).toBeVisible();
+    await expect(tag).toHaveAttribute("aria-expanded", "false");
+    const small = await tag.boundingBox();
+    expect(small.width, "just a small tag").toBeLessThan(150);
+    expect(small.x + small.width, "in the right-hand corner, so the hint bubble stays readable").toBeGreaterThan(390 - 24);
+    // A tap floats the strip up, full width, as before.
+    await tag.click();
+    await expect(controls).toBeVisible();
+    await expect(tag).toHaveAttribute("aria-expanded", "true");
+    const strip = await controls.boundingBox();
+    expect(strip.width, "the phone strip is the full width when it is up").toBeGreaterThanOrEqual(388);
+    // A tap on the picture sends it back.
+    await page.mouse.click(195, 250);
+    await expect(controls, "a tap on the picture sends the strip back").toBeHidden();
+    // It also settles back by itself a few seconds after the last tap on it.
+    await tag.click();
+    await expect(controls).toBeVisible();
+    await expect(controls, "it settles back on its own").toBeHidden({ timeout: 12000 });
+    // Phone: nothing is remembered between visits.
+    expect(await page.evaluate(() => localStorage.getItem("roomverse.dock.collapsed"))).toBeNull();
     expect(errors).toEqual([]);
   });
 }
