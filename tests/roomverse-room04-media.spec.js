@@ -89,9 +89,10 @@ test("Room 04 retries in Opus and retains the synthesizer if both formats fail",
     Object.defineProperty(document, "hidden", { configurable: true, value: true });
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  expect((await page.evaluate(() => window.__room04.soundState())).playing).toBe(false);
-  await page.locator("#recordHit").dispatchEvent("click");
-  expect(await page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
+  const hidden = await page.evaluate(() => ({ sound: window.__room04.soundState(), record: window.__room04.recordPlaying() }));
+  expect(hidden.sound.playing, "the synth stops when the page hides").toBe(false);
+  expect(hidden.sound.backend, "the synth fallback is released").toBe("media");
+  expect(hidden.record, "the record player shows stopped").toBe(false);
 });
 
 test("Room 04 serves all four tracks in both formats within the audio budget", async ({ request }) => {

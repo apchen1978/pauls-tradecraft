@@ -2334,7 +2334,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     g.strokeStyle = "rgba(210,225,240,.10)"; g.lineWidth = 3; g.strokeRect(300, 40, 170, 120); g.beginPath(); g.moveTo(385, 40); g.lineTo(385, 160); g.moveTo(300, 100); g.lineTo(470, 100); g.stroke();
     const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; return t;
   })();
-  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0xffffff, map: tvGlass, roughness: 0.16, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
+  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0xffffff, map: tvGlass, roughness: 0.34, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
   { const TV = { z0: -0.15, z1: 1.05, y0: 1.16, y1: 1.84 }, TX = X1 - 0.05;
     const tvBox = ([x0, x1], [y0, y1], [z0, z1]) => new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
     add("tv-frame", mergeGeometries([tvBox([TX, X1 - 0.005], [TV.y0 - 0.012, TV.y1 + 0.012], [TV.z0 - 0.012, TV.z1 + 0.012]), tvBox([TX + 0.005, X1 - 0.005], [TV.y0 - 0.075, TV.y0 - 0.04], [0.05, 0.85])]), materials.black, 0, 0, 0, { cast: false }); // the frame and the slim soundbar under it
@@ -2412,6 +2412,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // The floor lamp by the window seat really lights its corner after dark (Paul, 2026-11-16: the cat's corner went black at night while the shade glowed). A point light just under
   // the shade, aimed by its short range at the floor round the lamp, the basket and the bowls; it follows the shade's glow and is off by day. No draw call.
   const floorLampLight = new THREE.PointLight(0xffbf7a, 0, 2.4, 1.6); floorLampLight.position.set(-2.88, 1.36, 2.0); scene.add(floorLampLight);
+  // The right-wall sconces really wash the lounge after dark (it was a black pit at closing time while their shades glowed): one warm light out from the wall between the two shades,
+  // over the banquette and the green wainscot, following the shades' glow and off by day. No draw call, no geometry.
+  const sconceLight = new THREE.PointLight(0xffc27a, 0, 3.2, 2); sconceLight.position.set(X1 - 0.38, 1.6, 1.45); scene.add(sconceLight);
   // Counter props (Codex card 52 E), small and real-sized, along the customer side: a napkin dispenser, a glass sugar jar with tongs, a cream pitcher, a stir-stick holder,
   // and toward the left an open menu folder, a newspaper rack with a folded paper, a tiny succulent and a receipt spike.
   {
@@ -2684,9 +2687,30 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         yawBox("paper", 0.091, 0.008, 0.062, tx - 0.04, 0.462, z + 0.131, -0.18);
       } else {
         ceramicCup({ x: tx - 0.135, y: 0.45, z: z - 0.1, scale: 1.05, coffee: true, latte: true });
-        yawBox("cover", 0.15, 0.018, 0.21, tx + 0.06, 0.4585, z + 0.01, -0.42);
-        yawBox("paper", 0.138, 0.006, 0.198, tx + 0.062, 0.4695, z + 0.011, -0.42, 0.004);
-        part("steel", rodGeometry([tx + 0.02, 0.4815, z + 0.07], [tx + 0.12, 0.4815, z - 0.06], 0.0028, 6), { tile: 1 });
+        const bookX = tx + 0.06, bookZ = z + 0.01, bookYaw = -0.42;
+        const bookBase = 0.45, bookTop = bookBase + 0.021;
+        const onBook = (geometry) => geometry.rotateY(bookYaw).translate(bookX, 0, bookZ);
+        const bookCover = (y) => roundedBox(0.15, 0.004, 0.21, 0.009, 0.001, 2).translate(0, y, 0);
+        part("cover", onBook(bookCover(bookBase + 0.002)));
+        yawBox("paper", 0.138, 0.013, 0.198, bookX, bookBase + 0.0105, bookZ, bookYaw, 0.004);
+        detail(onBook(bookCover(bookTop - 0.002)), 0xa37152);
+        detail(onBook(new THREE.BoxGeometry(0.006, 0.0008, 0.203).translate(0.054, bookTop + 0.0003, 0)), 0x44312c);
+
+        const penStart = [-0.016, 0, 0.071], penEnd = [0.025, 0, -0.088], penRadius = 0.0028;
+        const pen = rodGeometry(penStart, penEnd, penRadius, 6);
+        pen.computeBoundingBox();
+        part("steel", onBook(pen.translate(0, bookTop - pen.boundingBox.min.y, 0)), { tile: 1 });
+        registerSupport("lounge-notebook-on-table", "rest", {
+          base: { x: bookX, y: bookBase, z: bookZ, radius: Math.hypot(0.075, 0.105) },
+          surface: { shape: "circle", x: tx, y: bookBase, z, radius: 0.275 },
+        });
+        for (const [i, [x, , zz]] of [penStart, penEnd].entries()) {
+          // Audit in notebook-local coordinates so the support turns with the cover.
+          registerSupport(`lounge-notebook-pen-end-${i}`, "rest", {
+            base: { x, y: bookTop, z: zz, radius: penRadius },
+            surface: { shape: "rect", x0: -0.075, x1: 0.075, z0: -0.105, z1: 0.105, y: bookTop },
+          });
+        }
         yawBox("black", 0.07, 0.008, 0.138, tx + 0.15, 0.454, z + 0.145, 0.55, 0.008);
       }
     }
@@ -3374,7 +3398,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02; neonHalo.material.opacity = live.neon * 0.8; neonHalo.visible = neonSign.visible;
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
-    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9; floorLampLight.intensity = Math.max(0, live.pendant - 0.3) * 1.9;
+    materials.pendantShade.emissiveIntensity = live.pendant; materials.sconceGlow.emissiveIntensity = live.pendant * 1.5; materials.lampGlow.emissiveIntensity = 0.12 + live.pendant * 1.1; materials.floorShade.emissiveIntensity = 0.1 + live.pendant * 0.95; materials.bamboo.emissiveIntensity = 0.1 + live.pendant * 0.9; pendantLight.intensity = live.pendant * 0.9; sconceLight.intensity = Math.max(0, live.pendant - 0.4) * 0.8; floorLampLight.intensity = Math.max(0, live.pendant - 0.3) * 1.9;
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
@@ -3709,7 +3733,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     catScreen: () => (catRef.group ? projectBox(catRef.group) : null),
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
-    floorLampLight: () => floorLampLight.intensity,
+    floorLampLight: () => floorLampLight.intensity, sconceLight: () => sconceLight.intensity,
     soundState, soundTracks: () => [...titles], refreshRecordMetadata: player.refreshMetadata,
     vibeState: () => ({ neon: neonSign.material.opacity, neonVisible: neonSign.visible, haloVisible: neonHalo.visible }),
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
