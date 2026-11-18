@@ -50,7 +50,7 @@ const COPY = {
     catLabel: "橘貓：點一下牠", catLines: ["喵～ 😺", "呼嚕呼嚕… 😽", "（翻個身，繼續睡）😴", "別吵，我在曬太陽 😼", "喵？是要開罐罐了嗎 🐟", "這個墊子是我的。😸"],
     menuLabel: "菜單：點一下，聽聽現在的推薦",
     menuPick: { morning: "早晨先來一杯 Flat White，慢慢醒。", noon: "午後來杯 Iced Tea，配一塊 Daily Cake。", golden: "這個光，我推薦 Osmanthus Latte。", rain: "下雨天，一杯熱的 Hot Chocolate。", closing: "打烊前最後一杯：Osmanthus Tea。", series: "追劇夜：Mocha，配一塊 Daily Cake。" },
-    robotMood: { morning: "早安，剛開店。", noon: "午後的客人比較慢。", golden: "這個光，咖啡會更好喝。", rain: "下雨天，多點一杯熱的吧。", closing: "打烊了，但你可以再坐一會。", series: "今晚追哪一部？我去煮杯熱的。" },
+    robotMood: { morning: "早安，剛開店。", noon: "午後，最適合來杯卡布奇諾。", golden: "這個光，咖啡會更好喝。", rain: "下雨天，多點一杯熱的吧。", closing: "打烊了，但你可以再坐一會。", series: "今晚追哪一部？我去煮杯熱的。" },
   },
   en: {
     title: ROOM_TITLE, subtitle: "A cafe in Shanghai",
@@ -97,7 +97,7 @@ const COPY = {
     catLabel: "The ginger cat: tap it", catLines: ["Meow~ 😺", "Purr, purr... 😽", "(rolls over, back to sleep) 😴", "Shh, I am sunbathing. 😼", "Meow? Is it tin time? 🐟", "This cushion is mine. 😸"],
     menuLabel: "Menu: tap to hear the pick for right now",
     menuPick: { morning: "Morning: a Flat White, to wake up slowly.", noon: "Afternoon: an Iced Tea with a slice of the Daily Cake.", golden: "In this light, I recommend the Osmanthus Latte.", rain: "A rainy day: a hot Hot Chocolate.", closing: "Last call: an Osmanthus Tea.", series: "Series night: a Mocha with the Daily Cake." },
-    robotMood: { morning: "Good morning, just opened.", noon: "The afternoon crowd is slow.", golden: "Coffee tastes better in this light.", rain: "Rainy day: another hot one?", closing: "We're closed, but stay a while.", series: "What are we watching tonight? I'll make something hot." },
+    robotMood: { morning: "Good morning, just opened.", noon: "Afternoons call for a cappuccino.", golden: "Coffee tastes better in this light.", rain: "Rainy day: another hot one?", closing: "We're closed, but stay a while.", series: "What are we watching tonight? I'll make something hot." },
   },
 };
 const $ = (id) => document.getElementById(id);
