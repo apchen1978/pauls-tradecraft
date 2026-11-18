@@ -11,7 +11,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 132250, meshes: 356 }),
+  scene: Object.freeze({ vertices: 132826, meshes: 356 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
   openingDrawCalls: Object.freeze({ desktop: 93, phone: 73 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
@@ -37,6 +37,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "a record-player view (看唱片機 / The record player) and a close-up polish of the player: nine finer record grooves, a counterweight and arm tube detail, walnut plinth, three finishes (satin wood, glossier vinyl, brushed metal arm) on the meshes it already had, and a soft contact shadow plane under the deck (+1 mesh, +1,494 vertices). Phone opening calls measured 69 this time (73 before): measurement spread, the change adds no draw call to that view", vertices: 129407, meshes: 351, desktopCalls: 93, phoneCalls: 69 },
     { date: "2026-11-18", change: "sideboard mug (Paul: it looked badly moulded): the lathe profile now runs bottom-up on the outside so its faces are no longer inside out, the green lining stops at the rim on a duplicate ring, and the outside is light blue; one more profile ring in the unindexed props mesh (+192 vertices), no new mesh or draw call", vertices: 129599, meshes: 351, desktopCalls: 93, phoneCalls: 69 },
     { date: "2026-11-18", change: "a thin black power cord from the record player across the sideboard top and up into a small white wall outlet just above it (2 meshes), and Room 03's water bottle at 0.8 scale beside the blue mug (glass, water and label-cap, 3 meshes): +5 meshes, +2,651 vertices. Desktop opening calls unchanged at 93, phone measured 73 (69 last time, back to the earlier value: measurement spread plus the new meshes)", vertices: 132250, meshes: 356, desktopCalls: 93, phoneCalls: 73 },
+    { date: "2026-11-18", change: "the record player's wall outlet is a Taiwanese (US Type A/B) duplex now (Paul): two raised receptacles on the white plate, each with two flat vertical slots and a round ground hole, a plate screw between them, and a small black plug in the lower one with the cord leaving it downwards; all inside the outlet's one vertex-coloured mesh (+576 vertices, no new mesh or draw call)", vertices: 132826, meshes: 356, desktopCalls: 93, phoneCalls: 73 },
   ]),
 });
 

@@ -2354,9 +2354,19 @@ let lanternMat = null;
     cord.name = "record-player-power-cord"; cord.castShadow = true; cord.receiveShadow = true; scene.add(cord);
     const outletParts = [], OUT = { y: top + .165, z: 1.39 };
     const plate = tint(new THREE.BoxGeometry(.008, .114, .07), 0xf4f2ec); plate.translate(wallX + .004 - .0005, OUT.y, OUT.z); outletParts.push(plate);
-    for (const dy of [.026, -.026]) { const slot = tint(new THREE.BoxGeometry(.001, .03, .03), 0xd9d6ce); slot.translate(wallX + .0081, OUT.y + dy, OUT.z); outletParts.push(slot); }
-    const plug = tint(new THREE.BoxGeometry(.016, .026, .022), 0xf7f6f2); plug.translate(wallX + .0075 + .008 - .001, OUT.y - .026, OUT.z); outletParts.push(plug); // the plug sits 1 mm into the lower socket
-    const plugNeck = tint(new THREE.CylinderGeometry(CORD_R + .0012, CORD_R + .0006, .016, 8), 0x1a1b1d); plugNeck.translate(wallX + .0145, OUT.y - .026 - .013 - .006, OUT.z); outletParts.push(plugNeck);
+    // Paul 2026-11-18 (second pass): a Taiwanese outlet, which is the US Type A/B duplex: two receptacles stacked on the white plate, each a slightly raised face with
+    // two parallel vertical flat slots (the neutral one a little taller) and a round ground hole below them, and one plate screw between them. The slots and holes
+    // are thin dark boxes and discs standing 0.2 mm proud of the receptacle face, so nothing shares a plane (no z-fighting). The cord's small black plug sits in
+    // the lower receptacle, 1 mm into its face, and the cord leaves it downwards; the upper receptacle is empty.
+    const FACE_X = wallX + .0075, REC_X = FACE_X + .0015, DARK = 0x1b1a19;
+    for (const dy of [.026, -.026]) {
+      const face = tint(new THREE.BoxGeometry(.0015, .033, .027), 0xf8f6f0); face.translate(FACE_X + .00075, OUT.y + dy, OUT.z); outletParts.push(face);
+      for (const [dz, h] of [[-.00635, .0072], [.00635, .0085]]) { const slot = tint(new THREE.BoxGeometry(.0006, h, .0021), DARK); slot.translate(REC_X - .0001, OUT.y + dy + .0045, OUT.z + dz); outletParts.push(slot); }
+      const ground = tint(new THREE.CylinderGeometry(.0024, .0024, .0006, 12).rotateZ(Math.PI / 2), DARK); ground.translate(REC_X - .0001, OUT.y + dy - .0085, OUT.z); outletParts.push(ground);
+    }
+    const screw = tint(new THREE.CylinderGeometry(.0028, .0028, .0008, 12).rotateZ(Math.PI / 2), 0xd8d5cc); screw.translate(FACE_X + .0003, OUT.y, OUT.z); outletParts.push(screw);
+    const plug = tint(new THREE.BoxGeometry(.0145, .024, .021), 0x161719); plug.translate(REC_X - .001 + .00725, OUT.y - .026 + .001, OUT.z); outletParts.push(plug); // 1 mm into the lower receptacle face
+    const plugNeck = tint(new THREE.CylinderGeometry(CORD_R + .0012, CORD_R + .0006, .016, 8), 0x161719); plugNeck.translate(wallX + .0145, OUT.y - .026 - .013 - .006, OUT.z); outletParts.push(plugNeck);
     for (const g of outletParts) { g.deleteAttribute("uv"); }
     const outlet = new THREE.Mesh(mergeGeometries(outletParts.map((g) => g.index ? g.toNonIndexed() : g), false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .45 }));
     outlet.geometry.computeVertexNormals(); outlet.name = "record-player-wall-outlet"; outlet.receiveShadow = true; scene.add(outlet);
