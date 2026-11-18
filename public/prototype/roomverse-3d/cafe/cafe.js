@@ -2347,8 +2347,19 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   {
     const zc = c.z1 - 0.15, T = top;
     partShift = counterShift(0.05);
-    // napkin dispenser 140 x 90 x 80 mm: a black box with a stack of white napkins showing
-    slab("black", [0.05 - 0.07, 0.05 + 0.07], [T, T + 0.08], [zc - 0.045, zc + 0.045], { tile: 1 }); slab("paper", [0.05 - 0.055, 0.05 + 0.055], [T + 0.03, T + 0.092], [zc - 0.035, zc + 0.035], { tile: 1 });
+    // The matte dispenser sits on the counter, with a dark rim around the folded paper.
+    const napkinX = 0.05, napkinTop = T + 0.08;
+    part("black", roundedBox(0.14, 0.08, 0.09, 0.009, 0.003, 2).translate(napkinX, T + 0.04, zc), { tile: 1 });
+    part("loungeDetail", colorize(new THREE.BoxGeometry(0.112, 0.0016, 0.056).translate(napkinX, napkinTop - 0.0002, zc), 0x191a18), { tile: 1 });
+    const foldedPaper = new THREE.BoxGeometry(0.102, 0.005, 0.05, 1, 1, 4);
+    const paperPoints = foldedPaper.attributes.position;
+    for (let i = 0; i < paperPoints.count; i++) {
+      const pullEdge = (paperPoints.getZ(i) + 0.025) / 0.05;
+      const raisedCorner = (paperPoints.getX(i) + 0.051) / 0.102;
+      paperPoints.setY(i, paperPoints.getY(i) + pullEdge ** 2 * (0.001 + 0.009 * raisedCorner));
+    }
+    foldedPaper.computeVertexNormals();
+    part("paper", foldedPaper.translate(napkinX, napkinTop + 0.002, zc), { tile: 1 });
     partShift = counterShift(0.22);
     // sugar jar: glass, a steel lid, six cubes and a pair of oak tongs
     // Paul 2026-11-17 (the record corner, close view): the jar's steel lid and knob had been left inside a comment on this line and were never built, so it was a bare black
