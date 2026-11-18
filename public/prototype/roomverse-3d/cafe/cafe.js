@@ -1893,7 +1893,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // (the wall clock is built below, in three designs)
   }
   // A storage door in the right wall behind the counter (Paul, 2026-11-19: "a low door a robot can go in to fetch supplies; at a glance you know it is storage"). Not fancy: a dark oak
-  // casing stands 8.5 cm proud of the wall (over the wainscot), the planked oak leaf sits 2 cm back inside it, with a steel kick plate, a brass pull and a small STORAGE sign above.
+  // casing stands 8.5 cm proud of the wall (over the wainscot), the planked oak leaf sits 2 cm back inside it, with a steel kick plate, a brass pull and a small 储物间 / 闲人勿近 sign above.
   // 0.78 m wide and 1.6 m tall: low enough for a robot (its egg is about 1.3 m). It faces the aisle between the back bar and the counter; the parts join the existing batches.
   {
     const dz0 = -1.89, dz1 = -1.11, dTop = 1.6, cw = 0.07, cd = 0.085, ld = 0.065; // opening, height, casing width and depth, leaf depth (the leaf stands proud of the wainscot's oak cap rail, 6 cm, so the rail ends behind it)
@@ -1913,8 +1913,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     g.fillStyle = "#23382c"; g.fillRect(0, 0, 900, 300);
     g.strokeStyle = "#c9a24a"; g.lineWidth = 9; g.strokeRect(14, 14, 872, 272); g.lineWidth = 3; g.strokeRect(30, 30, 840, 240);
     g.fillStyle = "#f1e6c8"; g.textAlign = "center"; g.textBaseline = "middle";
-    g.font = "700 118px Georgia, 'Times New Roman', serif"; g.fillText("STORAGE", 450, 125);
-    g.font = "600 62px 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"; g.fillText("儲物間", 450, 222);
+    // Simplified Chinese only (Paul, 2026-11-19: a custom door plate in Shanghai would not carry English): the room name large, a small warning line under it.
+    const zhFont = "'Noto Serif SC', 'Songti SC', 'SimSun', 'Microsoft YaHei', serif";
+    g.font = `900 138px ${zhFont}`; g.letterSpacing = "18px"; g.fillText("储物间", 459, 120);
+    g.font = `700 58px ${zhFont}`; g.letterSpacing = "14px"; g.fillText("闲人勿近", 457, 230);
     const face = new THREE.CanvasTexture(canvas); face.colorSpace = THREE.SRGBColorSpace; face.anisotropy = 8;
     const sign = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.19, 0.57), [materials.oakDeep, new THREE.MeshStandardMaterial({ map: face, roughness: 0.5 }), materials.oakDeep, materials.oakDeep, materials.oakDeep, materials.oakDeep]);
     sign.name = "storage-sign"; sign.position.set(X1 - 0.01, dTop + 0.075 + 0.015 + 0.095, (dz0 + dz1) / 2); scene.add(sign);
