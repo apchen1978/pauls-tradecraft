@@ -2540,7 +2540,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     // A backpack set down between the two poufs (the same model as Room 02's, unscaled, in plum with cream straps; Room 02's is navy, Room 01's are rose and
     // mustard): upright on the rug by its measured lowest point (0.5 mm in), its back to the counter, turned a little, about 3 cm clear of each pouf. One mesh.
-    new GLTFLoader().loadAsync(new URL("../bedroom/models/campus-backpack-v1.glb", import.meta.url).href).then((asset) => {
+    new GLTFLoader().loadAsync(new URL("../bedroom/models/campus-backpack-v2.glb", import.meta.url).href).then((asset) => {
       const bag = asset.scene, palette = { body: "#6e3b52", strap: "#e6dcc6", zip: "#c9a04a", base: "#3b2a33" };
       bag.rotation.y = Math.PI + 0.1; bag.updateMatrixWorld(true); const parts = [];
       bag.traverse((o) => { if (!o.isMesh) return; const geo = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); geo.applyMatrix4(o.matrixWorld);

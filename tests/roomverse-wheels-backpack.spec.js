@@ -14,7 +14,7 @@ for(const width of [1440,390])test(`Room 01 suitcase wheels and backpack ${width
 
 test('Room 01 stays usable when optional backpack fails to load',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.route('**/bedroom/models/campus-backpack-v1.glb',route=>route.abort());
+ await page.route('**/bedroom/models/campus-backpack-v2.glb',route=>route.abort());
  await page.goto('/prototype/roomverse-3d/?lang=zh');if(await page.locator('#enter').isVisible())await page.locator('#enter').click();
  await page.waitForFunction(()=>window.__room?.casualBackpackInfo?.().error,null,{timeout:60000});
  expect(await page.evaluate(()=>window.__room.softDetails().suitcase)).not.toBeNull();expect(errors).toEqual([]);
