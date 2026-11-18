@@ -2344,7 +2344,41 @@ let lanternMat = null;
     pack.name = "coffee-table-napkin-pack"; pack.castShadow = true; pack.receiveShadow = true; scene.add(pack);
     // The record player stands on the far end of the top (toward the coat stand), its front and gold pinstripe toward the room, its feet 2.5 mm into the oak.
     const recordAt = { x: -2.405, z: 1.17 }, recordPlayer = buildRoom01RecordPlayer(scene, { ...recordAt, top: topAt(recordAt.x, recordAt.z), yaw: Math.PI });
-    return { oak, pulls, props, bottle, bottleAt, mugAt, mugY, pack, packAt, packY, packSpot, coffeeObj, recordPlayer, recordAt, mugRadius: MUG.radius };
+    // Paul 2026-11-18: a record player needs power. The sideboard top runs right to the plaster, so the cord cannot drop behind it: a white outlet sits on the wall just
+    // above the top behind the player's far corner (centre 165 mm above the top, 0.5 mm into the plaster), and a thin black cord leaves the back of the deck, drops onto the
+    // oak, lies along it in a loose curve and climbs the wall into the plug. Two meshes: the cord, and the outlet with its plug.
+    const top = topAt(-2.5, 1.3), CORD_R = .0025, wallX = -W / 2;
+    const cordCurve = new THREE.CatmullRomCurve3([[-2.556, top + .015, 1.31], [-2.572, top + .011, 1.312], [-2.582, top + CORD_R + .0012, 1.322], [-2.588, top + CORD_R + .0012, 1.348],
+      [-2.594, top + CORD_R + .004, 1.372], [wallX + CORD_R + .0015, top + .03, 1.386], [wallX + CORD_R + .0012, top + .085, 1.39], [wallX + .009, top + .105, 1.39], [wallX + .0145, top + .113, 1.39], [wallX + .0145, top + .125, 1.39]].map((q) => new THREE.Vector3(...q)));
+    const cord = new THREE.Mesh(new THREE.TubeGeometry(cordCurve, 48, CORD_R, 6, false), new THREE.MeshStandardMaterial({ color: 0x111214, roughness: .55 }));
+    cord.name = "record-player-power-cord"; cord.castShadow = true; cord.receiveShadow = true; scene.add(cord);
+    const outletParts = [], OUT = { y: top + .165, z: 1.39 };
+    const plate = tint(new THREE.BoxGeometry(.008, .114, .07), 0xf4f2ec); plate.translate(wallX + .004 - .0005, OUT.y, OUT.z); outletParts.push(plate);
+    for (const dy of [.026, -.026]) { const slot = tint(new THREE.BoxGeometry(.001, .03, .03), 0xd9d6ce); slot.translate(wallX + .0081, OUT.y + dy, OUT.z); outletParts.push(slot); }
+    const plug = tint(new THREE.BoxGeometry(.016, .026, .022), 0xf7f6f2); plug.translate(wallX + .0075 + .008 - .001, OUT.y - .026, OUT.z); outletParts.push(plug); // the plug sits 1 mm into the lower socket
+    const plugNeck = tint(new THREE.CylinderGeometry(CORD_R + .0012, CORD_R + .0006, .016, 8), 0x1a1b1d); plugNeck.translate(wallX + .0145, OUT.y - .026 - .013 - .006, OUT.z); outletParts.push(plugNeck);
+    for (const g of outletParts) { g.deleteAttribute("uv"); }
+    const outlet = new THREE.Mesh(mergeGeometries(outletParts.map((g) => g.index ? g.toNonIndexed() : g), false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .45 }));
+    outlet.geometry.computeVertexNormals(); outlet.name = "record-player-wall-outlet"; outlet.receiveShadow = true; scene.add(outlet);
+    // Room 03's Evian-style water bottle by its record player (the same profile, water to the shoulder, label band and fluted cap; Room 04 uses it at 0.8 too), at 0.8 scale
+    // so it stays a desk bottle beside the mug: between the mug and the player, toward the wall, standing 0.5 mm into the oak. Glass, water and label-with-cap: three meshes.
+    const WATER_S = .8, waterAt = { x: -2.475, z: .895 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
+    const sc = (list) => list.map(([r, y]) => new THREE.Vector2(r * WATER_S, y * WATER_S));
+    const shellProfile = [[0, .001], [.030, .001], [.038, .004], [.0415, .012], [.042, .030], [.0395, .040], [.042, .050], [.042, .150], [.0395, .160], [.042, .170],
+      [.042, .196], [.039, .214], [.031, .236], [.022, .256], [.0165, .272], [.0155, .280], [.018, .283], [.018, .286], [.0155, .288], [0, .288]];
+    const waterGlass = new THREE.Mesh(new THREE.LatheGeometry(sc(shellProfile), 28).translate(waterAt.x, waterY, waterAt.z), new THREE.MeshPhysicalMaterial({ color: 0xc6d8d5, roughness: .19, metalness: 0, transparent: true, opacity: .42, side: THREE.DoubleSide, depthWrite: false }));
+    waterGlass.name = "left-sideboard-water-bottle-glass"; waterGlass.renderOrder = 2; scene.add(waterGlass);
+    const fillGeometry = mergeGeometries([new THREE.LatheGeometry(sc([[0, .004], [.039, .006], [.039, .194], [.036, .212], [0, .212]]), 24), new THREE.CircleGeometry(.0375 * WATER_S, 24).rotateX(-Math.PI / 2).translate(0, .2125 * WATER_S, 0)].map((g) => { g.deleteAttribute("uv"); return g.index ? g.toNonIndexed() : g; }), false);
+    const waterFill = new THREE.Mesh(fillGeometry.translate(waterAt.x, waterY, waterAt.z), new THREE.MeshStandardMaterial({ color: 0x86c3cf, roughness: .06, transparent: true, opacity: .62, depthWrite: false }));
+    waterFill.name = "left-sideboard-water-bottle-water"; waterFill.renderOrder = 1; scene.add(waterFill);
+    const capGeometry = new THREE.CylinderGeometry(.0175 * WATER_S, .0175 * WATER_S, .022 * WATER_S, 56, 1), cpos = capGeometry.attributes.position;
+    for (let k = 0; k < cpos.count; k++) { const cx = cpos.getX(k), cz = cpos.getZ(k); if (Math.hypot(cx, cz) > .017 * WATER_S) { const f = Math.round(Math.atan2(cz, cx) / (Math.PI / 28)) % 2 ? .93 : 1; cpos.setX(k, cx * f); cpos.setZ(k, cz * f); } }
+    const labelBand = tint(new THREE.CylinderGeometry(.0425 * WATER_S, .0425 * WATER_S, .062 * WATER_S, 28, 1, true).translate(0, .105 * WATER_S, 0), 0x78959a);
+    const capTinted = tint(capGeometry.translate(0, .299 * WATER_S, 0), 0xe1ddd2);
+    const labelCap = new THREE.Mesh(mergeGeometries([labelBand, capTinted].map((g) => { g.deleteAttribute("uv"); return g.index ? g.toNonIndexed() : g; }), false).translate(waterAt.x, waterY, waterAt.z), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .74, side: THREE.DoubleSide }));
+    labelCap.geometry.computeVertexNormals(); labelCap.name = "left-sideboard-water-bottle-label-cap"; labelCap.castShadow = true; scene.add(labelCap);
+    const water = { glass: waterGlass, fill: waterFill, labelCap, at: waterAt, y: waterY, radius: .042 * WATER_S };
+    return { oak, pulls, props, bottle, bottleAt, mugAt, mugY, pack, packAt, packY, packSpot, coffeeObj, recordPlayer, recordAt, mugRadius: MUG.radius, cord, cordCurve, cordRadius: CORD_R, outlet, water, topY: top };
   })();
 
   // ---------- state + panel ----------
@@ -4193,7 +4227,7 @@ let lanternMat = null;
     sideboardDetails() { // local QA only: floor/wall contact, props on the top, clearances (mm)
       scene.updateMatrixWorld(true);
       const S = SIDEBOARD, bb = (o) => new THREE.Box3().setFromObject(o);
-      const oakBox = bb(sideboard.oak), propBox = bb(sideboard.props).union(bb(sideboard.bottle)).union(bb(sideboard.recordPlayer.group)), ray = new THREE.Raycaster();
+      const oakBox = bb(sideboard.oak), propBox = bb(sideboard.props).union(bb(sideboard.bottle)).union(bb(sideboard.recordPlayer.group)).union(bb(sideboard.water.glass)), ray = new THREE.Raycaster();
       const topY = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); return ray.intersectObject(sideboard.oak, false)[0]?.point.y ?? null; };
       const lowest = (geometry, test) => { const p = geometry.attributes.position; let y = Infinity; for (let k = 0; k < p.count; k++) if (test(p.getX(k), p.getZ(k))) y = Math.min(y, p.getY(k)); return y; };
       const g = sideboard.props.geometry;
@@ -4234,6 +4268,15 @@ let lanternMat = null;
       const mm = (v) => Math.round(v * 10000) / 10;
       const packOverlaps = Object.entries({ laptop: laptopObj, mug: mugObj, book: coffeeBook }).filter(([, o]) => new THREE.Box3().setFromObject(o).intersectsBox(packBox)).map(([k]) => k).concat(soft.propBounds.some((b) => b.intersectsBox(packBox)) ? ["bookStack"] : []);
       return { ...rp.info(), footIntoSideboardMm: mm(down(sideboard.oak, sideboard.recordAt.x, sideboard.recordAt.z) - box.min.y), insideTop: box.min.x > oakBox.min.x && box.max.x < oakBox.max.x && box.min.z > oakBox.min.z && box.max.z < oakBox.max.z,
+        cord: (() => { const pts = sideboard.cordCurve.getSpacedPoints(200), oak = new THREE.Box3().setFromObject(sideboard.oak), r = sideboard.cordRadius;
+          const overTop = pts.filter((q) => q.x > oak.min.x + .001 && q.z > oak.min.z && q.z < oak.max.z && q.y < sideboard.topY + .05);
+          return { lowestAboveTopMm: Math.round((Math.min(...overTop.map((q) => q.y)) - r - sideboard.topY) * 10000) / 10, wallGapMm: Math.round((Math.min(...pts.map((q) => q.x)) - r - (-W / 2)) * 10000) / 10,
+            startInsideDeckMm: Math.round((pts[0].x - (sideboard.recordAt.x - .16)) * 10000) / 10, endY: pts[pts.length - 1].y }; })(),
+        water: (() => { const wb = new THREE.Box3().setFromObject(sideboard.water.glass), gap = (b) => { const dx = Math.max(b.min.x - wb.max.x, wb.min.x - b.max.x, 0), dz = Math.max(b.min.z - wb.max.z, wb.min.z - b.max.z, 0); return Math.round(Math.hypot(dx, dz) * 1000); };
+          return { seatMm: Math.round((wb.min.y - down(sideboard.oak, sideboard.water.at.x, sideboard.water.at.z)) * 10000) / 10, heightMm: Math.round((wb.max.y - wb.min.y) * 1000),
+            gapToMugMm: Math.round((Math.hypot(sideboard.water.at.x - sideboard.mugAt.x, sideboard.water.at.z - sideboard.mugAt.z) - sideboard.water.radius - sideboard.mugRadius) * 1000),
+            gapToPlayerBoxMm: gap(box), gapToVitaminsMm: Math.min(gap(new THREE.Box3().setFromObject(sideboard.bottle)), gap(new THREE.Box3().setFromObject(scene.getObjectByName("orange-cap-vitamin-body")))),
+            hitsMugBox: new THREE.Box3().setFromObject(sideboard.props).intersectsBox(wb) }; })(),
         clearOfOtherProps: !others.some((b) => b.intersectsBox(box)), packOnCoffeeTable: !!sideboard.packSpot, packSeatMm: sideboard.packSpot ? mm(packBox.min.y - sideboard.packSpot.y) : null, packOverlaps, packAt: sideboard.packAt };
     },
     rugMugDetails() { // local QA only: geometry, rug footprint, tabletop support and clearances

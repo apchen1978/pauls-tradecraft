@@ -59,7 +59,8 @@ for (const width of [1280, 390]) {
     expect(d.pulls.metalness).toBeGreaterThanOrEqual(.9);
     expect(d.pulls.roughness).toBeLessThanOrEqual(.3);
     // Under the painting with room to breathe; clear of the coat stand.
-    expect(d.paintingClearMm, "nothing touches the painting; ~300 mm+ air below it").toBeGreaterThanOrEqual(300);
+    // Paul 2026-11-18 put a 230 mm water bottle on the top (the tallest prop now), so the air under the painting is measured from its cap: at least 120 mm.
+    expect(d.paintingClearMm, "nothing touches the painting; 120 mm+ air above the tallest prop").toBeGreaterThanOrEqual(120);
     expect(d.standClearMm, "clear of the coat stand").toBeGreaterThanOrEqual(50);
     // The painting's z span covers the sideboard (it sits under it, not beside it).
     expect(d.bounds.min[2]).toBeGreaterThanOrEqual(1 - 0.659);
