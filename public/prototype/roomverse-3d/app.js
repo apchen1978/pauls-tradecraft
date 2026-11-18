@@ -2219,17 +2219,21 @@ let lanternMat = null;
     const ray = new THREE.Raycaster();
     const topAt = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); const hit = ray.intersectObject(oak, false)[0]; if (!hit) throw new Error("sideboard top not found"); return hit.point.y; };
     const propParts = [];
-    const MUG = { radius: .040, profile: [[0, .006], [.0365, .007], [.0365, .093], [.0372, .0948], [.0388, .0952], [.0399, .0935], [.040, .010], [.0395, .004], [.037, 0], [0, 0]] };
+    // Paul 2026-11-18: the green lining ran up over the lip and faded down the outside (one shared ring of vertices at the rim blended the two colours), so the mug looked badly moulded.
+    // The profile now ends the lining at the rim top and starts the outer shell on a duplicate ring at the same point, so the colours meet in a clean line: green inside, light blue outside. The profile also runs bottom-up on the outside (it ran
+    // from the inside floor before, which turned every face inside out: the near wall was culled and the far wall's lining showed through it, the ghost Paul saw).
+    const MUG = { radius: .040, profile: [[0, 0], [.037, 0], [.0395, .004], [.040, .010], [.0399, .0935], [.0388, .0952], [.0388, .0952], [.0372, .0948], [.0365, .093], [.0365, .007], [0, .006]], innerCount: 5 };
     const mugAt = { x: -2.39, z: .80 };
     const mugY = topAt(mugAt.x, mugAt.z);
     {
       const body = new THREE.LatheGeometry(MUG.profile.map(([r, y]) => new THREE.Vector2(r, y)), 32);
       const pos = body.attributes.position, col = new Float32Array(pos.count * 3), c = new THREE.Color();
-      for (let k = 0; k < pos.count; k++) { const y = pos.getY(k), rad = Math.hypot(pos.getX(k), pos.getZ(k)); c.set(rad < .0366 && y > .0065 ? 0xe9e3d3 : y < .009 ? 0xd8cfbd : 0x93a487); col.set([c.r, c.g, c.b], k * 3); }
+      const ring = MUG.profile.length; // LatheGeometry lays its vertices out segment by segment, one profile point after another
+      for (let k = 0; k < pos.count; k++) { const point = k % ring, y = pos.getY(k); c.set(point >= ring - MUG.innerCount ? 0x93a487 : y < .005 ? 0x76a3cc : 0x8cbbe4); col.set([c.r, c.g, c.b], k * 3); }
       body.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
       body.translate(mugAt.x, mugY, mugAt.z); propParts.push(body);
       // Half-ring handle on the side away from the pack, toward the room; both ends sink 2 mm into the wall of the mug.
-      const handle = tint(new THREE.TorusGeometry(.026, .0055, 8, 20, Math.PI), 0x93a487);
+      const handle = tint(new THREE.TorusGeometry(.026, .0055, 8, 20, Math.PI), 0x8cbbe4);
       const handleYaw = -.7; // direction (cos, 0, -sin): +x is into the room, -z toward the near end
       handle.rotateZ(-Math.PI / 2); handle.rotateY(handleYaw);
       handle.translate(mugAt.x + Math.cos(handleYaw) * (MUG.radius - .002), mugY + .052, mugAt.z - Math.sin(handleYaw) * (MUG.radius - .002));
