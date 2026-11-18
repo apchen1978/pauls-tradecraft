@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 116153, meshes: 148 }),
+  scene: Object.freeze({ vertices: 116708, meshes: 149 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 87, phone: 84 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -85,6 +85,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-17", change: "red mug detail (Paul): black coffee in the mug (in its own batch), a gold rim ring and foot band (+1 mesh), a gold lotus medallion drawn on a canvas (+1 mesh), and a faint steam curl over the mug (one Points object, still unless the close record view is open or the record plays; hidden in the Sunday mood, which has its own steam); the close record view is framed on the turntable and the mug together; +1142 vertices, +2 meshes, opening draw calls +1, the 1280 px view 89 -> 90 and the 1920 px view 93 -> 94", vertices: 116053, meshes: 146, desktopCalls: 87, phoneCalls: 84 },
     { date: "2026-11-18", change: "Card I record motion: the turntable platter (record, grooves, label with a small print block, spindle) and the tonearm are split out of the merged record-player mesh so they can turn and swing while a piece plays; a slim rest post joins the body mesh. +100 vertices, +2 meshes; opening and mood draw calls unchanged at 1440 and 390 (the credenza end is off-screen there). Headroom unchanged.", vertices: 116153, meshes: 148, desktopCalls: 87, phoneCalls: 84 },
     { date: "2026-11-18", change: "Thanksgiving turkey steam: three wisps of the red mug's steam sprite (27 points, one Points object, larger and taller) rise from the roast, only in the Thanksgiving mood; vertices and meshes unchanged (points are not meshes); Thanksgiving draw calls +1 (desktop 93, phone 90). Headroom unchanged.", vertices: 116153, meshes: 148, desktopCalls: 87, phoneCalls: 84 },
+    { date: "2026-11-18", change: "record-player power cord (Paul): a thin black cord (5 mm) leaves the back corner of the deck, lies on the oak top along the wall past the red mug and goes into the plaster through a small dark grommet; one vertex-coloured mesh, +555 vertices, +1 mesh; opening and mood draw calls unchanged at 1440 and 390 (the credenza end is off-screen there). Headroom unchanged.", vertices: 116708, meshes: 149, desktopCalls: 87, phoneCalls: 84 },
   ]),
 });
 
