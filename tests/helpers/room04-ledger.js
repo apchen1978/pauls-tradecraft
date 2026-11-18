@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 229154, meshes: 148 }),
+  scene: Object.freeze({ vertices: 229424, meshes: 148 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -111,5 +111,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "round the counter napkin dispenser and shape its folded paper in the existing material batches", vertices: 228998, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "give the Lounge notebook a saddle-brown cover and elastic band, with its pen seated on the cover", vertices: 229154, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-19", change: "the right-wall sconces light the Lounge after dark (one warm point light between the shades, off by day; it was nearly black at closing time while the shades glowed); no geometry, no draw call", vertices: 229154, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-19", change: "the Lounge notebook pen is now the window-seat pen copied (dark lacquer body, steel cap with gold ring and clip, steel point, 166 mm) instead of a plain steel rod that read as a white stick; same batches, +270 vertices", vertices: 229424, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
