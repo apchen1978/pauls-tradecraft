@@ -276,7 +276,7 @@ test("a failed door texture keeps the door and the room usable", async ({ page }
 });
 
 for (const width of [390, 1440]) {
-  test(`console details at ${width}px: delayed image, three grounded objects and no collisions`, async ({ page }) => {
+  test(`console details at ${width}px: delayed image, grounded objects (the mini Tatung cooker too) and no collisions`, async ({ page }) => {
     expect((await stat("public/prototype/roomverse-3d/tex/console-art-river-v1.webp")).size).toBeLessThan(100000);
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.addInitScript(() => { window.requestIdleCallback = () => 1; });
@@ -293,7 +293,10 @@ for (const width of [390, 1440]) {
     await page.waitForFunction(() => window.__room.consoleDetails().ready, null, { timeout: 30000 });
     const details = await page.evaluate(() => window.__room.consoleDetails());
     expect(details.artLoaded).toBe(true); expect(details.collisions).toEqual([]);
-    expect(details.objects.map((o) => o.name)).toEqual(["console-decor-frame", "console-decor-books", "console-decor-tray"]);
+    expect(details.objects.map((o) => o.name)).toEqual(["console-decor-frame", "console-decor-books", "console-decor-tray", "tv-wall-speakers", "console-mini-tatung-cooker"]);
+    const cooker = details.objects.find((o) => o.name === "console-mini-tatung-cooker"); // door end of the console, between the books and the right speaker (Paul 2026-11-19)
+    expect(cooker.max[1] - cooker.min[1]).toBeGreaterThan(.1); expect(cooker.max[1] - cooker.min[1]).toBeLessThan(.13);
+    expect(cooker.min[0]).toBeGreaterThan(details.objects.find((o) => o.name === "console-decor-books").max[0] + .01); expect(cooker.max[0]).toBeLessThan(details.speakers.units[1].min[0] - .01);
     for (const obj of details.objects) {
       expect(obj.min[1]).toBeCloseTo(.59, 4);
       expect(obj.max[1]).toBeLessThan(1.285); // below the TV's existing lower light strip
@@ -308,13 +311,13 @@ for (const width of [390, 1440]) {
   });
 }
 
-test("console picture failure still leaves all three solid decor objects", async ({ page }) => {
+test("console picture failure still leaves all solid decor objects", async ({ page }) => {
   await page.route("**/console-art-river-v1.webp", (route) => route.abort());
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   expect(await page.evaluate(() => window.__room.loadConsoleDecor())).toBe(true);
   const details = await page.evaluate(() => window.__room.consoleDetails());
-  expect(details.artLoaded).toBe(false); expect(details.objects).toHaveLength(3); expect(details.collisions).toEqual([]);
+  expect(details.artLoaded).toBe(false); expect(details.objects).toHaveLength(5); expect(details.collisions).toEqual([]);
 });
 
 test("TV wall uses four small painted maps, independent repeats, and consistent grain on thin boards", async ({ page }) => {

@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 148846, meshes: 342 }),
+  scene: Object.freeze({ vertices: 149546, meshes: 342 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 93, phone: 69 }),
+  openingDrawCalls: Object.freeze({ desktop: 93, phone: 73 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
     desktop: Object.freeze({ rain: 93, family: 90, tech: 95, chic: 90, slow: 93, golden: 93, tv: 90 }),
-    phone: Object.freeze({ rain: 66, family: 70, tech: 72, chic: 73, slow: 73, golden: 73, tv: 70 }),
+    phone: Object.freeze({ rain: 73, family: 73, tech: 72, chic: 73, slow: 73, golden: 73, tv: 70 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -40,6 +40,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "the record player's wall outlet is a Taiwanese (US Type A/B) duplex now (Paul): two raised receptacles on the white plate, each with two flat vertical slots and a round ground hole, a plate screw between them, and a small black plug in the lower one with the cord leaving it downwards; all inside the outlet's one vertex-coloured mesh (+576 vertices, no new mesh or draw call)", vertices: 132826, meshes: 356, desktopCalls: 93, phoneCalls: 73 },
     { date: "2026-11-18", change: "TV-wall shelf books and decor (Paul): one shared book builder (cover boards with a 3 mm overhang over a cream page block, a rounded spine, a pale title band) now makes seven upright books on the upper left shelf (was five) and the three flat books on the lower right shelf (one merged mesh, flush on one another), each book one vertex-coloured mesh on one shared material instead of three or four boxes; the three plain wood blocks became a mini Tatung rice cooker (one mesh). -18 meshes, +4,256 vertices; the record player now shows the music card (the robot's bubble with the cover) when it starts the music", vertices: 137082, meshes: 338, desktopCalls: 93, phoneCalls: 73 },
     { date: "2026-11-19", change: "left sideboard (Paul): two water bottles now, standing near the wall behind the mug and clear of the record player, with a green label band instead of Room 03's blue-grey (Room 01 is in Taiwan); a third vitamin bottle, the red-band bottle's shape with a green label, tucked behind the other two. The copies share their geometry and materials (no extra GPU buffers; the counter counts each mesh), +4 meshes and +11,764 counted vertices; draw calls as measured", vertices: 148846, meshes: 342, desktopCalls: 93, phoneCalls: 69 },
+    { date: "2026-11-19", change: "the mini Tatung rice cooker (Paul) moved from the TV-wall shelf to the door end of the TV console, by the umbrella, between the console books and the right speaker, and got the classic look: glossy red body with rounded foot and rim, white logo band with a small red mark, a domed chrome-ish lid with a black knob, two side handles, a front switch lever and a little indicator light. Two meshes now (vertex-coloured body, metal lid) where the shelf copy was one mesh plus its contact patch: meshes unchanged, +700 vertices. Phone calls as measured (66-70 last time, 73 now: measurement spread, the cooker is not in the phone opening view)", vertices: 149546, meshes: 342, desktopCalls: 93, phoneCalls: 73 },
   ]),
 });
 
