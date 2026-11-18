@@ -110,5 +110,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "two track bands in the existing spinning vinyl mesh and a warm paper label", vertices: 228554, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "round the counter napkin dispenser and shape its folded paper in the existing material batches", vertices: 228998, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-18", change: "give the Lounge notebook a saddle-brown cover and elastic band, with its pen seated on the cover", vertices: 229154, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-19", change: "the right-wall sconces light the Lounge after dark (one warm point light between the shades, off by day; it was nearly black at closing time while the shades glowed); no geometry, no draw call", vertices: 229154, meshes: 148, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
