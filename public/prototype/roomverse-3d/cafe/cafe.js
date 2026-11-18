@@ -2264,7 +2264,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     g.strokeStyle = "rgba(210,225,240,.10)"; g.lineWidth = 3; g.strokeRect(300, 40, 170, 120); g.beginPath(); g.moveTo(385, 40); g.lineTo(385, 160); g.moveTo(300, 100); g.lineTo(470, 100); g.stroke();
     const t = new THREE.CanvasTexture(canvas); t.colorSpace = THREE.SRGBColorSpace; return t;
   })();
-  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0xffffff, map: tvGlass, roughness: 0.16, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
+  materials.tvScreen = new THREE.MeshStandardMaterial({ color: 0xffffff, map: tvGlass, roughness: 0.34, metalness: 0.1, emissive: 0xffffff, emissiveMap: tvTexture, emissiveIntensity: 0 });
   { const TV = { z0: -0.15, z1: 1.05, y0: 1.16, y1: 1.84 }, TX = X1 - 0.05;
     const tvBox = ([x0, x1], [y0, y1], [z0, z1]) => new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
     add("tv-frame", mergeGeometries([tvBox([TX, X1 - 0.005], [TV.y0 - 0.012, TV.y1 + 0.012], [TV.z0 - 0.012, TV.z1 + 0.012]), tvBox([TX + 0.005, X1 - 0.005], [TV.y0 - 0.075, TV.y0 - 0.04], [0.05, 0.85])]), materials.black, 0, 0, 0, { cast: false }); // the frame and the slim soundbar under it
