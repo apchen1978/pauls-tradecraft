@@ -91,3 +91,18 @@ for (const width of [1280, 390]) {
     }
   });
 }
+
+test("Room 01 sideboard top: two water bottles by the wall with a green band, three vitamin bottles, all seated and clear of each other", async ({ page }) => {
+  test.setTimeout(120000);
+  await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room?.sideboardTopItems);
+  const t = await page.evaluate(() => window.__room.sideboardTopItems());
+  for (const key of ["mug", "redVitamin", "greenVitamin", "orangeVitamin", "water1", "water2"]) {
+    expect(Math.abs(t[key].seatMm), `${key} sits on the oak`).toBeLessThanOrEqual(1.5);
+    expect(t[key].gapMm, `${key} clear of ${t[key].nearest}`).toBeGreaterThanOrEqual(3);
+  }
+  for (const key of ["water1", "water2"]) expect(t[key].wallGapMm, `${key} stands near the wall`).toBeLessThanOrEqual(40);
+  expect(t.labels.water, "Room 01's band is green, not Room 03's blue-grey").toBe("#3d9a74");
+  expect(t.labels.sharedWaterGeometry && t.labels.sharedVitaminGeometry, "the copies share geometry").toBe(true);
+  expect(t.labels.greenVitamin, "the third vitamin bottle has its own label").toBe(true);
+});
