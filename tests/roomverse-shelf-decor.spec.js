@@ -17,7 +17,7 @@ for (const width of [390, 1440]) {
     expect(requests.some((r) => r.includes("console-art-river") || r.includes("shelf-art-still"))).toBe(false);
     await page.evaluate(() => __room.loadConsoleDecor());
     const data = await page.evaluate(() => __room.shelfDecor());
-    expect(data.ready).toBe(true); expect(data.objects).toHaveLength(12); expect(data.overlaps).toEqual([]);
+    expect(data.ready).toBe(true); expect(data.objects).toHaveLength(13); expect(data.overlaps).toEqual([]);
     expect(data.art).toBe("shelf-art-still-v1.webp");
     expect(await page.evaluate(() => __room.consoleDetails().artFile)).toBe("console-art-river-v1.webp");
     expect(requests.filter((r) => r.endsWith("/shelf-art-still-v1.webp"))).toHaveLength(1);
@@ -30,12 +30,13 @@ for (const width of [390, 1440]) {
       expect(item.max[1] - item.min[1], item.name).toBeLessThan(.5);
     }
     expect(data.objects.filter((o) => o.name.startsWith("shelf-book-")).length).toBe(7);
-    expect(data.objects.filter((o) => o.bay === "left-lower").map((o) => o.name)).toEqual(["shelf-ceramic-dish"]);
+    expect(data.objects.filter((o) => o.bay === "left-lower").map((o) => o.name)).toEqual(["shelf-ceramic-dish", "shelf-mini-tatung-cooker"]);
     expect(data.objects.find((o) => o.name === "shelf-small-frame").max[1] - data.objects.find((o) => o.name === "shelf-small-frame").min[1]).toBeGreaterThan(.24);
     expect(data.objects.find((o) => o.name === "shelf-medium-ceramic-vessel").max[1] - data.objects.find((o) => o.name === "shelf-medium-ceramic-vessel").min[1]).toBeGreaterThan(.30);
     const stack = data.objects.find((o) => o.name === "shelf-horizontal-book-stack");
     expect(stack?.bay).toBe("right-lower"); expect(stack.max[1] - stack.min[1]).toBeGreaterThan(.14); // three books lying flush on one another
-    expect(data.objects.some((o) => o.name.includes("tatung"))).toBe(false); // the mini Tatung cooker moved to the TV console by the entrance (Paul 2026-11-19)
+    const cooker = data.objects.find((o) => o.name === "shelf-mini-tatung-cooker"); // bottom shelf by the entrance door, beside the dish (Paul 2026-11-19)
+    expect(cooker?.bay).toBe("left-lower"); expect(cooker.max[1] - cooker.min[1]).toBeGreaterThan(.1);
     expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
     const before = requests.length;
     await page.evaluate(() => __room.loadConsoleDecor());
@@ -52,7 +53,7 @@ test("shelf texture failure leaves solid props and a working room", async ({ pag
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await page.evaluate(() => __room.loadConsoleDecor());
   const shelf = await page.evaluate(() => __room.shelfDecor());
-  expect(shelf.objects).toHaveLength(12);
+  expect(shelf.objects).toHaveLength(13);
   expect(shelf.art).toBe(null);
   expect((await page.evaluate(() => __room.consoleDetails())).artLoaded).toBe(false);
   await page.evaluate(() => __room.setOrbitAngle(180));
