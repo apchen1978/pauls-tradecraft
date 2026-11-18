@@ -1624,13 +1624,13 @@ test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and plai
   expect(errors).toEqual([]);
 });
 
-test("Room 01 the music follows the mood, the little robot hints that the TV screen or a speaker starts it, and a tap on the TV screen starts it", async ({ page }) => {
+test("Room 01 the music follows the mood, the little robot hints at the record player, and a tap on the TV screen starts it", async ({ page }) => {
   test.setTimeout(120000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${PAGE}?lang=zh&mood=golden`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  // the robot's hint after a few quiet seconds (it names the TV screen and the speakers)
-  await expect(page.locator("#robotBubble:not([hidden]) [data-bubble-copy]"), "the robot hints at the music").toContainText("電視螢幕", { timeout: 25000 });
+  // the robot's hint after a few quiet seconds (it names the record player)
+  await expect(page.locator("#robotBubble:not([hidden]) [data-bubble-copy]"), "the robot hints at the music").toContainText("唱片機", { timeout: 25000 });
   await page.evaluate(() => window.__room.playMusic());
   const state = () => page.evaluate(() => window.__room.musicState());
   await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
