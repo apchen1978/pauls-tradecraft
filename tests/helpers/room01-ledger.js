@@ -11,7 +11,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 150748, meshes: 345 }),
+  scene: Object.freeze({ vertices: 150882, meshes: 345 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
   openingDrawCalls: Object.freeze({ desktop: 95, phone: 75 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
@@ -45,6 +45,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "four recessed ceiling downlights over the living area (Paul): cream trims and warm lenses like Room 02's desk downlight, merged into two meshes, plus one shared shadowless SpotLight from their centre that really lights the floor below; its strength follows the mood (off in light-tech and series night). +2 meshes, +696 vertices, +2 draw calls; the room now has one more real light", vertices: 150246, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-19", change: "tidy-up (Paul): the three supplement bottles stand in a neat row against the wall, 10 mm apart, labels turned to the record-player view, one reading \"roomverse 3d\" with a yum face, the orange-cap one 18 percent taller (same vertex counts: only positions, turns, profile heights and label pictures changed); the four downlights move out towards the corners and stay on, dim, in series night; the last two shelf books lean 16 degrees at the open end. No new mesh or vertex; series-night desktop calls measured 92 (95 last time)", vertices: 150246, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-19", change: "the olive coffee-table book gets separate cover boards, a rounded spine, shaded page edges and a fine gilt border in its existing mesh", vertices: 150748, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
+    { date: "2026-11-19", change: "the coffee-table napkin pack gets a soft cream wrapper, clay band, dark opening and folded sheet in the same mesh", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
   ]),
 });
 
