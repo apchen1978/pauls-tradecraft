@@ -11,7 +11,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 129407, meshes: 351 }),
+  scene: Object.freeze({ vertices: 129599, meshes: 351 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
   openingDrawCalls: Object.freeze({ desktop: 93, phone: 69 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
@@ -35,6 +35,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "a second campus backpack (Room 02's model at 1.15x, mustard and olive, one vertex-coloured mesh) on the floor under the 福杯滿溢 scroll and the home board, with a mint bear charm (9 small meshes), and a soil disc with six pebbles in the big-leaf plant's pot (one mesh): +11 meshes, +7,099 vertices; desktop draw calls re-measured (the mood numbers moved by up to 4 in both directions, so part of that is measurement spread, not only the new meshes)", vertices: 128635, meshes: 345, desktopCalls: 92, phoneCalls: 72 },
     { date: "2026-11-18", change: "a record player on the left sideboard (a copy of Room 03's turntable: body, gold trim, platter and tonearm, 4 meshes, 2,304 vertices; a tap switches the room music, the platter turns while it plays) and the napkin pack moved from the sideboard to the coffee table as its own indexed mesh (+1 mesh, 3,026 fewer vertices than its old unindexed copy inside the sideboard props): +5 meshes, -722 vertices, opening draw calls +1", vertices: 127913, meshes: 350, desktopCalls: 93, phoneCalls: 73 },
     { date: "2026-11-18", change: "a record-player view (看唱片機 / The record player) and a close-up polish of the player: nine finer record grooves, a counterweight and arm tube detail, walnut plinth, three finishes (satin wood, glossier vinyl, brushed metal arm) on the meshes it already had, and a soft contact shadow plane under the deck (+1 mesh, +1,494 vertices). Phone opening calls measured 69 this time (73 before): measurement spread, the change adds no draw call to that view", vertices: 129407, meshes: 351, desktopCalls: 93, phoneCalls: 69 },
+    { date: "2026-11-18", change: "sideboard mug (Paul: it looked badly moulded): the lathe profile now runs bottom-up on the outside so its faces are no longer inside out, the green lining stops at the rim on a duplicate ring, and the outside is light blue; one more profile ring in the unindexed props mesh (+192 vertices), no new mesh or draw call", vertices: 129599, meshes: 351, desktopCalls: 93, phoneCalls: 69 },
   ]),
 });
 
