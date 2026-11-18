@@ -13,7 +13,7 @@ for (const width of [390, 1440]) {
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(`${PAGE}?lang=zh&mood=tv&wall=wine`);
     await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-    expect(await page.evaluate(() => __room.shelfDecor())).toEqual({ ready: false, art: null, objects: [], overlaps: [] });
+    expect(await page.evaluate(() => __room.shelfDecor())).toEqual({ ready: false, art: null, objects: [], overlaps: [], leans: [] });
     expect(requests.some((r) => r.includes("console-art-river") || r.includes("shelf-art-still"))).toBe(false);
     await page.evaluate(() => __room.loadConsoleDecor());
     const data = await page.evaluate(() => __room.shelfDecor());
@@ -30,6 +30,13 @@ for (const width of [390, 1440]) {
       expect(item.max[1] - item.min[1], item.name).toBeLessThan(.5);
     }
     expect(data.objects.filter((o) => o.name.startsWith("shelf-book-")).length).toBe(7);
+    // Paul 2026-11-19: the last two books lean at the open end, one on the short navy book's top corner, the other flush on it; feet on the board (supported above)
+    expect(data.leans.map((l) => [l.name, l.on])).toEqual([["shelf-book-mustard", "shelf-book-navy-short"], ["shelf-book-plum", "shelf-book-mustard"]]);
+    for (const l of data.leans) {
+      expect(l.leanDeg).toBeGreaterThanOrEqual(12); expect(l.leanDeg).toBeLessThanOrEqual(20);
+      expect(Math.abs(l.contactMm), `${l.name} touches ${l.on}, no gap, no cut-in`).toBeLessThanOrEqual(1.5);
+      expect(l.alongMm, `${l.name} touches within the book`).toBeLessThanOrEqual(l.heightMm);
+    }
     expect(data.objects.filter((o) => o.bay === "left-lower").map((o) => o.name)).toEqual(["shelf-ceramic-dish", "shelf-mini-tatung-cooker"]);
     expect(data.objects.find((o) => o.name === "shelf-small-frame").max[1] - data.objects.find((o) => o.name === "shelf-small-frame").min[1]).toBeGreaterThan(.24);
     expect(data.objects.find((o) => o.name === "shelf-medium-ceramic-vessel").max[1] - data.objects.find((o) => o.name === "shelf-medium-ceramic-vessel").min[1]).toBeGreaterThan(.30);

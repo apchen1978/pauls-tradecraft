@@ -650,13 +650,26 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     // navy, cream with a rust band, rust, olive, navy, mustard, plum.
     const uprights = [["navy", .040, .315, 0x34445e], ["cream", .036, .285, 0xe2d9c4, 0xa65a3c], ["rust", .043, .345, 0x9c4f35], ["olive", .038, .300, 0x6f7a4e],
       ["navy-short", .036, .270, 0x34445e], ["mustard", .034, .290, 0xc19243], ["plum", .037, .262, 0x6e3b52]];
-    let edge = -.02 - (uprights.reduce((s, b) => s + b[1], 0) + .003 * (uprights.length - 1)) / 2;
+    // Paul 2026-11-19 (t257u): seven books standing dead straight looked unreal. The first five stand upright 3 mm apart from near the left side; the last two
+    // lean 16 degrees at the open end: the mustard one rests its spine-side cover on the top corner of the short navy book (its foot corner on the board),
+    // and the plum one lies flush against the mustard one, its foot on the board too. Positions are solved from the angle, so nothing floats or cuts in.
+    const LEAN = 16 * Math.PI / 180;
+    let edge = -.2, support = null;
     uprights.forEach(([name, w, h, cover, band], i) => {
       const volume = new THREE.Group(); volume.name = `shelf-book-${name}`;
       mesh(volume, bookGeometry(w, h, .086, cover, band), bookMat, 0, 0, 0);
-      if (i === uprights.length - 1) volume.rotation.z = -.05;
-      place(volume, "left-upper", edge + w / 2, w + .002, .091); // the contact patch stays inside the 3 mm gap, so neighbours do not overlap
-      edge += w + .003;
+      if (i < 5) { // upright; the edge runs left to right with 3 mm between books
+        place(volume, "left-upper", edge + w / 2, w + .002, .091); edge += w + .003;
+        support = { name: volume.name, right: edge - .003, top: h, w };
+        return;
+      }
+      volume.rotation.z = LEAN; // the top tips towards the upright books
+      // foot corner x: against the upright's top corner (tall enough) or with its own top corner on that book's face; or flush on the previous leaning book
+      const foot = support.leaning ? support.foot + support.w / Math.cos(LEAN)
+        : support.right + (h * Math.cos(LEAN) >= support.top ? support.top * Math.tan(LEAN) : h * Math.sin(LEAN));
+      place(volume, "left-upper", foot + w / 2 * Math.cos(LEAN), .06, .091);
+      Object.assign(shelfDecor.children[shelfDecor.children.length - 1].userData, { leansOn: support.name, leanDeg: 16, bookW: w, bookH: h, contact: support.leaning ? "face" : "corner" });
+      support = { name: volume.name, leaning: true, foot, w };
     });
     const frame = new THREE.Group(); frame.name = "shelf-small-frame";
     mesh(frame, new THREE.BoxGeometry(.205, .252, .014), oak, 0, .126, 0);
@@ -1339,18 +1352,18 @@ let lanternMat = null;
     fill.position.set(LANTERN.x, cy, LANTERN.z); /* Paul, 2026-11-16: the light must come from the fixture: the room's soft fill light now sits at the lantern's centre, not in the middle of the room */ }
 
   // Paul 2026-11-19: four recessed ceiling downlights over the living area (cream trim, warm lens, the same model as Room 02's desk downlight), in a rectangle
-  // clear of the paper lantern and at least 1.2 m from the walls. They really light the room: one shared, shadowless SpotLight from their centre throws a wide
-  // warm pool on the floor below them. Its strength follows the mood (off in 未來輕科技宅男, "skip the ceiling light", and in 追劇夜, so series night stays dark).
+  // near the room's corners, clear of the paper lantern and 65 cm or more from the walls. They really light the room: one shared, shadowless SpotLight from their centre throws a wide
+  // warm pool on the floor below them. Its strength follows the mood (off in 未來輕科技宅男, "skip the ceiling light"; dim in 追劇夜 so series night stays cozy).
   // Two meshes (four trims, four lenses) and one light.
-  const DOWNLIGHTS = [[-1.2, -.3], [1.2, -.3], [-1.2, 1.2], [1.2, 1.2]], DOWNLIGHT_CANDELA = 7;
-  const DOWNLIGHT_LEVEL = { rain: .8, family: .35, tech: 0, chic: .45, slow: .7, golden: .3, tv: 0 };
+  const DOWNLIGHTS = [[-1.95, -1.55], [1.95, -1.55], [-1.95, 1.75], [1.95, 1.75]], DOWNLIGHT_CANDELA = 7; // Paul 2026-11-19: out towards the four corners, like Room 02 (65 cm from the side walls)
+  const DOWNLIGHT_LEVEL = { rain: .8, family: .35, tech: 0, chic: .45, slow: .7, golden: .3, tv: .25 }; // series night: on but dim (about 30 % of the rainy-day level), Paul 2026-11-19
   const downTrim = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CylinderGeometry(.05, .05, .012, 24).translate(x, H - .006, z))), new THREE.MeshStandardMaterial({ color: "#f2efe8", roughness: .5 }), 0, 0, 0, false);
   downTrim.name = "ceiling-downlight-trims";
   const downLensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
   const downLens = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CircleGeometry(.035, 24).rotateX(Math.PI / 2).translate(x, H - .013, z))), downLensMat, 0, 0, 0, false);
   downLens.name = "ceiling-downlight-lenses";
   const downSpot = new THREE.SpotLight("#ffe3bd", 0, 5.5, 1.05, .9, 2); downSpot.name = "ceiling-downlight-spot";
-  downSpot.position.set(0, H - .03, .45); downSpot.target.position.set(0, 0, .45); scene.add(downSpot, downSpot.target);
+  downSpot.position.set(0, H - .03, .1); downSpot.target.position.set(0, 0, .1); scene.add(downSpot, downSpot.target);
 
   // ---------- furniture from illustrations (quantised GLB, ~100 KB each) ----------
   const fabric = new THREE.MeshStandardMaterial({ color: "#e6dccb", roughness: 1 });
@@ -2342,17 +2355,34 @@ let lanternMat = null;
     }
     // Generic vitamin bottle beside the mug (Paul's photo, 2026-10-31): white HDPE, 55 mm across, a ribbed white screw cap 60 x 25 mm, 105 mm
     // overall. Wrap label: white with bold red bands top and bottom and a big red block in the middle. No words, brand or logo.
-    const bottleAt = { x: -2.46, z: .67, yaw: -.35 };
+    // Paul 2026-11-19 (t255u): the three supplement bottles stand in a tidy row against the wall, 10 mm apart edge to edge, and every label front (u = .375 on
+    // each lathe, phi .75 pi) is turned to face the record-player view camera, which looks from about x -1.965, z .974. The orange-cap one is 18 % taller.
+    const REC_EYE = { x: -1.965, z: .974 }, LABEL_FRONT = .75 * Math.PI, faceView = (x, z) => Math.atan2(REC_EYE.x - x, REC_EYE.z - z) - LABEL_FRONT;
+    const bottleAt = { x: -2.535, z: .71 }; bottleAt.yaw = faceView(bottleAt.x, bottleAt.z);
     const bottleY = topAt(bottleAt.x, bottleAt.z);
     const bottleParts = [];
-    const labelTex = canvasTex(256, 128, (ctx, w, h) => {
+    // The front label reads "roomverse 3d😋" (our own name, Paul; no brand or logo). If the emoji font draws nothing in colour, a small drawn smiley stands in.
+    const labelTex = canvasTex(512, 128, (ctx, w, h) => {
       ctx.fillStyle = "#f7f6f1"; ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#d9262b"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
-      // The front block sits at u 0.25..0.5 (faces the room after the yaw); a rounded slab and a small cross, shapes only.
-      const bx = w * .26, by = 34, bw = w * .15, bh = 58;
-      ctx.beginPath(); ctx.roundRect(bx, by, bw * 1.05, bh, 9); ctx.fill(); // a plain heavy block, not a letter
-      ctx.fillRect(bx + bw * 1.2, by + 4, bw * .42, 9); ctx.fillRect(bx + bw * 1.36, by - 6, 9, 30);
-      ctx.fillStyle = "rgba(60,40,40,.35)"; ctx.fillRect(bx, by + bh + 8, bw * 1.5, 4); ctx.fillRect(bx, by + bh + 15, bw * 1.1, 3);
+      const cx = w * .375, text = "roomverse 3d";
+      ctx.font = "bold 25px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"; ctx.textBaseline = "middle"; ctx.textAlign = "left";
+      const tw = Math.min(ctx.measureText(text).width, 132), face = 24, x0 = cx - (tw + 6 + face) / 2, y = h / 2 - 2;
+      ctx.fillStyle = "#b8202a"; ctx.fillText(text, x0, y, 132);
+      const fx = x0 + tw + 6 + face / 2;
+      const probe = document.createElement("canvas"); probe.width = probe.height = 24; const p2 = probe.getContext("2d");
+      p2.font = "20px 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif"; p2.textBaseline = "middle"; p2.fillText("😋", 1, 12);
+      const px = p2.getImageData(0, 0, 24, 24).data; let colour = false;
+      for (let k = 0; k < px.length; k += 4) if (px[k + 3] > 100 && Math.abs(px[k] - px[k + 2]) > 60) { colour = true; break; }
+      if (colour) { ctx.font = `${face}px 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif`; ctx.textAlign = "center"; ctx.fillText("😋", fx, y + 1); }
+      else { // a simple yum face: yellow disc, two happy closed eyes, a smile and a little tongue
+        ctx.fillStyle = "#f6c430"; ctx.beginPath(); ctx.arc(fx, y, face / 2, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#5a3a12"; ctx.lineWidth = 2; ctx.lineCap = "round";
+        for (const ex of [-4.5, 4.5]) { ctx.beginPath(); ctx.arc(fx + ex, y - 2, 2.6, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(fx, y + 2, 6, Math.PI * .15, Math.PI * .85); ctx.stroke();
+        ctx.fillStyle = "#e0475a"; ctx.beginPath(); ctx.ellipse(fx + 2.5, y + 8, 2.6, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.fillStyle = "rgba(60,40,40,.3)"; ctx.fillRect(cx - 50, h - 36, 100, 3);
     });
     {
       // Body: flat base, 27.5 mm radius wall with a soft heel, rounded shoulder into a 22 mm neck. v runs with height so the label maps flat.
@@ -2372,36 +2402,31 @@ let lanternMat = null;
     const bottleGeometry = mergeGeometries(bottleParts.map((g) => g.index ? g.toNonIndexed() : g), false);
     bottleParts.forEach((g) => g.dispose());
     bottleGeometry.computeVertexNormals();
-    bottleGeometry.rotateY(bottleAt.yaw);
-    bottleGeometry.translate(bottleAt.x, bottleY, bottleAt.z);
     const bottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: labelTex, color: "#ffffff", roughness: .42 }));
+    bottle.position.set(bottleAt.x, bottleY, bottleAt.z); bottle.rotation.y = bottleAt.yaw;
     bottle.name = "left-sideboard-supplement"; bottle.castShadow = true; bottle.receiveShadow = true; scene.add(bottle);
     // Paul 2026-11-19: a third bottle, the same shape as the red-band one (it shares its geometry), with a green label, tucked behind the other two toward the wall.
-    const greenLabelTex = canvasTex(256, 128, (ctx, w, h) => {
+    const greenLabelTex = canvasTex(256, 128, (ctx, w, h) => { // a plain coloured label: green bands and a soft green field, no words or marks
       ctx.fillStyle = "#f5f6f0"; ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#2f8a5c"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
-      const bx = w * .26, by = 34, bw = w * .15, bh = 58;
-      ctx.beginPath(); ctx.roundRect(bx, by, bw * 1.05, bh, 9); ctx.fill();
-      ctx.beginPath(); ctx.ellipse(bx + bw * 1.55, by + 18, 11, 6, -.6, 0, Math.PI * 2); ctx.fill(); // a leaf, shapes only
-      ctx.fillStyle = "rgba(40,60,50,.35)"; ctx.fillRect(bx, by + bh + 8, bw * 1.5, 4); ctx.fillRect(bx, by + bh + 15, bw * 1.1, 3);
+      ctx.fillStyle = "#8fc4a4"; ctx.fillRect(0, 44, w * .9, 30); // stops short of u .97, where the cap samples its plain colour
     });
-    const greenBottleAt = { x: -2.535, z: .608 };
+    const greenBottleAt = { x: -2.535, z: .638 };
     const greenBottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: greenLabelTex, color: "#ffffff", roughness: .42 }));
-    greenBottle.position.set(greenBottleAt.x - bottleAt.x, topAt(greenBottleAt.x, greenBottleAt.z) - bottleY, greenBottleAt.z - bottleAt.z);
+    greenBottle.position.set(greenBottleAt.x, topAt(greenBottleAt.x, greenBottleAt.z), greenBottleAt.z); greenBottle.rotation.y = faceView(greenBottleAt.x, greenBottleAt.z);
     greenBottle.name = "left-sideboard-supplement-green"; greenBottle.castShadow = true; greenBottle.receiveShadow = true; scene.add(greenBottle);
     // An orange flip-top vitamin bottle, inspired by Paul's reference photo, without branding.
-    const orangeBottleAt = { x: -2.46, z: .55 };
+    const orangeBottleAt = { x: -2.535, z: .572 };
     const orangeBottleY = topAt(orangeBottleAt.x, orangeBottleAt.z);
-    const orangeLabel = canvasTex(256, 128, (ctx, w, h) => {
+    const orangeLabel = canvasTex(256, 128, (ctx, w, h) => { // plain: cream with an orange band and a thin sage line
       ctx.fillStyle = '#f6f4ed'; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = '#79976b'; ctx.fillRect(w*.28, h*.25, w*.26, 5);
-      ctx.fillStyle = '#c66b3e'; ctx.fillRect(w*.28, h*.52, w*.22, 7);
-      ctx.fillStyle = '#d9b65b'; ctx.beginPath(); ctx.arc(w*.56, h*.42, 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#e58124'; ctx.fillRect(0, h * .34, w, h * .3);
+      ctx.fillStyle = '#79976b'; ctx.fillRect(0, h * .7, w, 4);
     });
-    const orangeBody = new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.022,0],[.025,.004],[.025,.074],[.023,.080],[.021,.083],[0,.083]].map(([r,y]) => new THREE.Vector2(r,y)),32), new THREE.MeshStandardMaterial({map:orangeLabel,roughness:.65}));
-    orangeBody.position.set(orangeBottleAt.x, orangeBottleY-.001, orangeBottleAt.z); orangeBody.castShadow=true; orangeBody.name='orange-cap-vitamin-body'; scene.add(orangeBody);
+    const orangeBody = new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.022,0],[.025,.004],[.025,.093],[.023,.1],[.021,.104],[0,.104]].map(([r,y]) => new THREE.Vector2(r,y)),32), new THREE.MeshStandardMaterial({map:orangeLabel,roughness:.65}));
+    orangeBody.position.set(orangeBottleAt.x, orangeBottleY-.001, orangeBottleAt.z); orangeBody.rotation.y = faceView(orangeBottleAt.x, orangeBottleAt.z); orangeBody.castShadow=true; orangeBody.name='orange-cap-vitamin-body'; scene.add(orangeBody);
     const orangeCap = new THREE.Mesh(new THREE.CylinderGeometry(.0255,.0255,.022,32),new THREE.MeshStandardMaterial({color:0xe58124,roughness:.42}));
-    orangeCap.position.set(orangeBottleAt.x, orangeBottleY+.092, orangeBottleAt.z); orangeCap.castShadow=true; orangeCap.name='orange-cap-vitamin-lid'; scene.add(orangeCap);
+    orangeCap.position.set(orangeBottleAt.x, orangeBottleY+.113, orangeBottleAt.z); orangeCap.castShadow=true; orangeCap.name='orange-cap-vitamin-lid'; scene.add(orangeCap);
     for (const g of propParts) { if (!g.attributes.uv) continue; g.deleteAttribute("uv"); }
     for (const g of propParts) if (g.attributes.normal) g.deleteAttribute("normal");
     const propGeometry = mergeGeometries(propParts.map((g) => g.index ? g.toNonIndexed() : g), false);
@@ -2413,6 +2438,11 @@ let lanternMat = null;
     pack.name = "coffee-table-napkin-pack"; pack.castShadow = true; pack.receiveShadow = true; scene.add(pack);
     // The record player stands on the far end of the top (toward the coat stand), its front and gold pinstripe toward the room, its feet 2.5 mm into the oak.
     const recordAt = { x: -2.405, z: 1.17 }, recordPlayer = buildRoom01RecordPlayer(scene, { ...recordAt, top: topAt(recordAt.x, recordAt.z), yaw: Math.PI });
+    { // turn the three label fronts to the record-player view's real eye (the same framing as recordShot), now that the deck exists
+      const b = new THREE.Box3().setFromObject(recordPlayer.group), c = b.getCenter(new THREE.Vector3()), d = new THREE.Vector3(.6, .75, -.28).normalize();
+      const ex = c.x + .02 + d.x * .7, ez = c.z + d.z * .7;
+      for (const m of [bottle, greenBottle, orangeBody]) m.rotation.y = Math.atan2(ex - m.position.x, ez - m.position.z) - LABEL_FRONT;
+      bottleAt.yaw = bottle.rotation.y; }
     // Paul 2026-11-18: a record player needs power. The sideboard top runs right to the plaster, so the cord cannot drop behind it: a white outlet sits on the wall just
     // above the top behind the player's far corner (centre 165 mm above the top, 0.5 mm into the plaster), and a thin black cord leaves the back of the deck, drops onto the
     // oak, lies along it in a loose curve and climbs the wall into the plug. Two meshes: the cord, and the outlet with its plug.
@@ -4334,7 +4364,8 @@ let lanternMat = null;
       const mugBase = lowest(g, (x, z) => Math.hypot(x - sideboard.mugAt.x, z - sideboard.mugAt.z) < sideboard.mugRadius + .001);
       const packBase = new THREE.Box3().setFromObject(sideboard.pack).min.y; // the pack now stands on the coffee table (Paul 2026-11-18)
       const mm = (v) => Number((v * 1000).toFixed(2));
-      const bottleBox = bb(sideboard.bottle), bottleBase = bottleBox.min.y;
+      const bottleBox = new THREE.Box3().setFromObject(sideboard.bottle, true), // precise: the bottle is turned to face the record view
+        bottleBase = bottleBox.min.y;
       // Horizontal clearances from the bottle's cap circle (30 mm) to the mug (body 40 mm + handle) and to the pack's footprint box.
       const propPts = sideboard.props.geometry.attributes.position;
       let mugGap = Infinity, packGap = Infinity;
@@ -4364,8 +4395,9 @@ let lanternMat = null;
       scene.updateMatrixWorld(true);
       const ray = new THREE.Raycaster(), topY = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); return ray.intersectObject(sideboard.oak, false)[0]?.point.y ?? null; };
       const items = { mug: sideboard.props, redVitamin: sideboard.bottle, greenVitamin: sideboard.greenBottle, orangeVitamin: scene.getObjectByName("orange-cap-vitamin-body"), water1: sideboard.water.glass, water2: sideboard.water.second.glass, recordPlayer: sideboard.recordPlayer.group, outlet: sideboard.outlet };
-      const boxes = Object.fromEntries(Object.entries(items).map(([k, o]) => [k, new THREE.Box3().setFromObject(o)]));
+      const boxes = Object.fromEntries(Object.entries(items).map(([k, o]) => [k, new THREE.Box3().setFromObject(o, true)])); // precise: the turned bottles' loose boxes would grow by their rotation
       { const rb = sideboard.recordPlayer.info().bounds; boxes.recordPlayer = new THREE.Box3(new THREE.Vector3(...rb.min), new THREE.Vector3(...rb.max)); } // the deck itself, not its invisible tap target
+      boxes.orangeVitamin.union(new THREE.Box3().setFromObject(scene.getObjectByName("orange-cap-vitamin-lid"), true)); // the whole orange bottle, cap included
       const gap = (a, b) => { const dx = Math.max(b.min.x - a.max.x, a.min.x - b.max.x, 0), dz = Math.max(b.min.z - a.max.z, a.min.z - b.max.z, 0); return Math.round(Math.hypot(dx, dz) * 1000); };
       const out = {};
       for (const [k, b] of Object.entries(boxes)) {
@@ -4503,8 +4535,22 @@ let lanternMat = null;
           fits: fits && box.max.y < rowTop, supported };
       });
       const boxes = shelfDecor.children.map((obj) => ({ name: obj.name, box: new THREE.Box3().setFromObject(obj) }));
-      const overlaps = boxes.flatMap((a, i) => boxes.slice(i + 1).filter((b) => a.box.intersectsBox(b.box)).map((b) => [a.name, b.name]));
-      return { ready: shelfDecorReady, art: shelfArtFile, objects, overlaps };
+      const rests = (a, b) => shelfDecor.getObjectByName(a)?.userData.leansOn === b || shelfDecor.getObjectByName(b)?.userData.leansOn === a; // a leaning book touches its support by design; checked exactly below
+      const overlaps = boxes.flatMap((a, i) => boxes.slice(i + 1).filter((b) => a.box.intersectsBox(b.box) && !rests(a.name, b.name)).map((b) => [a.name, b.name]));
+      const bookOf = (item) => item.children.find((c) => c.isGroup); // the book group inside the placed item (the other child is the contact patch)
+      const leans = shelfDecor.children.filter((o) => o.userData.leansOn).map((o) => {
+        const on = shelfDecor.getObjectByName(o.userData.leansOn), book = bookOf(o), w = o.userData.bookW, h = o.userData.bookH;
+        let contactMm, alongMm;
+        if (o.userData.contact === "corner") { // the upright support's top corner must sit on this book's lower cover face
+          const sb = new THREE.Box3().setFromObject(bookOf(on)), c = book.worldToLocal(new THREE.Vector3(sb.max.x, sb.max.y, (sb.min.z + sb.max.z) / 2));
+          contactMm = (c.x + w / 2) * 1000; alongMm = c.y * 1000;
+        } else { // this book's foot corner must lie on the support book's upper cover face
+          const sw = on.userData.bookW, f = bookOf(on).worldToLocal(book.localToWorld(new THREE.Vector3(-w / 2, 0, 0)));
+          contactMm = (f.x - sw / 2) * 1000; alongMm = f.y * 1000;
+        }
+        return { name: o.name, on: o.userData.leansOn, leanDeg: o.userData.leanDeg, contactMm, alongMm, heightMm: h * 1000 };
+      });
+      return { ready: shelfDecorReady, art: shelfArtFile, objects, overlaps, leans };
     },
     loadRightWallArt,
     rightWallArt() { // read-only QA: frame clearance, responsive image, local glow and projected artwork bounds

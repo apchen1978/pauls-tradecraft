@@ -105,4 +105,10 @@ test("Room 01 sideboard top: two water bottles by the wall with a green band, th
   expect(t.labels.water, "Room 01's band is green, not Room 03's blue-grey").toBe("#3d9a74");
   expect(t.labels.sharedWaterGeometry && t.labels.sharedVitaminGeometry, "the copies share geometry").toBe(true);
   expect(t.labels.greenVitamin, "the third vitamin bottle has its own label").toBe(true);
+  // Paul 2026-11-19: a tidy row against the wall, 10 mm apart, and the orange-cap bottle clearly taller than the other two
+  const row = ["redVitamin", "greenVitamin", "orangeVitamin"].map((k) => t[k]);
+  expect(Math.max(...row.map((r) => r.wallGapMm)) - Math.min(...row.map((r) => r.wallGapMm)), "one row along the wall").toBeLessThanOrEqual(8);
+  for (const r of row) { expect(r.gapMm).toBeGreaterThanOrEqual(8); expect(r.gapMm).toBeLessThanOrEqual(15); }
+  expect(t.redVitamin.heightMm).toBe(t.greenVitamin.heightMm);
+  expect(t.orangeVitamin.heightMm / t.redVitamin.heightMm).toBeGreaterThan(1.12);
 });
