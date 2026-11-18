@@ -692,22 +692,32 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         lying.push(bookGeometry(thick, len, d, cover).rotateZ(Math.PI / 2).translate(len / 2, thick / 2, 0).rotateY(yaw).translate(dx, y, 0)); y += thick;
       }
       mesh(stack, mergeGeometries(lying, false), bookMat, 0, 0, 0); lying.forEach((g) => g.dispose()); }
-    // The three plain wood blocks are gone (they were only decor): a mini Tatung electric rice cooker (大同電鍋) stands there instead, red body with a cream band,
-    // a domed steel lid with a black knob, black side handles and the front switch with its little orange lamp. 10 cm tall, one mesh.
-    const cooker = new THREE.Group(); cooker.name = "shelf-mini-tatung-cooker";
-    { const lathe = (pts) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), 20), BLACK = 0x1d1d1f, parts = [];
-      parts.push(painted(lathe([[0, 0], [.040, 0], [.043, .003], [.044, .008], [.044, .066], [.0425, .070], [.040, .071]]), 0xc0392b));
-      parts.push(painted(new THREE.CylinderGeometry(.0444, .0444, .004, 20, 1, true).translate(0, .014, 0), 0xf1ead8));
-      parts.push(painted(lathe([[.0405, .0705], [.042, .072], [.041, .076], [.034, .085], [.02, .091], [0, .093]]), 0xc9ccce));
-      parts.push(painted(new THREE.CylinderGeometry(.0045, .006, .007, 10).translate(0, .096, 0), BLACK));
-      parts.push(painted(new THREE.SphereGeometry(.006, 8, 6).scale(1, .6, 1).translate(0, .0995, 0), BLACK));
-      for (const side of [-1, 1]) parts.push(painted(new THREE.BoxGeometry(.009, .007, .026).translate(side * (.044 + .0045 - .001), .060, 0), BLACK));
-      parts.push(painted(new THREE.BoxGeometry(.012, .016, .006).translate(0, .022, -.044 - .003 + .001), BLACK));
-      parts.push(painted(new THREE.BoxGeometry(.004, .004, .0015).translate(0, .036, -.0445), 0xf0a030));
-      const geo = mergeGeometries(parts, false); parts.forEach((p) => p.dispose()); geo.computeVertexNormals();
-      mesh(cooker, geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .45, metalness: .15 }), 0, 0, 0); }
     place(stack, "right-lower", -.05, .286, .096);
-    place(cooker, "right-lower", .175, .11, .1);
+    // Paul 2026-11-19: the mini Tatung rice cooker (大同電鍋) left the shelf for the door end of the TV console, by the umbrella, and got the classic look:
+    // a glossy red body with rounded (bevelled) foot and rim, a white logo band with a small red mark, a domed chrome-ish lid with a black knob, two side
+    // handles, and a front switch lever with a little indicator light. Two meshes: one vertex-coloured body and the metal lid. About 11 cm tall, seated flush.
+    const cooker = new THREE.Group(); cooker.name = "console-mini-tatung-cooker";
+    { const lathe = (pts) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), 24), BLACK = 0x18181a, parts = [];
+      parts.push(painted(lathe([[0, 0], [.036, 0], [.0405, .0015], [.0428, .005], [.0438, .010], [.0442, .040], [.0440, .064], [.0430, .068], [.0412, .0705], [.0395, .071]]), 0xc4231d));
+      parts.push(painted(new THREE.CylinderGeometry(.0447, .0447, .010, 24, 1, true).translate(0, .044, 0), 0xf6f3ec));
+      parts.push(painted(new THREE.BoxGeometry(.014, .0045, .0012).translate(0, .044, -.0452), 0xb21f1a));
+      parts.push(painted(new THREE.CylinderGeometry(.0042, .0058, .0065, 12).translate(0, .0955, 0), BLACK));
+      parts.push(painted(new THREE.SphereGeometry(.0062, 10, 6).scale(1, .55, 1).translate(0, .0992, 0), BLACK));
+      for (const side of [-1, 1]) {
+        parts.push(painted(new THREE.BoxGeometry(.0065, .006, .03).translate(side * .0505, .058, 0), BLACK));
+        for (const z of [-.011, .011]) parts.push(painted(new THREE.BoxGeometry(.0075, .005, .004).translate(side * .046, .058, z), BLACK));
+      }
+      parts.push(painted(new THREE.BoxGeometry(.016, .02, .004).translate(0, .021, -.0448), BLACK));
+      parts.push(painted(new THREE.BoxGeometry(.006, .012, .006).rotateX(-.5).translate(0, .023, -.0485), 0x2c2c2e));
+      parts.push(painted(new THREE.SphereGeometry(.0024, 8, 6).translate(0, .036, -.0442), 0xff8c2a));
+      const geo = mergeGeometries(parts, false); parts.forEach((p) => p.dispose()); geo.computeVertexNormals();
+      mesh(cooker, geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .3, metalness: .08 }), 0, 0, 0).name = "console-mini-tatung-cooker-body";
+      const lid = lathe([[.0398, .0705], [.0418, .0715], [.0422, .0735], [.0405, .0765], [.036, .083], [.027, .0895], [.015, .093], [0, .094]]);
+      mesh(cooker, lid, new THREE.MeshStandardMaterial({ color: 0xe2e5e8, roughness: .22, metalness: .5 }), 0, 0, 0).name = "console-mini-tatung-cooker-lid";
+      cooker.children.forEach((m) => { m.castShadow = true; }); }
+    // Between the console books and the right speaker (18 cm free), turned a little towards the entry view.
+    cooker.scale.setScalar(1.15); cooker.rotation.y = .35; consoleDecor.add(cooker); cooker.position.set(.641, 0, FRONT - .38); cooker.updateMatrixWorld(true);
+    cooker.position.y += .59 - new THREE.Box3().setFromObject(cooker).min.y; cooker.updateMatrixWorld(true);
     shelfDecorReady = true;
   }
   let consoleDecorPromise = null, consoleDecorLoaded = false, consoleArtLoaded = false;
