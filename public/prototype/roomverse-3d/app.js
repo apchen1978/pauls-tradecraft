@@ -1705,7 +1705,33 @@ let lanternMat = null;
   const tvLaptopObj = laptopObj.clone(true); tvLaptopObj.rotation.y = Math.PI;
   place({ scene: tvLaptopObj }, { width: .28, x: .02, z: FRONT - .34, baseY: .59 });
   tvLaptopObj.name = "tv-laptop"; tvWall.add(tvLaptopObj);
-  const coffeeBook = add(new THREE.BoxGeometry(.26, .05, .18), new THREE.MeshStandardMaterial({ color: "#6d7d68" }), SX - .12, coffeeTop + .025, SZ + 1.02); // a book
+  // A clothbound book: cream fore-edge, olive boards and quiet gilt tooling, batched as one mesh.
+  const coffeeBook = (() => {
+    const pieces = [];
+    const piece = (geometry, color, shade = () => 1) => {
+      const position = geometry.attributes.position;
+      const values = new Float32Array(position.count * 3);
+      const tint = new THREE.Color(color), shaded = new THREE.Color();
+      for (let i = 0; i < position.count; i++) {
+        shaded.copy(tint).multiplyScalar(shade(position.getX(i), position.getY(i), position.getZ(i))).toArray(values, i * 3);
+      }
+      geometry.setAttribute("color", new THREE.BufferAttribute(values, 3));
+      pieces.push(geometry);
+    };
+    piece(new THREE.BoxGeometry(.26, .0045, .18).translate(0, .00225, 0), 0x515c42);
+    piece(new THREE.BoxGeometry(.249, .039, .167, 1, 8, 1).translate(0, .024, 0), 0xd9c8a5,
+      (x, y, z) => 0.94 + 0.055 * Math.cos((y - .0045) / .039 * Math.PI * 8) + 0.025 * Math.sin(x * 43 + z * 17));
+    piece(new THREE.BoxGeometry(.26, .0055, .18, 10, 1, 6).translate(0, .04675, 0), 0x637259,
+      (x, y, z) => 0.98 + 0.043 * Math.sin(x * 105 + z * 23) + 0.025 * Math.cos(z * 137));
+    const spine = new THREE.CylinderGeometry(.02475, .02475, .26, 12, 1, false, Math.PI / 2, Math.PI);
+    spine.rotateZ(Math.PI / 2).translate(0, .02475, -.06525);
+    piece(spine, 0x4b5942);
+    // The inset border and its small diamond are inside the original book envelope.
+    for (const z of [-.061, .061]) piece(new THREE.BoxGeometry(.2083, .0008, .0017).translate(0, .0495, z), 0xb29b64);
+    for (const x of [-.105, .105]) piece(new THREE.BoxGeometry(.0017, .0008, .1237).translate(x, .0495, 0), 0xb29b64);
+    piece(new THREE.BoxGeometry(.019, .0008, .019).rotateY(Math.PI / 4).translate(0, .0495, 0), 0xb29b64);
+    return add(mergeGeometries(pieces), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .89 }), SX - .12, coffeeTop, SZ + 1.02);
+  })();
   coffeeBook.name = "coffee-table-book";
   const sideTop = new THREE.Box3().setFromObject(tableObj).max.y;
   const tableLampObj = place(tableLamp, { height: .45, x: TX, z: TZ, baseY: sideTop });
