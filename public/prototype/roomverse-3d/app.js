@@ -10,8 +10,8 @@ import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
 import { createRoomMusic } from "./sound.js?v=auto";
 
 export const TEXT = {
-  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", entryView: "看看入口角落", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
-  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", entryView: "Explore the entry", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", previewTitle: "Your postcard is ready", previewLongPress: "Press and hold the picture to save it to your photos", previewOpenBrowser: "Or tap “⋯” in the upper-right menu and choose “Open in browser”, then tap Save as a postcard", previewClose: "Close postcard preview", previewAlt: "ROOMVERSE 3D postcard", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
+  zh: { mood: "感覺", wall: "牆面", rug: "地毯", curtain: "窗簾", print: "掛畫", hint: "拖一下轉動房間，或點「看電視牆」。網址會記住你搭的房間，複製給朋友就能看到同一間。", windowView: "回到窗邊", tvView: "看電視牆", entryView: "看看入口角落", recordView: "看唱片機", canvas: "3D 軟裝房間，可以拖曳轉動角度", save: "存成明信片", shuffle: "幫我隨機搭一間", director: "看 8 秒房間短片", stop: "停止短片", close: "收起對照", preparing: "短片準備中…", unavailable: "窗景暫時無法載入，請再試一次。", previewTitle: "明信片已準備好", previewLongPress: "長按圖片即可儲存到相簿", previewOpenBrowser: "或點右上角「⋯」選「在瀏覽器開啟」後再按存成明信片", previewClose: "關閉明信片預覽", previewAlt: "ROOMVERSE 3D 明信片", directorPhases: ["雨天暖燈", "白天自然光", "夜晚冷暖光"], directorStill: "同一間房，從雨天的暖燈、白天的自然光，到夜晚的冷暖對照；小機器人最後回頭看你。", directorDone: "短片結束，已回到你原來的房間。", file: "ROOMVERSE-3D-明信片.png", artFile: "ROOMVERSE-3D-插畫明信片.webp" },
+  en: { mood: "Feeling", wall: "Wall", rug: "Rug", curtain: "Curtains", print: "Wall print", hint: "Drag to turn the room, or tap ‘Turn to the TV wall’. The address remembers your room, so a copied link opens the same one.", windowView: "Back to the window", tvView: "Turn to the TV wall", entryView: "Explore the entry", recordView: "The record player", canvas: "A 3D living room; drag to turn it", save: "Save as a postcard", shuffle: "Surprise me with a room", director: "Watch the 8-second room tour", stop: "Stop the tour", close: "Close comparison", preparing: "Preparing the tour…", unavailable: "The window view could not load. Please try again.", previewTitle: "Your postcard is ready", previewLongPress: "Press and hold the picture to save it to your photos", previewOpenBrowser: "Or tap “⋯” in the upper-right menu and choose “Open in browser”, then tap Save as a postcard", previewClose: "Close postcard preview", previewAlt: "ROOMVERSE 3D postcard", directorPhases: ["Rain · warm lamps", "Daylight", "Night · warm and cool"], directorStill: "One room: warm lamps on a rainy day, daylight, then a cool-and-warm evening. The little robot turns to greet you at the end.", directorDone: "Tour finished. Your room is back as you left it.", file: "ROOMVERSE-3D-postcard.png", artFile: "ROOMVERSE-3D-illustrated-postcard.webp" },
 };
 // Short labels for the single-row phone toolbar. The accessible name stays the full phrase above.
 const PHONE_BAR = {
@@ -2451,6 +2451,7 @@ let lanternMat = null;
   }
   function moveToView(view) {
     if (view === "tv") { void loadTvWallTextures(); void loadDoorTexture(); void loadConsoleDecor(); void loadRightWallArt(); }
+    if (view === "record" || currentView === "record") { moveRecordView(view); return; }
     if (director) stopDirector(false);
     if (directorPreparing) cancelPreparation();
     settleIntro();
@@ -2474,6 +2475,41 @@ let lanternMat = null;
       camera.lookAt(orbitCenter); render();
       if (k < 1) requestAnimationFrame(step);
       else { controls.target.copy(orbitCenter); controls.enabled = true; setCameraAngle(target, radius, phi); toUrl(); drawPanel(); }
+    };
+    requestAnimationFrame(step);
+  }
+  // The record-player view (Paul 2026-11-18, like Room 02's and Room 04's): the camera glides to a close, slightly high look at the turntable on the sideboard and may
+  // turn a little around it (limits kept so it never meets the wall or the cabinet); any other view chip glides back to the room orbit and restores its limits.
+  let recordSaved = null;
+  const recordShot = () => {
+    const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3());
+    const focus = new THREE.Vector3(c.x + .02, b.max.y - .02, c.z), dist = camera.aspect < .8 ? 1.0 : .7;
+    return { focus, eye: focus.clone().addScaledVector(new THREE.Vector3(.6, .75, -.28).normalize(), dist) }; // from the room side and above, a little toward the window end, so the hall stand stays out of frame
+  };
+  function moveRecordView(view) {
+    if (director) stopDirector(false);
+    if (directorPreparing) cancelPreparation();
+    settleIntro();
+    const token = ++viewMoveToken, fromEye = camera.position.clone(), fromFocus = controls.target.clone();
+    let toEye, toFocus;
+    if (view === "record") ({ eye: toEye, focus: toFocus } = recordShot());
+    else { viewTheta = view === "tv" ? Math.PI : view === "entry" ? -Math.PI / 2 : 0; toEye = cameraAt(viewTheta, orbitRadius, orbitPhi); toFocus = orbitCenter.clone(); }
+    if (view !== "record" && recordSaved) { Object.assign(controls, recordSaved); recordSaved = null; }
+    currentView = view; controls.enabled = false;
+    const finish = () => {
+      if (view !== "record") { controls.enabled = true; setCameraAngle(viewTheta, orbitRadius, orbitPhi); toUrl(); drawPanel(); return; }
+      recordSaved ||= { minDistance: controls.minDistance, maxDistance: controls.maxDistance, minPolarAngle: controls.minPolarAngle, maxPolarAngle: controls.maxPolarAngle, minAzimuthAngle: controls.minAzimuthAngle, maxAzimuthAngle: controls.maxAzimuthAngle };
+      const off = toEye.clone().sub(toFocus), az = Math.atan2(off.x, off.z), d = off.length();
+      Object.assign(controls, { minDistance: d * .7, maxDistance: d * 1.25, minPolarAngle: Math.PI * .15, maxPolarAngle: Math.PI * .4, minAzimuthAngle: az - .5, maxAzimuthAngle: az + .5 });
+      camera.position.copy(toEye); controls.target.copy(toFocus); camera.lookAt(toFocus); controls.enabled = true; controls.update(); render(); toUrl(); drawPanel();
+    };
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { finish(); return; }
+    const t0 = performance.now(), duration = 1100, focus = new THREE.Vector3();
+    const step = (now) => {
+      if (token !== viewMoveToken) return;
+      const k = Math.min(1, (now - t0) / duration), e = k * k * (3 - 2 * k);
+      camera.position.lerpVectors(fromEye, toEye, e); focus.lerpVectors(fromFocus, toFocus, e); camera.lookAt(focus); render();
+      if (k < 1) requestAnimationFrame(step); else finish();
     };
     requestAnimationFrame(step);
   }
@@ -2505,7 +2541,7 @@ let lanternMat = null;
     let keep = null;
     if (had && (panel.contains(had) || toolbar?.contains(had))) {
       const g = had.closest(".opts");
-      keep = had.classList.contains("shuffle") ? { c: "shuffle" } : g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("camera-entry") ? "camera-entry" : had.classList.contains("director") ? "director" : "save" };
+      keep = had.classList.contains("shuffle") ? { c: "shuffle" } : g ? { g: [...panel.querySelectorAll(".opts")].indexOf(g), k: had.dataset.key } : { c: had.classList.contains("camera-tv") ? "camera-tv" : had.classList.contains("camera-window") ? "camera-window" : had.classList.contains("camera-entry") ? "camera-entry" : had.classList.contains("camera-record") ? "camera-record" : had.classList.contains("director") ? "director" : "save" };
     }
     const cameraGroup = document.createElement("div"); cameraGroup.className = "camera-actions"; cameraGroup.setAttribute("role", "group"); cameraGroup.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
     const windowButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-window", textContent: t.windowView, "aria-label": t.windowView, "aria-pressed": String(currentView === "window"), onclick: () => moveToView("window") });
@@ -2514,7 +2550,9 @@ let lanternMat = null;
     tvButton.setAttribute("aria-label", t.tvView); tvButton.setAttribute("aria-pressed", String(currentView === "tv"));
     const entryButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-entry", textContent: t.entryView, onclick: () => moveToView("entry") });
     entryButton.setAttribute("aria-label", t.entryView); entryButton.setAttribute("aria-pressed", String(currentView === "entry"));
-    cameraGroup.append(windowButton, tvButton, entryButton);
+    const recordButton = Object.assign(document.createElement("button"), { type: "button", className: "camera-record", textContent: t.recordView, onclick: () => moveToView("record") });
+    recordButton.setAttribute("aria-label", t.recordView); recordButton.setAttribute("aria-pressed", String(currentView === "record"));
+    cameraGroup.append(windowButton, tvButton, entryButton, recordButton);
     const headings = document.createElement("h2"); headings.className = "camera-heading"; headings.textContent = state.lang === "zh" ? "轉換視角" : "Change view";
     panel.replaceChildren(headings, cameraGroup, ...[["mood", MOODS], ["wall", WALLS], ["rug", RUGS], ["curtain", CURTAINS], ["print", PRINTS]].flatMap(([key, table]) => {
       const h = document.createElement("h2"); h.textContent = t[key];
@@ -2561,7 +2599,7 @@ let lanternMat = null;
     }
     if (immersiveControls) {
       const views = document.createElement("div"); views.className = "immersive-row"; views.setAttribute("role", "group"); views.setAttribute("aria-label", state.lang === "zh" ? "房間視角" : "Room view");
-      for (const [view, label] of [["window", t.windowView], ["tv", t.tvView], ["entry", t.entryView]]) {
+      for (const [view, label] of [["window", t.windowView], ["tv", t.tvView], ["entry", t.entryView], ["record", t.recordView]]) {
         const b = document.createElement("button"); b.type = "button"; b.dataset.view = view; b.textContent = label; b.setAttribute("aria-pressed", String(currentView === view)); b.onclick = () => { moveToView(view); drawPanel(); }; views.append(b);
       }
       const moods = document.createElement("div"); moods.className = "immersive-moods"; moods.setAttribute("role", "group"); moods.setAttribute("aria-label", t.mood);
@@ -3223,7 +3261,7 @@ let lanternMat = null;
     const toWindow = Math.abs(Math.atan2(Math.sin(viewTheta), Math.cos(viewTheta)));
     const toTv = Math.abs(Math.atan2(Math.sin(viewTheta - Math.PI), Math.cos(viewTheta - Math.PI)));
     const toEntry = Math.abs(Math.atan2(Math.sin(viewTheta + Math.PI / 2), Math.cos(viewTheta + Math.PI / 2)));
-    currentView = toEntry < toWindow && toEntry < toTv ? "entry" : toTv < toWindow ? "tv" : "window";
+    if (currentView !== "record") currentView = toEntry < toWindow && toEntry < toTv ? "entry" : toTv < toWindow ? "tv" : "window"; // turning a little in the record-player view keeps that view
     if (!looping) render();
   });
   new ResizeObserver(() => { if (director) stopDirector(false); if (directorPreparing) cancelPreparation(); fit(); render(); }).observe(stage);
@@ -4183,6 +4221,7 @@ let lanternMat = null;
         vertices: [sideboard.oak, sideboard.pulls, sideboard.props, sideboard.bottle].reduce((n, m) => n + m.geometry.attributes.position.count, 0),
       };
     },
+    recordView: () => { moveToView("record"); return currentView; },
     recordPlayerDetails() { // local QA only: Room 01's record player on the sideboard and the napkin pack on the coffee table (mm)
       scene.updateMatrixWorld(true);
       const rp = sideboard.recordPlayer, box = new THREE.Box3().setFromObject(rp.group), oakBox = new THREE.Box3().setFromObject(sideboard.oak), packBox = new THREE.Box3().setFromObject(sideboard.pack);
@@ -4823,13 +4862,14 @@ function buildRoom01RecordPlayer(scene, at) {
     foot.computeBoundingBox(); footBoxes.push(foot.boundingBox.clone()); add(foot, 0x272b29);
   }
   const deck = new THREE.BoxGeometry(0.32, 0.028, 0.42).translate(C.x, 0.844, C.z);
-  deck.computeBoundingBox(); const deckBox = deck.boundingBox.clone(); add(deck, 0x71523e);
-  add(new THREE.BoxGeometry(0.314, 0.003, 0.414).translate(C.x, 0.8595, C.z), 0x9c7858);
+  deck.computeBoundingBox(); const deckBox = deck.boundingBox.clone(); add(deck, 0x4a3324); // a deeper walnut than Room 03's, so the close view reads as wood, not a flat tan
+  add(new THREE.BoxGeometry(0.314, 0.003, 0.414).translate(C.x, 0.8595, C.z), 0x5a3f2c);
   const platter = { x: C.x, y: 0.864, z: C.z - 0.055, radius: 0.138 };
   add(new THREE.CylinderGeometry(platter.radius, platter.radius, 0.006, 40).translate(platter.x, platter.y, platter.z), 0x34383a, platterParts);
   const vinyl = new THREE.CylinderGeometry(0.132, 0.132, 0.002, 40).translate(platter.x, 0.868, platter.z);
   vinyl.computeBoundingBox(); const vinylBox = vinyl.boundingBox.clone(); add(vinyl, 0x141817, platterParts);
-  for (const r of [0.073, 0.095, 0.116]) add(new THREE.TorusGeometry(r, 0.0007, 3, 40).rotateX(Math.PI / 2).translate(platter.x, 0.8692, platter.z), 0x555a57, platterParts);
+  // Room 01's copy is seen up close in its own view, so the record carries more grooves (eight fine rings, alternately lighter, like the sheen between tracks).
+  for (const [k, r] of [0.034, 0.045, 0.058, 0.073, 0.086, 0.095, 0.106, 0.116, 0.126].entries()) add(new THREE.TorusGeometry(r, k % 2 ? 0.0005 : 0.0007, 3, 48).rotateX(Math.PI / 2).translate(platter.x, 0.8692, platter.z), k % 2 ? 0x3a3f3d : 0x5a5f5c, platterParts);
   add(new THREE.CylinderGeometry(0.025, 0.025, 0.001, 20).translate(platter.x, 0.8695, platter.z), 0xc5a778, platterParts);
   // One small dark print block on the label, off centre (no words): the record and its rings are round, so without it a turning record looks still.
   add(new THREE.BoxGeometry(0.014, 0.0004, 0.004).translate(platter.x + 0.011, 0.87, platter.z - 0.006), 0x6b4a2c, platterParts);
@@ -4837,7 +4877,11 @@ function buildRoom01RecordPlayer(scene, at) {
   const pivot = [C.x + 0.113, 0.881, C.z + 0.151], elbow = [C.x + 0.11, 0.889, C.z + 0.106], tip = [C.x + 0.072, 0.873, C.z + 0.022];
   add(new THREE.CylinderGeometry(0.012, 0.012, 0.024, 12).translate(pivot[0], 0.87, pivot[2]), 0x46494a);
   const armCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(...pivot), new THREE.Vector3(...elbow), new THREE.Vector3(...tip)]);
-  add(new THREE.TubeGeometry(armCurve, 14, 0.003, 6, false), 0xc6c6bb, armParts);
+  add(new THREE.TubeGeometry(armCurve, 18, 0.0034, 8, false), 0xd2d2c8, armParts);
+  // a counterweight behind the pivot and a small headshell at the tip, so the arm reads as a tonearm up close (both swing with it)
+  { const back = new THREE.Vector3(pivot[0] - elbow[0], 0, pivot[2] - elbow[2]).normalize();
+    add(new THREE.CylinderGeometry(0.0095, 0.0095, 0.018, 16).rotateX(Math.PI / 2).lookAt(back).translate(pivot[0] + back.x * 0.022, 0.884, pivot[2] + back.z * 0.022), 0x2e3133, armParts);
+    add(new THREE.CylinderGeometry(0.0034, 0.0034, 0.022, 8).rotateX(Math.PI / 2).lookAt(back).translate(pivot[0] + back.x * 0.011, 0.884, pivot[2] + back.z * 0.011), 0xd2d2c8, armParts); }
   const stylus = new THREE.BoxGeometry(0.012, 0.01, 0.015).translate(tip[0], 0.874, tip[2]);
   stylus.computeBoundingBox(); const stylusBox = stylus.boundingBox.clone(); add(stylus, 0x363632, armParts);
   // The arm parks 30 degrees outwards (stylus 12 mm clear of the gold rim) on a slim rest post that stands 1 mm into the deck top and meets the tube's underside.
@@ -4856,23 +4900,33 @@ function buildRoom01RecordPlayer(scene, at) {
   addGold(new THREE.BoxGeometry(0.0022, 0.0024, 0.37).translate(C.x - 0.1601, 0.8445, C.z)); // pinstripe on the side that faces the room
   addGold(new THREE.TorusGeometry(platter.radius + 0.0012, 0.0014, 6, 48).rotateX(Math.PI / 2).translate(platter.x, 0.8668, platter.z));
   addGold(new THREE.CylinderGeometry(0.0085, 0.0085, 0.0022, 16).translate(pivot[0], 0.8826, pivot[2]));
+  // A soft contact shadow under the deck (one small transparent plane, 1 mm above the oak), so the player sits on the cabinet in every light.
+  { const cv = document.createElement("canvas"); cv.width = 128; cv.height = 160; const g = cv.getContext("2d");
+    const grad = g.createRadialGradient(64, 80, 20, 64, 80, 84); grad.addColorStop(0, "rgba(0,0,0,.55)"); grad.addColorStop(.6, "rgba(0,0,0,.35)"); grad.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = grad; g.fillRect(0, 0, 128, 160);
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.47).rotateX(-Math.PI / 2).translate(C.x, C.top + 0.001, C.z), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false, opacity: 0.8 }));
+    shadow.name = "room01-record-player-contact-shadow"; shadow.renderOrder = 1; group.add(shadow); }
   const goldGeometry = mergeGeometries(gold, false);
   gold.forEach((part) => part.dispose()); goldGeometry.computeVertexNormals();
   const goldMesh = new THREE.Mesh(goldGeometry, new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 0.78, roughness: 0.28, emissive: 0x3a2808, emissiveIntensity: 0.4 }));
   goldMesh.name = "room01-record-player-gold"; goldMesh.userData.category = "sideboard"; goldMesh.castShadow = false; goldMesh.receiveShadow = false; group.add(goldMesh);
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
-  const bodyMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.59, metalness: 0.08 });
+  // Three finishes instead of Room 03's one (no extra draw calls; the platter and the arm were already their own meshes): satin oak for the plinth and feet,
+  // a glossier vinyl and platter, and brushed metal for the tonearm.
+  const bodyMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.5, metalness: 0.06 });
+  const platterMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.3, metalness: 0.12 });
+  const armMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.28, metalness: 0.72 });
   const mesh = new THREE.Mesh(geometry, bodyMaterial);
   mesh.name = "room01-record-player-body"; mesh.userData.category = "sideboard";
   mesh.castShadow = true; mesh.receiveShadow = true; group.add(mesh);
   // Moving parts: geometry is moved so the mesh's own origin sits on its axis (platter centre, arm pivot), then the mesh is placed back there.
-  const moving = (list, name, ox, oz) => {
+  const moving = (list, name, ox, oz, material) => {
     const g = mergeGeometries(list, false); list.forEach((part) => part.dispose()); g.translate(-ox, 0, -oz); g.computeVertexNormals();
-    const m = new THREE.Mesh(g, bodyMaterial); m.name = name; m.userData.category = "sideboard"; m.position.set(ox, 0, oz); m.castShadow = true; m.receiveShadow = true; group.add(m); return m;
+    const m = new THREE.Mesh(g, material); m.name = name; m.userData.category = "sideboard"; m.position.set(ox, 0, oz); m.castShadow = true; m.receiveShadow = true; group.add(m); return m;
   };
-  const platterMesh = moving(platterParts, "room01-record-platter", platter.x, platter.z);
-  const armMesh = moving(armParts, "room01-record-tonearm", pivot[0], pivot[2]);
+  const platterMesh = moving(platterParts, "room01-record-platter", platter.x, platter.z, platterMaterial);
+  const armMesh = moving(armParts, "room01-record-tonearm", pivot[0], pivot[2], armMaterial);
   armMesh.rotation.y = ARM.rest; // stopped: parked on the rest post
   group.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(mesh).union(new THREE.Box3().setFromObject(platterMesh)).union(new THREE.Box3().setFromObject(armMesh));
