@@ -13,7 +13,7 @@ const COPY = {
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁",
     fullScreen: "全螢幕", exitFullScreen: "退出", portal: "傳送門", viewsLabel: "選擇視角",
     enter: "走進咖啡廳", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。", canvas: "Room 04 上海咖啡廳的 3D 房間", moodsLabel: "選擇時段與天氣",
-    robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", recordLabel: "唱機：點一下播放，再點一下停止", recordLines: ["♪ 慢板，三十三轉。🎷 開著聲音聽聽看。", "♪ 午後弄堂，四十五轉。🎶 三首會一直接著放，點唱盤就停。", "♪ 夜色外灘，七十八轉。🌃 霓虹和老爵士。"], recordHint: "點一下唱盤，聽聽音樂 🎷", dripLabel: "冰滴塔：點一下開始，再點一下停止", dripLine: "冰滴，一滴一滴慢慢來。", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
+    robotLabel: "咖啡師機器人：點我說話", noteLabel: "吧台上的小便條：點開讀", recordLabel: "唱機：點一下播放，再點一下停止", recordLines: ["♪ 慢板，三十三轉。🎷 開著聲音聽聽看。", "♪ 午後弄堂，四十五轉。🎶 四首會一直接著放，點唱盤就停。", "♪ 夜色外灘，七十八轉。🌃 霓虹和老爵士。", "♪ 十里洋場，七十八轉。🎺 單簧管和小號的搖擺樂，開心地喝杯咖啡！"], recordHint: "點一下唱盤，聽聽音樂 🎷", dripLabel: "冰滴塔：點一下開始，再點一下停止", dripLine: "冰滴，一滴一滴慢慢來。", robotLine: "早安，歡迎光臨。要來一杯嗎？", robotChoose: "看看其他房間",
     randomLook: "隨機搭一間咖啡廳", resetLook: "回到預設搭配", swapsTitle: "換搭配", randomDone: "已幫你搭了一間新的咖啡廳。",
     groups: {
       brick: ["磚牆", { red: "老紅磚", umber: "赭褐磚", grey: "灰磚", dusty: "灰粉磚", white: "白磚（刷白老磚）", dark: "深色老磚" }],
@@ -60,7 +60,7 @@ const COPY = {
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home",
     fullScreen: "Full screen", exitFullScreen: "Exit", portal: "Travel", viewsLabel: "Choose a view",
     enter: "Step into the cafe", loading: "Preparing the room…", failed: "This device cannot open the 3D scene.", canvas: "3D room of the Room 04 Shanghai cafe", moodsLabel: "Choose a time and weather",
-    robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", recordLabel: "Record player: tap to play, tap again to stop", recordLines: ["♪ Slow tempo, thirty-three and a third. 🎷 Turn the sound on.", "♪ Lane in the afternoon, forty-five. 🎶 The three records play on; tap the player to stop.", "♪ Night on the Bund, seventy-eight. 🌃 Neon and old jazz."], recordHint: "Tap the record to hear some music 🎷", dripLabel: "Cold drip tower: tap to start, tap again to stop", dripLine: "Cold drip, one drop at a time.", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
+    robotLabel: "Barista robot: tap to talk", noteLabel: "The little note on the counter: tap to read", recordLabel: "Record player: tap to play, tap again to stop", recordLines: ["♪ Slow tempo, thirty-three and a third. 🎷 Turn the sound on.", "♪ Lane in the afternoon, forty-five. 🎶 The four records play on; tap the player to stop.", "♪ Night on the Bund, seventy-eight. 🌃 Neon and old jazz.", "♪ Bund Swing (十里洋場), seventy-eight. 🎺 Clarinet and trumpet swing: a happy cup of coffee!"], recordHint: "Tap the record to hear some music 🎷", dripLabel: "Cold drip tower: tap to start, tap again to stop", dripLine: "Cold drip, one drop at a time.", robotLine: "Good morning, welcome. Can I get you something?", robotChoose: "See the other rooms",
     randomLook: "Build me a random cafe", resetLook: "Back to the default look", swapsTitle: "Swap the look", randomDone: "A new cafe, just for you.",
     groups: {
       brick: ["Brick wall", { red: "Old red brick", umber: "Umber brick", grey: "Grey brick", dusty: "Dusty pink brick", white: "Whitewashed brick", dark: "Dark old brick" }],

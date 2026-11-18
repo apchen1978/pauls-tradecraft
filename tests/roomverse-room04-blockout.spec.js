@@ -871,14 +871,14 @@ test("Room 04 Shanghai night and slow day: the neon sign glows at night only, an
   expect(errors).toEqual([]);
 });
 
-test("Room 04 the records play on: one tap plays the three one after another with no time limit until the visitor stops them", async ({ page }) => {
+test("Room 04 the records play on: one tap plays the four one after another with no time limit until the visitor stops them", async ({ page }) => {
   test.setTimeout(150000);
   const errors = await open(page, 1440);
   await page.locator('[data-mood="golden"]').click();
   await page.locator('[data-view="counter"]').click(); await page.waitForTimeout(3500);
   await page.locator("#recordHit").click(); // one tap
   const state = () => page.evaluate(() => window.__room04.soundState());
-  const titles = ["慢板", "午後弄堂", "夜色外灘"];
+  const titles = ["慢板", "午後弄堂", "夜色外灘", "十里洋場"];
   await expect.poll(async () => (await state()).playlist, { timeout: 8000 }).toBe(true);
   const first = (await state()).title;
   await page.evaluate(() => window.__room04.recordNext()); // jump to the next piece, as the end of a piece does
@@ -891,5 +891,14 @@ test("Room 04 the records play on: one tap plays the three one after another wit
   expect(await page.evaluate(() => window.__room04.recordPlaying())).toBe(true);
   await page.locator("#recordHit").dispatchEvent("click"); // the next tap stops it
   await expect.poll(async () => (await state()).playing).toBe(false);
+  // The fourth record (Paul 2026-11-18): a joyful old-Shanghai swing with its own cover; it is in the loop, and it plays notes.
+  expect(await page.evaluate(() => window.__room04.soundTracks())).toEqual(titles);
+  for (let i = 0; i < 4 && (await state()).title !== "十里洋場"; i++) { await page.locator("#recordHit").dispatchEvent("click"); await expect.poll(async () => (await state()).playing).toBe(true); if ((await state()).title !== "十里洋場") { await page.locator("#recordHit").dispatchEvent("click"); await expect.poll(async () => (await state()).playing).toBe(false); } }
+  expect((await state()).title).toBe("十里洋場");
+  await expect(page.locator("#bubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-3-v1\.webp/);
+  await expect.poll(async () => page.locator("#bubble [data-cover]").evaluate((img) => img.complete && img.naturalWidth > 0), { timeout: 15000, message: "the fourth cover loads" }).toBe(true);
+  const before = (await state()).notes;
+  await expect.poll(async () => (await state()).notes - before, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(30);
+  await page.locator("#recordHit").dispatchEvent("click");
   expect(errors).toEqual([]);
 });

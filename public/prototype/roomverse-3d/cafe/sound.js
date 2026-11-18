@@ -4,6 +4,9 @@
 // down by 30% at Paul's ear). In the rain mood a soft rain sits under the music. Nothing plays until the visitor taps the record player (browsers allow sound only after a tap); a second tap,
 // the 30 s limit or hiding the page stops it. start() must be called from inside that tap; each new start plays the next track. Track 3, 夜色外灘, is an old-Shanghai night piece (C minor, 66 beats a
 // minute, a heavy swing, a muted-trumpet-like lead over the piano); the first start after closing or on series night plays it.
+// Track 4, 十里洋場 (Bund Swing; Paul 2026-11-18: an old-Shanghai 1930s dance-hall swing, much more joyful): F major, 152 beats a minute, a bouncy swing. A written 8-bar tune
+// (F6 D7 Gm7 C7 F6 F7 Bb6 C7) on a clarinet-like reed, then a muted-trumpet-like chorus, a piano chorus, and a last chorus with reed and trumpet together; a walking bass on every
+// beat, a soft kick, swing brushes, and short Charleston piano stabs.
 import { createPiano } from "../piano.js?v=auto"; // a real piano (Salamander Grand Piano, CC BY 3.0, credited on the page): the synthesised keyboard sounded like MIDI
 const realPiano = createPiano(), PIANO_K = 3.2; // PIANO_K scales the old synth levels to the louder samples
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 12; // playlist mode (Paul, 2026-11-17): each piece plays three times through its four chords (about 40 to 50 s), then the next one follows with no gap, until the visitor stops it or leaves
@@ -28,6 +31,18 @@ const TRACKS = [
       { chord: [53, 56, 60, 62, 65], bass: 41, melody: [68, 72, 75, 77, 80] },   // Fm6
       { chord: [48, 55, 59, 63, 67], bass: 36, melody: [72, 74, 75, 79, 83] },   // Cm(maj7)
       { chord: [43, 53, 59, 62, 68], bass: 43, melody: [71, 74, 77, 79, 80] },   // G7b9
+    ] },
+  { title: "十里洋場", bpm: 152, swing: 0.16, filter: 3200, length: 32, strum: 0.012, short: 0.16, kick: 0.16, lead: true, sparse: false,
+    bass: [], brush: [[0, 0.03], [1, 0.055], [1.5, 0.028, true], [2, 0.03], [3, 0.055], [3.5, 0.028, true]], stabs: [[0, 0.075], [1.5, 0.06]],
+    bars: [ // walk: the bass's four quarter notes; tune: [beat, note, beats] (off-beat eighths are swung)
+      { chord: [57, 60, 62, 65], bass: 41, walk: [41, 45, 48, 50], melody: [72, 74, 77, 81], tune: [[0, 72, .5], [.5, 74, .5], [1, 77, 1], [2, 81, .5], [2.5, 79, .5], [3, 77, 1]] },   // F6
+      { chord: [54, 57, 60, 62], bass: 38, walk: [38, 42, 45, 48], melody: [74, 78, 81, 84], tune: [[0, 78, 1.5], [1.5, 81, .5], [2, 84, .5], [2.5, 81, .5], [3, 78, 1]] },             // D7
+      { chord: [55, 58, 62, 65], bass: 43, walk: [43, 46, 50, 47], melody: [74, 77, 79, 82], tune: [[0, 79, .5], [.5, 82, .5], [1, 86, 1], [2, 84, .5], [2.5, 82, .5], [3, 79, 1]] },   // Gm7
+      { chord: [52, 55, 58, 60], bass: 36, walk: [36, 40, 43, 40], melody: [72, 76, 79, 82], tune: [[0, 76, .5], [.5, 79, .5], [1, 82, .5], [1.5, 81, .5], [2, 79, 1.5], [3.5, 76, .5]] }, // C7
+      { chord: [57, 60, 62, 65], bass: 41, walk: [41, 45, 48, 50], melody: [77, 81, 84, 86], tune: [[0, 77, .5], [.5, 81, .5], [1, 84, 1], [2, 86, .5], [2.5, 84, .5], [3, 81, 1]] },   // F6
+      { chord: [53, 57, 60, 63], bass: 41, walk: [41, 45, 48, 51], melody: [75, 77, 81, 84], tune: [[0, 75, .5], [.5, 77, .5], [1, 81, .5], [1.5, 84, .5], [2, 87, 1], [3, 84, 1]] },  // F7
+      { chord: [58, 62, 65, 67], bass: 46, walk: [46, 50, 53, 47], melody: [77, 79, 82, 86], tune: [[0, 77, .5], [.5, 79, .5], [1, 82, 1], [2, 86, .5], [2.5, 82, .5], [3, 79, 1]] },   // Bb6
+      { chord: [52, 55, 58, 64], bass: 36, walk: [48, 46, 43, 40], melody: [72, 76, 79, 82], tune: [[0, 79, .5], [.5, 76, .5], [1, 72, 1], [2, 70, .5], [2.5, 76, .5], [3, 77, 1]] },   // C7
     ] },
 ];
 
@@ -68,13 +83,39 @@ export function createRoomSound() {
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.18);
     src.connect(filter); filter.connect(g); g.connect(master); src.start(time); src.stop(time + 0.3);
   };
-  const scheduleBar = () => { if (playlist && barIndex >= BARS_PER_TRACK) { trackIndex = (trackIndex + 1) % TRACKS.length; seed = 7 + trackIndex * 31; barIndex = 0; const changed = trackIndex; setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // the next piece starts on the next bar; the page hears about it when its first note sounds
+  const lead = (time, midi, gain, length, kind) => { // a clarinet-like reed (square and a little triangle, a soft low-pass, a late vibrato) or a muted-trumpet-like horn (a sawtooth whose filter opens on each note)
+    const osc = ctx.createOscillator(), osc2 = ctx.createOscillator(), filter = ctx.createBiquadFilter(), g = ctx.createGain(), vib = ctx.createOscillator(), vibDepth = ctx.createGain();
+    const trumpet = kind === "trumpet";
+    osc.type = trumpet ? "sawtooth" : "square"; osc2.type = "triangle"; osc.frequency.value = hz(midi); osc2.frequency.value = hz(midi) * 2;
+    vib.frequency.value = 5.6; vibDepth.gain.setValueAtTime(0, time); vibDepth.gain.linearRampToValueAtTime(hz(midi) * 0.004, time + Math.min(length, 0.25)); vib.connect(vibDepth); vibDepth.connect(osc.frequency);
+    filter.type = "lowpass"; filter.Q.value = trumpet ? 2.2 : 0.7;
+    if (trumpet) { filter.frequency.setValueAtTime(700, time); filter.frequency.exponentialRampToValueAtTime(2600, time + 0.05); filter.frequency.exponentialRampToValueAtTime(1500, time + length); } else filter.frequency.value = 2300;
+    const peak = gain * (trumpet ? 0.8 : 1);
+    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(peak, time + (trumpet ? 0.018 : 0.03)); g.gain.setValueAtTime(peak * 0.82, time + Math.max(0.04, length - 0.06)); g.gain.exponentialRampToValueAtTime(0.0001, time + length + 0.05);
+    const g2 = ctx.createGain(); g2.gain.value = 0.12; osc2.connect(g2); g2.connect(filter); osc.connect(filter); filter.connect(g); g.connect(master);
+    for (const o of [osc, osc2, vib]) { o.start(time); o.stop(time + length + 0.1); } noteCount += 1;
+  };
+  const kick = (time, gain) => { // a soft feathered bass drum on every beat
+    const osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = "sine"; osc.frequency.setValueAtTime(110, time); osc.frequency.exponentialRampToValueAtTime(48, time + 0.12);
+    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+    osc.connect(g); g.connect(master); osc.start(time); osc.stop(time + 0.2);
+  };
+  const scheduleBar = () => { if (playlist && barIndex >= (TRACKS[trackIndex].length || BARS_PER_TRACK)) { trackIndex = (trackIndex + 1) % TRACKS.length; seed = 7 + trackIndex * 31; barIndex = 0; const changed = trackIndex; setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // the next piece starts on the next bar; the page hears about it when its first note sounds
     const track = TRACKS[trackIndex], beat = 60 / (tempo || track.bpm), barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime;
-    for (const [at, level] of track.stabs) bar.chord.forEach((note, i) => piano(t0 + at * beat + i * 0.045, note, level, barLength * (at ? 0.4 : 0.95), track.filter)); // the strum, and a stab where the loop has one
+    for (const [at, level] of track.stabs) bar.chord.forEach((note, i) => piano(t0 + at * beat + (track.lead && at % 1 ? track.swing * beat : 0) + i * (track.strum ?? 0.045), note, level, barLength * (track.short ?? (at ? 0.4 : 0.95)), track.filter)); // the strum, and a stab where the loop has one
     for (const [at, shift, length] of track.bass) bass(t0 + at * beat, bar.bass + shift, beat * length);
+    if (bar.walk) bar.walk.forEach((note, i) => bass(t0 + i * beat, note, beat * 0.92)); // a walking bass: one note on every beat
+    if (track.kick) for (let i = 0; i < 4; i++) kick(t0 + i * beat, track.kick * (i % 2 ? 0.7 : 1));
     for (const [at, level, swung] of track.brush) brush(t0 + at * beat + (swung ? track.swing * beat : 0), level);
+    const chorus = Math.floor(barIndex / track.bars.length) % 4; // the written tune: reed, then horn, then a piano chorus, then reed and horn together
+    if (track.lead && bar.tune && chorus !== 2) for (const [at, note, beats] of bar.tune) {
+      const t = t0 + at * beat + (at % 1 ? track.swing * beat : 0), len = beats * beat * 0.9;
+      if (chorus !== 1) lead(t, note, 0.06, len, "reed");
+      if (chorus !== 0) lead(t, chorus === 3 ? note - 12 : note, chorus === 3 ? 0.04 : 0.055, len, "trumpet");
+    }
     let at = 0.5 + rnd() * 0.5; // a few sparse melody notes, in the gaps
-    while (at < 3.7) { const note = bar.melody[Math.floor(rnd() * bar.melody.length)]; piano(t0 + at * beat, note, 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
+    while ((track.sparse !== false || chorus === 2) && at < 3.7) { const note = bar.melody[Math.floor(rnd() * bar.melody.length)]; piano(t0 + at * beat, note, 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
     barIndex += 1; nextTime += barLength;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
@@ -117,7 +158,7 @@ export function createRoomSound() {
       setTimeout(() => { try { oldCrackle?.stop(); old?.disconnect(); } catch { /* already stopped */ } }, 1400);
     },
     setRain(on) { if (on) startRain(); else stopRain(); },
-    next() { if (playing) { playlist = true; barIndex = BARS_PER_TRACK; } }, // QA: jump to the next piece at the next bar
+    next() { if (playing) { playlist = true; barIndex = 9999; } }, // QA: jump to the next piece at the next bar
     tracks: () => TRACKS.map((t) => t.title),
     state: () => ({ playing, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, track: trackIndex, title: TRACKS[trackIndex].title, rain: Boolean(rainNode), playlist }),
   };
