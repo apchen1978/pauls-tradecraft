@@ -5,6 +5,7 @@ import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { loadModel } from "../bedroom/models.js?v=auto";
 import { auditRoom04 } from "./physics-audit.js?v=auto";
 import { createRoomSound } from "./sound.js?v=auto";
+import { createTrackPlayer } from "../media-player.js?v=auto";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai; the room opens at golden hour, standing just inside the door.
 // Look brief approved by Paul on 2026-11-13 (original arrival = morning white light, since changed to golden hour by Paul on 2026-11-15; red brick, honey oak, grey-brown floor, matte black, brushed steel, olive).
@@ -1463,39 +1464,108 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
 
   let mugSteam = null; // the record mug's rising steam (built with the other steam below)
-  let recordPlaying = false, recordRaf = 0, recordTimer = 0, recordStart = 0, armStart = 0, armFrom = 0, armTo = 0;
+  let recordPlaying = false, recordRaf = 0, animationStart = 0, armFrom = 0;
   // Paul 2026-11-17: while the record played the stylus came down BEHIND the record, 0.195 m from its centre (the record is 0.113 m in radius), so the arm never touched it
   // (Rooms 02 and 03 rest on the record). The pivot is 0.160 m from the platter centre and the arm is about 0.134 m long, so the stylus lands where the arm points toward the
   // centre and a little short of it: 3.25 rad puts it on the record's playing band, between the label and the rim.
   const ARM_REST = 0.28, ARM_PLAY = 3.45;
   const setArm = (value) => { armPivot.rotation.y = value; };
-  const recordTrackListeners = []; let recordTrack = -1; // each tap that starts the record plays the next of the four tracks (the first start at night plays 夜色外灘)
-  const roomSound = createRoomSound(); // the slow record (sound.js): it starts inside the tap on the record player and stops with it
+  const recordTrackListeners = [], recordStateListeners = [];
+  const roomSound = createRoomSound(), rainBed = createRoomSound();
+  const titles = roomSound.tracks();
+  let recordTrack = -1, usingSynth = false;
+  function announceRecord(index) {
+    recordTrack = index;
+    for (const listener of recordTrackListeners) listener(index);
+  }
+  const player = createTrackPlayer({
+    album: "Room 04 · Shanghai, Slowly",
+    tracks: titles.map((title, index) => ({
+      title,
+      titleEn: ["Slow Tempo", "Lane in the Afternoon", "Night on the Bund", "Bund Swing"][index],
+      sources: [
+        { type: 'audio/mp4; codecs="mp4a.40.2"', src: new URL(`./audio/room04-track-${index}-v1.m4a`, import.meta.url).href },
+        { type: 'audio/ogg; codecs="opus"', src: new URL(`./audio/room04-track-${index}-v1.ogg`, import.meta.url).href },
+      ],
+      artwork: [
+        { src: new URL(`./audio/room04-record-cover-${index}-512-v1.jpg`, import.meta.url).href, sizes: "512x512", type: "image/jpeg" },
+        { src: new URL(`./art/room04-record-cover-${index}-v1.webp`, import.meta.url).href, sizes: "240x240", type: "image/webp" },
+      ],
+    })),
+    onTrack: announceRecord,
+    onState: ({ playing }) => syncRecordPlayback(playing),
+    onError: (index) => {
+      if (document.hidden) {
+        syncRecordPlayback(false);
+        return;
+      }
+      usingSynth = roomSound.start(index, !document.hidden && currentMood === "rain", {
+        playlist: true, onTrack: announceRecord,
+      });
+      syncRecordPlayback(usingSynth);
+      if (usingSynth) announceRecord(index);
+    },
+  });
+  function syncRecordRain() {
+    const rain = recordPlaying && !document.hidden && currentMood === "rain";
+    roomSound.setRain(rain && usingSynth);
+    rainBed.setRainAmbience(rain && !usingSynth);
+  }
+  function tickRecord(now) {
+    recordRaf = 0;
+    if (document.hidden || !recordPlaying) return;
+    const elapsed = (now - animationStart) / 1000;
+    const progress = Math.min(1, elapsed / 0.65);
+    setArm(armFrom + (ARM_PLAY - armFrom) * progress * progress * (3 - 2 * progress));
+    const reduced = reducedMotion();
+    if (!reduced) {
+      const position = usingSynth ? elapsed : player.state().currentTime;
+      platterPivot.rotation.y = position * Math.PI * 0.3;
+      mugSteam?.update(position + 7.3);
+      const nod = Math.max(0, Math.min(1, (elapsed - 0.18) / 1.12));
+      greeter.local.rotation.x = Math.sin(nod * Math.PI * 4) * 0.065;
+    }
+    render();
+    if (!reduced || progress < 1) recordRaf = requestAnimationFrame(tickRecord);
+  }
+  function syncRecordPlayback(playing) {
+    const changed = playing !== recordPlaying;
+    recordPlaying = playing;
+    robotFace.setMusic(playing && !document.hidden);
+    syncRecordRain();
+    if (changed) for (const listener of recordStateListeners) listener(playing);
+    if (!playing) {
+      cancelAnimationFrame(recordRaf); recordRaf = 0;
+      setArm(ARM_REST); greeter.local.rotation.x = 0;
+      if (!document.hidden) render();
+    } else if (!document.hidden && !recordRaf) {
+      animationStart = performance.now();
+      armFrom = armPivot.rotation.y;
+      recordRaf = requestAnimationFrame(tickRecord);
+    }
+  }
   const stopRecordPlayback = () => {
-    if (!recordPlaying) return false;
-    recordPlaying = false; roomSound.stop(); robotFace.setMusic(false); clearTimeout(recordTimer); cancelAnimationFrame(recordRaf);
-    recordRaf = 0; setArm(ARM_REST); greeter.local.rotation.x = 0; render(); return true;
+    if (!recordPlaying && player.state().index < 0) return false;
+    roomSound.stop(); usingSynth = false; player.stop();
+    return true;
   };
   const playRecord = () => {
-    if (recordPlaying) return false;
-    recordTrack = recordTrack < 0 && (currentMood === "closing" || currentMood === "series") ? 2 : (recordTrack + 1) % roomSound.tracks().length; recordPlaying = true; roomSound.start(recordTrack, currentMood === "rain", { playlist: true, onTrack: (index) => { recordTrack = index; for (const listener of recordTrackListeners) listener(index); } }); robotFace.setMusic(true); recordStart = performance.now(); armStart = recordStart; armFrom = armPivot.rotation.y; armTo = ARM_PLAY;
-    /* no time limit (Paul, 2026-11-17): the three records follow one another until the visitor stops them or leaves */
-    const reduced = reducedMotion();
-    const tick = (now) => {
-      if (!recordPlaying) return;
-      const armProgress = Math.min(1, (now - armStart) / 650), eased = armProgress * armProgress * (3 - 2 * armProgress);
-      setArm(armFrom + (armTo - armFrom) * eased);
-      if (!reduced) {
-        platterPivot.rotation.y = ((now - recordStart) / 1000) * Math.PI * 0.3;
-        mugSteam?.update((now - recordStart) / 1000 + 7.3);
-        const nod = Math.max(0, Math.min(1, (now - recordStart - 180) / 1120));
-        greeter.local.rotation.x = nod > 0 ? Math.sin(nod * Math.PI * 4) * 0.065 : 0; // the greeter, the robot beside the player, nods to the beat
-      }
-      render();
-      if (armProgress < 1 || !reduced) recordRaf = requestAnimationFrame(tick); else recordRaf = 0;
-    };
-    recordRaf = requestAnimationFrame(tick); return true;
+    const media = player.state();
+    if (recordPlaying || media.pending) return false;
+    if (media.index >= 0) player.play();
+    else {
+      recordTrack = recordTrack < 0 && ["closing", "series"].includes(currentMood) ? 2 : (recordTrack + 1) % titles.length;
+      player.play(recordTrack);
+    }
+    return true;
   };
+  function soundState() {
+    if (usingSynth) return { ...roomSound.state(), backend: "synth" };
+    const { index, playing, pending, currentTime } = player.state();
+    const track = Math.max(0, index >= 0 ? index : recordTrack);
+    return { playing, pending, currentTime, track, title: titles[track], playlist: index >= 0,
+      context: "none", bars: 0, notes: Math.floor(currentTime * 100), rain: rainBed.state().rain, backend: "media" };
+  }
 
   // ---------- the story corner (section 4) ----------
   // The window seat stands under the street window: a 60 cm round table and two bentwood chairs. On the table: a vase of hydrangea, an open notebook and pen, and a cup that has just been poured.
@@ -3333,7 +3403,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name; posMood?.(name); robotFace.setMood(name); roomSound.setRain(name === "rain"); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
+    currentMood = name; posMood?.(name); robotFace.setMood(name); syncRecordRain(); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
@@ -3483,7 +3553,26 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const step = (now) => { if (run !== hopRun) return; dirtyShadows(); const k = Math.min(1, (now - t0) / T); robot.position.y = robotRest + Math.sin(k * Math.PI) * 0.045; render(); if (k < 1) requestAnimationFrame(step); else { robot.position.y = robotRest; dirtyShadows(); render(); } };
     requestAnimationFrame(step);
   }
-  document.addEventListener("visibilitychange", () => { if (document.hidden) stopRecordPlayback(); }); // the music stops when the page is hidden
+  function syncRecordVisibility() {
+    if (document.hidden) {
+      if (usingSynth) {
+        stopRecordPlayback();
+        return;
+      }
+      cancelAnimationFrame(recordRaf); recordRaf = 0;
+      robotFace.setMusic(false); syncRecordRain();
+      return;
+    }
+    syncRecordPlayback(usingSynth ? roomSound.state().playing : player.state().playing);
+    if (recordPlaying) {
+      setArm(ARM_PLAY);
+      armFrom = ARM_PLAY;
+      if (!usingSynth && !reducedMotion()) platterPivot.rotation.y = player.state().currentTime * Math.PI * 0.3;
+      announceRecord(recordTrack);
+      render();
+    }
+  }
+  document.addEventListener("visibilitychange", syncRecordVisibility);
   const onRenderHooks = [];
 
   let ambientRender = false, lastActive = performance.now(); // the dust motes render on their own; those frames are not counted, and the dust rests 30 s after the last real interaction
@@ -3646,10 +3735,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
     floorLampLight: () => floorLampLight.intensity, sconceLight: () => sconceLight.intensity,
-    soundState: () => roomSound.state(), soundTracks: () => roomSound.tracks(),
+    soundState, soundTracks: () => [...titles], refreshRecordMetadata: player.refreshMetadata,
     vibeState: () => ({ neon: neonSign.material.opacity, neonVisible: neonSign.visible, haloVisible: neonHalo.visible }),
     lookYaw: () => look.yaw, glideRunning: () => glideRun,
-    playRecord, stopRecordPlayback, onRecordTrack: (listener) => { recordTrackListeners.push(listener); }, recordNext: () => roomSound.next(), pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
+    playRecord, stopRecordPlayback, onRecordTrack: (listener) => { recordTrackListeners.push(listener); },
+    onRecordPlayback: (listener) => { recordStateListeners.push(listener); },
+    recordNext: () => usingSynth ? roomSound.next() : player.next(),
+    pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
     playDrip, stopDrip, dripPlaying: () => dripPlaying,
@@ -3680,7 +3772,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       };
     },
     mood: () => currentMood,
-    dispose() { cancelAnimationFrame(moodTween); renderer.dispose(); },
+    dispose() {
+      document.removeEventListener("visibilitychange", syncRecordVisibility);
+      roomSound.stop(); usingSynth = false; player.dispose();
+      cancelAnimationFrame(moodTween); renderer.dispose();
+    },
   };
   onReady(instance);
   return instance;

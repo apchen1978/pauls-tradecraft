@@ -427,17 +427,20 @@ test("the Shanghai, Slowly record player fits the budget and plays on demand", a
   await target.click();
   await expect(page.locator("#bubble [data-line]")).toContainText("慢板，三十三轉。");
   await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(true);
+  await expect.poll(() => page.evaluate(() => Math.abs(window.__room04.recordState().robotTilt)), {
+    intervals: [25, 25, 25],
+  }).toBeGreaterThan(0.04);
   await page.waitForTimeout(850);
   const moving = await page.evaluate(() => window.__room04.recordState());
   expect(moving.platterAngle).not.toBe(0);
   expect(moving.armAngle).toBeGreaterThan(0.28);
-  expect(Math.abs(moving.robotTilt)).toBeGreaterThan(0.04);
   await target.dispatchEvent("click"); // the tap target follows the spinning platter, so a coordinate click can miss it mid-turn; the event itself is deterministic
   await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(false);
   await page.waitForTimeout(400);
 
   await page.emulateMedia({ reducedMotion: "reduce" });
   await target.dispatchEvent("click"); // the tap target follows the spinning platter, so a coordinate click can miss it mid-turn; the event itself is deterministic
+  await expect.poll(() => page.evaluate(() => window.__room04.recordPlaying())).toBe(true);
   const reducedStart = await page.evaluate(() => window.__room04.recordState());
   await page.waitForTimeout(800);
   const reducedEnd = await page.evaluate(() => window.__room04.recordState());
@@ -608,7 +611,7 @@ test("Room 04 robot faces: friendly by default, sleepy after closing, happy whil
   await page.locator('[data-mood="golden"]').click(); await page.waitForTimeout(600);
   expect((await face()).state).toBe("default");
   await page.evaluate(() => window.__room04.playRecord());
-  expect((await face()).state, "the record makes the robot smile").toBe("happy");
+  await expect.poll(async () => (await face()).state, { message: "the robot smiles once the audio starts" }).toBe("happy");
   await page.evaluate(() => window.__room04.stopRecordPlayback());
   expect((await face()).state).toBe("default");
   await page.evaluate(() => window.__room04.pokeRobot());
@@ -810,12 +813,12 @@ test("Room 04 ?perf=1 shows a small FPS read-out while the view moves, and nothi
   expect(errors).toEqual([]);
 });
 
-test("Room 04 the record player plays a slow jazz loop made by the browser, and stops with it", async ({ page }) => {
+test("Room 04 the record player plays its rendered jazz track and stops with it", async ({ page }) => {
   test.setTimeout(120000);
   const errors = await open(page, 1440);
   expect((await page.evaluate(() => window.__room04.soundState())).playing, "silent until the record is started").toBe(false);
   await page.evaluate(() => window.__room04.playRecord());
-  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).notes, { timeout: 8000, message: "notes are scheduled" }).toBeGreaterThan(8);
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).currentTime, { timeout: 8000, message: "media time advances" }).toBeGreaterThan(0.1);
   const on = await page.evaluate(() => window.__room04.soundState());
   expect(on.playing).toBe(true);
   await page.evaluate(() => window.__room04.stopRecordPlayback());
@@ -835,8 +838,8 @@ test("Room 04 the record player: a hint to tap it (not in late-night moods), two
   await page.locator("#recordHit").click(); // a real tap on the record player ends the hint and starts track 1
   await expect(page.locator("#bubble [data-line]")).toContainText("慢板");
   await expect(page.locator("#bubble [data-cover]"), "the first record shows its cover").toHaveAttribute("src", /room04-record-cover-0-v1\.webp/);
-  await expect.poll(async () => page.locator("#bubble [data-cover]").evaluate((img) => img.complete && img.naturalWidth > 0), { message: "the cover image loads" }).toBe(true);
-  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).notes, { timeout: 8000 }).toBeGreaterThan(8);
+  await expect.poll(async () => page.locator("#bubble [data-cover]").evaluate((img) => img.complete && img.naturalWidth > 0), { timeout: 15000, message: "the cover image loads" }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).currentTime, { timeout: 8000 }).toBeGreaterThan(0.1);
   expect((await page.evaluate(() => window.__room04.soundState())).title).toBe("慢板");
   await page.locator("#recordHit").dispatchEvent("click"); // stop
   await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).playing).toBe(false);
@@ -863,7 +866,7 @@ test("Room 04 Shanghai night and slow day: the neon sign glows at night only, an
   await expect.poll(async () => (await vibe()).neon, { timeout: 6000, message: "the neon is on at night" }).toBeGreaterThan(0.8);
   await page.evaluate(() => window.__room04.playRecord()); // the first start at night plays the third record
   await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).title, { timeout: 6000 }).toBe("夜色外灘");
-  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).notes, { timeout: 12000 }).toBeGreaterThan(8);
+  await expect.poll(async () => (await page.evaluate(() => window.__room04.soundState())).currentTime, { timeout: 12000 }).toBeGreaterThan(0.1);
   await page.evaluate(() => window.__room04.stopRecordPlayback());
   await page.evaluate(() => window.__room04.setMood("rain"));
   await expect.poll(async () => (await vibe()).neonVisible, { timeout: 6000, message: "the neon glows in the rain too" }).toBe(true);
@@ -897,8 +900,8 @@ test("Room 04 the records play on: one tap plays the four one after another with
   expect((await state()).title).toBe("十里洋場");
   await expect(page.locator("#bubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-3-v1\.webp/);
   await expect.poll(async () => page.locator("#bubble [data-cover]").evaluate((img) => img.complete && img.naturalWidth > 0), { timeout: 15000, message: "the fourth cover loads" }).toBe(true);
-  const before = (await state()).notes;
-  await expect.poll(async () => (await state()).notes - before, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(30);
+  const before = (await state()).currentTime;
+  await expect.poll(async () => (await state()).currentTime - before, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(0.3);
   await page.locator("#recordHit").dispatchEvent("click");
   expect(errors).toEqual([]);
 });
