@@ -2351,6 +2351,19 @@ let lanternMat = null;
     bottleGeometry.translate(bottleAt.x, bottleY, bottleAt.z);
     const bottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: labelTex, color: "#ffffff", roughness: .42 }));
     bottle.name = "left-sideboard-supplement"; bottle.castShadow = true; bottle.receiveShadow = true; scene.add(bottle);
+    // Paul 2026-11-19: a third bottle, the same shape as the red-band one (it shares its geometry), with a green label, tucked behind the other two toward the wall.
+    const greenLabelTex = canvasTex(256, 128, (ctx, w, h) => {
+      ctx.fillStyle = "#f5f6f0"; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#2f8a5c"; ctx.fillRect(0, 0, w, 20); ctx.fillRect(0, h - 22, w, 22);
+      const bx = w * .26, by = 34, bw = w * .15, bh = 58;
+      ctx.beginPath(); ctx.roundRect(bx, by, bw * 1.05, bh, 9); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(bx + bw * 1.55, by + 18, 11, 6, -.6, 0, Math.PI * 2); ctx.fill(); // a leaf, shapes only
+      ctx.fillStyle = "rgba(40,60,50,.35)"; ctx.fillRect(bx, by + bh + 8, bw * 1.5, 4); ctx.fillRect(bx, by + bh + 15, bw * 1.1, 3);
+    });
+    const greenBottleAt = { x: -2.535, z: .608 };
+    const greenBottle = new THREE.Mesh(bottleGeometry, new THREE.MeshStandardMaterial({ map: greenLabelTex, color: "#ffffff", roughness: .42 }));
+    greenBottle.position.set(greenBottleAt.x - bottleAt.x, topAt(greenBottleAt.x, greenBottleAt.z) - bottleY, greenBottleAt.z - bottleAt.z);
+    greenBottle.name = "left-sideboard-supplement-green"; greenBottle.castShadow = true; greenBottle.receiveShadow = true; scene.add(greenBottle);
     // An orange flip-top vitamin bottle, inspired by Paul's reference photo, without branding.
     const orangeBottleAt = { x: -2.46, z: .55 };
     const orangeBottleY = topAt(orangeBottleAt.x, orangeBottleAt.z);
@@ -2403,7 +2416,8 @@ let lanternMat = null;
     outlet.geometry.computeVertexNormals(); outlet.name = "record-player-wall-outlet"; outlet.receiveShadow = true; scene.add(outlet);
     // Room 03's Evian-style water bottle by its record player (the same profile, water to the shoulder, label band and fluted cap; Room 04 uses it at 0.8 too), at 0.8 scale
     // so it stays a desk bottle beside the mug: between the mug and the player, toward the wall, standing 0.5 mm into the oak. Glass, water and label-with-cap: three meshes.
-    const WATER_S = .8, waterAt = { x: -2.475, z: .895 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
+    // Paul 2026-11-19: two bottles now, closer to the wall (behind the mug, before the player), and a green label band: this is a Taiwanese living room, not Room 03's.
+    const WATER_S = .8, waterAt = { x: -2.54, z: .83 }, water2At = { x: -2.548, z: .902 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
     const sc = (list) => list.map(([r, y]) => new THREE.Vector2(r * WATER_S, y * WATER_S));
     const shellProfile = [[0, .001], [.030, .001], [.038, .004], [.0415, .012], [.042, .030], [.0395, .040], [.042, .050], [.042, .150], [.0395, .160], [.042, .170],
       [.042, .196], [.039, .214], [.031, .236], [.022, .256], [.0165, .272], [.0155, .280], [.018, .283], [.018, .286], [.0155, .288], [0, .288]];
@@ -2414,12 +2428,18 @@ let lanternMat = null;
     waterFill.name = "left-sideboard-water-bottle-water"; waterFill.renderOrder = 1; scene.add(waterFill);
     const capGeometry = new THREE.CylinderGeometry(.0175 * WATER_S, .0175 * WATER_S, .022 * WATER_S, 56, 1), cpos = capGeometry.attributes.position;
     for (let k = 0; k < cpos.count; k++) { const cx = cpos.getX(k), cz = cpos.getZ(k); if (Math.hypot(cx, cz) > .017 * WATER_S) { const f = Math.round(Math.atan2(cz, cx) / (Math.PI / 28)) % 2 ? .93 : 1; cpos.setX(k, cx * f); cpos.setZ(k, cz * f); } }
-    const labelBand = tint(new THREE.CylinderGeometry(.0425 * WATER_S, .0425 * WATER_S, .062 * WATER_S, 28, 1, true).translate(0, .105 * WATER_S, 0), 0x78959a);
+    const labelBand = tint(new THREE.CylinderGeometry(.0425 * WATER_S, .0425 * WATER_S, .062 * WATER_S, 28, 1, true).translate(0, .105 * WATER_S, 0), 0x3d9a74);
     const capTinted = tint(capGeometry.translate(0, .299 * WATER_S, 0), 0xe1ddd2);
     const labelCap = new THREE.Mesh(mergeGeometries([labelBand, capTinted].map((g) => { g.deleteAttribute("uv"); return g.index ? g.toNonIndexed() : g; }), false).translate(waterAt.x, waterY, waterAt.z), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .74, side: THREE.DoubleSide }));
     labelCap.geometry.computeVertexNormals(); labelCap.name = "left-sideboard-water-bottle-label-cap"; labelCap.castShadow = true; scene.add(labelCap);
-    const water = { glass: waterGlass, fill: waterFill, labelCap, at: waterAt, y: waterY, radius: .042 * WATER_S };
-    return { oak, pulls, props, bottle, bottleAt, mugAt, mugY, pack, packAt, packY, packSpot, coffeeObj, recordPlayer, recordAt, mugRadius: MUG.radius, cord, cordCurve, cordRadius: CORD_R, outlet, water, topY: top };
+    // The second bottle shares the three geometries and materials, moved along the wall (its own seat height from the top).
+    const water2Shift = new THREE.Vector3(water2At.x - waterAt.x, topAt(water2At.x, water2At.z) - .0013 - waterY, water2At.z - waterAt.z), water2 = [];
+    for (const [src, name] of [[waterGlass, "glass"], [waterFill, "water"], [labelCap, "label-cap"]]) {
+      const copy = new THREE.Mesh(src.geometry, src.material); copy.position.copy(water2Shift); copy.renderOrder = src.renderOrder; copy.castShadow = src.castShadow;
+      copy.name = `left-sideboard-water-bottle-2-${name}`; scene.add(copy); water2.push(copy);
+    }
+    const water = { glass: waterGlass, fill: waterFill, labelCap, at: waterAt, y: waterY, radius: .042 * WATER_S, second: { glass: water2[0], at: water2At } };
+    return { oak, pulls, props, bottle, bottleAt, greenBottle, mugAt, mugY, pack, packAt, packY, packSpot, coffeeObj, recordPlayer, recordAt, mugRadius: MUG.radius, cord, cordCurve, cordRadius: CORD_R, outlet, water, topY: top };
   })();
 
   // ---------- state + panel ----------
@@ -4315,6 +4335,21 @@ let lanternMat = null;
       };
     },
     recordView: () => { moveToView("record"); return currentView; },
+    sideboardTopItems() { // local QA only (Paul 2026-11-19): every free-standing thing on the left sideboard top, its seat on the oak and its gap to its nearest neighbour (mm, footprint boxes)
+      scene.updateMatrixWorld(true);
+      const ray = new THREE.Raycaster(), topY = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); return ray.intersectObject(sideboard.oak, false)[0]?.point.y ?? null; };
+      const items = { mug: sideboard.props, redVitamin: sideboard.bottle, greenVitamin: sideboard.greenBottle, orangeVitamin: scene.getObjectByName("orange-cap-vitamin-body"), water1: sideboard.water.glass, water2: sideboard.water.second.glass, recordPlayer: sideboard.recordPlayer.group, outlet: sideboard.outlet };
+      const boxes = Object.fromEntries(Object.entries(items).map(([k, o]) => [k, new THREE.Box3().setFromObject(o)]));
+      { const rb = sideboard.recordPlayer.info().bounds; boxes.recordPlayer = new THREE.Box3(new THREE.Vector3(...rb.min), new THREE.Vector3(...rb.max)); } // the deck itself, not its invisible tap target
+      const gap = (a, b) => { const dx = Math.max(b.min.x - a.max.x, a.min.x - b.max.x, 0), dz = Math.max(b.min.z - a.max.z, a.min.z - b.max.z, 0); return Math.round(Math.hypot(dx, dz) * 1000); };
+      const out = {};
+      for (const [k, b] of Object.entries(boxes)) {
+        const c = b.getCenter(new THREE.Vector3()), near = Object.entries(boxes).filter(([o]) => o !== k).map(([o, ob]) => [o, gap(b, ob)]).sort((p, q) => p[1] - q[1])[0];
+        out[k] = { seatMm: k === "outlet" || k === "recordPlayer" ? null : Math.round((b.min.y - topY(c.x, c.z)) * 10000) / 10, wallGapMm: Math.round((b.min.x - (-W / 2)) * 1000), nearest: near[0], gapMm: near[1], heightMm: Math.round((b.max.y - b.min.y) * 1000) };
+      }
+      out.labels = { water: `#${new THREE.Color().fromArray(sideboard.water.labelCap.geometry.attributes.color.array, 0).getHexString()}`, greenVitamin: sideboard.greenBottle.material.map !== sideboard.bottle.material.map, sharedVitaminGeometry: sideboard.greenBottle.geometry === sideboard.bottle.geometry, sharedWaterGeometry: sideboard.water.second.glass.geometry === sideboard.water.glass.geometry };
+      return out;
+    },
     recordPlayerDetails() { // local QA only: Room 01's record player on the sideboard and the napkin pack on the coffee table (mm)
       scene.updateMatrixWorld(true);
       const rp = sideboard.recordPlayer, box = new THREE.Box3().setFromObject(rp.group), oakBox = new THREE.Box3().setFromObject(sideboard.oak), packBox = new THREE.Box3().setFromObject(sideboard.pack);
