@@ -626,18 +626,37 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
       item.position.set(x + dx, board + .0175, FRONT - .101);
       shelfDecor.add(item); item.updateMatrixWorld(true);
     };
-    const book = (name, width, height, depth, cover) => {
-      const group = new THREE.Group(); group.name = name;
-      mesh(group, new THREE.BoxGeometry(width - .004, height - .009, depth - .005), paper, 0, height / 2, 0);
-      for (const x of [-width / 2 + .001, width / 2 - .001]) mesh(group, new THREE.BoxGeometry(.002, height, depth), cover, x, height / 2, 0);
-      mesh(group, new THREE.BoxGeometry(width, height, .003), cover, 0, height / 2, -depth / 2 + .0015);
-      return group;
+    // Paul 2026-11-18: the shelf books are little real books now. Each is one vertex-coloured mesh and they all share one material: two cover boards a little
+    // taller and deeper than the cream page block (a 3 mm overhang on the three open sides), a rounded spine facing the room, and a pale title band near its top.
+    const bookMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .82 });
+    const PAGES = 0xeee6d2, BAND = 0xe3d3a8;
+    const painted = (geo, hex) => {
+      const g = geo.index ? geo.toNonIndexed() : geo; g.deleteAttribute("uv");
+      const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) c.toArray(a, i * 3);
+      g.setAttribute("color", new THREE.BufferAttribute(a, 3)); return g;
     };
-    // A fuller but still low row uses most of the opening height; varied spines keep it lived-in.
-    [["blue", .040, .315, blue, -.150], ["moss", .035, .285, moss, -.090], ["clay", .043, .355, clay, -.030], ["paper", .038, .300, paper, .040], ["blue-short", .036, .270, blue, .110]].forEach(([name, w, h, mat, x]) => {
-      const volume = book(`shelf-book-${name}`, w, h, .086, mat);
-      volume.rotation.z = name === "clay" ? -.025 : name === "paper" ? .018 : 0;
-      place(volume, "left-upper", x, w + .009, .091);
+    // Standing upright: thickness along x, height along y (bottom at 0), the spine towards the room (-z), the fore-edge at +z.
+    const bookGeometry = (width, height, depth, cover, band = BAND) => {
+      const t = .0022, o = .003, r = width / 2, sz = .55, spineZ = -depth / 2 + r * sz, parts = [];
+      for (const side of [-1, 1]) parts.push(painted(new THREE.BoxGeometry(t, height, depth / 2 - spineZ).translate(side * (r - t / 2), height / 2, (spineZ + depth / 2) / 2), cover));
+      parts.push(painted(new THREE.CylinderGeometry(r, r, height, 8, 1, false, Math.PI / 2, Math.PI).scale(1, 1, sz).translate(0, height / 2, spineZ), cover));
+      parts.push(painted(new THREE.BoxGeometry(width - 2 * t, height - 2 * o, depth / 2 - o - spineZ).translate(0, height / 2, (spineZ + depth / 2 - o) / 2), PAGES));
+      const bandH = Math.min(.012, height * .06);
+      parts.push(painted(new THREE.CylinderGeometry(r + .0006, r + .0006, bandH, 8, 1, false, Math.PI / 2, Math.PI).scale(1, 1, sz).translate(0, height * .8, spineZ - .0003), band));
+      const geo = mergeGeometries(parts, false); parts.forEach((p) => p.dispose()); geo.computeVertexNormals(); return geo;
+    };
+    // Seven upright books on the upper left shelf, close together (3 mm apart), heights varied, the last one leaning a little away. Colours from the room:
+    // navy, cream with a rust band, rust, olive, navy, mustard, plum.
+    const uprights = [["navy", .040, .315, 0x34445e], ["cream", .036, .285, 0xe2d9c4, 0xa65a3c], ["rust", .043, .345, 0x9c4f35], ["olive", .038, .300, 0x6f7a4e],
+      ["navy-short", .036, .270, 0x34445e], ["mustard", .034, .290, 0xc19243], ["plum", .037, .262, 0x6e3b52]];
+    let edge = -.02 - (uprights.reduce((s, b) => s + b[1], 0) + .003 * (uprights.length - 1)) / 2;
+    uprights.forEach(([name, w, h, cover, band], i) => {
+      const volume = new THREE.Group(); volume.name = `shelf-book-${name}`;
+      mesh(volume, bookGeometry(w, h, .086, cover, band), bookMat, 0, 0, 0);
+      if (i === uprights.length - 1) volume.rotation.z = -.05;
+      place(volume, "left-upper", edge + w / 2, w + .002, .091); // the contact patch stays inside the 3 mm gap, so neighbours do not overlap
+      edge += w + .003;
     });
     const frame = new THREE.Group(); frame.name = "shelf-small-frame";
     mesh(frame, new THREE.BoxGeometry(.205, .252, .014), oak, 0, .126, 0);
@@ -666,17 +685,29 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     const vesselProfile = [[0,.004],[.030,.004],[.046,.020],[.054,.075],[.050,.150],[.038,.202],[.024,.222],[.022,.285],[.029,.300],[.029,.312],[.018,.312],[.018,.292],[.013,.245],[0,.238]].map(([x,y]) => new THREE.Vector2(x,y));
     mesh(vessel, new THREE.LatheGeometry(vesselProfile, 8), ceramic, 0, 0, 0);
     place(vessel, "right-middle", -.075, .13, .094);
+    // Three books lying flat, flush on one another (covers on covers), each turned and shifted a touch so the pile looks set down by hand. One mesh.
     const stack = new THREE.Group(); stack.name = "shelf-horizontal-book-stack";
-    [[.274,.050,.091,blue,.018],[.252,.052,.088,clay,.077],[.263,.048,.090,moss,.136]].forEach(([w,h,d,mat,y]) => {
-      mesh(stack, new THREE.BoxGeometry(w-.006,h-.005,d-.004), paper, 0, y+h/2, 0);
-      mesh(stack, new THREE.BoxGeometry(w,h,d), mat, 0, y+h/2, 0);
-    });
-    const accent = new THREE.Group(); accent.name = "shelf-small-wood-sculpture";
-    mesh(accent, new THREE.BoxGeometry(.094,.022,.068), oak, 0, .011, 0);
-    mesh(accent, new THREE.BoxGeometry(.062,.072,.048), oak, 0, .058, 0);
-    mesh(accent, new THREE.BoxGeometry(.043,.073,.039), clay, .009, .1305, .002);
-    place(stack, "right-lower", -.035, .286, .096);
-    place(accent, "right-lower", .17, .104, .078);
+    { let y = 0; const lying = [];
+      for (const [len, thick, d, cover, yaw, dx] of [[.274, .050, .091, 0x3f6466, .03, .004], [.252, .052, .088, 0x9c4f35, -.04, -.006], [.263, .048, .090, 0x6f7a4e, .02, .008]]) {
+        lying.push(bookGeometry(thick, len, d, cover).rotateZ(Math.PI / 2).translate(len / 2, thick / 2, 0).rotateY(yaw).translate(dx, y, 0)); y += thick;
+      }
+      mesh(stack, mergeGeometries(lying, false), bookMat, 0, 0, 0); lying.forEach((g) => g.dispose()); }
+    // The three plain wood blocks are gone (they were only decor): a mini Tatung electric rice cooker (大同電鍋) stands there instead, red body with a cream band,
+    // a domed steel lid with a black knob, black side handles and the front switch with its little orange lamp. 10 cm tall, one mesh.
+    const cooker = new THREE.Group(); cooker.name = "shelf-mini-tatung-cooker";
+    { const lathe = (pts) => new THREE.LatheGeometry(pts.map(([x, y]) => new THREE.Vector2(x, y)), 20), BLACK = 0x1d1d1f, parts = [];
+      parts.push(painted(lathe([[0, 0], [.040, 0], [.043, .003], [.044, .008], [.044, .066], [.0425, .070], [.040, .071]]), 0xc0392b));
+      parts.push(painted(new THREE.CylinderGeometry(.0444, .0444, .004, 20, 1, true).translate(0, .014, 0), 0xf1ead8));
+      parts.push(painted(lathe([[.0405, .0705], [.042, .072], [.041, .076], [.034, .085], [.02, .091], [0, .093]]), 0xc9ccce));
+      parts.push(painted(new THREE.CylinderGeometry(.0045, .006, .007, 10).translate(0, .096, 0), BLACK));
+      parts.push(painted(new THREE.SphereGeometry(.006, 8, 6).scale(1, .6, 1).translate(0, .0995, 0), BLACK));
+      for (const side of [-1, 1]) parts.push(painted(new THREE.BoxGeometry(.009, .007, .026).translate(side * (.044 + .0045 - .001), .060, 0), BLACK));
+      parts.push(painted(new THREE.BoxGeometry(.012, .016, .006).translate(0, .022, -.044 - .003 + .001), BLACK));
+      parts.push(painted(new THREE.BoxGeometry(.004, .004, .0015).translate(0, .036, -.0445), 0xf0a030));
+      const geo = mergeGeometries(parts, false); parts.forEach((p) => p.dispose()); geo.computeVertexNormals();
+      mesh(cooker, geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .45, metalness: .15 }), 0, 0, 0); }
+    place(stack, "right-lower", -.05, .286, .096);
+    place(cooker, "right-lower", .175, .11, .1);
     shelfDecorReady = true;
   }
   let consoleDecorPromise = null, consoleDecorLoaded = false, consoleArtLoaded = false;
@@ -3142,12 +3173,12 @@ let lanternMat = null;
     render();
   }
   function setBubbleCover(src) { const cover = robotBubble.querySelector("[data-cover]"); if (!cover) return; cover.hidden = !src; if (src) cover.src = src; } // a record cover above the robot's line (the music), or none
-  function showRobotLine(copy, ms, cover) { // the little robot says a line of its own (the music hint, and the DJ's announcements with a cover)
-    bubbleTarget = robotObj; robotCustomLine = copy; setBubbleCover(cover || null);
+  function showRobotLine(copy, ms, cover, target = robotObj) { // the little robot says a line of its own (the music hint, and the DJ's announcements with a cover); the record player reuses the same card
+    bubbleTarget = target; robotCustomLine = copy; setBubbleCover(cover || null);
     robotBubble.querySelector("[data-bubble-copy]").textContent = copy[state.lang] || copy.zh;
     const action = robotBubble.querySelector("[data-travel-door-action]"); if (action) action.hidden = true;
     robotBubble.hidden = false; clearTimeout(robotBubbleTimer); clearTimeout(robotTurnTimer);
-    robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; robotCustomLine = null; }, ms);
+    robotBubbleTimer = setTimeout(() => { robotBubble.hidden = true; robotCustomLine = null; bubbleTarget = robotObj; }, ms);
     render();
   }
   function robotInView() { // is the little robot on screen, so that its speech bubble points at something?
@@ -3203,19 +3234,33 @@ let lanternMat = null;
     hint: { zh: "點一下我、電視螢幕或旁邊的喇叭，就有音樂喔 🎵", en: "Tap me, the TV screen or a speaker and some music will play 🎵" },
   };
   const MUSIC_COVERS = ["./cafe/art/room04-record-cover-0-v1.webp", "./cafe/art/room04-record-cover-2-v1.webp"]; // Room 04's covers: 慢板 (the day piece) and 夜色外灘 (for series night)
+  // Paul 2026-11-18: started from the record player, the same card (cover and line) pops up over the record player instead, with the piece now playing and the next one.
+  const RECORD_LINES = {
+    zh: ["♪ 正在播放：窗邊的午後 🎹 明亮的鋼琴。下一首：追劇夜。再點唱片機就停。", "♪ 正在播放：追劇夜 🎬 電影感的配樂。下一首：窗邊的午後。再點唱片機就停。"],
+    en: ["♪ Now playing: Afternoon at the window 🎹 Bright piano. Next: Series night. Tap the record player again to stop.", "♪ Now playing: Series night 🎬 A cinematic score. Next: Afternoon at the window. Tap the record player again to stop."],
+  };
+  let musicFromRecord = false; // who started the music: the record player's card follows the pieces it started; everything else keeps the robot's
+  function recordPlayerInView() {
+    const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3()).project(camera);
+    return c.z < 1 && Math.abs(c.x) < 1 && Math.abs(c.y) < 1;
+  }
   function announceMusic(track) { // the robot says which piece is playing, with its cover (a caption if the robot is not in view)
+    const cover = new URL(MUSIC_COVERS[track], import.meta.url).href;
+    if (musicFromRecord && recordPlayerInView()) { showRobotLine({ zh: RECORD_LINES.zh[track], en: RECORD_LINES.en[track] }, 7000, cover, sideboard.recordPlayer.group); return; }
     const copy = { zh: MUSIC_LINES.zh[track], en: MUSIC_LINES.en[track] };
-    if (!robotSleeping && robotInView()) showRobotLine(copy, 7000, new URL(MUSIC_COVERS[track], import.meta.url).href); else showCaption(copy[state.lang] || copy.zh, 6000);
+    if (!robotSleeping && robotInView()) showRobotLine(copy, 7000, cover); else showCaption(copy[state.lang] || copy.zh, 6000);
   }
   function djTap() { // the window-side robot is the DJ (Paul, 2026-11-17): a tap starts the music, and each next tap changes the piece
-    musicHinted = true; musicStopped = false; musicAuto = true;
+    musicHinted = true; musicStopped = false; musicAuto = true; musicFromRecord = false;
     musicTrack = roomMusic.state().playing ? (musicTrack === 0 ? 1 : 0) : (state.mood === "tv" ? 1 : 0);
     roomMusic.start(musicTrack, musicOptions); announceMusic(musicTrack);
   }
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
-  function toggleMusic() {
+  function toggleMusic(fromRecord = false) {
     musicHinted = true;
-    if (roomMusic.state().playing) { roomMusic.stop(); musicStopped = true; /* switched off by hand: it never starts by itself again */ clearTimeout(musicTimer); noteCaption.style.opacity = "0"; return; }
+    if (roomMusic.state().playing) { roomMusic.stop(); musicStopped = true; /* switched off by hand: it never starts by itself again */ clearTimeout(musicTimer); noteCaption.style.opacity = "0";
+      if (bubbleTarget === sideboard.recordPlayer.group) { clearTimeout(robotBubbleTimer); robotBubble.hidden = true; robotCustomLine = null; bubbleTarget = robotObj; } return; }
+    musicFromRecord = fromRecord;
     musicTrack = state.mood === "tv" ? 1 : 0; // series night plays the cinematic piece, every other mood the bright one
     if (roomMusic.start(musicTrack, musicOptions)) { announceMusic(musicTrack); } /* no time limit */
   }
@@ -3223,7 +3268,7 @@ let lanternMat = null;
   // next tap or drag (browsers only allow sound after one). It starts the slow piece, stops after 60 s like the other start, and never starts again once the visitor has switched it off.
   function autoMusic() {
     if (musicAuto || musicStopped || roomMusic.state().playing || document.hidden || (state.mood !== "tv" && currentView !== "tv")) return;
-    musicAuto = true; musicHinted = true; musicTrack = state.mood === "tv" ? 1 : 0;
+    musicAuto = true; musicHinted = true; musicFromRecord = false; musicTrack = state.mood === "tv" ? 1 : 0;
     if (roomMusic.start(musicTrack, musicOptions)) { announceMusic(musicTrack); } /* no time limit */
   }
   window.addEventListener("pointerup", () => autoMusic(), { passive: true });
@@ -3278,7 +3323,7 @@ let lanternMat = null;
     const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
     if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
     if (ray.intersectObject(tvScreen, false).length) { toggleMusic(); return; } // a tap on the TV screen starts (or stops) the music too
-    if (ray.intersectObject(sideboard.recordPlayer.group, true).length) { toggleMusic(); return; } // the record player on the sideboard (Paul 2026-11-18) switches the same music on or off
+    if (ray.intersectObject(sideboard.recordPlayer.group, true).length) { toggleMusic(true); return; } // the record player on the sideboard (Paul 2026-11-18) switches the same music on or off
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
     if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
@@ -4200,7 +4245,7 @@ let lanternMat = null;
     },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : robotCustomLine ? (robotCustomLine[l] || robotCustomLine.zh) : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
-    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
+    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), tapRecordPlayer: () => toggleMusic(true), recordCard: () => ({ shown: !robotBubble.hidden && bubbleTarget === sideboard.recordPlayer.group, text: robotBubble.querySelector("[data-bubble-copy]").textContent, cover: robotBubble.querySelector("[data-cover]")?.hidden === false ? robotBubble.querySelector("[data-cover]").src : null }), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre
