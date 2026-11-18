@@ -30,6 +30,12 @@ test("Room 03 the credenza record player is a real, supported object (step 1: no
   expect(info.bounds.max[0]).toBeLessThan(3.0);
   // The cable-car keepsake moved to the nook console and rests on it with no gap.
   expect(Math.abs(info.nookKeepsake.consoleGapMm), "the cable car rests on the nook console (within 1 mm)").toBeLessThanOrEqual(1);
+  // Its power cord starts inside the deck, rests on the oak top (no float, no dip into the wood) and ends inside the wall.
+  expect(info.cord.startInsideDeckMm).toBeGreaterThanOrEqual(3);
+  expect(info.cord.lowestAboveTopMm, "the cord lies on the top").toBeGreaterThanOrEqual(0);
+  expect(info.cord.lowestAboveTopMm, "the cord lies on the top").toBeLessThanOrEqual(1);
+  expect(info.cord.clearOfDeckUnderside).toBe(true);
+  expect(info.cord.endIntoWallMm, "the cord goes into the wall").toBeGreaterThanOrEqual(3);
   expect(errors).toEqual([]);
 });
 

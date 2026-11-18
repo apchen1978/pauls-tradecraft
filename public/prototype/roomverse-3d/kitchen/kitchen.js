@@ -4147,11 +4147,38 @@ function buildRoom03RecordPlayer(scene) {
       stylusFromCentreMm: mm(Math.hypot(pivot[0] + tipNow.x - platter.x, pivot[2] + tipNow.z - platter.z)), vinylRadiusMm: 132, labelRadiusMm: 25, platterRadiusMm: 138,
       restIntoDeckMm: mm(DECK_TOP - restBox.min.y), restTopToTubeMm: mm(restAt.y - 0.003 - restBox.max.y) };
   };
-  return { mesh, platterMesh, armMesh, setPlaying, stop, motionInfo, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276,
+  // Power cord (Paul 2026-11-18): a thin black cord leaves the back corner of the deck on the record-player-view side, lies on the oak top along the wall past
+  // the red mug (so the record view sees it) and goes into the plaster through a small dark grommet (the credenza stands 2 mm off the wall, too tight to drop a cord behind it). Cord and grommet are one
+  // vertex-coloured mesh; the curve is sampled below so the tests can check it rests on the top and meets the wall with no gap and no clipping.
+  const CORD_R = 0.0025, WALL = 2.94, lie = C.top + CORD_R + 0.0006;
+  const cordCurve = new THREE.CatmullRomCurve3([
+    [2.905, 0.838, 0.734], [2.905, 0.836, 0.748], [2.906, lie + 0.004, 0.762], [2.908, lie, 0.785], [2.914, lie, 0.83], [2.921, lie, 0.874],
+    [WALL - CORD_R - 0.0015, lie + 0.0012, 0.912], [WALL - 0.002, lie + 0.004, 0.929], [WALL + 0.008, lie + 0.005, 0.937],
+  ].map((p) => new THREE.Vector3(...p)));
+  const cordParts = [];
+  add(new THREE.TubeGeometry(cordCurve, 64, CORD_R, 6, false), 0x101112, cordParts);
+  let entry = cordCurve.getPoint(1);
+  for (let i = 0; i <= 200; i++) { const p = cordCurve.getPoint(i / 200); if (p.x >= WALL) { entry = p; break; } }
+  add(new THREE.CylinderGeometry(0.0062, 0.0066, 0.003, 16).rotateZ(Math.PI / 2).translate(WALL - 0.0005, entry.y, entry.z), 0x2b2b2a, cordParts);
+  const cordGeometry = mergeGeometries(cordParts, false); cordParts.forEach((part) => part.dispose()); cordGeometry.computeVertexNormals();
+  const cordMesh = new THREE.Mesh(cordGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
+  cordMesh.name = "room03-record-player-power-cord"; cordMesh.userData.category = "credenza"; cordMesh.castShadow = false; cordMesh.receiveShadow = true; scene.add(cordMesh);
+  const cordInfo = () => {
+    let lowest = Infinity, maxX = -Infinity;
+    for (let i = 0; i <= 400; i++) {
+      const p = cordCurve.getPoint(i / 400);
+      if (p.z > deckBox.max.z + CORD_R && p.x < WALL - 0.004) lowest = Math.min(lowest, p.y - CORD_R - C.top);
+      maxX = Math.max(maxX, p.x);
+    }
+    const mm = (v) => Number((v * 1000).toFixed(1));
+    return { radiusMm: mm(CORD_R), lowestAboveTopMm: mm(lowest), endIntoWallMm: mm(maxX - WALL), startInsideDeckMm: mm(deckBox.max.z - cordCurve.getPoint(0).z),
+      clearOfDeckUnderside: cordCurve.getPoints(200).every((p) => p.z > deckBox.max.z || p.y - CORD_R >= deckBox.min.y - 0.0005), vertices: cordGeometry.attributes.position.count };
+  };
+  return { mesh, platterMesh, armMesh, cordMesh, setPlaying, stop, motionInfo, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276, cord: cordInfo(),
     footIntoTopMm: Math.round((C.top - Math.max(...footBoxes.map((b) => b.min.y))) * 1000),
     footIntoPlinthMm: Math.round((Math.min(...footBoxes.map((b) => b.max.y)) - deckBox.min.y) * 1000),
     tonearmEndAboveVinylMm: Math.round((stylusBox.min.y - vinylBox.max.y) * 1000),
-    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count + platterMesh.geometry.attributes.position.count + armMesh.geometry.attributes.position.count + goldGeometry.attributes.position.count, goldVertices: goldGeometry.attributes.position.count, motion: motionInfo() }) };
+    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count + platterMesh.geometry.attributes.position.count + armMesh.geometry.attributes.position.count + goldGeometry.attributes.position.count, goldVertices: goldGeometry.attributes.position.count, cordVertices: cordGeometry.attributes.position.count, motion: motionInfo() }) };
 }
 
 function buildDishDryer(scene, m) {
