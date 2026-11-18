@@ -902,3 +902,13 @@ test("Room 04 the records play on: one tap plays the four one after another with
   await page.locator("#recordHit").dispatchEvent("click");
   expect(errors).toEqual([]);
 });
+
+test("the right-wall sconces light the Lounge after dark and are off by day", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const level = () => page.evaluate(() => window.__room04.sconceLight());
+  await page.evaluate(() => window.__room04.setMood("closing"));
+  await expect.poll(level, { timeout: 10000 }).toBeGreaterThan(0.8);
+  await page.evaluate(() => window.__room04.setMood("morning"));
+  await expect.poll(level, { timeout: 10000 }).toBe(0);
+  expect(errors).toEqual([]);
+});
