@@ -2697,10 +2697,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         detail(onBook(bookCover(bookTop - 0.002)), 0xa37152);
         detail(onBook(new THREE.BoxGeometry(0.006, 0.0008, 0.203).translate(0.054, bookTop + 0.0003, 0)), 0x44312c);
 
-        const penStart = [-0.016, 0, 0.071], penEnd = [0.025, 0, -0.088], penRadius = 0.0028;
-        const pen = rodGeometry(penStart, penEnd, penRadius, 6);
-        pen.computeBoundingBox();
-        part("steel", onBook(pen.translate(0, bookTop - pen.boundingBox.min.y, 0)), { tile: 1 });
+        // The pen (Paul, 2026-11-19: the white stick did not look like a pen): the window-seat pen, copied. A dark lacquer body, a steel cap with a gold ring and a gold clip, and a steel
+        // point, 166 mm long, cap end toward the visitor, lying along the same line across the cover. It is built along its own axis, then turned flat with the clip on top.
+        const penStart = [-0.016, 0, 0.071], penEnd = [0.025, 0, -0.088], penRadius = 0.0052;
+        const penAxis = new THREE.Vector3(penStart[0] - penEnd[0], 0, penStart[2] - penEnd[2]).normalize(), penUp = new THREE.Vector3(0, 1, 0);
+        const penBasis = new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(penAxis, penUp), penAxis, penUp);
+        const penPart = (key, geometry) => part(key, onBook(geometry.translate(0, 0.003, 0).applyMatrix4(penBasis).translate((penStart[0] + penEnd[0]) / 2, bookTop + penRadius, (penStart[2] + penEnd[2]) / 2)), { tile: 1 });
+        penPart("black", new THREE.CylinderGeometry(0.0046, 0.004, 0.103, 10).translate(0, -0.0165, 0));
+        penPart("steel", new THREE.CylinderGeometry(0.0052, 0.0052, 0.045, 10).translate(0, 0.0575, 0));
+        penPart("gold", new THREE.TorusGeometry(0.00525, 0.0007, 4, 10).rotateX(Math.PI / 2).translate(0, 0.034, 0));
+        penPart("steel", new THREE.ConeGeometry(0.0038, 0.018, 10).rotateX(Math.PI).translate(0, -0.077, 0));
+        penPart("gold", rodGeometry([0, 0.076, 0.0056], [0, 0.045, 0.0056], 0.0009, 4));
+        for (const side of [-1, 1]) penPart("gold", rodGeometry([side * 0.0035, 0.048, 0.0056], [0, 0.039, 0.0056], 0.0008, 4));
         registerSupport("lounge-notebook-on-table", "rest", {
           base: { x: bookX, y: bookBase, z: bookZ, radius: Math.hypot(0.075, 0.105) },
           surface: { shape: "circle", x: tx, y: bookBase, z, radius: 0.275 },
