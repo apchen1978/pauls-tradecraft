@@ -60,12 +60,12 @@ export const PROVISIONAL_MENUS = Object.freeze({
     heading: "Coffee", headingZh: "咖啡",
     // English first, then the Shanghai Simplified-Chinese name (Paul, 2026-11-19): 澳白 is what mainland cafes call a flat white, 拿铁 a latte.
     items: Object.freeze(["Americano 美式咖啡 18元", "Espresso 浓缩咖啡 18元", "Cappuccino 卡布奇诺 24元", "Latte 拿铁 26元", "Flat White 澳白 28元", "Mocha 摩卡 30元", "Osmanthus Latte 桂花拿铁 36元"]),
-    footer: "Slow down · 慢慢来",
+    footer: "Slow down · 慢慢來",
   }),
   other: Object.freeze({
     heading: "Not coffee", headingZh: "其他饮品",
     items: Object.freeze(["Apple Juice 苹果汁 22元", "Orange Juice 橙汁 24元", "Iced Tea 冰红茶 18元", "Hot Chocolate 热巧克力 28元", "Sparkling Water 气泡水 16元", "Osmanthus Tea 桂花茶 26元", "Daily Cake 今日蛋糕 32元"]),
-    footer: "Slow down · 慢慢来",
+    footer: "Slow down · 慢慢來",
   }),
 });
 
