@@ -152,18 +152,19 @@ export function createRoomMusic() {
   const night = createNightMusic(), day = createRoomSound(), piano = createPiano();
   let active = "day";
   return {
-    // Call from inside a tap. track: 0 is the day piece, 1 is series night. Returns true if it started.
+    // Call from inside a tap. track: 0 is the day piece, 1 is series night, 2 is Room 04's fourth record, 十里洋場 (the same cafe module, its own 152 bpm swing). Returns true if it started.
     start(track = 0, options = {}) {
       night.stop(); day.stop();
       if (track === 0) { active = "day"; return day.start(0, false, { vinyl: false, bpm: 100, fade: options.fade }); } // Room 04's first record (慢板) at a brisk 100 beats a minute instead of 58; it goes round until stopped
+      if (track === 2) { active = "swing"; return day.start(3, false, { vinyl: false, fade: options.fade }); } // Paul 2026-11-18: Room 01's third piece is Room 04's joyful Bund swing, shared from cafe/sound.js; it goes round until stopped
       active = "night"; return night.start(0, options);
     },
     stop() { day.stop(); night.stop(); },
     next() { if (active === "night") night.next(); }, // QA: the cinematic piece goes round again; the day piece simply keeps going
-    tracks: () => ["窗邊的午後", "追劇夜"],
+    tracks: () => ["窗邊的午後", "追劇夜", "十里洋場"],
     state() {
       if (active === "night") return { ...night.state(), group: "night", piano: piano.ready() };
-      const d = day.state(); return { playing: d.playing, context: d.context, bars: d.bars, notes: d.notes, track: 0, title: "窗邊的午後", group: "day", playlist: false, piano: piano.ready() };
+      const d = day.state(), swing = active === "swing"; return { playing: d.playing, context: d.context, bars: d.bars, notes: d.notes, track: swing ? 2 : 0, title: swing ? "十里洋場" : "窗邊的午後", group: "day", playlist: false, piano: piano.ready() };
     },
   };
 }

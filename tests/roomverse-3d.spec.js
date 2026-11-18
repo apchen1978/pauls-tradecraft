@@ -1650,7 +1650,7 @@ test("Room 01 the music follows the mood, the little robot hints that the TV scr
   expect(errors).toEqual([]);
 });
 
-test("Room 01 the window-side robot is the DJ: a tap starts the music with a cover, each next tap changes the piece", async ({ page }) => {
+test("Room 01 the window-side robot is the DJ: a tap starts the music with a cover, each next tap changes the piece (three pieces)", async ({ page }) => {
   test.setTimeout(120000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
@@ -1669,9 +1669,32 @@ test("Room 01 the window-side robot is the DJ: a tap starts the music with a cov
   await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-2-v1\.webp/);
   await page.waitForTimeout(1800);
   await tapRobot();
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the third piece is Room 04's Bund swing" }).toBe("十里洋場");
+  await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-3-v1\.webp/);
+  await expect.poll(async () => (await state()).notes, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(20);
+  expect(await page.evaluate(() => window.__room.musicTracks?.() ?? null)).toEqual(["窗邊的午後", "追劇夜", "十里洋場"]);
+  await page.waitForTimeout(1800);
+  await tapRobot();
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back" }).toBe("窗邊的午後");
   await page.evaluate(() => window.__room.set("mood", "slow")); // a mood that is not series night does not undo the pick
   expect((await state()).title).toBe("窗邊的午後");
   await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the record player shows its own card over the record player: the piece now playing and the next of the three", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room); await page.waitForTimeout(3000);
+  await page.evaluate(() => window.__room.recordView()); await page.waitForTimeout(1500);
+  await page.evaluate(() => window.__room.tapRecordPlayer());
+  await expect.poll(async () => (await page.evaluate(() => window.__room.recordCard())).shown, { timeout: 8000, message: "the card pops up over the record player" }).toBe(true);
+  const card = await page.evaluate(() => window.__room.recordCard());
+  expect(card.text).toContain("正在播放：窗邊的午後"); expect(card.text).toContain("下一首：追劇夜");
+  expect(card.cover).toMatch(/room04-record-cover-0-v1\.webp/);
+  await page.evaluate(() => window.__room.tapRecordPlayer()); // the next tap stops it, and the card goes
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
+  expect((await page.evaluate(() => window.__room.recordCard())).shown).toBe(false);
   expect(errors).toEqual([]);
 });
