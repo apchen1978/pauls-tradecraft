@@ -2102,10 +2102,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // black and brass, each with a linen mat. The eight pictures are drawn once onto one atlas, so the whole gallery is one draw call. Until they load, the frames hold the mat only.
     const PRINT_FILES = ["p1-plane-street", "p2-shikumen-door", "p3-bund-dawn", "p4-coffee-cup", "p5-river-boat", "p6-window-shadow", "p7-bicycle", "p8-steam", "ai-open-horizon"].map((n) => `room04-print-${n}.webp`);
     const PRINT_ASPECT = [0.8, 0.8, 1.25, 1, 1.25, 0.8, 0.8, 1, 16 / 9, 4 / 3, 4 / 3, 4 / 3]; // width / height; the ninth is the AI Lab "open horizon" painting (Paul, 2026-11-15), reused from the AI Gallery
+    // The gold frames use the foot-rail brass: the shared gold bleached to pale straw beside the cream wall in the sun and read as a wide cream band, a doubled frame (Paul, 2026-11-19).
     const PRINTS = [ // wall "front": p is x, normal -z. wall "left": p is z, normal +x. h is the picture height in metres.
       { i: 0, wall: "front", p: 1.8, y: 1.8, h: 0.55, frame: "oak" }, { i: 2, wall: "front", p: 2.7, y: 2.12, h: 0.5, frame: "black" },
-      { i: 3, wall: "front", p: 2.4, y: 1.45, h: 0.3, frame: "oak" }, { i: 5, wall: "front", p: 2.9, y: 1.42, h: 0.375, frame: "gold" },
-      { i: 1, wall: "left", p: 2.4, y: 1.95, h: 0.55, frame: "gold" }, { i: 6, wall: "left", p: 3.15, y: 1.95, h: 0.55, frame: "oak" },
+      { i: 3, wall: "front", p: 2.4, y: 1.45, h: 0.3, frame: "oak" }, { i: 5, wall: "front", p: 2.9, y: 1.42, h: 0.375, frame: "brassRail" },
+      { i: 1, wall: "left", p: 2.4, y: 1.95, h: 0.55, frame: "brassRail" }, { i: 6, wall: "left", p: 3.15, y: 1.95, h: 0.55, frame: "oak" },
       { i: 4, wall: "left", p: 2.75, y: 1.15, h: 0.4, frame: "black" }, { i: 7, wall: "left", p: 1.8, y: 1.9, h: 0.28, frame: "oak" },
       { i: 8, wall: "front", p: -2.575, y: 1.85, h: 0.47, frame: "black" }, // the bare front-wall panel between the corner and the street window: the open-horizon painting with its little robot
     ];
