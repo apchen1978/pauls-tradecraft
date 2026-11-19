@@ -55,3 +55,26 @@ test("at 390 px the default view has the plant off screen, so no hint is shown",
   expect(s.inFrame, "the plant is off screen in the default phone view").toBe(false);
   expect(s.shown).toBe(false);
 });
+
+test.describe("phone touch", () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+  test("rotating to the planter and tapping its note opens the note dialogue", async ({ page }) => {
+    await page.goto(`${PAGE}?lang=zh`);
+    await page.locator("#enter").click();
+    await page.waitForFunction(() => window.__room?.plantNoteInfo && window.__room?.plantNoteHint, null, { timeout: 60000 });
+    await page.waitForTimeout(2500);
+    const canvas = page.locator("canvas").first();
+    const box = await canvas.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 - 90, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
+    await expect.poll(() => page.evaluate(() => window.__room.plantNoteHint().inFrame), { timeout: 5000 }).toBe(true);
+    const note = await page.evaluate(() => window.__room.plantNoteInfo());
+    await page.locator("#robotBubble").evaluate((bubble) => { bubble.hidden = false; });
+    await page.touchscreen.tap(note.screen[0] + 36, note.screen[1] + 18); // a small real-world finger offset is still within the note's touch target
+    await expect.poll(() => page.evaluate(() => window.__room.plantNoteInfo().caption), { timeout: 3000 }).toContain("便條 1/3");
+    expect(await page.evaluate(() => window.__room.plantNoteInfo().caption)).toContain("出門前，記得澆花");
+  });
+});
