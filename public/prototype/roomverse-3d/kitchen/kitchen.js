@@ -4046,6 +4046,85 @@ function buildRoom03CredenzaDecor(scene) {
 }
 
 // A compact, self-contained turntable on the cleared end of the credenza. No sound is loaded in this first step.
+// US wall outlets (NEMA 5-15R) in the Decora style that a Bay Area kitchen remodel uses (Paul, 2026-11-19: "an outlet a Bay Area kitchen would use"; not the round-faced build of the
+// first pass, and not Room 01's Taiwanese one): a white single-gang plate 70 x 114.5 mm, 8 mm thick, 0.5 mm into the wall, with one flat rounded-rectangle face 33.5 mm wide carrying two
+// receptacles; each has a taller neutral slot on the left (9 mm), a shorter hot slot on the right (7 mm) and a round ground hole below. The GFCI kind (kitchen counters, by the sink) is a
+// little taller and has a centre band with a dark TEST button, a dark-red RESET button and a small green LED. A plate screw sits below the face. When plugged, a chunky black moulded plug
+// stands in the lower receptacle (1 mm into the face, with a lighter grip panel and a strain relief); the cord is added by the caller and ends inside that neck.
+// Built facing +z in a local frame (x is the viewer's right), then turned by `yaw` about y and moved to `origin` (the centre of the plate on the wall plane).
+const OUTLET_CORD_R = 0.0025;
+function usOutlet(kind, { origin, yaw }, plugged = false) {
+  const gfci = kind === "gfci", PITCH = gfci ? 0.0245 : 0.0195, FACE_H = 2 * PITCH + 0.032 + (gfci ? 0.004 : 0), ZF = 0.0083, DARK = 0x1b1a19, parts = [];
+  const put = (geometry, hex) => parts.push([geometry, hex]);
+  const rod = (radius, length) => new THREE.CylinderGeometry(radius, radius, length, 14).rotateX(Math.PI / 2); // a disc whose axis is z
+  put(new THREE.BoxGeometry(0.07, 0.1145, 0.008).translate(0, 0, 0.0035), 0xf4f2ec);
+  put(new THREE.BoxGeometry(0.0335, FACE_H, 0.0008).translate(0, 0, 0.0075 + 0.0004), 0xf8f6f0);
+  for (const dy of [PITCH, -PITCH]) {
+    for (const [dx, h] of [[-0.00635, 0.009], [0.00635, 0.007]]) put(new THREE.BoxGeometry(0.0021, h, 0.0006).translate(dx, dy + 0.0035, ZF + 0.0001), DARK);
+    put(rod(0.0026, 0.0006).translate(0, dy - 0.0072, ZF + 0.0001), DARK);
+  }
+  if (gfci) {
+    put(new THREE.BoxGeometry(0.0085, 0.0055, 0.0016).translate(-0.0075, 0, ZF + 0.0008), 0x26272a); // TEST
+    put(new THREE.BoxGeometry(0.0085, 0.0055, 0.0016).translate(0.0075, 0, ZF + 0.0008), 0x8a2a2a); // RESET
+    put(rod(0.0016, 0.0008).translate(0, 0.0072, ZF + 0.0004), 0x3fcf74); // the LED
+  }
+  put(rod(0.0026, 0.001).translate(0, -(FACE_H / 2 + 0.0078), 0.008), 0xd8d5cc); // the plate screw
+  put(new THREE.BoxGeometry(0.0044, 0.0007, 0.0004).translate(0, -(FACE_H / 2 + 0.0078), 0.0088), 0x8d8a82); // and its slot
+  let neckLocal = null;
+  const NECK_LEN = 0.016, PZ = ZF - 0.001 + 0.009;
+  if (plugged) {
+    put(new THREE.BoxGeometry(0.026, 0.034, 0.018).translate(0, -PITCH, PZ), 0x161719);
+    put(new THREE.BoxGeometry(0.018, 0.022, 0.003).translate(0, -PITCH + 0.001, PZ + 0.009 + 0.0015), 0x242628);
+    neckLocal = new THREE.Vector3(0, -PITCH - 0.017 - 0.006, PZ);
+    put(new THREE.CylinderGeometry(OUTLET_CORD_R + 0.0012, OUTLET_CORD_R + 0.0006, NECK_LEN, 8).translate(neckLocal.x, neckLocal.y, neckLocal.z), 0x161719);
+  }
+  const frame = new THREE.Matrix4().compose(new THREE.Vector3(...origin), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1));
+  for (const [geometry] of parts) geometry.applyMatrix4(frame);
+  return { parts, neck: neckLocal ? neckLocal.applyMatrix4(frame) : null, neckLen: NECK_LEN, plateBottomY: origin[1] - 0.05725, pitch: PITCH };
+}
+const colourParts = (parts, into) => { // vertex colours for every part, pushed into one list that is merged into a single mesh
+  for (const [geometry, hex] of parts) {
+    const tint = new THREE.Color(hex), count = geometry.attributes.position.count, colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) tint.toArray(colors, i * 3);
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    into.push(geometry);
+  }
+};
+
+// Two more outlets (Paul, 2026-11-19): a GFCI on the backsplash beside the sink, empty, 165 mm above the counter, and a Decora duplex on the entry wall behind the window-side floor lamp
+// with the lamp's cord plugged into its lower receptacle. The lamp's cord leaves its pole between two tripod legs, drops to the floor, lies along it to the wall and climbs the wall (flush,
+// there is no skirting on this wall) into the plug. One vertex-coloured mesh for both outlets and the cord.
+function buildRoom03Outlets(scene) {
+  const COUNTER_TOP = 0.955, TILE_FACE_Z = -2.2675, WALL_Z = 2.34, LAMP = { x: -1.93, z: 1.68, poleR: 0.012 }, FLOOR_LIE = OUTLET_CORD_R + 0.0012, parts = [];
+  const gfci = usOutlet("gfci", { origin: [-1.12, COUNTER_TOP + 0.165, TILE_FACE_Z], yaw: 0 });
+  const lampOut = usOutlet("duplex", { origin: [-1.90, 0.36, WALL_Z], yaw: Math.PI }, true);
+  colourParts(gfci.parts, parts); colourParts(lampOut.parts, parts);
+  const nk = lampOut.neck, yPb = lampOut.plateBottomY, yEnd = nk.y + 0.004, zw = (d) => WALL_Z - d;
+  const cordCurve = new THREE.CatmullRomCurve3([
+    [LAMP.x, 0.22, LAMP.z + 0.009], [LAMP.x, 0.21, LAMP.z + 0.020], [LAMP.x, 0.15, LAMP.z + 0.032], [LAMP.x + 0.001, 0.06, LAMP.z + 0.050], [LAMP.x + 0.002, 0.026, LAMP.z + 0.066], [LAMP.x + 0.003, 0.009, LAMP.z + 0.083], [LAMP.x + 0.004, FLOOR_LIE, LAMP.z + 0.105], [LAMP.x + 0.006, FLOOR_LIE, LAMP.z + 0.150],
+    [LAMP.x + 0.010, FLOOR_LIE, 1.95], [LAMP.x + 0.022, FLOOR_LIE, 2.15], [-1.90, FLOOR_LIE, 2.27], [-1.90, FLOOR_LIE + 0.003, 2.312], [-1.90, 0.026, zw(0.0045)], [-1.90, 0.070, zw(0.0037)], [-1.90, yPb - 0.020, zw(0.0037)],
+    [-1.90, yPb - 0.003, zw(0.010)], [-1.90, yPb + 0.009, nk.z], [nk.x, yEnd, nk.z],
+  ].map((q) => new THREE.Vector3(...q)), false, "centripetal"); // centripetal: a plain Catmull-Rom dipped 8 mm below the floor where the cord turns from the pole to the floor
+  const cordGeometry = new THREE.TubeGeometry(cordCurve, 96, OUTLET_CORD_R, 6, false);
+  colourParts([[cordGeometry, 0x101112]], parts);
+  const geometry = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
+  mesh.name = "room03-wall-outlets"; mesh.castShadow = false; mesh.receiveShadow = true; scene.add(mesh);
+  const mm = (v) => Number((v * 1000).toFixed(1));
+  const info = () => {
+    let lowest = Infinity;
+    for (let i = 0; i <= 600; i++) { const q = cordCurve.getPoint(i / 600); if (q.z > LAMP.z + 0.08 && q.z < 2.30) lowest = Math.min(lowest, q.y - OUTLET_CORD_R); }
+    const start = cordCurve.getPoint(0), end = cordCurve.getPoint(1);
+    return {
+      counter: { kind: "gfci", xM: -1.12, centreAboveCounterMm: mm(0.165), plateIntoTileMm: 0.5 },
+      lamp: { centreAboveFloorMm: 360, startInsidePoleMm: mm(LAMP.poleR - Math.hypot(start.x - LAMP.x, start.z - LAMP.z)), lowestAboveFloorMm: mm(lowest),
+        endAboveNeckBottomMm: mm(end.y - (nk.y - lampOut.neckLen / 2)), endInsideNeck: end.y > nk.y - lampOut.neckLen / 2 && end.y < nk.y + lampOut.neckLen / 2 && Math.abs(end.x - nk.x) < 0.0005 && Math.abs(end.z - nk.z) < 0.0005 },
+      vertices: geometry.attributes.position.count,
+    };
+  };
+  return { mesh, info };
+}
+
 function buildRoom03RecordPlayer(scene) {
   const C = { x: 2.77, z: 0.53, top: 0.815 }, parts = [];
   const footBoxes = [];
@@ -4155,7 +4234,7 @@ function buildRoom03RecordPlayer(scene) {
   const cordCurve = new THREE.CatmullRomCurve3([
     [2.905, 0.838, 0.734], [2.905, 0.836, 0.748], [2.906, lie + 0.004, 0.762], [2.908, lie, 0.785], [2.914, lie, 0.83], [2.921, lie, 0.874],
     [2.930, lie + 0.0012, 0.888], [WALL - CORD_R - 0.0015, C.top + 0.030, 0.908], [WALL - CORD_R - 0.0012, C.top + 0.085, 0.915],
-    [WALL - 0.010, C.top + 0.107, 0.915], [WALL - 0.017, C.top + 0.114, 0.915], [WALL - 0.017, C.top + 0.125, 0.915],
+    [WALL - 0.0037, C.top + 0.088, 0.915], [WALL - 0.010, C.top + 0.105, 0.915], [WALL - 0.0165, C.top + 0.117, 0.915], [WALL - 0.0165, C.top + 0.1265, 0.915],
   ].map((p) => new THREE.Vector3(...p)));
   const cordParts = [];
   add(new THREE.TubeGeometry(cordCurve, 64, CORD_R, 6, false), 0x101112, cordParts);
@@ -4163,21 +4242,10 @@ function buildRoom03RecordPlayer(scene) {
   // centre 165 mm above the top, behind the deck's far corner. Each receptacle is a ROUND raised boss (the classic US duplex face) with two parallel vertical flat slots, the neutral one on the
   // left and taller (9 mm against 7 mm), and a round ground hole below them; one plate screw with a slotted head sits between the two. Slots and holes stand 0.2 mm proud so nothing shares a
   // plane. A chunky black moulded plug sits in the lower receptacle, 1 mm into its face, with the cord leaving through a strain relief downwards; the upper receptacle is empty.
-  const OUT = { y: C.top + 0.165, z: 0.915 }, FACE_X = WALL - 0.0075, REC_X = FACE_X - 0.0015, DARK = 0x1b1a19, PITCH = 0.0205;
-  const flat = (geometry) => geometry.rotateZ(Math.PI / 2); // a cylinder lying along x
-  add(new THREE.BoxGeometry(0.008, 0.114, 0.07).translate(WALL - 0.004 + 0.0005, OUT.y, OUT.z), 0xf4f2ec, cordParts);
-  for (const dy of [PITCH, -PITCH]) {
-    add(flat(new THREE.CylinderGeometry(0.0165, 0.0165, 0.0015, 28)).translate(FACE_X - 0.00075, OUT.y + dy, OUT.z), 0xf8f6f0, cordParts); // the round boss
-    add(flat(new THREE.CylinderGeometry(0.0128, 0.0128, 0.0008, 28)).translate(REC_X - 0.0004, OUT.y + dy, OUT.z), 0xfbfaf6, cordParts); // its slightly lighter face
-    for (const [dz, h] of [[-0.00635, 0.009], [0.00635, 0.007]]) add(new THREE.BoxGeometry(0.0006, h, 0.0021).translate(REC_X - 0.0009, OUT.y + dy + 0.0035, OUT.z + dz), DARK, cordParts); // neutral (left, taller), hot
-    add(flat(new THREE.CylinderGeometry(0.0026, 0.0026, 0.0006, 14)).translate(REC_X - 0.0009, OUT.y + dy - 0.0072, OUT.z), DARK, cordParts); // ground
-  }
-  add(flat(new THREE.CylinderGeometry(0.0034, 0.0034, 0.0012, 16)).translate(FACE_X - 0.0006, OUT.y, OUT.z), 0xd8d5cc, cordParts); // the plate screw head
-  add(new THREE.BoxGeometry(0.0004, 0.0009, 0.0056).translate(FACE_X - 0.0012 - 0.0002, OUT.y, OUT.z), 0x8d8a82, cordParts); // its slot
-  const PLUG = { x1: REC_X + 0.001, depth: 0.018, y: OUT.y - PITCH }, NECK = { y: OUT.y - PITCH - 0.017 - 0.006, len: 0.016, x: WALL - 0.017 };
-  add(new THREE.BoxGeometry(PLUG.depth, 0.034, 0.026).translate(PLUG.x1 - PLUG.depth / 2, PLUG.y, OUT.z), 0x161719, cordParts); // the moulded body, 1 mm into the lower face
-  add(new THREE.BoxGeometry(0.003, 0.022, 0.018).translate(PLUG.x1 - PLUG.depth - 0.0015, PLUG.y + 0.001, OUT.z), 0x242628, cordParts); // a slightly lighter grip panel on its front
-  add(new THREE.CylinderGeometry(CORD_R + 0.0012, CORD_R + 0.0006, NECK.len, 8).translate(NECK.x, NECK.y, OUT.z), 0x161719, cordParts);
+  const OUT = { y: C.top + 0.165, z: 0.915 };
+  const outlet = usOutlet("duplex", { origin: [WALL, OUT.y, OUT.z], yaw: -Math.PI / 2 }, true);
+  for (const [geometry, hex] of outlet.parts) add(geometry, hex, cordParts);
+  const NECK = { x: outlet.neck.x, y: outlet.neck.y, len: outlet.neckLen };
   const cordGeometry = mergeGeometries(cordParts, false); cordParts.forEach((part) => part.dispose()); cordGeometry.computeVertexNormals();
   const cordMesh = new THREE.Mesh(cordGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
   cordMesh.name = "room03-record-player-power-cord"; cordMesh.userData.category = "credenza"; cordMesh.castShadow = false; cordMesh.receiveShadow = true; scene.add(cordMesh);
@@ -7169,6 +7237,7 @@ export async function start({ stage, onReady = () => {} }) {
   credenza = buildRightWallCredenza(scene, materials);
   const credenzaDecor = buildRoom03CredenzaDecor(scene);
   const recordPlayer = buildRoom03RecordPlayer(scene);
+  const outlets = buildRoom03Outlets(scene); // a counter GFCI and the floor lamp's outlet with its cord (Paul, 2026-11-19)
   syncRecordMotion = () => recordPlayer.setPlaying(recordSide >= 0, render);
   // Paul 2026-11-18, a desktop-only easter egg: the mist-blue "Shanghai Slowly Cafe" cup by the record player is a way to Room 04. With a mouse (fine pointer that can hover),
   // the cup glows softly and shows a pointer and a small tip under the cursor; a click (not a drag) goes to the cafe. The ray is tested against the cup's own box only, so
@@ -8643,6 +8712,7 @@ export async function start({ stage, onReady = () => {} }) {
   };
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
+    outletsInfo: () => outlets.info(),
     recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
     cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, turkeySteamInfo: () => turkeySteam.info(), recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,

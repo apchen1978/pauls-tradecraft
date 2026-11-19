@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 117816, meshes: 149 }),
+  scene: Object.freeze({ vertices: 118919, meshes: 150 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 87, phone: 84 }),
+  openingDrawCalls: Object.freeze({ desktop: 88, phone: 85 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 87, golden: 87, movie: 88, night: 87, dinner: 89, sunday: 88, thanksgiving: 93 }),
-    phone: Object.freeze({ daylight: 84, golden: 84, movie: 85, night: 84, dinner: 86, sunday: 85, thanksgiving: 90 }),
+    desktop: Object.freeze({ daylight: 88, golden: 88, movie: 89, night: 88, dinner: 90, sunday: 89, thanksgiving: 94 }),
+    phone: Object.freeze({ daylight: 85, golden: 85, movie: 86, night: 85, dinner: 87, sunday: 86, thanksgiving: 91 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -87,6 +87,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "Thanksgiving turkey steam: three wisps of the red mug's steam sprite (27 points, one Points object, larger and taller) rise from the roast, only in the Thanksgiving mood; vertices and meshes unchanged (points are not meshes); Thanksgiving draw calls +1 (desktop 93, phone 90). Headroom unchanged.", vertices: 116153, meshes: 148, desktopCalls: 87, phoneCalls: 84 },
     { date: "2026-11-18", change: "record-player power cord (Paul): a thin black cord (5 mm) leaves the back corner of the deck, lies on the oak top along the wall past the red mug and goes into the plaster through a small dark grommet; one vertex-coloured mesh, +555 vertices, +1 mesh; opening and mood draw calls unchanged at 1440 and 390 (the credenza end is off-screen there). Headroom unchanged.", vertices: 116708, meshes: 149, desktopCalls: 87, phoneCalls: 84 },
     { date: "2026-11-19", change: "record-player cord now ends in a plug in a US duplex outlet (Paul: it vanished into the plaster): white plate, two round receptacle faces with slots and ground hole, a slotted plate screw, a black moulded plug in the lower receptacle and the cord climbing the wall into it; merged into the same vertex-coloured cord mesh, so no new mesh and no new draw call", vertices: 117816, meshes: 149, desktopCalls: 87, phoneCalls: 84 },
+    { date: "2026-11-19", change: "US Decora outlets (Paul): the record-player outlet becomes a Decora duplex; a GFCI with TEST and RESET on the backsplash beside the sink (empty); a Decora duplex on the entry wall behind the window-side floor lamp, with the lamp cord leaving its pole, lying on the floor and climbing the wall into a black plug. The two new outlets and the lamp cord are one vertex-coloured mesh (one more mesh, one more draw call)", vertices: 118919, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
   ]),
 });
 
