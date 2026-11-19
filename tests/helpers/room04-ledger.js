@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 197181, meshes: 124 }),
+  scene: Object.freeze({ vertices: 197193, meshes: 125 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -116,5 +116,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "Lounge poufs in ochre and smoky blue with soft pleats, inset cushion seams and contact shadows; the shaped covers replace the separate rib rods", vertices: 228704, meshes: 149, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-20", change: "mesh diet step 1 (Paul: slim first, then add): the two wall-clock designs that are not on show (16 meshes, about 17,600 vertices; info() counts hidden meshes too) are built the first time they are chosen instead of at load; the arrival clock is unchanged; no picture changes", vertices: 211126, meshes: 132, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-20", change: "mesh diet step 2: the lamp set and the two stool designs that are not on show (8 meshes, about 13,900 vertices) are built the first time they are chosen, like the clocks; the arrival look is unchanged; no picture changes", vertices: 197181, meshes: 124, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-20", change: "light atmosphere, first prototype in the closing mood only (Paul, from a game still): soft additive halos round the glowing lamps and sconces (Points, no mesh), wall-wash glows round the two sconces and a pool under the standing lamp (one 12-vertex decal mesh), lower fill light, and a CSS vignette; all driven by one live.glow value, so no other mood draws them (opening draw calls unchanged)", vertices: 197193, meshes: 125, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
