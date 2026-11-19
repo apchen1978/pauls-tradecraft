@@ -1779,22 +1779,32 @@ let lanternMat = null;
   tableHalo.position.copy(tableBulb); // no camera-facing offset: the glow must stay inside the lamp from every angle
   tableHalo.scale.setScalar(Math.max(tableShadeSize.x, tableShadeSize.z) * 1.25);
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
-  // Note 1/3 of the three-room note set (Paul 2026-11-11, set A): a yellow sticky note stuck on the front of the plant's pot, "remember to water the plants before you
-  // go out". Abstract marks only (a water drop and two pencil lines, no readable text); what it says appears when it is tapped.
+  // Note 1/3 of the three-room note set (Paul 2026-11-11, set A): a yellow sticky note wrapped to the front curve of the plant's pot.
   const deskNoteLines = { zh: "便條 1/3：「出門前，記得澆花。」", en: "Note 1/3: “Water the plants before you head out.”" };
   const plantNote = (() => {
-    const c = document.createElement("canvas"); c.width = c.height = 128;
+    const c = document.createElement("canvas"); c.width = 384; c.height = 320;
     const x = c.getContext("2d");
-    x.fillStyle = "#f6e58d"; x.fillRect(0, 0, 128, 128); x.fillStyle = "#ecd878"; x.fillRect(0, 0, 128, 12);
-    x.fillStyle = "#5b9bd5"; x.beginPath(); x.moveTo(46, 30); x.bezierCurveTo(30, 54, 28, 66, 46, 72); x.bezierCurveTo(64, 66, 62, 54, 46, 30); x.fill();
-    x.fillStyle = "#cfe6f7"; x.beginPath(); x.ellipse(40, 58, 4, 7, .4, 0, Math.PI * 2); x.fill();
-    x.strokeStyle = "#4a4640"; x.lineWidth = 3; x.lineCap = "round";
-    for (const [y, w] of [[92, 84], [110, 56]]) { x.beginPath(); x.moveTo(20, y); x.bezierCurveTo(20 + w * .3, y - 3, 20 + w * .7, y + 3, 20 + w, y - 1); x.stroke(); }
+    x.fillStyle = "#f6e58d"; x.fillRect(0, 0, c.width, c.height);
+    x.fillStyle = "#ecd878"; x.fillRect(0, 0, c.width, 24);
+    // Clear, high-contrast handwriting makes the note legible in the room overview.
+    x.fillStyle = "#354638"; x.textAlign = "center"; x.textBaseline = "middle";
+    x.font = "700 60px system-ui, sans-serif"; x.fillText("記得澆花", 192, 183);
+    x.fillStyle = "#4a91bb"; x.beginPath(); x.moveTo(192, 65); x.bezierCurveTo(169, 91, 166, 105, 192, 116); x.bezierCurveTo(218, 105, 215, 91, 192, 65); x.fill();
+    x.fillStyle = "#d8f1fa"; x.beginPath(); x.ellipse(184, 98, 5, 9, .4, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = "#83784e"; x.lineWidth = 2; x.beginPath(); x.moveTo(24, 282); x.lineTo(360, 282); x.stroke();
     const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.095, .095), new THREE.MeshStandardMaterial({ map: tex, roughness: .92 }));
-    const box = new THREE.Box3().setFromObject(plantObj);
-    mesh.name = "plant-note"; mesh.rotation.z = -.07;
-    mesh.position.set((box.min.x + box.max.x) / 2, box.min.y + .14, box.max.z + .004); // the pot's front, a hand-width above the floor
+    const width = .16, height = .13, potRadius = .205;
+    const geometry = new THREE.PlaneGeometry(width, height, 10, 4);
+    const positions = geometry.attributes.position;
+    // The note follows the planter's measured front radius instead of sitting out at the leaves' depth.
+    for (let i = 0; i < positions.count; i++) {
+      const px = positions.getX(i);
+      positions.setZ(i, -(potRadius - Math.sqrt(potRadius * potRadius - px * px)));
+    }
+    geometry.computeVertexNormals();
+    const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: tex, roughness: .92, side: THREE.DoubleSide }));
+    mesh.name = "plant-note";
+    mesh.position.set(-2.336, .22, -1.725 + potRadius + .003);
     scene.add(mesh);
     return mesh;
   })();
@@ -4567,7 +4577,7 @@ let lanternMat = null;
     pillowFit() { scene.updateMatrixWorld(true); return { build: pillowBuild, ...Object.fromEntries(["sofa-pillow-back-oat", "sofa-pillow-back-blue", "sofa-pillow-green", "sofa-pillow-terracotta"].map((name) => [name, measurePillow(scene.getObjectByName(name))])) }; }, // how the scatter pillows sit on the sofa (mm)
     bakePillowFit() { scene.updateMatrixWorld(true); return bakePillowFit(); }, // QA only: re-runs the pose and shape search that produced PILLOW_FIT
     plantNoteHint: () => ({ shown: plantHintShown, inFrame: plantNoteInFrame(), caption: noteCaption.textContent, visible: noteCaption.style.opacity === "1" }),
-    plantNoteInfo() { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); const r = renderer.domElement.getBoundingClientRect(); return { screen: [r.left + ((c.x + 1) / 2) * r.width, r.top + ((1 - c.y) / 2) * r.height], ndcZ: c.z, caption: noteCaption.textContent, visible: noteCaption.style.opacity === "1" }; }, // note 1/3: where it is on screen and whether its line shows
+    plantNoteInfo() { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); const r = renderer.domElement.getBoundingClientRect(); return { screen: [r.left + ((c.x + 1) / 2) * r.width, r.top + ((1 - c.y) / 2) * r.height], world: plantNote.position.toArray(), sizeMeters: [.16, .13], ndcZ: c.z, caption: noteCaption.textContent, visible: noteCaption.style.opacity === "1" }; }, // note 1/3: its pot placement, size and tap position
     frameSofa(dx = 0, dy = .55, dz = 1.7, fov = 40) { // local QA only: a close view of the sofa to judge cushion edges and fabric
       scene.updateMatrixWorld(true);
       const focus = new THREE.Box3().setFromObject(sofaObj).getCenter(new THREE.Vector3());
