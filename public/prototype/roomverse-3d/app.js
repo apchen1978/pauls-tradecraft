@@ -1641,7 +1641,10 @@ let lanternMat = null;
     return { back: { samples: gaps.length, missed: (PILLOW_NZ - 1) * (PILLOW_NX - 1) - gaps.length, medianMm: r1(at(.5)), p95Mm: r1(at(.95)), maxPenetrationMm: r1(Math.max(0, -sorted[0])) }, seat: { samples: seat.length, medianMm: r1(seat.length ? [...seat].sort((a, b) => a - b)[seat.length >> 1] : 0), maxMm: r1(seat.length ? Math.max(...seat) : 0) } };
   };
   const tableObj = place(table, { height: .6, x: TX, z: TZ });
-  // light oak to match the coffee table, with a faint grain projected from three sides (the model has no UVs)
+  { // Paul 2026-11-20: the side table is a little small for a lamp, a mug and a notebook. It is 20% wider (30% would touch the sofa's right arm, which ends at x 1.35), the same height, and stays centred under the lamp.
+    tableObj.scale.set(tableObj.scale.x * 1.2, tableObj.scale.y, tableObj.scale.z * 1.2); tableObj.updateMatrixWorld(true);
+    const wide = new THREE.Box3().setFromObject(tableObj).getCenter(new THREE.Vector3()); tableObj.position.x += TX - wide.x; tableObj.position.z += TZ - wide.z; tableObj.updateMatrixWorld(true);
+  }  // light oak to match the coffee table, with a faint grain projected from three sides (the model has no UVs)
   const grain = canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "rgb(128,0,0)"; ctx.fillRect(0, 0, w, h);
     for (let i = 0; i < 70; i++) { const y = rnd() * h, a = .05 + rnd() * .12; ctx.strokeStyle = rnd() < .5 ? `rgba(0,0,0,${a})` : `rgba(255,0,0,${a})`; ctx.lineWidth = 1 + rnd() * 2.5; ctx.beginPath(); ctx.moveTo(0, y); ctx.bezierCurveTo(w * .3, y + (rnd() - .5) * 12, w * .7, y + (rnd() - .5) * 12, w, y); ctx.stroke(); }
@@ -1784,6 +1787,177 @@ let lanternMat = null;
   lampLight.position.copy(tableBulb);
   tableHalo.position.copy(tableBulb); // no camera-facing offset: the glow must stay inside the lamp from every angle
   tableHalo.scale.setScalar(Math.max(tableShadeSize.x, tableShadeSize.z) * 1.25);
+  // ---------- lived-in small things (Paul 2026-11-20, GrokBot's list items 1 to 3; "vertices may loosen, refinement matters") ----------
+  // 1. The side table: a glass of water on a coaster printed with our name, and an open book (no glasses on it: they did not read as 3D). They stand in the ring between the lamp's foot (radius 111 mm)
+  //    and the table edge (radius 275 mm), clear of both. 2. The rug: a pair of slippers, one a little askew. 3. Series night only: the coffee table changes (a bowl of popcorn, the laptop
+  //    closed, steam off the mug) and the remote is tossed on the sofa. All of it is built from simple solids; vertex colours, so one mesh per group.
+  const PROPS = {};
+  {
+    let seed = 4242; const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const col = (geometry, hex) => { // vertex colours on a non-indexed copy, ready to merge
+      const g = geometry.index ? geometry.toNonIndexed() : geometry.clone(); g.deleteAttribute("uv");
+      const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(a, i * 3);
+      g.setAttribute("color", new THREE.Float32BufferAttribute(a, 3)); return g;
+    };
+    const solid = (parts, name, cast = true) => { const g = mergeGeometries(parts.map(([geo, hex]) => col(geo, hex)), false); g.computeVertexNormals(); const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .72 })); m.name = name; m.castShadow = cast; m.receiveShadow = true; scene.add(m); return m; };
+    const at = (geo, x, y, z, yaw = 0) => geo.rotateY(yaw).translate(x, y, z);
+
+    // ---- 1. side table ----
+    const COASTER = { x: TX + .16, z: TZ + .125 }, BOOK = COASTER; // the coaster lies under the red mug, by the lamp's foot on the sofa-side-front of the table
+    const coasterTex = canvasTex(256, 256, (ctx, w, h) => { // a cork-and-cream coaster with our name
+      ctx.fillStyle = "#e9dcc3"; ctx.fillRect(0, 0, w, h); ctx.strokeStyle = "#8a5a36"; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(w / 2, h / 2, w * .4, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = "#4a2c1a"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "italic 700 62px Georgia, serif"; ctx.fillText("paul's", w / 2, h / 2 + 2);
+    });
+    const coasterSide = new THREE.MeshStandardMaterial({ color: 0xc9b48f, roughness: .9 });
+    const coaster = new THREE.Mesh(new THREE.CylinderGeometry(.047, .047, .005, 40).translate(COASTER.x, sideTop + .0025, COASTER.z), [coasterSide, new THREE.MeshStandardMaterial({ map: coasterTex, roughness: .85 }), coasterSide]);
+    coaster.name = "side-table-coaster-top"; coaster.receiveShadow = true; scene.add(coaster);
+    // The glass of water stands on the TV console (Paul 2026-11-20: someone came home, drank some water and left the glass there), between the books and the right-hand speaker.
+    const GLASS = { x: .65, y: .59, z: 2.07 };
+    const glassProfile = [[0, 0], [.027, 0], [.0285, .006], [.0335, .095], [.0345, .1], [.0325, .1], [.0315, .09], [.0255, .008], [0, .008]].map(([r, y]) => new THREE.Vector2(r, y));
+    const glass = new THREE.Mesh(new THREE.LatheGeometry(glassProfile, 36).translate(GLASS.x, GLASS.y, GLASS.z), new THREE.MeshPhysicalMaterial({ color: 0xdfeceb, roughness: .08, metalness: 0, transparent: true, opacity: .38, side: THREE.DoubleSide, depthWrite: false }));
+    glass.name = "console-water-glass"; glass.renderOrder = 2; scene.add(glass);
+    const water = new THREE.Mesh(new THREE.LatheGeometry([[0, .009], [.0268, .009], [.0305, .07], [0, .07]].map(([r, y]) => new THREE.Vector2(r, y)), 30).translate(GLASS.x, GLASS.y, GLASS.z), new THREE.MeshStandardMaterial({ color: 0xbfe0e3, roughness: .05, transparent: true, opacity: .55, depthWrite: false }));
+    water.name = "console-water"; water.renderOrder = 1; scene.add(water);
+    // The red mug (Paul 2026-11-20: bring the brick-red mug of Rooms 03 and 04 over, black coffee and rising steam included, and stand it by the lamp). The same build as Room 04's record-corner
+    // mug: a hollow lathe body with a rolled rim, a buried half-loop handle with cap spheres, coffee 15 mm under the rim, and a thin gold ring on the rim and one near the foot. One mesh; the
+    // steam is Room 04's 22-point curl (a still frame always, drifting while the visitor is in the room).
+    const MUG = { x: COASTER.x, z: COASTER.z, yaw: -.446 }, mugY = sideTop + .005; // on the coaster
+    {
+      const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]].map(([r, h]) => new THREE.Vector2(r, h));
+      const tubeRadius = .0052, loop = .0365, dirX = Math.cos(MUG.yaw), dirZ = -Math.sin(MUG.yaw), GLAZE = 0xb0533c, GOLD = 0xd0a64e;
+      const parts = [[new THREE.LatheGeometry(profile, 48).translate(MUG.x, mugY, MUG.z), GLAZE],
+        [new THREE.CircleGeometry(.0338, 40).rotateX(-Math.PI / 2).translate(MUG.x, mugY + .080, MUG.z), 0x1c110b],
+        [new THREE.TorusGeometry(.0255, tubeRadius, 12, 32, Math.PI).rotateZ(-Math.PI / 2).rotateY(MUG.yaw).translate(MUG.x + dirX * loop, mugY + .051, MUG.z + dirZ * loop), GLAZE],
+        [new THREE.TorusGeometry(.0374, .0016, 8, 56).rotateX(Math.PI / 2).translate(MUG.x, mugY + .0948, MUG.z), GOLD],
+        [new THREE.TorusGeometry(.0403, .0011, 8, 56).rotateX(Math.PI / 2).translate(MUG.x, mugY + .016, MUG.z), GOLD]];
+      for (const side of [-1, 1]) parts.push([new THREE.SphereGeometry(tubeRadius, 10, 8).translate(MUG.x + dirX * loop, mugY + .051 + side * .0255, MUG.z + dirZ * loop), GLAZE]);
+      const g = mergeGeometries(parts.map(([geo, hex]) => col(geo, hex)), false); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .3 })); m.name = "side-table-red-mug"; m.castShadow = true; m.receiveShadow = true; scene.add(m); PROPS.mug = m;
+    }
+    {
+      const COUNT = 22, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+      for (let i = 0; i < COUNT; i++) data.seed[i] = (i * .618034 + .07 * Math.sin(i * 5.3)) % 1;
+      const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+      const puff = canvasTex(64, 64, (ctx, w, h) => { const gr = ctx.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, "rgba(255,255,255,.85)"); gr.addColorStop(.5, "rgba(255,255,255,.3)"); gr.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h); });
+      const points = new THREE.Points(geometry, new THREE.PointsMaterial({ map: puff, size: .058, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: .2, blending: THREE.AdditiveBlending, depthWrite: false }));
+      points.name = "side-table-mug-steam"; points.frustumCulled = false; points.raycast = () => {}; scene.add(points);
+      const RIM = { x: MUG.x, y: mugY + .098, z: MUG.z };
+      const update = (t) => {
+        for (let i = 0; i < COUNT; i++) {
+          const life = (t * .26 + data.seed[i]) % 1, widen = .25 + life * 1.6, sway = Math.sin(t * .9 + life * 5.2 + data.seed[i] * 6) * .012 * widen, spread = Math.sin(data.seed[i] * 40) * .008 * widen;
+          data.pos[i * 3] = RIM.x + sway + spread + life * .014; data.pos[i * 3 + 1] = RIM.y + life * .16; data.pos[i * 3 + 2] = RIM.z + Math.cos(t * .7 + life * 4.1 + data.seed[i] * 7) * .009 * widen + Math.cos(data.seed[i] * 31) * .006 * widen;
+          const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * .5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * .97;
+        }
+        geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+      };
+      update(7.3); PROPS.mugSteam = { points, update };
+    }
+    // The notebook (Paul 2026-11-20: take Room 04's Lounge notebook, recoloured if need be): a saddle-brown cover with a dark elastic band, cream pages, and the window-seat pen lying across it
+    // (dark lacquer body, steel cap with a gold ring and clip, steel point). Its long side runs along the table's edge so it stays inside the ring.
+    const NB = { x: TX - .15, z: TZ + .15 }, nbdx = NB.x - TX, nbdz = NB.z - TZ, nbd = Math.hypot(nbdx, nbdz);
+    const nbYaw = Math.atan2(-nbdz / nbd, nbdx / nbd); // local z (the long side) -> the tangent (-dz, dx) / d
+    {
+      const cover = (y, hex) => { const sh = new THREE.Shape(), w = .15, d = .21, r = .009; sh.moveTo(-w / 2 + r, -d / 2); sh.lineTo(w / 2 - r, -d / 2); sh.quadraticCurveTo(w / 2, -d / 2, w / 2, -d / 2 + r); sh.lineTo(w / 2, d / 2 - r); sh.quadraticCurveTo(w / 2, d / 2, w / 2 - r, d / 2); sh.lineTo(-w / 2 + r, d / 2); sh.quadraticCurveTo(-w / 2, d / 2, -w / 2, d / 2 - r); sh.lineTo(-w / 2, -d / 2 + r); sh.quadraticCurveTo(-w / 2, -d / 2, -w / 2 + r, -d / 2);
+        return [new THREE.ExtrudeGeometry(sh, { depth: .003, bevelEnabled: true, bevelThickness: .0005, bevelSize: .0008, bevelSegments: 2, curveSegments: 6 }).rotateX(-Math.PI / 2).translate(0, y, 0), hex]; };
+      const nb = [cover(0, 0xa37152), [new THREE.BoxGeometry(.138, .013, .198).translate(0, .0095, 0), 0xf3ead6], cover(.0185, 0xa37152), [new THREE.BoxGeometry(.006, .0008, .203).translate(.054, .0223, 0), 0x44312c], // covers, page block, the elastic band
+        [new THREE.BoxGeometry(.0016, .0135, .198).translate(-.0718, .0095, 0), 0xb9a77f], [new THREE.BoxGeometry(.138, .0135, .0016).translate(0, .0095, .0995), 0xe4d7bb]]; // the spine side and the foot edge of the pages
+      const penStart = [-.016, 0, .071], penEnd = [.025, 0, -.088], penR = .0052, bookTop = .0215;
+      const axis = new THREE.Vector3(penStart[0] - penEnd[0], 0, penStart[2] - penEnd[2]).normalize(), up = new THREE.Vector3(0, 1, 0), basis = new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(axis, up), axis, up);
+      const penPart = (geo, hex) => nb.push([geo.translate(0, .003, 0).applyMatrix4(basis).translate((penStart[0] + penEnd[0]) / 2, bookTop + penR, (penStart[2] + penEnd[2]) / 2), hex]);
+      penPart(new THREE.CylinderGeometry(.0046, .004, .103, 10).translate(0, -.0165, 0), 0x16171a);
+      penPart(new THREE.CylinderGeometry(.0052, .0052, .045, 10).translate(0, .0575, 0), 0xb9bcc0);
+      penPart(new THREE.TorusGeometry(.00525, .0007, 6, 12).rotateX(Math.PI / 2).translate(0, .034, 0), 0xd0a64e);
+      penPart(new THREE.ConeGeometry(.0038, .018, 10).rotateX(Math.PI).translate(0, -.077, 0), 0xb9bcc0);
+      penPart(new THREE.BoxGeometry(.0016, .03, .0016).translate(0, .06, .0056), 0xd0a64e);
+      const frame = new THREE.Matrix4().compose(new THREE.Vector3(NB.x, sideTop, NB.z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), nbYaw), new THREE.Vector3(1, 1, 1));
+      const g = mergeGeometries(nb.map(([geo, hex]) => col(geo, hex)), false); g.applyMatrix4(frame); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .62 })); m.name = "side-table-notebook"; m.castShadow = true; m.receiveShadow = true; scene.add(m); PROPS.notebook = m;
+    }
+    PROPS.sideTable = { coaster, glass, water, COASTER, MUG, NB };
+
+    // ---- 2a. the oatmeal scuffs on the rug (right of the coffee table, in front of the sofa's right end): a soft wool upper on a deep-brown sole ----
+    const slipper = (side) => { // a soft scuff: an oat-wool upper over the toes on a deep-brown sole, a cream footbed; local +x is toward the toe; 265 mm long, 100 mm wide
+      const L0 = .265, W0 = .1, shape = new THREE.Shape(); shape.moveTo(-L0 / 2 + .045, -W0 * .36);
+      shape.bezierCurveTo(-L0 / 2 + .005, -W0 * .34, -L0 / 2 - .004, -W0 * .1, -L0 / 2 + .002, W0 * .08); shape.bezierCurveTo(-L0 / 2 + .01, W0 * .36, -L0 / 2 + .05, W0 * .42, -L0 / 2 + .09, W0 * .46);
+      shape.bezierCurveTo(L0 / 2 - .07, W0 * .56, L0 / 2 - .005, W0 * .34, L0 / 2, 0); shape.bezierCurveTo(L0 / 2 - .005, -W0 * .4, L0 / 2 - .07, -W0 * .5, -L0 / 2 + .09, -W0 * .44); shape.bezierCurveTo(-L0 / 2 + .06, -W0 * .4, -L0 / 2 + .05, -W0 * .37, -L0 / 2 + .045, -W0 * .36);
+      const sole = new THREE.ExtrudeGeometry(shape, { depth: .014, bevelEnabled: true, bevelThickness: .0025, bevelSize: .0025, bevelSegments: 2, curveSegments: 20 }); sole.rotateX(-Math.PI / 2);
+      const footbed = new THREE.ShapeGeometry(shape, 20).rotateX(-Math.PI / 2).scale(.93, 1, .9).translate(0, .0185, 0);
+      const upper = new THREE.SphereGeometry(1, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2).scale(.098, .043, .056).translate(.052, .0185, 0);
+      const rim = new THREE.TorusGeometry(1, .0045, 8, 30).rotateX(Math.PI / 2).scale(.094, 1, .052).translate(.052 - .004, .0215, 0); // a soft folded edge round the opening
+      const parts = [[sole, 0x4a2c1a], [footbed, 0xc9b08a], [upper, 0xe2d6bd], [rim, 0xd1c3a6]];
+      return mergeGeometries(parts.map(([geo, hex]) => col(geo, hex)), false);
+    };
+    {
+      const place = (geo, x, z, yaw, flip) => { const g = geo.clone(); if (flip) { g.scale(1, 1, -1); const pa = g.attributes.position, ca = g.attributes.color; for (let i = 0; i < pa.count; i += 3) for (const att of [pa, ca]) { const x1 = att.getX(i + 1), y1 = att.getY(i + 1), z1 = att.getZ(i + 1); att.setXYZ(i + 1, att.getX(i + 2), att.getY(i + 2), att.getZ(i + 2)); att.setXYZ(i + 2, x1, y1, z1); } } /* a mirrored copy turns every triangle inside out: swap two corners of each */ const m = new THREE.Matrix4().compose(new THREE.Vector3(x, .0143, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1)); g.applyMatrix4(m); return g; };
+      const base = slipper();
+      const left = place(base, 1.16, -.80, -1.02, false), right = place(base, 1.30, -.60, -1.58, true); // the left stands as it was kicked off, the right a little askew
+      const g = mergeGeometries([left, right], false); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 })); m.name = "rug-slippers"; m.castShadow = true; m.receiveShadow = true; scene.add(m); PROPS.slippers = m;
+    }
+    // ---- 2b. the red flip-flops on the rug (Paul 2026-11-20: take Room 02's thongs and turn the blue to red; no new modelling), in front of the coffee table, a different spot ----
+    // The same procedural pair as Room 02 (a foam sole 27 x 10 cm with a rounded edge, a thong of two straps and a post), here with red straps. One is kicked a little crooked.
+    {
+      const soleShape = new THREE.Shape(); soleShape.moveTo(0, -.135); soleShape.bezierCurveTo(.05, -.135, .052, -.07, .05, -.02); soleShape.bezierCurveTo(.052, .05, .06, .12, 0, .135); soleShape.bezierCurveTo(-.06, .12, -.052, .05, -.05, -.02); soleShape.bezierCurveTo(-.052, -.07, -.05, -.135, 0, -.135);
+      const SOLE = 0xf1ece3, STRAP = 0xc23b32;
+      const strapGeo = (mx) => new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[mx * .046, .02, -.015], [mx * .04, .043, .01], [mx * .018, .05, .05], [0, .034, .085]].map((q) => new THREE.Vector3(...q))), 14, .0075, 6).scale(1, .7, 1);
+      const oneFlip = () => [[new THREE.ExtrudeGeometry(soleShape, { depth: .016, bevelEnabled: true, bevelSize: .004, bevelThickness: .003, bevelSegments: 2, curveSegments: 10 }).rotateX(Math.PI / 2).translate(0, .019, 0), SOLE],
+        [strapGeo(-1), STRAP], [strapGeo(1), STRAP], [new THREE.CylinderGeometry(.007, .007, .02, 8).translate(0, .028, .085), STRAP]];
+      const placeFlip = (x, z, yaw, mirror) => oneFlip().map(([geo, hex]) => {
+        const g = geo.index ? geo.toNonIndexed() : geo.clone(); g.deleteAttribute("uv");
+        if (mirror) { g.scale(-1, 1, 1); const pa = g.attributes.position; for (let i = 0; i < pa.count; i += 3) { const x1 = pa.getX(i + 1), y1 = pa.getY(i + 1), z1 = pa.getZ(i + 1); pa.setXYZ(i + 1, pa.getX(i + 2), pa.getY(i + 2), pa.getZ(i + 2)); pa.setXYZ(i + 2, x1, y1, z1); } } // a mirrored copy turns every triangle inside out: swap two corners of each
+        g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(x, .0118, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1))); return [g, hex];
+      });
+      const flips = [...placeFlip(-.03, -.09, Math.PI - .3, false), ...placeFlip(.19, -.02, Math.PI + .55, true)]; // kicked off in front of the coffee table, toes towards it, the right one crooked
+      const g = mergeGeometries(flips.map(([geo, hex]) => col(geo, hex)), false); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .78 })); m.name = "rug-flip-flops"; m.castShadow = true; m.receiveShadow = true; scene.add(m); PROPS.flips = m;
+    }
+
+    // ---- 3. series night: the coffee table, the remote on the sofa ----
+    const nightParts = [];
+    // popcorn bowl on the coffee table's free left strip
+    const PB = { x: -.065, z: -.62 }, bowlProfile = [[0, 0], [.04, 0], [.05, .008], [.092, .058], [.1, .074], [.0965, .0745], [.0885, .06], [.046, .014], [0, .012]].map(([r, y]) => new THREE.Vector2(r, y));
+    nightParts.push([new THREE.LatheGeometry(bowlProfile, 40).translate(PB.x, coffeeTop, PB.z), 0xefe6d2]);
+    nightParts.push([new THREE.TorusGeometry(.0985, .0016, 6, 40).rotateX(Math.PI / 2).translate(PB.x, coffeeTop + .0745, PB.z), 0xa5633a]); // a terracotta rim line
+    for (let i = 0; i < 52; i++) { // popcorn: lumpy kernels heaped in the bowl
+      const a = rand() * Math.PI * 2, rr = Math.sqrt(rand()) * .078, h = .02 + (1 - rr / .078) * .05 + rand() * .018, r0 = .012 + rand() * .008;
+      const k = new THREE.IcosahedronGeometry(r0, 1); k.scale(1 + rand() * .3, .8 + rand() * .3, 1 + rand() * .3); k.rotateY(rand() * 6); k.rotateX(rand() * 6);
+      nightParts.push([k.translate(PB.x + Math.cos(a) * rr, coffeeTop + h, PB.z + Math.sin(a) * rr), [0xf3e7c6, 0xefd9a0, 0xf6efdc, 0xd9a65e][Math.floor(rand() * 4)]]);
+    }
+    for (const [dx, dz] of [[.13, .02], [.12, -.07], [-.04, .125]]) { const k = new THREE.IcosahedronGeometry(.0105, 1); k.scale(1.2, .85, 1); nightParts.push([k.translate(PB.x + dx, coffeeTop + .0088, PB.z + dz), 0xf3e7c6]); } // a few that missed
+    // the closed laptop where the open one was (brushed aluminium, a small dark mark on the lid)
+    const LP = { x: .47, z: -.45, yaw: -.55 };
+    nightParts.push([at(new THREE.BoxGeometry(.298, .0145, .205), LP.x, coffeeTop + .00725, LP.z, LP.yaw), 0xb7bbbf]);
+    nightParts.push([at(new THREE.BoxGeometry(.286, .0018, .193), LP.x, coffeeTop + .0154, LP.z, LP.yaw), 0xc6cacd]);
+    nightParts.push([at(new THREE.CylinderGeometry(.016, .016, .0012, 28), LP.x, coffeeTop + .0168, LP.z, LP.yaw), 0x7a7e82]);
+    // the remote, tossed on the sofa seat (seated by a ray, slightly turned)
+    const rayDown = new THREE.Vector3(0, -1, 0), rayAt = (x, z) => { const t = fitDistance(new THREE.Vector3(x, 1.2, z), rayDown, 1.2); return t === null ? null : 1.2 - t; };
+    const RM = { x: .98, z: -1.36 }, seatY = rayAt(RM.x, RM.z) ?? .46;
+    const remoteGeo = [[new THREE.BoxGeometry(.046, .015, .158), 0x1d1f22], [new THREE.BoxGeometry(.034, .0016, .052).translate(0, .0083, -.042), 0x34373b], [new THREE.CylinderGeometry(.0065, .0065, .0016, 14).translate(0, .0083, .003), 0xa5633a]];
+    for (const [geo, hex] of remoteGeo) nightParts.push([geo.rotateY(.7).translate(RM.x, seatY + .0035, RM.z), hex]);
+    PROPS.night = solid(nightParts, "series-night-props"); PROPS.night.visible = false;
+    // steam off the mug (series night): a soft rising wisp, a Points object
+    const steamTex = canvasTex(64, 64, (ctx, w, h) => { const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,255,255,.55)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
+    const MUGC = { x: .10, z: -.40, rim: .497 };
+    const steamPts = []; for (let i = 0; i < 16; i++) { const t = i / 15; steamPts.push(MUGC.x + Math.sin(t * 5.2) * .014 * t + (rand() - .5) * .006, MUGC.rim + .012 + t * .12, MUGC.z + Math.cos(t * 4.1) * .012 * t + (rand() - .5) * .006); }
+    const steam = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(steamPts, 3)), new THREE.PointsMaterial({ map: steamTex, size: .06, sizeAttenuation: true, transparent: true, opacity: .5, depthWrite: false, color: 0xffffff }));
+    steam.name = "series-night-mug-steam"; steam.visible = false; steam.frustumCulled = false; steam.raycast = () => {}; scene.add(steam); PROPS.steam = steam;
+    PROPS.apply = (mood) => { const night = mood === "tv"; PROPS.night.visible = night; steam.visible = night; laptopObj.visible = !night; };
+    PROPS.fit = () => {
+      scene.updateMatrixWorld(true); const bx = (o) => new THREE.Box3().setFromObject(o, true), mm = (v) => Math.round(v * 10000) / 10;
+      const radii = (o) => { let lo = 1e9, hi = 0; const v = new THREE.Vector3(); o.traverse((m) => { if (!m.isMesh) return; const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); const r = Math.hypot(v.x - TX, v.z - TZ); lo = Math.min(lo, r); hi = Math.max(hi, r); } }); return { lo, hi }; };
+      const radial = (o) => mm(radii(o).hi);
+      const side = { coaster: bx(coaster), mug: bx(PROPS.mug) }, glassBox = bx(glass), booksObj = consoleDecor.children.find((c) => c.name === "console-decor-books"), books = booksObj ? bx(booksObj) : null, RIGHT_SPEAKER_X = .738;
+      const gap = (a, b) => Math.round(Math.hypot(Math.max(b.min.x - a.max.x, a.min.x - b.max.x, 0), Math.max(b.min.z - a.max.z, a.min.z - b.max.z, 0)) * 1000);
+      const lampFootR = .111, nb = bx(PROPS.night), sl = bx(PROPS.slippers);
+      return {
+        sideTable: { coasterSeatMm: mm(side.coaster.min.y - sideTop), mugSeatMm: mm(side.mug.min.y - (sideTop + .005)), outerRadiusMm: { coaster: radial(coaster), mug: radial(PROPS.mug), notebook: radial(PROPS.notebook) }, innerClearMm: { coasterToLamp: Math.round((radii(coaster).lo - lampFootR) * 1000), mugToLamp: Math.round((radii(PROPS.mug).lo - lampFootR) * 1000), notebookToLamp: Math.round((radii(PROPS.notebook).lo - lampFootR) * 1000) }, notebookSeatMm: mm(bx(PROPS.notebook).min.y - sideTop), notebookToMugMm: gap(bx(PROPS.notebook), side.mug), tableRadiusMm: mm(((bx(tableObj).max.x - bx(tableObj).min.x) + (bx(tableObj).max.z - bx(tableObj).min.z)) / 4), steamLive: PROPS.mugSteam.points.visible },
+        consoleGlass: { seatMm: mm(glassBox.min.y - .59), toBooksMm: books ? gap(glassBox, books) : null, toSpeakerMm: Math.round((RIGHT_SPEAKER_X - glassBox.max.x) * 1000), insideConsole: glassBox.min.z > 1.88 && glassBox.max.z < 2.28 },
+        slippers: { bounds: { min: sl.min.toArray(), max: sl.max.toArray() }, seatMm: mm(sl.min.y - .012), onRug: sl.min.x > -1.017 && sl.max.x < 1.717 && sl.min.z > -1.715 && sl.max.z < .155 },
+        flips: (() => { const f = bx(PROPS.flips); return { bounds: { min: f.min.toArray(), max: f.max.toArray() }, seatMm: mm(f.min.y - .012), onRug: f.min.x > -1.017 && f.max.x < 1.717 && f.min.z > -1.715 && f.max.z < .155, clearOfTableMm: gap(f, bx(coffeeObj)) }; })(),
+        night: { visible: PROPS.night.visible, laptopOpenVisible: laptopObj.visible, steamVisible: PROPS.steam.visible, bounds: { min: nb.min.toArray(), max: nb.max.toArray() }, popcornBowlInsideTable: PB.x - .1 > -.18 && PB.x + .1 < .88 && PB.z - .1 > -.911 && PB.z + .1 < -.289, laptopStandsOnTable: mm(nb.min.y - coffeeTop), remoteSeat: { seatY: +seatY.toFixed(3) } },
+      };
+    };
+  }
   const plantObj = place(plant, { height: 1.35, x: PX, z: PZ });
   // Note 1/3 of the three-room note set (Paul 2026-11-11, set A): a yellow sticky note wrapped to the front curve of the plant's pot.
   const deskNoteLines = { zh: "便條 1/3：「出門前，記得澆花。」", en: "Note 1/3: “Water the plants before you head out.”" };
@@ -2650,7 +2824,7 @@ let lanternMat = null;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
   function easeLights() {
-    document.getElementById("stage").dataset.light = state.mood; // the CSS vignette follows the feeling (dim moods only)
+    document.getElementById("stage").dataset.light = state.mood; PROPS.apply(state.mood); // series night changes the coffee table and the sofa // the CSS vignette follows the feeling (dim moods only)
     const to = lights();
     if (!shown || still || shownMood === state.mood) { shown = to; shownMood = state.mood; fade++; setLights(to); return; }
     const from = shown, t0 = performance.now(), id = ++fade;
@@ -3461,10 +3635,10 @@ let lanternMat = null;
     try {
       const now = performance.now();
       if (!musicHinted && !intro && !director && now - lastTouch > 9000 && now - lastTouch < 30000 && !document.hidden && noteCaption.style.opacity === "0" && robotBubble.hidden) { musicHinted = true; if (!robotSleeping && robotInView()) showRobotLine(MUSIC_LINES.hint, 6500); else showCaption(MUSIC_LINES.hint[state.lang] || MUSIC_LINES.hint.zh, 5200); }
-      if (ambientFrozen || !dustPoints.visible || document.hidden || still || now - lastTouch > 30000) dustLast = 0;
+      if (ambientFrozen || document.hidden || still || now - lastTouch > 30000) dustLast = 0;
       else {
         const dt = dustLast ? Math.min(.25, (now - dustLast) / 1000) : .1; dustLast = now;
-        stepDust(dt); if (shown) windowLight.intensity = shown.win * (1 + .04 * Math.sin(dustTime * .5)); render(); cost = performance.now() - now;
+        if (dustPoints.visible) { stepDust(dt); if (shown) windowLight.intensity = shown.win * (1 + .04 * Math.sin(dustTime * .5)); } PROPS.mugSteam.update(now / 1000); /* the red mug's steam drifts while the visitor is in the room */ render(); cost = performance.now() - now;
       }
     } catch { /* the room is still starting up */ }
     setTimeout(ambientTick, Math.max(100, cost * 3)); // a slow device draws less often (at most a third of the time spent drawing), so the ambient motion never starves the rest of the page
@@ -4492,6 +4666,14 @@ let lanternMat = null;
       };
     },
     recordView: () => { moveToView("record"); return currentView; },
+    consoleProbe() { scene.updateMatrixWorld(true); const out = []; const add = (o, n) => { const q = new THREE.Box3().setFromObject(o, true); out.push({ n: n || o.name, min: q.min.toArray().map((v) => +v.toFixed(3)), max: q.max.toArray().map((v) => +v.toFixed(3)) }); }; consoleDecor.children.forEach((c) => add(c)); tvWall.traverse((o) => { if (o.name === "tv-console" || o.name === "tv-laptop") add(o); }); return out; },
+    propVerts: () => Object.fromEntries(Object.entries(PROPS).filter(([, o]) => o && o.geometry).map(([k, o]) => [k, o.geometry.attributes.position.count])),
+    propFit: () => PROPS.fit(),
+    qaLook(p, t, fov) { intro = false; controls.enabled = false; camera.position.set(...p); controls.target.set(...t); camera.fov = fov; camera.updateProjectionMatrix(); camera.lookAt(...t); render(); },
+    frameProbe() { // local QA only (2026-11-20): the living-room surfaces the small props stand on
+      scene.updateMatrixWorld(true); const bx = (o) => { const q = new THREE.Box3().setFromObject(o, true); return { min: q.min.toArray().map((v) => +v.toFixed(3)), max: q.max.toArray().map((v) => +v.toFixed(3)) }; };
+      return { SX, SZ, TX, TZ, sideTable: bx(tableObj), lamp: bx(tableLampObj), coffee: bx(coffeeObj), sofa: bx(sofaObj), rug: { bounds: bx(rug), yaw: rug.rotation.y, centre: rug.position.toArray() }, sideTop, coffeeTop, lampFoot: (() => { const q = new THREE.Box3(), v = new THREE.Vector3(); tableLampObj.traverse((m) => { if (!m.isMesh) return; const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); if (v.y < sideTop + .05) q.expandByPoint(v); } }); return { min: q.min.toArray().map((x) => +x.toFixed(3)), max: q.max.toArray().map((x) => +x.toFixed(3)) }; })(), coffeeItems: [laptopObj, mugObj, coffeeBook, sideboard.pack].map((o) => ({ n: o.name, ...bx(o) })) };
+    },
     sideboardTopItems() { // local QA only (Paul 2026-11-19): every free-standing thing on the left sideboard top, its seat on the oak and its gap to its nearest neighbour (mm, footprint boxes)
       scene.updateMatrixWorld(true);
       const ray = new THREE.Raycaster(), topY = (x, z) => { ray.set(new THREE.Vector3(x, 2, z), new THREE.Vector3(0, -1, 0)); return ray.intersectObject(sideboard.oak, false)[0]?.point.y ?? null; };
