@@ -2390,7 +2390,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
   // ---------- the wall clock (Codex card 49): three designs, hands showing the real time ----------
   const clockSets = { tech: new THREE.Group(), classic: new THREE.Group(), wood: new THREE.Group() };
+  // The mesh diet (2026-11-20): only the arrival clock is built at the start; the other two designs were 16 meshes and 17,000 vertices that no one saw unless they picked that look, yet info()
+  // counts hidden meshes too. Each design is now built the first time it is chosen (`ensureClock`, called by setLook); the empty groups are in the scene from the start.
+  let ensureClock = () => {};
   {
+    const buildClock = {};
     const CK = { y: 2.3, z: 0.45, R: 0.225 }; // above the TV, 45 cm across
     const dialTexture = (file, then) => textureLoader.load(artUrl(file), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = maxAnisotropy; loadedArt.add(file); then(t); render(); });
     const dialTech = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.62, emissive: 0xffffff, emissiveIntensity: 0.4 });
@@ -2420,12 +2424,12 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       mesh(group, new THREE.CylinderGeometry(0.011, 0.011, 0.012, 16).rotateX(Math.PI / 2), mat, z + 0.004, false);
     };
     // A: futuristic. A brushed steel drum 45 mm deep, a matte black dial with amber hour marks, a hairline amber ring and amber second hand.
-    { const g = clockSets.tech; mesh(g, disc(CK.R, 0.045), materials.steel, 0.0225);
+    buildClock.tech = () => { const g = clockSets.tech; mesh(g, disc(CK.R, 0.045), materials.steel, 0.0225);
       mesh(g, new THREE.CircleGeometry(CK.R - 0.01, 64), dialTech, 0.0461, false);
       mesh(g, new THREE.TorusGeometry(CK.R - 0.012, 0.0022, 8, 72), amberRing, 0.0463, false);
-      hands(g, 0.048, { hour: 0.11, minute: 0.17, second: 0.19, wHour: 0.011, wMin: 0.007, mat: handAmber, secMat: handAmber }); place(g); }
+      hands(g, 0.048, { hour: 0.11, minute: 0.17, second: 0.19, wHour: 0.011, wMin: 0.007, mat: handAmber, secMat: handAmber }); };
     // B: classical. A brass case 70 mm deep with a beaded bezel, a convex glass dome, an ivory dial, blued-steel hands and a small finial on top.
-    { const g = clockSets.classic; mesh(g, new THREE.CylinderGeometry(CK.R, CK.R, 0.07, 56, 1, true).rotateX(Math.PI / 2), materials.gold, 0.035); mesh(g, new THREE.CircleGeometry(CK.R, 56), materials.gold, 0.002, false);
+    buildClock.classic = () => { const g = clockSets.classic; mesh(g, new THREE.CylinderGeometry(CK.R, CK.R, 0.07, 56, 1, true).rotateX(Math.PI / 2), materials.gold, 0.035); mesh(g, new THREE.CircleGeometry(CK.R, 56), materials.gold, 0.002, false);
       mesh(g, new THREE.TorusGeometry(CK.R - 0.004, 0.012, 10, 64), materials.gold, 0.07);
       { const studs = []; // 48 beads round the bezel and 8 bolts round the case, one mesh
         for (let i = 0; i < 48; i++) { const a = (i / 48) * Math.PI * 2; studs.push(new THREE.SphereGeometry(0.0042, 8, 6).translate(Math.cos(a) * (CK.R - 0.022), Math.sin(a) * (CK.R - 0.022), 0.0735)); }
@@ -2436,11 +2440,15 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const dome = new THREE.SphereGeometry(1, 40, 14, 0, Math.PI * 2, 0, Math.PI / 2); dome.rotateX(Math.PI / 2); dome.scale(CK.R - 0.026, CK.R - 0.026, 0.04);
       mesh(g, dome, materials.glass, 0.066, false);
       mesh(g, new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.03, 0.006], [0.018, 0.014], [0.014, 0.03], [0.024, 0.04], [0.026, 0.056], [0.01, 0.074], [0.0005, 0.08]].map((p) => new THREE.Vector2(p[0], p[1])), 20), materials.gold, 0, false).position.set(0, CK.R + 0.004, 0.03);
-      place(g); }
+    };
     // The round oak clock that was here before: an oak ring round a cream dial with plain black hands.
-    { const g = clockSets.wood; mesh(g, new THREE.TorusGeometry(CK.R - 0.02, 0.022, 10, 48), materials.oak, 0.018);
+    buildClock.wood = () => { const g = clockSets.wood; mesh(g, new THREE.TorusGeometry(CK.R - 0.02, 0.022, 10, 48), materials.oak, 0.018);
       mesh(g, new THREE.CircleGeometry(CK.R - 0.02, 56), woodDial, 0.012, false);
-      hands(g, 0.022, { hour: 0.1, minute: 0.15, second: 0.165, wHour: 0.009, wMin: 0.006, mat: handBlack, secMat: handBlack }); place(g); }
+      hands(g, 0.022, { hour: 0.1, minute: 0.15, second: 0.165, wHour: 0.009, wMin: 0.006, mat: handBlack, secMat: handBlack }); };
+    for (const set of Object.values(clockSets)) place(set);
+    const builtClocks = new Set();
+    ensureClock = (name) => { if (builtClocks.has(name) || !buildClock[name]) return; builtClocks.add(name); buildClock[name](); };
+    ensureClock(DEFAULT_LOOK.clock);
     for (const [name, set] of Object.entries(clockSets)) set.visible = name === DEFAULT_LOOK.clock;
   }
   const tvLight = new THREE.PointLight(0x9fc5ff, 0, 3.6, 2); tvLight.position.set(X1 - 0.8, 1.5, 0.45); scene.add(tvLight);
@@ -3576,7 +3584,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       apply(materials.menuB, v[1], PROVISIONAL_MENUS.other);
     }
     else if (group === "stool") { for (const [name, set] of Object.entries(stoolSets)) set.visible = name === key; }
-    else if (group === "clock") { for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
+    else if (group === "clock") { ensureClock(key); for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
     else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
     else if (group === "chair") materials.windowChair.color.setHex(v);
@@ -3828,6 +3836,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
     playDrip, stopDrip, dripPlaying: () => dripPlaying,
     dripState: () => ({ playing: dripPlaying, dropsVisible: dripDrops.visible, liquidRiseMm: Math.round((dripLiquid.scale.y * 0.04 - DRIP_INITIAL_LEVEL) * 1000), dropScales: [...dripDropScales], dropPositions: dripDropPositions.map((position) => position.toArray()), renderFrame: frames }),
+    // Local QA only (the mesh diet, 2026-11-20): every mesh (shown or hidden, hidden ones still count in info()) with its name, material, vertex count and whether it is a Points/Sprite, largest first, so the next diet starts from a list.
+    meshInventory: () => { const rows = []; scene.traverse((o) => { if (!o.isMesh && !o.isPoints && !o.isSprite) return; let shown = true; for (let a = o; a; a = a.parent) if (!a.visible) { shown = false; break; } const g = o.geometry; const mat = Array.isArray(o.material) ? o.material.map((m) => m.name || m.type).join("+") : (o.material?.name || o.material?.type);
+      const box = new THREE.Box3().setFromObject(o), c = box.getCenter(new THREE.Vector3()), m0 = Array.isArray(o.material) ? o.material[0] : o.material;
+      rows.push({ shown, name: o.name || "(unnamed)", material: mat, matId: m0?.uuid?.slice(0, 6), color: m0?.color?.getHexString?.(), map: m0?.map?.userData?.file || (m0?.map ? "map" : ""), vertices: g?.attributes?.position?.count ?? 0, kind: o.isPoints ? "points" : o.isSprite ? "sprite" : o.isInstancedMesh ? "instanced" : "mesh", parent: o.parent?.name || o.parent?.type, castShadow: o.castShadow, at: [c.x, c.y, c.z].map((v) => Number(v.toFixed(2))), size: box.getSize(new THREE.Vector3()).toArray().map((v) => Number(v.toFixed(2))) }); }); return rows.sort((x, y) => y.vertices - x.vertices); },
     physicsAudit: () => auditRoom04([...auditEntries, { name: "wall-art-part-shift-reset", kind: "reset", value: partShift }]),
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,

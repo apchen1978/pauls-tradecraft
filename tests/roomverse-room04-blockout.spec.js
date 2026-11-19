@@ -142,7 +142,9 @@ test("Room 04 Codex art: the clock hands show the real time, series night has on
   const clock = await page.evaluate(() => window.__room04.clockTime());
   const now = new Date(), minute = now.getMinutes() + now.getSeconds() / 60;
   const diff = Math.abs(clock.minute - minute * 6); expect(Math.min(diff, 360 - diff), "minute hand within 12 degrees of the real time").toBeLessThan(12);
-  for (const key of ["classic", "wood", "tech"]) { await page.evaluate((k) => window.__room04.setLook("clock", k), key); expect(await page.evaluate((k) => window.__room04.clocks[k].visible, key)).toBe(true); }
+  // The mesh diet (2026-11-20): only the arrival clock is built at load; each other design is built the first time it is chosen.
+  expect(await page.evaluate(() => Object.entries(window.__room04.clocks).filter(([, group]) => group.children.length > 0).map(([key]) => key)), "only the arrival clock is built at load").toEqual([await page.evaluate(() => window.__room04.lookDefaults.clock)]);
+  for (const key of ["classic", "wood", "tech"]) { await page.evaluate((k) => window.__room04.setLook("clock", k), key); expect(await page.evaluate((k) => window.__room04.clocks[k].visible, key)).toBe(true); expect(await page.evaluate((k) => window.__room04.clocks[k].children.length, key), `${key} is built once chosen`).toBeGreaterThan(0); }
   await page.locator(`#moods button[data-mood="series"]`).click();
   const still = await page.evaluate(() => window.__room04.tvStill()); expect([0, 1, 2]).toContain(still);
   await page.waitForFunction(() => window.__room04.info().art.some((a) => a.startsWith("room04-tv-")), null, { timeout: 30000 });
@@ -184,7 +186,7 @@ test("Room 04 can turn all the way round from the middle of the room, and the op
 
 test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
   const errors = await open(page, 1440);
-  const base = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
+  const base = await page.evaluate(() => { const i = window.__room04.info(); let clockV = 0, clockM = 0; for (const group of Object.values(window.__room04.clocks)) group.traverse((o) => { if (o.isMesh) { clockM++; clockV += o.geometry.attributes.position.count; } }); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look, clockV, clockM }; });
   expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "ceiling", "chair", "clock", "counter", "floor", "gallery", "lamp", "lounge", "menu", "rug", "scarf", "stool", "wainscot", "wall", "wallpaper"]);
   const groups = await page.evaluate(() => window.__room04.lookGroups());
   expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash", "planeleaf", "windowshadow"]);
@@ -201,6 +203,10 @@ test("Room 04 looks: swaps change materials without changing the scene size, wal
   await page.locator("#randomLook").click();
   await expect(page.locator("#resetLook")).toBeVisible();
   const after = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
+  // A clock design that was chosen during the run is built once (lazily, the mesh diet): count that apart from the swap itself.
+  const clockWeight = () => page.evaluate(() => { let v = 0, m = 0; for (const group of Object.values(window.__room04.clocks)) group.traverse((o) => { if (o.isMesh) { m++; v += o.geometry.attributes.position.count; } }); return { v, m }; });
+  const clocksNow = await clockWeight();
+  after.v -= clocksNow.v - base.clockV; after.m -= clocksNow.m - base.clockM;
   const rugDelta = await page.evaluate(() => { const r = window.__room04.rugState(); return r.vertices - r.roundVertices; }); // the random cafe may lay a rectangular rug (a box instead of the round cylinder)
   expect(after.v - rugDelta, "a look swap adds no geometry (apart from the rug's own shape)").toBe(base.v);
   expect(after.m).toBe(base.m);
