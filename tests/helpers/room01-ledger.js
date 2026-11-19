@@ -48,6 +48,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "the coffee-table napkin pack gets a soft cream wrapper, clay band, dark opening and folded sheet in the same mesh", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-19", change: "the coffee table gets the same low-contrast, direction-aware oak grain already used on the side table; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-20", change: "the two sideboard water bottles are 10% taller with vivid coral and cobalt labels; keep diameter, support contact, shared shell geometry, scene totals and draw calls", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
+    { date: "2026-11-20", change: "the orange low chair uses the sofa's existing fine triplanar weave for a fabric finish; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
   ]),
 });
 
