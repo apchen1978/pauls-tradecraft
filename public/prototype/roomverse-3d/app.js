@@ -1677,7 +1677,17 @@ let lanternMat = null;
   const coffeeWidth = 1.06;
   coffee.scene.scale.multiply(new THREE.Vector3(coffeeWidth, 1, coffeeWidth));
   const coffeeObj = place(coffee, { width: coffeeWidth, x: SX, z: SZ + 1.05 });
-  prepare(coffeeObj, vcol({ roughness: .55 }));
+  const coffeeWoodMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .62 });
+  coffeeWoodMat.onBeforeCompile = (sh) => {
+    sh.uniforms.grain = { value: grain };
+    sh.vertexShader = "varying vec3 vCoffeeWP; varying vec3 vCoffeeWN;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\nvCoffeeWP = (modelMatrix * vec4(transformed, 1.)).xyz; vCoffeeWN = normalize(mat3(modelMatrix) * objectNormal);");
+    sh.fragmentShader = "uniform sampler2D grain; varying vec3 vCoffeeWP; varying vec3 vCoffeeWN;\n" + sh.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+      vec3 bw = pow(abs(normalize(vCoffeeWN)), vec3(4.)); bw /= bw.x + bw.y + bw.z;
+      float g = texture2D(grain, vCoffeeWP.zy * vec2(1.2, 6.)).r * bw.x + texture2D(grain, vCoffeeWP.xz * vec2(1.2, 6.)).r * bw.y + texture2D(grain, vCoffeeWP.yx * vec2(6., 1.2)).r * bw.z;
+      diffuseColor.rgb *= .86 + .28 * g;`);
+  };
+  coffeeWoodMat.customProgramCacheKey = () => "room01-coffee-oak-grain-v1";
+  prepare(coffeeObj, () => coffeeWoodMat);
   const coffeeBounds = new THREE.Box3().setFromObject(coffeeObj);
   const screenReflectionMat = new THREE.MeshStandardMaterial({ color: "#9db9cf", emissive: "#506a7f", emissiveIntensity: .12, roughness: .45, transparent: true, opacity: 0, depthWrite: false });
   const screenReflection = add(new THREE.PlaneGeometry(.42, .25), screenReflectionMat,
