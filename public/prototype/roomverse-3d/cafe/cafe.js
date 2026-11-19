@@ -49,9 +49,9 @@ const MOODS = Object.freeze({
   morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3, neon: 0 }),
   noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 }),
   golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75 }),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75, glow: 0.5 }),
   closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.3, hemiSky: 0x6f84b8, hemiGround: 0x453f4a, ambient: 0.1, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 }),
-  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6273a8, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0, neon: 0.9 }),
+  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6273a8, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0, neon: 0.9, glow: 0.6 }),
 });
 
 // PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
@@ -2353,6 +2353,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(points.flat(), 3));
     const halos = new THREE.Points(geometry, material); halos.name = "lamp-halos"; halos.renderOrder = 3; halos.frustumCulled = false; halos.raycast = () => {}; return halos; // a halo is light: taps go through it
   };
+  // The television's spill of cool light (the series mood): a cool halo just behind the screen, so it shows round the frame and not over the picture. It follows the screen's own level.
+  const haloCool = haloMaterial(1.9); haloCool.color.setRGB(0.75, 1.1, 2.0); haloCool.visible = false;
+  scene.add(makeHalos([[X1 - 0.03, 1.5, 0.45]], haloCool));
   const SET_HALOS = { // where the glowing lamps of each set hang (the centre of each cluster)
     bamboo: [[LX, 2.0, LZ], [-0.4, 2.52, -0.65], [0.8, 2.52, -0.65]],
     rings: [[LX, 1.9, LZ], [-0.4, 2.28, -0.65], [0.8, 2.28, -0.65]],
@@ -3525,7 +3528,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
     ambient.intensity = live.ambient; lamp.intensity = live.lamp;
-    { const on = live.glow > 0.02; haloBig.visible = haloSmall.visible = glowDecalMaterial.visible = on; haloBig.opacity = live.glow * 0.9; haloSmall.opacity = live.glow * 0.8; glowDecalMaterial.opacity = live.glow * 0.7; } // the light atmosphere
+    { const on = live.glow > 0.02; haloBig.visible = haloSmall.visible = glowDecalMaterial.visible = on; haloBig.opacity = live.glow * 0.9; haloSmall.opacity = live.glow * 0.8; glowDecalMaterial.opacity = live.glow * 0.7; haloCool.visible = live.tv > 0.45; haloCool.opacity = Math.min(1, (live.tv - 0.4) * 1.1); } // the light atmosphere
     for (const spot of trackLights) { spot.intensity = live.track; spot.color.copy(live.trackColor); }
     renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street); materials.streetFront.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;

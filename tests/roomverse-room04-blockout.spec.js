@@ -184,9 +184,9 @@ test("Room 04 can turn all the way round from the middle of the room, and the op
   expect(errors).toEqual([]);
 });
 
-// Paul 2026-11-20 (from a game still): a light atmosphere in the closing mood: halos round the lamps, wall-wash glows round the sconces, a pool under the standing lamp and a vignette.
-// Cheap on purpose: no other mood draws any of it, so the opening and every other mood keep their draw calls.
-test("Room 04 light atmosphere: only the closing mood draws the halos, the glows and the vignette", async ({ page }) => {
+// Paul 2026-11-20 (from a game still): a light atmosphere: halos round the lamps, wall-wash glows round the sconces, a pool under the standing lamp and a vignette. Strongest in the closing mood,
+// softer in the series and rain moods, and absent from the day moods (the arrival golden hour, morning and noon), so those keep their draw calls.
+test("Room 04 light atmosphere: the evening moods draw the halos, the glows and the vignette; the day moods do not", async ({ page }) => {
   test.setTimeout(120000);
   const errors = await open(page, 1440);
   const state = () => page.evaluate(() => {
@@ -195,15 +195,22 @@ test("Room 04 light atmosphere: only the closing mood draws the halos, the glows
     return { visible: rows.map((r) => r.matVisible), opacity: Math.max(...rows.map((r) => r.opacity)), vignette: Number(getComputedStyle(stage, "::after").opacity), count: rows.length, calls: window.__room04.info().drawCalls };
   });
   const golden = await state();
-  expect(golden.count, "the halos and the glow decals exist").toBeGreaterThanOrEqual(3);
+  expect(golden.count, "the halos and the glow decals exist").toBeGreaterThanOrEqual(4); // the lamps, the standing lamp and sconces, the decals, the television's cool halo
   expect(golden.visible.every((v) => v === false), "none is drawn in the arrival mood").toBe(true);
   expect(golden.vignette).toBe(0);
   await page.locator('[data-mood="closing"]').click();
   await expect.poll(async () => (await state()).vignette, { timeout: 5000 }).toBe(1);
   const closing = await state();
-  expect(closing.visible.every((v) => v === true), "all are drawn after closing").toBe(true);
+  expect(closing.visible.filter((v) => v === true).length, "the warm halos and the decals are drawn after closing (the television's cool halo only in the series mood)").toBeGreaterThanOrEqual(3);
   expect(closing.opacity).toBeGreaterThan(0.5);
-  for (const mood of ["rain", "series", "golden"]) { await page.locator(`[data-mood="${mood}"]`).click(); await expect.poll(async () => (await state()).vignette, { timeout: 5000, message: mood }).toBe(0); expect((await state()).visible.every((v) => v === false), mood).toBe(true); }
+  await page.locator('[data-mood="series"]').click();
+  await expect.poll(async () => (await state()).vignette, { timeout: 5000, message: "series" }).toBe(1);
+  await expect.poll(async () => (await state()).visible.every((v) => v === true), { timeout: 5000, message: "series draws all of it, with the television's cool halo" }).toBe(true);
+  await page.locator('[data-mood="rain"]').click();
+  await expect.poll(async () => (await state()).vignette, { timeout: 5000, message: "rain" }).toBeCloseTo(0.6, 1);
+  await expect.poll(async () => (await state()).visible.every((v) => v === true), { timeout: 5000, message: "the television's halo goes off in the rain mood" }).toBe(false);
+  expect((await state()).visible.filter((v) => v === true).length, "rain still draws the warm halos and the decals").toBeGreaterThanOrEqual(3);
+  for (const mood of ["golden", "morning", "noon"]) { await page.locator(`[data-mood="${mood}"]`).click(); await expect.poll(async () => (await state()).vignette, { timeout: 5000, message: mood }).toBe(0); await expect.poll(async () => (await state()).visible.every((v) => v === false), { timeout: 5000, message: `${mood} draws none of it` }).toBe(true); }
   expect(errors).toEqual([]);
 });
 
