@@ -4,7 +4,7 @@ const dict = {
   zh: {
     brand: "Paul's Tradecraft",
     brandNote: "作品集總覽",
-    nav: { questions: "能做什麼", showcase: "互動作品", works: "商業作品", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "我的工作方式", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
+    nav: { questions: "能做什麼", showcase: "沉浸典藏", works: "商業作品", aiLab: "AI Lab", garage: "創意實驗／小遊戲", notes: "國貿筆記", services: "我的工作方式", verification: "驗證", method: "方法", process: "流程", library: "延伸閱讀", about: "關於我", contact: "聯絡", skipToContent: "跳至主要內容", openMenu: "開啟選單", closeMenu: "關閉選單" },
     hero: {
       credentials: [
         { value: "15 年＋", label: "帶產品打進海外市場" },
@@ -12,7 +12,7 @@ const dict = {
         { value: "全球", label: "歐美・亞太・中東市場" },
       ],
       kicker: "Paul × AI 協作作品集",
-      headline: "把國際業務判斷，與看世界的方式，做成作品。",
+      headline: "將國際業務判斷，與看世界的方式，做成作品！",
       sub: "從產品到買家這一段，每個判斷都能點開檢視。",
       credentialsLine: "15 年國際業務 · NCCU 會計",
       background: "背景：15 年國際業務，含中國大陸通路與團隊管理。貿易經驗加上 AI 原生的做法，把找買家、算利潤、談成訂單的判斷，做成能試玩的工具。",
@@ -46,8 +46,8 @@ const dict = {
           href: "https://apchen1978.github.io/sme-business-spending-insight-demo/",
         },
       ],
-      ctaPrimary: "試玩作品",
-      ctaSecondary: "歡迎交流",
+      ctaPrimary: "走進沉浸典藏",
+      ctaSecondary: "與我一起 brainstorming",
       worksLabel: "三個商務作品",
       worksNote: "示範用虛構資料，成效未驗證。",
       imgCaption: "Pilot 追蹤器 · 實際畫面",
@@ -430,7 +430,7 @@ const dict = {
     },
     showcase: {
       eyebrow: "Interactive Showcase",
-      headline: "互動作品",
+      headline: "沉浸典藏",
       intro: "挑一個感興趣的故事，進去試試。",
       startLabel: "不知道選哪個？",
       startCta: "從《街角的秘密》開始",
@@ -977,7 +977,7 @@ const dict = {
   en: {
     brand: "Paul's Tradecraft",
     brandNote: "Portfolio",
-    nav: { questions: "What I do", showcase: "Playful Works", works: "Business Works", garage: "Garage / Games", notes: "Trade Notes", services: "How I Work", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
+    nav: { questions: "What I do", showcase: "Immersive Collection", works: "Business Works", aiLab: "AI Lab", garage: "Garage / Games", notes: "Trade Notes", services: "How I Work", verification: "Verification", method: "Method", process: "Process", library: "Go deeper", about: "About", contact: "Contact", skipToContent: "Skip to content", openMenu: "Open menu", closeMenu: "Close menu" },
     hero: {
       credentials: [
         { value: "15+ years", label: "Taking products into overseas markets" },
@@ -985,7 +985,7 @@ const dict = {
         { value: "Global", label: "Europe, Asia-Pacific, Middle East" },
       ],
       kicker: "Human–AI collaborative work",
-      headline: "Turning international-sales judgment and my way of seeing the world into work.",
+      headline: "Turning international-sales judgment and my way of seeing the world into work!",
       sub: "From product to buyer, every judgment can be opened and inspected.",
       credentialsLine: "15 years in international sales · NCCU Accounting",
       background: "Background: 15 years in international sales, including mainland China channels and team management. Trade experience plus an AI-native way of working, turning the judgment calls of international sales (finding buyers, working out the profit, closing orders) into tools you can try.",
@@ -1019,8 +1019,8 @@ const dict = {
           href: "https://apchen1978.github.io/sme-business-spending-insight-demo/",
         },
       ],
-      ctaPrimary: "Try the work",
-      ctaSecondary: "Get in touch",
+      ctaPrimary: "Enter the Immersive Collection",
+      ctaSecondary: "Brainstorm with me",
       worksLabel: "Three commercial works",
       worksNote: "Demos use fictional data; outcomes not verified.",
       imgCaption: "Pilot tracker · live view",
@@ -1402,7 +1402,7 @@ const dict = {
     },
     showcase: {
       eyebrow: "Interactive Showcase",
-      headline: "Interactive Works",
+      headline: "Immersive Collection",
       intro: "Pick a story that catches your eye, and give it a try.",
       startLabel: "Not sure where to start?",
       startCta: "Try Secrets on the Corner",
