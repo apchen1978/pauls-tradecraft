@@ -4101,11 +4101,13 @@ function buildRoom03Outlets(scene) {
   colourParts(gfci.parts, parts); colourParts(lampOut.parts, parts);
   const nk = lampOut.neck, yPb = lampOut.plateBottomY, yEnd = nk.y + 0.004, zw = (d) => WALL_Z - d;
   const cordCurve = new THREE.CatmullRomCurve3([
-    [LAMP.x, 0.22, LAMP.z + 0.009], [LAMP.x, 0.21, LAMP.z + 0.020], [LAMP.x, 0.15, LAMP.z + 0.032], [LAMP.x + 0.001, 0.06, LAMP.z + 0.050], [LAMP.x + 0.002, 0.026, LAMP.z + 0.066], [LAMP.x + 0.003, 0.009, LAMP.z + 0.083], [LAMP.x + 0.004, FLOOR_LIE, LAMP.z + 0.105], [LAMP.x + 0.006, FLOOR_LIE, LAMP.z + 0.150],
-    [LAMP.x + 0.010, FLOOR_LIE, 1.95], [LAMP.x + 0.022, FLOOR_LIE, 2.15], [-1.90, FLOOR_LIE, 2.27], [-1.90, FLOOR_LIE + 0.003, 2.312], [-1.90, 0.026, zw(0.0045)], [-1.90, 0.070, zw(0.0037)], [-1.90, yPb - 0.020, zw(0.0037)],
+    [LAMP.x, 0.22, LAMP.z + 0.009], [LAMP.x, 0.21, LAMP.z + 0.020], [LAMP.x, 0.15, LAMP.z + 0.032], [LAMP.x + 0.001, 0.06, LAMP.z + 0.050], [LAMP.x + 0.002, 0.026, LAMP.z + 0.066], [LAMP.x + 0.003, 0.009, LAMP.z + 0.083], [LAMP.x + 0.004, FLOOR_LIE, LAMP.z + 0.105], [LAMP.x + 0.012, FLOOR_LIE, LAMP.z + 0.150],
+    // Paul 2026-11-19: a casual cord, not a ruler line: a loose S across the floor (all points flat on it), a soft turn up at the wall and a slight drift on the way up.
+    [LAMP.x + 0.030, FLOOR_LIE, 1.88], [LAMP.x + 0.004, FLOOR_LIE, 1.98], [LAMP.x - 0.022, FLOOR_LIE, 2.06], [LAMP.x + 0.006, FLOOR_LIE, 2.15], [LAMP.x + 0.036, FLOOR_LIE, 2.22],
+    [-1.90, FLOOR_LIE, 2.27], [-1.90, FLOOR_LIE + 0.003, 2.312], [-1.90, 0.026, zw(0.0045)], [-1.904, 0.12, zw(0.0040)], [-1.898, 0.24, zw(0.0040)], [-1.90, yPb - 0.020, zw(0.0037)],
     [-1.90, yPb - 0.003, zw(0.010)], [-1.90, yPb + 0.009, nk.z], [nk.x, yEnd, nk.z],
   ].map((q) => new THREE.Vector3(...q)), false, "centripetal"); // centripetal: a plain Catmull-Rom dipped 8 mm below the floor where the cord turns from the pole to the floor
-  const cordGeometry = new THREE.TubeGeometry(cordCurve, 96, OUTLET_CORD_R, 6, false);
+  const cordGeometry = new THREE.TubeGeometry(cordCurve, 128, OUTLET_CORD_R, 6, false);
   colourParts([[cordGeometry, 0x101112]], parts);
   const geometry = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
   const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
@@ -5972,11 +5974,14 @@ function addRoom03Lamps(scene, materials) {
     return geometry;
   };
   const floorHardwareMesh = addMesh(floor, "floor-reading-lamp-hardware", mergeParts([
-    paint(place(new THREE.CylinderGeometry(0.012, 0.012, 1.15, 8), [0, 0.62, 0]), 0x2a2622),
+    // Paul 2026-11-19: the stem and the tripod read as one lamp now. The stem used to run on 11.5 cm below the hub to a loose end 4.5 cm above the floor, and
+    // the legs started just outside the hub; now the stem ends inside the hub, a short collar sleeves it where it enters, and the legs start 15 mm inside the hub.
+    paint(place(new THREE.CylinderGeometry(0.012, 0.012, 1.035, 8), [0, 0.6775, 0]), 0x2a2622),
+    paint(place(new THREE.CylinderGeometry(0.018, 0.018, 0.016, 10), [0, 0.19, 0]), 0x2a2622),
     ...[0, 1, 2].map((index) => {
       const angle = index * Math.PI * 2 / 3 + Math.PI / 6;
       return paint(segment(
-        [Math.cos(angle) * 0.055, 0.17, Math.sin(angle) * 0.055],
+        [Math.cos(angle) * 0.03, 0.172, Math.sin(angle) * 0.03],
         [Math.cos(angle) * 0.15, 0.012, Math.sin(angle) * 0.15],
         0.009, 0.007, 8,
       ), 0x2a2622);
