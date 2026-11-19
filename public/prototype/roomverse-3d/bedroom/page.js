@@ -5,7 +5,7 @@ const COPY = {
   zh: {
     title: "Room 02｜Brooklyn Studio",
     lead: "ROOMVERSE 像 universe 一樣，不會只有一個房間。第一間是客廳，這是第二間：一個人住的套房，睡覺、工作、打電動、窩沙發，各有各的角落。選一個感覺，拖一下或按按鈕轉頭看。",
-    enter: "走進第二個房間", size: "六種感覺：專注工作日、週末宅在家、傍晚金色時光、深夜遊戲、週日賴床、追劇夜", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
+    enter: "進來房間待一會", size: "六種感覺：專注工作日、週末宅在家、傍晚金色時光、深夜遊戲、週日賴床、追劇夜", loading: "房間準備中…", failed: "這台裝置打不開 3D。",
     note: "這是 ROOMVERSE 的第二個房間：一間在紐約租的套房，一件一件搬進來。下方可以換主牆、地毯、窗飾、寢具和海報，也可以按「隨機搭一間」。窗外景色和海報是插畫示意（人機協作完成），不是真實地點。不是真實商品，實際顏色與質感仍要看樣品和現場光線。",
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁", home: "← 其他房間", lang: "EN", portal: "看看其他房間", portalHint: "選一間繼續逛。", robotLine: "我是這間套房的小幫手。想去哪裡看看？", doorHint: "這扇門通往其他房間，想去哪一間？", fullScreen: "全螢幕", exitFullScreen: "退出", shuffle: "隨機搭一間", moodsLabel: "選一個感覺", swapsLabel: "換什麼", viewsLabel: "看哪裡", views: { work: "書桌與窗邊", tv: "電視牆", bed: "床邊", center: "站到房間中間", record: "看唱片機" },
     swaps: {
@@ -33,7 +33,7 @@ const COPY = {
   en: {
     title: "Room 02 · Brooklyn Studio",
     lead: "ROOMVERSE works like a universe: it will never be just one room. The first is a living room; this is the second, a studio for one where sleeping, working, gaming and sofa time each get a corner. Pick a mood; drag or use the buttons to look around.",
-    enter: "Step into the second room", size: "Six moods: focus day, weekend in, golden hour, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
+    enter: "Come hang out in the room", size: "Six moods: focus day, weekend in, golden hour, late-night game, Sunday lie-in, series night", loading: "Setting up the room…", failed: "3D can't open on this device.",
     note: "This is ROOMVERSE's second room: a rented studio in New York, furnished one piece at a time. Below the room you can swap the feature wall, rug, window, bedding and posters, or press “Surprise me”. The view outside and the posters are illustrations made through human–AI collaboration, not real places. Not real products; check real colours and textures with samples and on-site light.",
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home", home: "← Other rooms", lang: "中", portal: "Explore other rooms", portalHint: "Choose a room to keep exploring.", robotLine: "I look after this studio. Where would you like to go?", doorHint: "This door leads to the other rooms. Where would you like to go?", fullScreen: "Full screen", exitFullScreen: "Exit", shuffle: "Random room", moodsLabel: "Pick a mood", swapsLabel: "Swap", viewsLabel: "Look at", views: { work: "Desk and window", tv: "TV wall", bed: "Bed side", center: "Stand in the middle", record: "Record player" },
     swaps: {
