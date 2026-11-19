@@ -3494,9 +3494,9 @@ let lanternMat = null;
     const r = renderer.domElement.getBoundingClientRect();
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
-    // the note on the plant pot (7.5 cm: a few pixels on a phone, so a ray through a box 4 cm bigger counts too)
-    // Paul 2026-11-11: a 7.5 cm note is a few pixels in the overview and a finger is wider than that, so a tap within 34 px of the note on screen counts (when it is in view)
-    if (!robotBubble || robotBubble.hidden) { const c = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera); if (c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 34) { showPlantNote(); return; } }
+    // Prioritize this 44 px touch target even while the robot dialogue bubble is open.
+    const noteCenter = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera);
+    if (noteCenter.z < 1 && Math.hypot(e.clientX - (r.left + ((noteCenter.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - noteCenter.y) / 2) * r.height)) <= 44) { showPlantNote(); return; }
     const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
     if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
     if (ray.intersectObject(tvScreen, false).length) { toggleMusic(); return; } // a tap on the TV screen starts (or stops) the music too
