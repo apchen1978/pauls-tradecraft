@@ -39,6 +39,11 @@
   .origin-hint a:focus-visible, .origin-hint button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
   #stage { position: absolute; inset: 0; }
+  /* A soft vignette in the dim moods (the light atmosphere, 2026-11-20): the corners fall away so the lit things stand out. It lets every tap through and fades in and out with the feeling. */
+  #stage::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .6s; background: radial-gradient(ellipse at 50% 55%, transparent 42%, rgba(6, 4, 12, .62) 100%); }
+  #stage[data-light="tech"]::after, #stage[data-light="tv"]::after { opacity: 1; }
+  #stage[data-light="rain"]::after { opacity: .55; }
+  #stage[data-light="golden"]::after { opacity: .2; }
   #stage canvas { display: block; touch-action: none; }
   .portal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 14px clamp(16px, 3vw, 40px) 0; }
   .portal button { font: inherit; font-weight: 700; font-size: 15px; min-height: 48px; padding: 12px 20px; border: 1px solid #5a4cc8; border-radius: 999px; background: linear-gradient(90deg, #f6f3ff 0%, #ece6ff 100%); color: #3a2f9e; cursor: pointer; }

@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 150882, meshes: 345 }),
+  scene: Object.freeze({ vertices: 150937, meshes: 346 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 95, phone: 75 }),
+  openingDrawCalls: Object.freeze({ desktop: 97, phone: 77 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 95, family: 92, tech: 97, chic: 92, slow: 95, golden: 95, tv: 92 }),
-    phone: Object.freeze({ rain: 72, family: 75, tech: 74, chic: 75, slow: 75, golden: 75, tv: 72 }),
+    desktop: Object.freeze({ rain: 95, family: 97, tech: 96, chic: 97, slow: 97, golden: 97, tv: 95 }),
+    phone: Object.freeze({ rain: 75, family: 77, tech: 76, chic: 77, slow: 77, golden: 77, tv: 75 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -49,6 +49,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "the coffee table gets the same low-contrast, direction-aware oak grain already used on the side table; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-20", change: "the two sideboard water bottles are 10% taller with vivid coral and cobalt labels; keep diameter, support contact, shared shell geometry, scene totals and draw calls", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-20", change: "the orange low chair uses the sofa's existing fine triplanar weave for a fabric finish; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
+    { date: "2026-11-20", change: "light atmosphere (Paul: Room 04 is done, make Room 01's light feel better): a halo round the paper lantern, a glow on the four downlights (one Points draw), a warm pool under the standing lamp (one 4-vertex decal mesh), a CSS vignette in the dim moods and a slightly deeper rainy day (hemi .9 to .78, fill 1.2 to 1.05); every real light is unchanged", vertices: 150937, meshes: 346, desktopCalls: 97, phoneCalls: 77 },
   ]),
 });
 
