@@ -2337,15 +2337,23 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const x of [-1.2, 0.0, 1.2, 2.4]) lp("gold", new THREE.TorusGeometry(0.05, 0.004, 8, 22).rotateX(Math.PI / 2).rotateX(0.5).translate(x, ROOM.height - 0.16 - 0.07 * Math.cos(0.5), -0.4 - 0.07 * Math.sin(0.5)));
     build(lampCommon);
   }
+  // The mesh diet (2026-11-20): only the arrival lamp set is built at load; the other is built the first time it is chosen (`ensureLamp`, called by setLook). info() counts hidden meshes,
+  // and the unused set was 3 meshes and about 4,500 vertices. The groups are in the scene from the start.
+  let ensureLamp = () => {};
   {
-    // Look "bamboo": the bamboo cloud over the window seat, two paper-ring lamps over the counter.
-    const b = lampBuilder(); bambooLamp(b.lp, LX, LZ, 1);
-    ringsLamp(b.lp, -0.4, -0.65, 2.4, 0.9); ringsLamp(b.lp, 0.8, -0.65, 2.4, 0.9); b.build(lampSets.bamboo); // above the menu boards (their top edge is 2.34 m), not in front of them
-  }
-  {
-    // Look "rings": a large paper-ring lamp over the window seat, two small bamboo clouds over the counter.
-    const b = lampBuilder(); ringsLamp(b.lp, LX, LZ, 1.72, 1.45);
-    bambooLamp(b.lp, -0.4, -0.65, 0.5, 0.26); bambooLamp(b.lp, 0.8, -0.65, 0.5, 0.26); b.build(lampSets.rings);
+    const buildLamp = {
+      bamboo: () => { // Look "bamboo": the bamboo cloud over the window seat, two paper-ring lamps over the counter.
+        const b = lampBuilder(); bambooLamp(b.lp, LX, LZ, 1);
+        ringsLamp(b.lp, -0.4, -0.65, 2.4, 0.9); ringsLamp(b.lp, 0.8, -0.65, 2.4, 0.9); b.build(lampSets.bamboo); // above the menu boards (their top edge is 2.34 m), not in front of them
+      },
+      rings: () => { // Look "rings": a large paper-ring lamp over the window seat, two small bamboo clouds over the counter.
+        const b = lampBuilder(); ringsLamp(b.lp, LX, LZ, 1.72, 1.45);
+        bambooLamp(b.lp, -0.4, -0.65, 0.5, 0.26); bambooLamp(b.lp, 0.8, -0.65, 0.5, 0.26); b.build(lampSets.rings);
+      },
+    };
+    const builtLamps = new Set();
+    ensureLamp = (name) => { if (builtLamps.has(name) || !buildLamp[name]) return; builtLamps.add(name); buildLamp[name](); };
+    ensureLamp("bamboo");
   }
   scene.add(lampCommon, ...Object.values(lampSets)); for (const [name, set] of Object.entries(lampSets)) set.visible = name === "bamboo";
   // A big flat TV on the right wall for series night (like Rooms 01 and 03): a thin black frame, a screen that only glows in the "series" mood, and a cool light that falls
@@ -3229,10 +3237,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
   // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
   const stoolSets = { bentwood: new THREE.Group(), leather: new THREE.Group(), metal: new THREE.Group() };
+  // The mesh diet (2026-11-20): only the arrival stools are built at load; each other design is built the first time it is chosen (`ensureStool`, called by setLook). The two unused
+  // designs were 5 meshes and about 9,400 vertices that info() counted although nobody saw them.
+  let ensureStool = () => {};
+  const buildEveryLook = () => { for (const k of Object.keys(clockSets)) ensureClock(k); for (const k of Object.keys(lampSets)) ensureLamp(k); for (const k of Object.keys(stoolSets)) ensureStool(k); };
   {
     const POS = [[-1.2, 0.18, 0.3], [-0.45, 0.2, -0.4], [0.65, 0.18, 0.1], [1.75, 0.2, -0.3]]; // x, z, yaw
     const rail = (r, y) => r - (0.055 * y) / 0.63; // the legs splay: 20.5 cm radius at the floor, 15 cm under the seat
-    for (const kind of Object.keys(stoolSets)) {
+    const buildStool = (kind) => {
       const lb = lampBuilder();
       for (const [x, z, yaw] of POS) {
         const at = (g) => g.rotateY(yaw).translate(x, 0, z + counterShift(x)), lp = lb.lp;
@@ -3268,7 +3280,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         }
       }
       lb.build(stoolSets[kind]);
-    }
+    };
+    const builtStools = new Set();
+    ensureStool = (kind) => { if (builtStools.has(kind) || !stoolSets[kind]) return; builtStools.add(kind); buildStool(kind); };
+    ensureStool(DEFAULT_LOOK.stool);
   }
   scene.add(...Object.values(stoolSets)); for (const [name, set] of Object.entries(stoolSets)) set.visible = name === DEFAULT_LOOK.stool;
   for (const [x, z] of [[-1.2, 0.18], [-0.45, 0.2], [0.65, 0.18], [1.75, 0.2]]) addContactShadow(x, z + counterShift(x), 0.46, 0.46);
@@ -3583,9 +3598,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       apply(materials.menuA, v[0], PROVISIONAL_MENUS.coffee);
       apply(materials.menuB, v[1], PROVISIONAL_MENUS.other);
     }
-    else if (group === "stool") { for (const [name, set] of Object.entries(stoolSets)) set.visible = name === key; }
+    else if (group === "stool") { ensureStool(key); for (const [name, set] of Object.entries(stoolSets)) set.visible = name === key; }
     else if (group === "clock") { ensureClock(key); for (const [name, set] of Object.entries(clockSets)) set.visible = name === key; }
-    else if (group === "lamp") { for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
+    else if (group === "lamp") { ensureLamp(key); for (const [name, set] of Object.entries(lampSets)) set.visible = name === key; }
     else if (group === "scarf") materials.scarf.color.setHex(v);
     else if (group === "chair") materials.windowChair.color.setHex(v);
     dirtyShadows(); render(); return true;
@@ -3840,9 +3855,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     meshInventory: () => { const rows = []; scene.traverse((o) => { if (!o.isMesh && !o.isPoints && !o.isSprite) return; let shown = true; for (let a = o; a; a = a.parent) if (!a.visible) { shown = false; break; } const g = o.geometry; const mat = Array.isArray(o.material) ? o.material.map((m) => m.name || m.type).join("+") : (o.material?.name || o.material?.type);
       const box = new THREE.Box3().setFromObject(o), c = box.getCenter(new THREE.Vector3()), m0 = Array.isArray(o.material) ? o.material[0] : o.material;
       rows.push({ shown, name: o.name || "(unnamed)", material: mat, matId: m0?.uuid?.slice(0, 6), color: m0?.color?.getHexString?.(), map: m0?.map?.userData?.file || (m0?.map ? "map" : ""), vertices: g?.attributes?.position?.count ?? 0, kind: o.isPoints ? "points" : o.isSprite ? "sprite" : o.isInstancedMesh ? "instanced" : "mesh", parent: o.parent?.name || o.parent?.type, castShadow: o.castShadow, at: [c.x, c.y, c.z].map((v) => Number(v.toFixed(2))), size: box.getSize(new THREE.Vector3()).toArray().map((v) => Number(v.toFixed(2))) }); }); return rows.sort((x, y) => y.vertices - x.vertices); },
-    physicsAudit: () => auditRoom04([...auditEntries, { name: "wall-art-part-shift-reset", kind: "reset", value: partShift }]),
+    physicsAudit: () => { buildEveryLook(); return auditRoom04([...auditEntries, { name: "wall-art-part-shift-reset", kind: "reset", value: partShift }]) },
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,
+    // The mesh diet (2026-11-20): clocks, lamp sets and stool designs are built when first chosen; this is what the built ones weigh, so a test can tell a look swap from that one-time build.
+    // The audit must look at every design, not only the ones built so far (the mesh diet builds the others when chosen), so it builds them first; do not take counts after calling it.
+    lazyBuilt: () => { const n = (sets) => Object.fromEntries(Object.entries(sets).map(([k, g]) => [k, g.children.length])); return { clocks: n(clockSets), lamps: n(lampSets), stools: n(stoolSets) }; },
+    lazyWeight: () => { let v = 0, m = 0; for (const set of [...Object.values(clockSets), ...Object.values(lampSets), ...Object.values(stoolSets)]) set.traverse((o) => { if (o.isMesh) { m++; v += o.geometry.attributes.position.count; } }); return { v, m }; },
     beansVisible: () => beansMesh?.count ?? 0, robotHop, setView, view: () => viewName, views: () => Object.keys(STATIONS), setCenterView, centerLook, isCenter: () => viewName === "middle",
     streetMaterials: () => ({ separate: materials.street !== materials.streetFront, left: materials.street.map?.userData.file, front: materials.streetFront.map?.userData.file }),
     menuCopy: PROVISIONAL_MENUS, menuTextureKinds: () => [Boolean(materials.menuA.map?.isCanvasTexture), Boolean(materials.menuB.map?.isCanvasTexture)], lookDefaults: DEFAULT_LOOK, setLook, randomLook, resetLook, look: () => ({ ...currentLook }), lookGroups: () => Object.fromEntries(Object.entries(LOOK_GROUPS).map(([g, o]) => [g, Object.keys(o)])),

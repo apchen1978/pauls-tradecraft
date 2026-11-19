@@ -14,7 +14,7 @@ test("Room 04 audits registered support, joints, container walls and barriers", 
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
   await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 150000 }); // a CI runner draws in software and loads the deferred prints slowly
-  const result = await page.evaluate(() => ({ checks: window.__room04.physicsAudit(), info: window.__room04.info() }));
+  const result = await page.evaluate(() => ({ info: window.__room04.info(), checks: window.__room04.physicsAudit() })); // the counts first: the audit builds every look
   expect(result.info.vertices).toBe(LEDGER.scene.vertices);
   expect(result.info.meshes).toBe(LEDGER.scene.meshes);
   const stock = result.info.takeawayLidStock;
