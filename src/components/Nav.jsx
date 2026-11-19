@@ -22,7 +22,7 @@ export default function Nav() {
     // the AI Lab, the Garage, and how I work, the notes and about. "What I do" is gone from the bar: the work itself shows it (its section is still on the page).
     { href: "#showcase", label: t.nav.showcase, tier: "featured" },
     { href: "#works", label: t.nav.works, tier: "major" },
-    { href: "#ai-lab", label: t.nav.aiLab },
+    { href: "#ai-lab", label: t.nav.aiLab, tier: "major" }, // Paul 2026-11-20: the AI Lab matters as much as the Business Works, so it wears the same bone frame
     { href: "#garage", label: t.nav.garage },
     { href: "#capabilities", label: t.nav.services },
     { href: "#trade-notes", label: t.nav.notes },
