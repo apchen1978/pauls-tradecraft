@@ -67,13 +67,22 @@ export default function Hero() {
             <span aria-hidden className="hero-gem size-2 rounded-full bg-[#9EE0C1]" />
             {h.kicker}
           </motion.p>
-          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-[#2B2723] md:mt-5 ${headlineClass}`}>
+          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-amber-deep md:mt-5 ${headlineClass}`}>
             <Clauses text={h.headline} always />
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-3 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
             <Clauses text={h.sub} />
           </motion.p>
           <motion.p variants={fadeUp} className="mt-2 text-[0.8125rem] leading-snug text-moss md:hidden">{h.credentialsLine}</motion.p>
+          {/* Phones (Paul 2026-11-20): the Immersive Collection is the first thing to tap. A full-width button, dark with a gold edge and gold text, sits right under the headline block. */}
+          <motion.a
+            variants={fadeUp}
+            href="#showcase"
+            className="mt-5 flex w-full items-center justify-between rounded-field border border-gold bg-ink px-5 py-3.5 text-base font-semibold text-gold shadow-[0_8px_22px_-12px_rgba(20,44,41,0.7)] transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] md:hidden"
+          >
+            <span>{h.ctaPrimary}</span>
+            <ArrowUpRight size={20} weight="bold" aria-hidden="true" />
+          </motion.a>
           <motion.ul variants={fadeUp} className="mt-4 hidden flex-wrap gap-x-5 gap-y-1 text-sm leading-[1.55] text-moss md:flex">
             {h.credentials.map((c) => (
               <li key={c.value} className="whitespace-nowrap">

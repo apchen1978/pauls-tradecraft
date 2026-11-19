@@ -18,15 +18,25 @@ export default function Nav() {
   }, [open]);
 
   const links = [
-    { href: "#three-questions", label: t.nav.questions },
-    { href: "#works", label: t.nav.works },
-    { href: "#showcase", label: t.nav.showcase },
+    // Paul 2026-11-20: the two things that carry the site come first and are framed (a gold-edged pill for the Immersive Collection, a quieter bone-edged one for the Business Works), then
+    // the AI Lab, the Garage, and how I work, the notes and about. "What I do" is gone from the bar: the work itself shows it (its section is still on the page).
+    { href: "#showcase", label: t.nav.showcase, tier: "featured" },
+    { href: "#works", label: t.nav.works, tier: "major" },
+    { href: "#ai-lab", label: t.nav.aiLab },
     { href: "#garage", label: t.nav.garage },
     { href: "#capabilities", label: t.nav.services },
     { href: "#trade-notes", label: t.nav.notes },
     { href: "#about", label: t.nav.about },
   ];
 
+  const TIER_DESKTOP = {
+    featured: "rounded-full border border-gold bg-gold/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-gold/20 hover:text-bone focus-visible:bg-gold/20 xl:px-3.5",
+    major: "rounded-full border border-bone/35 px-2.5 py-1.5 text-bone/95 decoration-transparent hover:border-bone/70 hover:text-bone focus-visible:border-bone/70 xl:px-3.5",
+  };
+  const TIER_MENU = {
+    featured: "border border-gold bg-gold/10 text-bone hover:bg-gold/20",
+    major: "border border-bone/35 text-bone hover:border-bone/70",
+  };
   const followSectionLink = (href) => {
     if (href === "#garage") openGarageThenScroll();
     setOpen(false);
@@ -40,9 +50,9 @@ export default function Nav() {
           <span className="hidden border-l border-bone/25 pl-2 text-xs font-medium text-ondark-meta sm:inline lg:hidden xl:inline">{t.brandNote}</span>
         </a>
 
-        <div className="hidden items-center gap-4 text-sm font-medium text-ondark lg:flex xl:gap-8">
+        <div className="hidden items-center gap-2.5 text-[13px] font-medium text-ondark lg:flex xl:gap-8 xl:text-sm">
           {links.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => followSectionLink(l.href)} className="whitespace-nowrap underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-bone hover:decoration-gold focus-visible:text-bone focus-visible:decoration-gold">
+            <a key={l.href} href={l.href} onClick={() => followSectionLink(l.href)} className={`whitespace-nowrap transition-colors ${l.tier ? TIER_DESKTOP[l.tier] : "border border-transparent py-1.5 underline decoration-transparent decoration-2 underline-offset-8 hover:text-bone hover:decoration-gold focus-visible:text-bone focus-visible:decoration-gold"}`}>
               {l.label}
             </a>
           ))}
@@ -82,7 +92,7 @@ export default function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => followSectionLink(l.href)}
-                className="rounded-field px-3 py-2.5 text-sm font-medium text-ondark transition-colors hover:bg-bone/10 hover:text-bone"
+                className={`rounded-field px-3 py-2.5 text-sm font-medium transition-colors ${l.tier ? TIER_MENU[l.tier] : "text-ondark hover:bg-bone/10 hover:text-bone"}`}
               >
                 {l.label}
               </a>

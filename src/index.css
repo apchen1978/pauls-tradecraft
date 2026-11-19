@@ -33,6 +33,7 @@
   --color-pine: #142C29; /* the only dark surface */
   --color-moss: #62716A; /* muted text on bone (4.64:1); do not use on paper/soft */
   --color-amber: #8A6A2B; /* goldOnPaper: accent text on bone/white (4.54:1 / 5.03:1) */
+  --color-amber-deep: #765A24; /* Paul 2026-11-20: the hero headline only, a gold a step heavier than the kicker's amber (about 6.7:1 on bone). A deliberate, recorded exception to the two-gold rule above: it is the same gold, deepened, and it is not used for anything else. */
   --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 4.59:1 on forest/ink, fine for large text, use ondark for small) */
   /* "pop": the one playful accent, coral (decided 2026-10-03). Fills and highlighter
      bands ONLY, with ink/pine text or borders on top (ink on pop 5.04:1, pine on pop 6.02:1).
