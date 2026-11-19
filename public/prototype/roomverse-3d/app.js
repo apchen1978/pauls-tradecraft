@@ -1696,7 +1696,8 @@ let lanternMat = null;
   // a small low chair (built by code from the side profile of a drawing, so it works without an image-to-3D quota), turned toward the coffee table
   lowChair.scene.rotation.y = Math.PI / 2; // the chair faces +z; turn it to face +x (toward the table)
   const chairObj = place(lowChair, { height: .5, x: SX - 1.0, z: SZ + .75 });
-  prepare(chairObj, vcol({ roughness: .62 }));
+  // Keep the chair's orange colour, but use the sofa's existing fine weave so the rounded shell reads as upholstered fabric.
+  prepare(chairObj, () => fabricMat);
   const coffeeTop = new THREE.Box3().setFromObject(coffeeObj).max.y;
   // the laptop is open on the coffee table with its screen turned toward the orange chair (left), and a little toward the viewer,
   // so it reads as if someone sat down to work here. Its front (keyboard side) faces +z, so -90deg points it at the chair.
