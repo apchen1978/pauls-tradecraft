@@ -50,7 +50,7 @@ const MOODS = Object.freeze({
   noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 }),
   golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 }),
   rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75 }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x6f84b8, hemiGround: 0x453f4a, ambient: 0.16, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0 }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.3, hemiSky: 0x6f84b8, hemiGround: 0x453f4a, ambient: 0.1, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 }),
   series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6273a8, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0, neon: 0.9 }),
 });
 
@@ -2337,6 +2337,35 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const x of [-1.2, 0.0, 1.2, 2.4]) lp("gold", new THREE.TorusGeometry(0.05, 0.004, 8, 22).rotateX(Math.PI / 2).rotateX(0.5).translate(x, ROOM.height - 0.16 - 0.07 * Math.cos(0.5), -0.4 - 0.07 * Math.sin(0.5)));
     build(lampCommon);
   }
+  // ---------- light atmosphere (Paul, 2026-11-20, from a game still: "the lamps have volume and the dark has contrast") ----------
+  // Cheap on purpose, no post-processing and no extra real lights: soft additive halos round the glowing lamps (Points), warm wall-wash glows round the sconces and a pool under the floor
+  // lamp (one decal mesh), all driven by one number, live.glow, which only the "closing" mood raises for now. At zero their materials are not visible, so no mood but closing pays a draw call.
+  const glowTexture = (() => {
+    const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d"), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(0.22, "rgba(255,255,255,0.55)"); gr.addColorStop(0.55, "rgba(255,255,255,0.14)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  })();
+  const haloMaterial = (size) => new THREE.PointsMaterial({ map: glowTexture, size, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(2.2, 1.45, 0.8), toneMapped: false }); // above 1: additive light has to outshine what is behind it
+  const haloBig = haloMaterial(1.5), haloSmall = haloMaterial(0.8);
+  haloBig.visible = haloSmall.visible = false;
+  const makeHalos = (points, material) => {
+    const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.Float32BufferAttribute(points.flat(), 3));
+    const halos = new THREE.Points(geometry, material); halos.name = "lamp-halos"; halos.renderOrder = 3; halos.frustumCulled = false; halos.raycast = () => {}; return halos; // a halo is light: taps go through it
+  };
+  const SET_HALOS = { // where the glowing lamps of each set hang (the centre of each cluster)
+    bamboo: [[LX, 2.0, LZ], [-0.4, 2.52, -0.65], [0.8, 2.52, -0.65]],
+    rings: [[LX, 1.9, LZ], [-0.4, 2.28, -0.65], [0.8, 2.28, -0.65]],
+  };
+  const glowDecalMaterial = new THREE.MeshBasicMaterial({ map: glowTexture, color: new THREE.Color(1.7, 1.1, 0.6), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false });
+  glowDecalMaterial.visible = false;
+  {
+    // Two vertical washes on the right wall round the sconces (a lit cone up and down the wall) and a round pool on the floor under the standing lamp.
+    const wash = (z) => new THREE.PlaneGeometry(1.0, 1.7).rotateY(-Math.PI / 2).translate(X1 - 0.006, 1.85, z);
+    const pool = new THREE.PlaneGeometry(2.0, 2.0).rotateX(-Math.PI / 2).translate(-2.88, 0.006, 2.0);
+    const decals = new THREE.Mesh(mergeGeometries([wash(-0.85), wash(1.3), pool]), glowDecalMaterial);
+    decals.name = "light-glow-decals"; decals.renderOrder = 2; decals.castShadow = false; decals.receiveShadow = false; decals.raycast = () => {}; scene.add(decals);
+  }
   // The mesh diet (2026-11-20): only the arrival lamp set is built at load; the other is built the first time it is chosen (`ensureLamp`, called by setLook). info() counts hidden meshes,
   // and the unused set was 3 meshes and about 4,500 vertices. The groups are in the scene from the start.
   let ensureLamp = () => {};
@@ -2352,10 +2381,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       },
     };
     const builtLamps = new Set();
-    ensureLamp = (name) => { if (builtLamps.has(name) || !buildLamp[name]) return; builtLamps.add(name); buildLamp[name](); };
+    ensureLamp = (name) => { if (builtLamps.has(name) || !buildLamp[name]) return; builtLamps.add(name); buildLamp[name](); lampSets[name].add(makeHalos(SET_HALOS[name], haloBig)); };
     ensureLamp("bamboo");
   }
   scene.add(lampCommon, ...Object.values(lampSets)); for (const [name, set] of Object.entries(lampSets)) set.visible = name === "bamboo";
+  lampCommon.add(makeHalos([[-2.88, 1.56, 2.0], [X1 - 0.2, 1.9, -0.85], [X1 - 0.2, 1.9, 1.3]], haloSmall)); // the standing lamp's shade and the two sconces
   // A big flat TV on the right wall for series night (like Rooms 01 and 03): a thin black frame, a screen that only glows in the "series" mood, and a cool light that falls
   // on the wall and the floor. Its picture is a stand-in cinematic still (a night street) until Codex paints one.
   const tvTexture = (() => {
@@ -3489,12 +3519,13 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let currentMood = "golden", moodTween = 0; // the room opens at golden hour (Paul, 2026-11-15): warm raking light on the brick and the honey oak is the best first impression
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { glow: 0, tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     dirtyShadows();
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
     hemi.intensity = live.hemi; hemi.color.copy(live.hemiSky); hemi.groundColor.copy(live.hemiGround);
     ambient.intensity = live.ambient; lamp.intensity = live.lamp;
+    { const on = live.glow > 0.02; haloBig.visible = haloSmall.visible = glowDecalMaterial.visible = on; haloBig.opacity = live.glow * 0.9; haloSmall.opacity = live.glow * 0.8; glowDecalMaterial.opacity = live.glow * 0.7; } // the light atmosphere
     for (const spot of trackLights) { spot.intensity = live.track; spot.color.copy(live.trackColor); }
     renderer.toneMappingExposure = live.exposure; materials.street.color.copy(live.street); materials.streetFront.color.copy(live.street);
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
@@ -3511,10 +3542,11 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     currentMood = name; posMood?.(name); robotFace.setMood(name); syncRecordRain(); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
-    const from = { tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const from = { glow: live.glow, tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
     const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
       for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft", "tv", "neon"]) live[key] = blend(from[key], look[key], k);
+      live.glow = blend(from.glow, look.glow ?? 0, k);
       live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
@@ -3854,7 +3886,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // Local QA only (the mesh diet, 2026-11-20): every mesh (shown or hidden, hidden ones still count in info()) with its name, material, vertex count and whether it is a Points/Sprite, largest first, so the next diet starts from a list.
     meshInventory: () => { const rows = []; scene.traverse((o) => { if (!o.isMesh && !o.isPoints && !o.isSprite) return; let shown = true; for (let a = o; a; a = a.parent) if (!a.visible) { shown = false; break; } const g = o.geometry; const mat = Array.isArray(o.material) ? o.material.map((m) => m.name || m.type).join("+") : (o.material?.name || o.material?.type);
       const box = new THREE.Box3().setFromObject(o), c = box.getCenter(new THREE.Vector3()), m0 = Array.isArray(o.material) ? o.material[0] : o.material;
-      rows.push({ shown, name: o.name || "(unnamed)", material: mat, matId: m0?.uuid?.slice(0, 6), color: m0?.color?.getHexString?.(), map: m0?.map?.userData?.file || (m0?.map ? "map" : ""), vertices: g?.attributes?.position?.count ?? 0, kind: o.isPoints ? "points" : o.isSprite ? "sprite" : o.isInstancedMesh ? "instanced" : "mesh", parent: o.parent?.name || o.parent?.type, castShadow: o.castShadow, at: [c.x, c.y, c.z].map((v) => Number(v.toFixed(2))), size: box.getSize(new THREE.Vector3()).toArray().map((v) => Number(v.toFixed(2))) }); }); return rows.sort((x, y) => y.vertices - x.vertices); },
+      rows.push({ shown, name: o.name || "(unnamed)", material: mat, matId: m0?.uuid?.slice(0, 6), matVisible: m0?.visible, opacity: m0?.opacity, color: m0?.color?.getHexString?.(), map: m0?.map?.userData?.file || (m0?.map ? "map" : ""), vertices: g?.attributes?.position?.count ?? 0, kind: o.isPoints ? "points" : o.isSprite ? "sprite" : o.isInstancedMesh ? "instanced" : "mesh", parent: o.parent?.name || o.parent?.type, castShadow: o.castShadow, at: [c.x, c.y, c.z].map((v) => Number(v.toFixed(2))), size: box.getSize(new THREE.Vector3()).toArray().map((v) => Number(v.toFixed(2))) }); }); return rows.sort((x, y) => y.vertices - x.vertices); },
     physicsAudit: () => { buildEveryLook(); return auditRoom04([...auditEntries, { name: "wall-art-part-shift-reset", kind: "reset", value: partShift }]) },
     clockTime: () => { updateClockHands(); const out = {}; for (const { pivot, kind } of clockHands) { out[kind] = out[kind] ?? Math.round((((-pivot.rotation.z * 180) / Math.PI) % 360 + 360) % 360); } return out; },
     setTvStill: (i) => applyTvStill(i), tvStill: () => tvStillIndex, clocks: clockSets,

@@ -147,7 +147,7 @@ function renderMoods() {
     button.type = "button"; button.dataset.mood = key; button.textContent = label; button.setAttribute("aria-pressed", String(key === mood));
     button.addEventListener("click", () => {
       if (mood === key) return;
-      mood = key; room?.setMood(key); look = room.look(); renderSwaps(); // the mood may bring its own rug, so the swatches follow
+      mood = key; room?.setMood(key); $("stage").dataset.light = key; look = room.look(); renderSwaps(); // the mood may bring its own rug, so the swatches follow
       for (const option of group.children) option.setAttribute("aria-pressed", String(option === button));
       $("why").textContent = copy.moods[key][1];
       sayMood(key);

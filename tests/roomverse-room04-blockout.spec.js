@@ -184,6 +184,29 @@ test("Room 04 can turn all the way round from the middle of the room, and the op
   expect(errors).toEqual([]);
 });
 
+// Paul 2026-11-20 (from a game still): a light atmosphere in the closing mood: halos round the lamps, wall-wash glows round the sconces, a pool under the standing lamp and a vignette.
+// Cheap on purpose: no other mood draws any of it, so the opening and every other mood keep their draw calls.
+test("Room 04 light atmosphere: only the closing mood draws the halos, the glows and the vignette", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440);
+  const state = () => page.evaluate(() => {
+    const rows = window.__room04.meshInventory().filter((r) => r.name === "lamp-halos" || r.name === "light-glow-decals");
+    const stage = document.getElementById("stage");
+    return { visible: rows.map((r) => r.matVisible), opacity: Math.max(...rows.map((r) => r.opacity)), vignette: Number(getComputedStyle(stage, "::after").opacity), count: rows.length, calls: window.__room04.info().drawCalls };
+  });
+  const golden = await state();
+  expect(golden.count, "the halos and the glow decals exist").toBeGreaterThanOrEqual(3);
+  expect(golden.visible.every((v) => v === false), "none is drawn in the arrival mood").toBe(true);
+  expect(golden.vignette).toBe(0);
+  await page.locator('[data-mood="closing"]').click();
+  await expect.poll(async () => (await state()).vignette, { timeout: 5000 }).toBe(1);
+  const closing = await state();
+  expect(closing.visible.every((v) => v === true), "all are drawn after closing").toBe(true);
+  expect(closing.opacity).toBeGreaterThan(0.5);
+  for (const mood of ["rain", "series", "golden"]) { await page.locator(`[data-mood="${mood}"]`).click(); await expect.poll(async () => (await state()).vignette, { timeout: 5000, message: mood }).toBe(0); expect((await state()).visible.every((v) => v === false), mood).toBe(true); }
+  expect(errors).toEqual([]);
+});
+
 test("Room 04 mesh diet: the lamp set and the stool designs that are not on show are built when chosen, and only once", async ({ page }) => {
   const errors = await open(page, 1440);
   const built = (kind) => page.evaluate((k) => window.__room04.lazyBuilt()[k], kind);
