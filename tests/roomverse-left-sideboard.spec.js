@@ -99,27 +99,27 @@ for (const width of [1280, 390]) test(`Room 01 sideboard top: two taller water b
   await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room?.sideboardTopItems);
   const t = await page.evaluate(() => window.__room.sideboardTopItems());
-  for (const key of ["mug", "redVitamin", "greenVitamin", "orangeVitamin", "water1", "water2"]) {
+  for (const key of ["mug", "redVitamin", "orangeVitamin", "water1", "water2"]) {
     expect(Math.abs(t[key].seatMm), `${key} sits on the oak`).toBeLessThanOrEqual(1.5);
     expect(t[key].gapMm, `${key} clear of ${t[key].nearest}`).toBeGreaterThanOrEqual(3);
   }
   for (const key of ["water1", "water2"]) expect(t[key].wallGapMm, `${key} stands near the wall`).toBeLessThanOrEqual(40);
-  expect(t.labels.water1).toBe("#d94f83");
-  expect(t.labels.water2).toBe("#287fce");
-  expect(t.water1.heightMm).toBeGreaterThan(250);
-  expect(Math.abs(t.water1.heightMm - t.water2.heightMm)).toBeLessThanOrEqual(1);
-  expect(t.labels.sharedWaterGeometry && t.labels.sharedVitaminGeometry, "the bottle shells and vitamins still reuse geometry").toBe(true);
-  expect(t.labels.distinctWaterLabelGeometry, "the water labels have independent colour data").toBe(true);
-  expect(t.labels.greenVitamin, "the third vitamin bottle has its own label").toBe(true);
-  // Paul 2026-11-19: a tidy row against the wall, 10 mm apart, and the orange-cap bottle clearly taller than the other two
-  // Paul 2026-11-19 (later): the roomverse 3d bottle (red band) stands forward by the mug; the green and orange vitamins stay in the tidy back row with the waters.
-  const row = ["greenVitamin", "orangeVitamin"].map((k) => t[k]);
-  expect(Math.max(...row.map((r) => r.wallGapMm)) - Math.min(...row.map((r) => r.wallGapMm)), "the back row of two lies along the wall").toBeLessThanOrEqual(8);
-  for (const r of row) { expect(r.gapMm).toBeGreaterThanOrEqual(8); expect(r.gapMm).toBeLessThanOrEqual(15); }
-  expect(t.redVitamin.nearest, "the red-band bottle stands by the mug").toBe("mug");
+  // Paul 2026-11-20 (second pass): the two waters were twins. Now one is clear water with a thin cream label and the other a cola-style drink (dark liquid, a tall printed label with our own
+  // name, a dark cap) that is shorter and plumper; the green jar is gone and the orange one is stout.
+  expect(t.water1.heightMm, "the clear water is the taller bottle").toBeGreaterThan(t.water2.heightMm + 15);
+  expect(t.water2.heightMm).toBeGreaterThan(190);
+  expect(t.labels.labelMm.water2, "the cola's label is at least twice as tall as the clear water's").toBeGreaterThanOrEqual(t.labels.labelMm.water1 * 2);
+  expect(t.labels.fill.water1).not.toBe(t.labels.fill.water2);
+  expect(t.labels.fill.water2, "the cola is dark").toMatch(/^#[0-4]/);
+  expect(t.labels.distinctWaterShells, "the two waters are no longer the same shape").toBe(true);
+  expect(t.greenVitamin, "the green jar is gone").toBeUndefined();
+  // Paul 2026-11-19 (later) and 2026-11-20: the roomverse 3d jar (red band) stands forward by the mug; behind, the two waters and one stout orange jar stay near the wall.
+  expect(t.redVitamin.nearest, "the red-band jar stands by the mug").toBe("mug");
   expect(t.redVitamin.gapMm, "a small clear gap to the mug").toBeGreaterThanOrEqual(8);
   expect(t.redVitamin.gapMm).toBeLessThanOrEqual(20);
-  expect(t.redVitamin.wallGapMm - t.greenVitamin.wallGapMm, "it stands well forward of the back row").toBeGreaterThanOrEqual(100);
-  expect(t.redVitamin.heightMm).toBe(t.greenVitamin.heightMm);
-  expect(t.orangeVitamin.heightMm / t.redVitamin.heightMm).toBeGreaterThan(1.12);
+  expect(t.redVitamin.wallGapMm - t.orangeVitamin.wallGapMm, "it stands well forward of the back row").toBeGreaterThanOrEqual(100);
+  expect(t.orangeVitamin.wallGapMm, "the orange jar stands near the wall").toBeLessThanOrEqual(60);
+  expect(t.orangeVitamin.gapMm, "the orange jar is not touching its neighbour").toBeGreaterThanOrEqual(8);
+  expect(Math.abs(t.orangeVitamin.heightMm - t.redVitamin.heightMm), "the stout orange jar is about as tall as the red one, not taller: it is fatter instead").toBeLessThanOrEqual(8);
+  expect(t.orangeVitamin.widthMm, "and it is plumper than the red jar").toBeGreaterThan(t.redVitamin.widthMm + 8);
 });

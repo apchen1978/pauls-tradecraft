@@ -11,7 +11,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 150937, meshes: 346 }),
+  scene: Object.freeze({ vertices: 141204, meshes: 346 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
   openingDrawCalls: Object.freeze({ desktop: 97, phone: 77 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
@@ -50,6 +50,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-20", change: "the two sideboard water bottles are 10% taller with vivid coral and cobalt labels; keep diameter, support contact, shared shell geometry, scene totals and draw calls", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-20", change: "the orange low chair uses the sofa's existing fine triplanar weave for a fabric finish; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-20", change: "light atmosphere (Paul: Room 04 is done, make Room 01's light feel better): a halo round the paper lantern, a glow on the four downlights (one Points draw), a warm pool under the standing lamp (one 4-vertex decal mesh), a CSS vignette in the dim moods and a slightly deeper rainy day (hemi .9 to .78, fill 1.2 to 1.05); every real light is unchanged", vertices: 150937, meshes: 346, desktopCalls: 97, phoneCalls: 77 },
+    { date: "2026-11-20", change: "sideboard top, second pass (Paul): the two waters are no longer twins (a clear water with a thin cream label and a cola-style drink with dark liquid, a tall printed paul's label and a dark cap, shorter and plumper), the green jar is removed and the orange one is stout with the name paul's; the printed cola label is one small textured mesh (it replaces the green jar's mesh), so meshes stay 346 and vertices fall about 9,700", vertices: 141204, meshes: 346, desktopCalls: 97, phoneCalls: 77 },
   ]),
 });
 
