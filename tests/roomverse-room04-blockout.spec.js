@@ -184,9 +184,28 @@ test("Room 04 can turn all the way round from the middle of the room, and the op
   expect(errors).toEqual([]);
 });
 
+test("Room 04 mesh diet: the lamp set and the stool designs that are not on show are built when chosen, and only once", async ({ page }) => {
+  const errors = await open(page, 1440);
+  const built = (kind) => page.evaluate((k) => window.__room04.lazyBuilt()[k], kind);
+  const defaults = await page.evaluate(() => window.__room04.lookDefaults);
+  const onlyDefault = (counts, key) => Object.entries(counts).every(([name, n]) => (name === key ? n > 0 : n === 0));
+  expect(onlyDefault(await built("lamps"), defaults.lamp), "only the arrival lamp set is built at load").toBe(true);
+  expect(onlyDefault(await built("stools"), defaults.stool), "only the arrival stools are built at load").toBe(true);
+  const before = await page.evaluate(() => window.__room04.lazyWeight());
+  await page.evaluate(() => { window.__room04.setLook("lamp", "rings"); window.__room04.setLook("stool", "leather"); window.__room04.setLook("stool", "metal"); });
+  const lamps = await built("lamps"), stools = await built("stools");
+  expect(lamps.rings, "the other lamp set exists once chosen").toBeGreaterThan(0);
+  expect(stools.leather).toBeGreaterThan(0); expect(stools.metal).toBeGreaterThan(0);
+  const once = await page.evaluate(() => window.__room04.lazyWeight());
+  expect(once.v, "choosing them built geometry").toBeGreaterThan(before.v);
+  await page.evaluate((lamp) => { window.__room04.setLook("lamp", lamp); window.__room04.setLook("lamp", "rings"); window.__room04.setLook("stool", "leather"); }, defaults.lamp);
+  expect(await page.evaluate(() => window.__room04.lazyWeight()), "choosing them again builds nothing more").toEqual(once);
+  expect(errors).toEqual([]);
+});
+
 test("Room 04 looks: swaps change materials without changing the scene size, wallpapers load, and the random cafe button builds a new one", async ({ page }) => {
   const errors = await open(page, 1440);
-  const base = await page.evaluate(() => { const i = window.__room04.info(); let clockV = 0, clockM = 0; for (const group of Object.values(window.__room04.clocks)) group.traverse((o) => { if (o.isMesh) { clockM++; clockV += o.geometry.attributes.position.count; } }); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look, clockV, clockM }; });
+  const base = await page.evaluate(() => { const i = window.__room04.info(); const lazy = window.__room04.lazyWeight(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look, lazyV: lazy.v, lazyM: lazy.m }; });
   expect(Object.keys(base.look).sort()).toEqual(["back", "brick", "ceiling", "chair", "clock", "counter", "floor", "gallery", "lamp", "lounge", "menu", "rug", "scarf", "stool", "wainscot", "wall", "wallpaper"]);
   const groups = await page.evaluate(() => window.__room04.lookGroups());
   expect(groups.wallpaper).toEqual(["none", "stripe", "botanical", "grasscloth", "sagewash", "planeleaf", "windowshadow"]);
@@ -203,10 +222,9 @@ test("Room 04 looks: swaps change materials without changing the scene size, wal
   await page.locator("#randomLook").click();
   await expect(page.locator("#resetLook")).toBeVisible();
   const after = await page.evaluate(() => { const i = window.__room04.info(); return { v: i.vertices, m: i.meshes, d: i.drawCalls, look: i.look }; });
-  // A clock design that was chosen during the run is built once (lazily, the mesh diet): count that apart from the swap itself.
-  const clockWeight = () => page.evaluate(() => { let v = 0, m = 0; for (const group of Object.values(window.__room04.clocks)) group.traverse((o) => { if (o.isMesh) { m++; v += o.geometry.attributes.position.count; } }); return { v, m }; });
-  const clocksNow = await clockWeight();
-  after.v -= clocksNow.v - base.clockV; after.m -= clocksNow.m - base.clockM;
+  // A clock, lamp set or stool design that was chosen during the run is built once (lazily, the mesh diet): count that apart from the swap itself.
+  const lazyNow = await page.evaluate(() => window.__room04.lazyWeight());
+  after.v -= lazyNow.v - base.lazyV; after.m -= lazyNow.m - base.lazyM;
   const rugDelta = await page.evaluate(() => { const r = window.__room04.rugState(); return r.vertices - r.roundVertices; }); // the random cafe may lay a rectangular rug (a box instead of the round cylinder)
   expect(after.v - rugDelta, "a look swap adds no geometry (apart from the rug's own shape)").toBe(base.v);
   expect(after.m).toBe(base.m);

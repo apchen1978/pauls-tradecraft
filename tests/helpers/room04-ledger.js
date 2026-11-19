@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 211126, meshes: 132 }),
+  scene: Object.freeze({ vertices: 197181, meshes: 124 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 66, phone: 60 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -115,5 +115,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "a storage door in the right wall behind the counter (Paul): dark oak casing, planked oak leaf with rails, steel kick plate, brass pull, and a green enamel STORAGE sign above (one canvas-textured mesh); parts join existing batches", vertices: 229844, meshes: 149, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-19", change: "Lounge poufs in ochre and smoky blue with soft pleats, inset cushion seams and contact shadows; the shaped covers replace the separate rib rods", vertices: 228704, meshes: 149, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-20", change: "mesh diet step 1 (Paul: slim first, then add): the two wall-clock designs that are not on show (16 meshes, about 17,600 vertices; info() counts hidden meshes too) are built the first time they are chosen instead of at load; the arrival clock is unchanged; no picture changes", vertices: 211126, meshes: 132, desktopCalls: 66, phoneCalls: 60 },
+    { date: "2026-11-20", change: "mesh diet step 2: the lamp set and the two stool designs that are not on show (8 meshes, about 13,900 vertices) are built the first time they are chosen, like the clocks; the arrival look is unchanged; no picture changes", vertices: 197181, meshes: 124, desktopCalls: 66, phoneCalls: 60 },
   ]),
 });
