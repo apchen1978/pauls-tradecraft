@@ -27,7 +27,8 @@
     #stage { position:absolute; inset:0; }
     /* A soft vignette after closing (the light atmosphere, 2026-11-20): the corners fall away so the lit things stand out. It lets every tap through and only fades in and out. */
     #stage::after { content:""; position:absolute; inset:0; z-index:1; pointer-events:none; opacity:0; transition:opacity .6s; background:radial-gradient(ellipse at 50% 55%, transparent 38%, rgba(6,4,12,.7) 100%); }
-    #stage[data-light="closing"]::after { opacity:1; }
+    #stage[data-light="closing"]::after, #stage[data-light="series"]::after { opacity:1; }
+    #stage[data-light="rain"]::after { opacity:.6; }
     /* The painting is a portrait; the room frame is landscape on a desktop. The whole painting shows (contain), and the sides are filled with the same painting, enlarged, blurred and darkened, so there are no flat brown bars. */
     .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:end center; padding-bottom:clamp(14px,5%,40px); overflow:hidden; background:#715744; }
     .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-mobile.webp?v=2") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
