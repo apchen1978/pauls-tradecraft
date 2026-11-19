@@ -93,7 +93,7 @@ for (const width of [1280, 390]) {
   });
 }
 
-for (const width of [1280, 390]) test(`Room 01 sideboard top: two water bottles by the wall with a green band, three vitamin bottles, all seated and clear of each other (${width})`, async ({ page }) => {
+for (const width of [1280, 390]) test(`Room 01 sideboard top: two taller water bottles with distinct colour bands, three vitamin bottles, all seated and clear of each other (${width})`, async ({ page }) => {
   test.setTimeout(120000);
   await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
   await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
@@ -104,8 +104,12 @@ for (const width of [1280, 390]) test(`Room 01 sideboard top: two water bottles 
     expect(t[key].gapMm, `${key} clear of ${t[key].nearest}`).toBeGreaterThanOrEqual(3);
   }
   for (const key of ["water1", "water2"]) expect(t[key].wallGapMm, `${key} stands near the wall`).toBeLessThanOrEqual(40);
-  expect(t.labels.water, "Room 01's band is green, not Room 03's blue-grey").toBe("#3d9a74");
-  expect(t.labels.sharedWaterGeometry && t.labels.sharedVitaminGeometry, "the copies share geometry").toBe(true);
+  expect(t.labels.water1).toBe("#d94f83");
+  expect(t.labels.water2).toBe("#287fce");
+  expect(t.water1.heightMm).toBeGreaterThan(250);
+  expect(Math.abs(t.water1.heightMm - t.water2.heightMm)).toBeLessThanOrEqual(1);
+  expect(t.labels.sharedWaterGeometry && t.labels.sharedVitaminGeometry, "the bottle shells and vitamins still reuse geometry").toBe(true);
+  expect(t.labels.distinctWaterLabelGeometry, "the water labels have independent colour data").toBe(true);
   expect(t.labels.greenVitamin, "the third vitamin bottle has its own label").toBe(true);
   // Paul 2026-11-19: a tidy row against the wall, 10 mm apart, and the orange-cap bottle clearly taller than the other two
   // Paul 2026-11-19 (later): the roomverse 3d bottle (red band) stands forward by the mug; the green and orange vitamins stay in the tidy back row with the waters.

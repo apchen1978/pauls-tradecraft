@@ -2547,11 +2547,11 @@ let lanternMat = null;
     for (const g of outletParts) { g.deleteAttribute("uv"); }
     const outlet = new THREE.Mesh(mergeGeometries(outletParts.map((g) => g.index ? g.toNonIndexed() : g), false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .45 }));
     outlet.geometry.computeVertexNormals(); outlet.name = "record-player-wall-outlet"; outlet.receiveShadow = true; scene.add(outlet);
-    // Room 03's Evian-style water bottle by its record player (the same profile, water to the shoulder, label band and fluted cap; Room 04 uses it at 0.8 too), at 0.8 scale
-    // so it stays a desk bottle beside the mug: between the mug and the player, toward the wall, standing 0.5 mm into the oak. Glass, water and label-with-cap: three meshes.
-    // Paul 2026-11-19: two bottles now, closer to the wall (behind the mug, before the player), and a green label band: this is a Taiwanese living room, not Room 03's.
-    const WATER_S = .8, waterAt = { x: -2.54, z: .83 }, water2At = { x: -2.548, z: .915 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
-    const sc = (list) => list.map(([r, y]) => new THREE.Vector2(r * WATER_S, y * WATER_S));
+    // A water-bottle profile with water to the shoulder, label band and fluted cap; keep the original 80% diameter so it fits beside the mug.
+    // Between the mug and the player, toward the wall, standing 0.5 mm into the oak. Glass, water and label-with-cap: three meshes.
+    // Paul 2026-11-20: keep the bottles' original footprint, lift them slightly, and give each a distinct vivid label.
+    const WATER_S = .8, WATER_H = 1.1, waterAt = { x: -2.54, z: .83 }, water2At = { x: -2.548, z: .915 }, waterY = topAt(waterAt.x, waterAt.z) - .0013;
+    const sc = (list) => list.map(([r, y]) => new THREE.Vector2(r * WATER_S, y * WATER_S * WATER_H));
     const shellProfile = [[0, .001], [.030, .001], [.038, .004], [.0415, .012], [.042, .030], [.0395, .040], [.042, .050], [.042, .150], [.0395, .160], [.042, .170],
       [.042, .196], [.039, .214], [.031, .236], [.022, .256], [.0165, .272], [.0155, .280], [.018, .283], [.018, .286], [.0155, .288], [0, .288]];
     const waterGlass = new THREE.Mesh(new THREE.LatheGeometry(sc(shellProfile), 28).translate(waterAt.x, waterY, waterAt.z), new THREE.MeshPhysicalMaterial({ color: 0xc6d8d5, roughness: .19, metalness: 0, transparent: true, opacity: .42, side: THREE.DoubleSide, depthWrite: false }));
@@ -2559,19 +2559,23 @@ let lanternMat = null;
     const fillGeometry = mergeGeometries([new THREE.LatheGeometry(sc([[0, .004], [.039, .006], [.039, .194], [.036, .212], [0, .212]]), 24), new THREE.CircleGeometry(.0375 * WATER_S, 24).rotateX(-Math.PI / 2).translate(0, .2125 * WATER_S, 0)].map((g) => { g.deleteAttribute("uv"); return g.index ? g.toNonIndexed() : g; }), false);
     const waterFill = new THREE.Mesh(fillGeometry.translate(waterAt.x, waterY, waterAt.z), new THREE.MeshStandardMaterial({ color: 0x86c3cf, roughness: .06, transparent: true, opacity: .62, depthWrite: false }));
     waterFill.name = "left-sideboard-water-bottle-water"; waterFill.renderOrder = 1; scene.add(waterFill);
-    const capGeometry = new THREE.CylinderGeometry(.0175 * WATER_S, .0175 * WATER_S, .022 * WATER_S, 56, 1), cpos = capGeometry.attributes.position;
+    const capGeometry = new THREE.CylinderGeometry(.0175 * WATER_S, .0175 * WATER_S, .022 * WATER_S * WATER_H, 56, 1), cpos = capGeometry.attributes.position;
     for (let k = 0; k < cpos.count; k++) { const cx = cpos.getX(k), cz = cpos.getZ(k); if (Math.hypot(cx, cz) > .017 * WATER_S) { const f = Math.round(Math.atan2(cz, cx) / (Math.PI / 28)) % 2 ? .93 : 1; cpos.setX(k, cx * f); cpos.setZ(k, cz * f); } }
-    const labelBand = tint(new THREE.CylinderGeometry(.0425 * WATER_S, .0425 * WATER_S, .062 * WATER_S, 28, 1, true).translate(0, .105 * WATER_S, 0), 0x3d9a74);
-    const capTinted = tint(capGeometry.translate(0, .299 * WATER_S, 0), 0xe1ddd2);
+    const labelBand = tint(new THREE.CylinderGeometry(.0425 * WATER_S, .0425 * WATER_S, .062 * WATER_S * WATER_H, 28, 1, true).translate(0, .105 * WATER_S * WATER_H, 0), 0xd94f83);
+    const capTinted = tint(capGeometry.translate(0, .299 * WATER_S * WATER_H, 0), 0xe1ddd2);
     const labelCap = new THREE.Mesh(mergeGeometries([labelBand, capTinted].map((g) => { g.deleteAttribute("uv"); return g.index ? g.toNonIndexed() : g; }), false).translate(waterAt.x, waterY, waterAt.z), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .74, side: THREE.DoubleSide }));
     labelCap.geometry.computeVertexNormals(); labelCap.name = "left-sideboard-water-bottle-label-cap"; labelCap.castShadow = true; scene.add(labelCap);
-    // The second bottle shares the three geometries and materials, moved along the wall (its own seat height from the top).
+    const secondLabelGeometry = labelCap.geometry.clone(), secondLabelPosition = secondLabelGeometry.attributes.position, secondLabelColor = new THREE.Color(0x287fce), secondLabelColors = secondLabelGeometry.attributes.color;
+    const bandBottom = waterY + (.105 - .031 - .002) * WATER_S * WATER_H, bandTop = waterY + (.105 + .031 + .002) * WATER_S * WATER_H;
+    for (let i = 0; i < secondLabelPosition.count; i++) { const y = secondLabelPosition.getY(i); if (y >= bandBottom && y <= bandTop) secondLabelColors.setXYZ(i, secondLabelColor.r, secondLabelColor.g, secondLabelColor.b); }
+    secondLabelColors.needsUpdate = true; secondLabelGeometry.computeVertexNormals();
+    // The bottles share their clear shells and water; only the vertex-colour data for the second label differs.
     const water2Shift = new THREE.Vector3(water2At.x - waterAt.x, topAt(water2At.x, water2At.z) - .0013 - waterY, water2At.z - waterAt.z), water2 = [];
-    for (const [src, name] of [[waterGlass, "glass"], [waterFill, "water"], [labelCap, "label-cap"]]) {
-      const copy = new THREE.Mesh(src.geometry, src.material); copy.position.copy(water2Shift); copy.renderOrder = src.renderOrder; copy.castShadow = src.castShadow;
+    for (const [src, name, geometry] of [[waterGlass, "glass"], [waterFill, "water"], [labelCap, "label-cap", secondLabelGeometry]]) {
+      const copy = new THREE.Mesh(geometry || src.geometry, src.material); copy.position.copy(water2Shift); copy.renderOrder = src.renderOrder; copy.castShadow = src.castShadow;
       copy.name = `left-sideboard-water-bottle-2-${name}`; scene.add(copy); water2.push(copy);
     }
-    const water = { glass: waterGlass, fill: waterFill, labelCap, at: waterAt, y: waterY, radius: .042 * WATER_S, second: { glass: water2[0], at: water2At } };
+    const water = { glass: waterGlass, fill: waterFill, labelCap, at: waterAt, y: waterY, radius: .042 * WATER_S, second: { glass: water2[0], water: water2[1], labelCap: water2[2], at: water2At } };
     return { oak, pulls, props, bottle, bottleAt, greenBottle, mugAt, mugY, pack, packAt, packY, packSpot, coffeeObj, recordPlayer, recordAt, mugRadius: MUG.radius, cord, cordCurve, cordRadius: CORD_R, outlet, water, topY: top };
   })();
 
@@ -4482,7 +4486,14 @@ let lanternMat = null;
         const c = b.getCenter(new THREE.Vector3()), near = Object.entries(boxes).filter(([o]) => o !== k).map(([o, ob]) => [o, gap(b, ob)]).sort((p, q) => p[1] - q[1])[0];
         out[k] = { seatMm: k === "outlet" || k === "recordPlayer" ? null : Math.round((b.min.y - topY(c.x, c.z)) * 10000) / 10, wallGapMm: Math.round((b.min.x - (-W / 2)) * 1000), nearest: near[0], gapMm: near[1], heightMm: Math.round((b.max.y - b.min.y) * 1000) };
       }
-      out.labels = { water: `#${new THREE.Color().fromArray(sideboard.water.labelCap.geometry.attributes.color.array, 0).getHexString()}`, greenVitamin: sideboard.greenBottle.material.map !== sideboard.bottle.material.map, sharedVitaminGeometry: sideboard.greenBottle.geometry === sideboard.bottle.geometry, sharedWaterGeometry: sideboard.water.second.glass.geometry === sideboard.water.glass.geometry };
+      out.labels = {
+        water1: `#${new THREE.Color().fromArray(sideboard.water.labelCap.geometry.attributes.color.array, 0).getHexString()}`,
+        water2: `#${new THREE.Color().fromArray(sideboard.water.second.labelCap.geometry.attributes.color.array, 0).getHexString()}`,
+        greenVitamin: sideboard.greenBottle.material.map !== sideboard.bottle.material.map,
+        sharedVitaminGeometry: sideboard.greenBottle.geometry === sideboard.bottle.geometry,
+        sharedWaterGeometry: sideboard.water.second.glass.geometry === sideboard.water.glass.geometry && sideboard.water.second.water.geometry === sideboard.water.fill.geometry,
+        distinctWaterLabelGeometry: sideboard.water.second.labelCap.geometry !== sideboard.water.labelCap.geometry,
+      };
       return out;
     },
     recordPlayerDetails() { // local QA only: Room 01's record player on the sideboard and the napkin pack on the coffee table (mm)
