@@ -33,7 +33,7 @@ const MOODS = {
   // floor: the floor lamp's light; glow: how strong the halos around lit shades are
   // why: one line on why the pairing works. rain, family, tech and chic are Paul's wording (2026-10-16); the slow line is a CC draft awaiting Paul's review.
   rain: { zh: "下雨天想窩在家裡", en: "Rainy day, staying in",
-    why: { zh: "窗外偏冷時，屋裡就用暖黃的燈和米白布料把溫度補回來，讓人想宅在家裡一天也很舒服。", en: "When it's cool and grey outside, warm lamps and cream fabrics bring the warmth back indoors, so a whole day at home feels good." }, hemi: .9, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.2, out: "#eef1f3", exposure: 1.05, floor: 2.2, glow: .55 },
+    why: { zh: "窗外偏冷時，屋裡就用暖黃的燈和米白布料把溫度補回來，讓人想宅在家裡一天也很舒服。", en: "When it's cool and grey outside, warm lamps and cream fabrics bring the warmth back indoors, so a whole day at home feels good." }, hemi: .78, win: .7, winCol: "#bccbdb", lamp: 5, fill: 1.05, out: "#eef1f3", exposure: 1.05, floor: 2.2, glow: .55 },
   family: { zh: "Cozy family", en: "Cozy family",
     why: { zh: "白天靠自然光就夠亮，用木頭、綠色和陶土色這些來自大自然的色彩，讓一家人待得超comfy。", en: "Daylight does most of the work; wood, greens and terracotta, colours from nature, keep the whole family extra comfy." }, hemi: 1.6, win: 3.2, winCol: "#ffe7c2", lamp: 2, fill: 2.4, out: "#ffffff", exposure: 1.15, floor: 0, glow: .15 },
   // tech: moonlight through the window leaves a pale blue patch on the floor
@@ -1360,6 +1360,12 @@ let lanternMat = null;
   // Two meshes (four trims, four lenses) and one light.
   const DOWNLIGHTS = [[-1.95, -1.55], [1.95, -1.55], [-1.95, 1.75], [1.95, 1.75]], DOWNLIGHT_CANDELA = 7; // Paul 2026-11-19: out towards the four corners, like Room 02 (65 cm from the side walls)
   const DOWNLIGHT_LEVEL = { rain: .8, family: .35, tech: 0, chic: .45, slow: .7, golden: .3, tv: .25 }; // series night: on but dim (about 30 % of the rainy-day level), Paul 2026-11-19
+  // Paul 2026-11-20 (the light atmosphere, as in Room 04; Room 04 was done and he asked for Room 01's light to feel better): a soft halo round the paper lantern, a glow on each of the four
+  // recessed downlights (one Points draw) so they read as lit and not as white discs, a warm pool under the standing lamp, and a vignette in the dim moods (CSS, see index.html).
+  const lanternHalo = halo(LANTERN.x, LANTERN.bottom + LANTERN.radius, LANTERN.z, 1.5); lanternHalo.material.opacity = 0;
+  const downHaloMat = new THREE.PointsMaterial({ map: haloTex, size: .6, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(1.6, 1.6, 1.6), toneMapped: false });
+  const downHalos = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(DOWNLIGHTS.flatMap(([x, z]) => [x, H - .035, z]), 3)), downHaloMat);
+  downHalos.frustumCulled = false; downHalos.raycast = () => {}; downHalos.visible = false; scene.add(downHalos);
   const downTrim = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CylinderGeometry(.05, .05, .012, 24).translate(x, H - .006, z))), new THREE.MeshStandardMaterial({ color: "#f2efe8", roughness: .5 }), 0, 0, 0, false);
   downTrim.name = "ceiling-downlight-trims";
   const downLensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
@@ -1965,6 +1971,8 @@ let lanternMat = null;
   const shadeY = lb.min.y + (lb.max.y - lb.min.y) * .8, lampX = (lb.min.x + lb.max.x) / 2, lampZ = (lb.min.z + lb.max.z) / 2;
   const floorLight = new THREE.PointLight("#ffc98a", 0, 5, 1.6); floorLight.position.set(lampX, shadeY - .12, lampZ + .05); scene.add(floorLight);
   const floorHalo = halo(lampX, shadeY, lampZ + .3, 1.1); // a little in front of the shade so the shade does not hide it
+  const floorPool = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 2.0).rotateX(-Math.PI / 2).translate(lampX, .008, lampZ), new THREE.MeshBasicMaterial({ map: haloTex, color: new THREE.Color(1.5, 1.5, 1.5), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
+  floorPool.visible = false; floorPool.renderOrder = 2; floorPool.raycast = () => {}; scene.add(floorPool); // a pool of the lamp's warm light on the floor round its foot
   // A soft fabric-shade emission profile for this point light only: brighter through
   // the open top/bottom, diffuse transmission through the sides. This is an illustrated
   // approximation, not a measured photometric file; no extra lights or hard shadow shell.
@@ -2619,7 +2627,7 @@ let lanternMat = null;
     const screenLevel = ({ rain: .1, family: .08, tech: .15, chic: .08, slow: .07, golden: .07, tv: .46 })[mood];
     return {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, sunY: m.sunY ?? 2.6, shadowRadius: m.shadowRadius ?? 8, led: m.led ? .5 : 0,
-      floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow, down: DOWNLIGHT_LEVEL[mood] ?? 0,
+      floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow, lanternHalo: m.glow * .7 + .05, down: DOWNLIGHT_LEVEL[mood] ?? 0,
       shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
       winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), hemiSky: new THREE.Color(tint.hemiSky), sideWall: new THREE.Color(tint.sideWall), entryWall: new THREE.Color(tint.entryWall), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
     };
@@ -2629,7 +2637,7 @@ let lanternMat = null;
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
     downSpot.intensity = v.down * DOWNLIGHT_CANDELA; downLensMat.emissiveIntensity = v.down * 1.6; lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
-    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo;
+    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo; lanternHalo.material.opacity = v.lanternHalo; downHalos.visible = v.down > .02; downHaloMat.opacity = v.down * .85; floorPool.visible = v.floorHalo > .02; floorPool.material.opacity = v.floorHalo * .55;
     dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02; sunBeamMaterial.opacity = dustAmount(v.win) * .85; sunBeam.visible = sunBeamMaterial.opacity > .01;
     shadeGlow.value = v.shade; if (lanternMat) lanternMat.emissiveIntensity = Math.min(1.25, .35 + v.fill * .6); /* follows the main light: bright by day, dim at night */ tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
@@ -2643,6 +2651,7 @@ let lanternMat = null;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let shown = null, shownMood = null, fade = 0;
   function easeLights() {
+    document.getElementById("stage").dataset.light = state.mood; // the CSS vignette follows the feeling (dim moods only)
     const to = lights();
     if (!shown || still || shownMood === state.mood) { shown = to; shownMood = state.mood; fade++; setLights(to); return; }
     const from = shown, t0 = performance.now(), id = ++fade;
