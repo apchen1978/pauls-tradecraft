@@ -218,7 +218,12 @@ function placeUi() {
   const x = Math.min(stageRect.width - half, Math.max(half, (anchor.left + anchor.right) / 2 - stageRect.left));
   const controlsTop = immersive ? $("immersiveControls").getBoundingClientRect().top - stageRect.top : stageRect.height;
   const headerBottom = immersive ? $("immersiveExit").getBoundingClientRect().bottom - stageRect.top : 0;
-  const y = Math.min(controlsTop - 8, Math.max(headerBottom + bubble.offsetHeight + 8, anchor.top - stageRect.top - 12));
+  // The record bubbles (the hint and the playing note) used to sit above the record player, where the robots' heads are (Paul, 2026-11-20: the hint covered the robot's head on a phone). They now sit
+  // just below it, on the plain counter front; the bubble's bottom edge is the y it is given, so "below" means the record's bottom plus the bubble's height. If there is no room below, it goes above as before.
+  const below = bubbleOwner === "recordHint" || bubbleOwner === "record";
+  const aboveY = Math.min(controlsTop - 8, Math.max(headerBottom + bubble.offsetHeight + 8, anchor.top - stageRect.top - 12));
+  const belowY = anchor.bottom - stageRect.top + 10 + bubble.offsetHeight;
+  const y = below && belowY <= controlsTop - 8 ? belowY : aboveY;
   Object.assign(bubble.style, { left: x + "px", top: y + "px" });
 }
 function renderBubble() {

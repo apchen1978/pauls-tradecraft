@@ -881,6 +881,28 @@ test("Room 04 the record player: a hint to tap it (not in late-night moods), two
   expect(errors).toEqual([]);
 });
 
+// Paul 2026-11-20: on a phone the record hint sat above the record player, over the robot's head. The record bubbles now sit just below the record player.
+for (const width of [390, 1440]) {
+  test(`Room 04 the record hint sits below the record player and leaves the robots' heads clear (${width}px)`, async ({ page }) => {
+    test.setTimeout(150000);
+    const errors = await open(page, width, "zh", "");
+    await page.evaluate(() => window.__room04.setView("counter"));
+    await expect(page.locator("#bubble [data-line]"), "the hint shows").toContainText("唱盤", { timeout: 15000 });
+    await page.waitForTimeout(600);
+    const r = await page.evaluate(() => {
+      const bubble = document.getElementById("bubble").getBoundingClientRect(), room = window.__room04, box = (q) => (q ? { left: q.left, right: q.right, top: q.top, bottom: q.bottom } : null);
+      return { bubble: box(bubble), record: box(room.recordScreen()), robots: [room.robotScreen(), room.baristaScreen()].map(box).filter(Boolean) };
+    });
+    expect(r.bubble.top, "the bubble starts at or below the record player's bottom edge").toBeGreaterThanOrEqual(r.record.bottom - 2);
+    for (const robot of r.robots) { // the head is the top part of a robot's box; the lower part is hidden behind the counter anyway
+      const head = { top: robot.top, bottom: robot.top + (robot.bottom - robot.top) * 0.5, left: robot.left, right: robot.right };
+      const overlaps = r.bubble.left < head.right && r.bubble.right > head.left && r.bubble.top < head.bottom && r.bubble.bottom > head.top;
+      expect(overlaps, "the hint does not cover a robot's head").toBe(false);
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
 test("Room 04 Shanghai night and slow day: the neon sign glows at night only, and a third record starts first at night", async ({ page }) => {
   test.setTimeout(120000);
   const errors = await open(page, 1440, "zh");
