@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 141204, meshes: 346 }),
+  scene: Object.freeze({ vertices: 194099, meshes: 354 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 97, phone: 77 }),
+  openingDrawCalls: Object.freeze({ desktop: 104, phone: 85 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 95, family: 97, tech: 96, chic: 97, slow: 97, golden: 97, tv: 95 }),
-    phone: Object.freeze({ rain: 75, family: 77, tech: 76, chic: 77, slow: 77, golden: 77, tv: 75 }),
+    desktop: Object.freeze({ rain: 102, family: 104, tech: 103, chic: 104, slow: 104, golden: 104, tv: 103 }),
+    phone: Object.freeze({ rain: 83, family: 85, tech: 84, chic: 85, slow: 85, golden: 85, tv: 84 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -51,6 +51,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-20", change: "the orange low chair uses the sofa's existing fine triplanar weave for a fabric finish; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-20", change: "light atmosphere (Paul: Room 04 is done, make Room 01's light feel better): a halo round the paper lantern, a glow on the four downlights (one Points draw), a warm pool under the standing lamp (one 4-vertex decal mesh), a CSS vignette in the dim moods and a slightly deeper rainy day (hemi .9 to .78, fill 1.2 to 1.05); every real light is unchanged", vertices: 150937, meshes: 346, desktopCalls: 97, phoneCalls: 77 },
     { date: "2026-11-20", change: "sideboard top, second pass (Paul): the two waters are no longer twins (a clear water with a thin cream label and a cola-style drink with dark liquid, a tall printed paul's label and a dark cap, shorter and plumper), the green jar is removed and the orange one is stout with the name paul's; the printed cola label is one small textured mesh (it replaces the green jar's mesh), so meshes stay 346 and vertices fall about 9,700", vertices: 141204, meshes: 346, desktopCalls: 97, phoneCalls: 77 },
+    { date: "2026-11-20", change: "lived-in small things (Paul, GrokBot's list 1 to 3; vertices may loosen, refinement matters): the side table is 20% wider and carries Room 04's brick-red mug with steam on a coaster printed paul's, and Room 04's notebook with its pen; a glass of water stands on the TV console; two pairs of slippers on the rug (oatmeal scuffs, and Room 02's flip-flops with red straps); series night changes the coffee table (popcorn bowl, a closed laptop, steam off the mug) and puts the remote on the sofa. 8 new meshes, about 53,000 vertices (mug 11.8k, slippers 15.2k, flip-flops 5k, series-night set 17k, notebook 2.9k)", vertices: 194099, meshes: 354, desktopCalls: 104, phoneCalls: 85 },
   ]),
 });
 
