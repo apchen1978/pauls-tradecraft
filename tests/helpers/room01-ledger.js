@@ -46,6 +46,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "tidy-up (Paul): the three supplement bottles stand in a neat row against the wall, 10 mm apart, labels turned to the record-player view, one reading \"roomverse 3d\" with a yum face, the orange-cap one 18 percent taller (same vertex counts: only positions, turns, profile heights and label pictures changed); the four downlights move out towards the corners and stay on, dim, in series night; the last two shelf books lean 16 degrees at the open end. No new mesh or vertex; series-night desktop calls measured 92 (95 last time)", vertices: 150246, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-19", change: "the olive coffee-table book gets separate cover boards, a rounded spine, shaded page edges and a fine gilt border in its existing mesh", vertices: 150748, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
     { date: "2026-11-19", change: "the coffee-table napkin pack gets a soft cream wrapper, clay band, dark opening and folded sheet in the same mesh", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
+    { date: "2026-11-19", change: "the coffee table gets the same low-contrast, direction-aware oak grain already used on the side table; no geometry, mesh or draw-call increase", vertices: 150882, meshes: 345, desktopCalls: 95, phoneCalls: 75 },
   ]),
 });
 
