@@ -535,8 +535,11 @@ test("each feeling shows one line on why the pairing works, and it follows the f
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const why = page.locator("#panel .why");
   await expect(why).toHaveCount(1);
+  // The room opens in golden hour, and the feeling group starts with one extra button, so a position no longer names a feeling: pick each one by its key.
+  await expect(why).toContainText("夕陽");
+  await page.locator('#panel .opts').first().locator('button[data-key="rain"]').click();
   await expect(why).toContainText("宅在家裡一天也很舒服");
-  await page.locator("#panel .opts").first().locator("button").nth(2).click();
+  await page.locator('#panel .opts').first().locator('button[data-key="tech"]').click();
   await expect(why).toContainText("冷色燈帶");
   await page.locator("#lang").click();
   await expect(why).toContainText("cool LED wash");
@@ -667,7 +670,12 @@ test("new wall paints restore from the URL and work across all seven feelings", 
   expect(mobilePanel.scroll).toBeLessThan(1100);
   const newWallLabels = await page.locator('#panel .opts').nth(1).locator('button[data-key="dusk"],button[data-key="wine"]').allTextContents();
   expect(newWallLabels.join(" ")).not.toMatch(/壁紙|wallpaper/i);
-  for (const [fraction, key] of [[0.6, "dusk"], [0.7, "wine"]]) {
+  // The shuffle picks index floor(random x n) among the other walls (the room is set to "original" first), so the fraction that lands on a key is derived from the key's place in
+  // the list; the old fixed 0.6 and 0.7 meant dusk and wine only while the list was shorter (0.6 now lands on wine, in a list of twelve).
+  const panelWalls = await page.locator('#panel .opts').nth(1).locator("button").evaluateAll((buttons) => buttons.map((button) => button.dataset.key));
+  const shuffleWalls = panelWalls.filter((key) => key !== "original"); // every other wall, wallpapers included: that is the list the shuffle draws from
+  for (const key of ["dusk", "wine"]) {
+    const fraction = (shuffleWalls.indexOf(key) + 0.5) / shuffleWalls.length;
     await page.evaluate(() => window.__room.set("wall", "original"));
     await page.evaluate((value) => { const original = Math.random; Math.random = () => value; document.querySelector(".shuffle").click(); Math.random = original; }, fraction);
     await expect(page).toHaveURL(new RegExp(`wall=${key}`));
@@ -1013,7 +1021,7 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const focused = () => page.evaluate(() => document.activeElement?.textContent?.trim());
-  await page.locator("#panel .opts").first().locator("button").nth(1).focus();
+  await page.locator('#panel .opts').first().locator('button[data-key="family"]').focus();
   await page.keyboard.press("Enter");
   expect(await focused()).toBe("Cozy family");
   await page.keyboard.press("Tab");
@@ -1023,8 +1031,9 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   expect(await focused()).toBe("幫我隨機搭一間");
   await expect(page.locator("#stage canvas")).toHaveAttribute("role", "img");
   await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", /3D/);
-  await page.locator("#panel .opts").first().locator("button").nth(2).click();
-  await expect(page.locator('[aria-live="polite"]')).toContainText("冷色燈帶");
+  await page.locator('#panel .opts').first().locator('button[data-key="tech"]').click();
+  // Three live regions exist now (the robot bubble and the plant note joined the feeling announcer), so name the announcer: the visually hidden div that app.js appends next to the stage.
+  await expect(page.locator('div[aria-live="polite"]:not(#plantNote)')).toContainText("冷色燈帶");
 });
 
 for (const width of [390, 1440]) {
