@@ -30,12 +30,16 @@ test("Room 03 the credenza record player is a real, supported object (step 1: no
   expect(info.bounds.max[0]).toBeLessThan(3.0);
   // The cable-car keepsake moved to the nook console and rests on it with no gap.
   expect(Math.abs(info.nookKeepsake.consoleGapMm), "the cable car rests on the nook console (within 1 mm)").toBeLessThanOrEqual(1);
-  // Its power cord starts inside the deck, rests on the oak top (no float, no dip into the wood) and ends inside the wall.
+  // Its power cord starts inside the deck, rests on the oak top (no float, no dip into the wood), then climbs the wall and ends inside the neck of a plug in a US duplex outlet
+  // 165 mm above the top (Paul 2026-11-19: it used to vanish into the plaster).
   expect(info.cord.startInsideDeckMm).toBeGreaterThanOrEqual(3);
   expect(info.cord.lowestAboveTopMm, "the cord lies on the top").toBeGreaterThanOrEqual(0);
   expect(info.cord.lowestAboveTopMm, "the cord lies on the top").toBeLessThanOrEqual(1);
   expect(info.cord.clearOfDeckUnderside).toBe(true);
-  expect(info.cord.endIntoWallMm, "the cord goes into the wall").toBeGreaterThanOrEqual(3);
+  expect(info.cord.endIntoWallMm, "the cord no longer goes into the plaster: it stays in front of the wall").toBeLessThan(0);
+  expect(info.cord.outletCentreAboveTopMm, "the outlet stands 165 mm above the top").toBe(165);
+  expect(info.cord.cordEndInsideNeck, "the cord ends inside the plug's neck").toBe(true);
+  expect(info.cord.cordEndAboveNeckBottomMm, "and well inside it").toBeGreaterThanOrEqual(3);
   expect(errors).toEqual([]);
 });
 

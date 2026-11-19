@@ -4147,19 +4147,37 @@ function buildRoom03RecordPlayer(scene) {
       stylusFromCentreMm: mm(Math.hypot(pivot[0] + tipNow.x - platter.x, pivot[2] + tipNow.z - platter.z)), vinylRadiusMm: 132, labelRadiusMm: 25, platterRadiusMm: 138,
       restIntoDeckMm: mm(DECK_TOP - restBox.min.y), restTopToTubeMm: mm(restAt.y - 0.003 - restBox.max.y) };
   };
-  // Power cord (Paul 2026-11-18): a thin black cord leaves the back corner of the deck on the record-player-view side, lies on the oak top along the wall past
-  // the red mug (so the record view sees it) and goes into the plaster through a small dark grommet (the credenza stands 2 mm off the wall, too tight to drop a cord behind it). Cord and grommet are one
-  // vertex-coloured mesh; the curve is sampled below so the tests can check it rests on the top and meets the wall with no gap and no clipping.
+  // Power cord (Paul 2026-11-18): a thin black cord leaves the back corner of the deck on the record-player-view side and lies on the oak top along the wall past
+  // the red mug (so the record view sees it). Paul 2026-11-19: it used to vanish into a grommet in the plaster, which looked unnatural; the credenza stands 2 mm off the wall, too tight to drop a
+  // cord behind it, so it now climbs the wall into the plug of a white American duplex outlet just above the top (US form with round receptacle faces, not Room 01's Taiwanese build; plug in the lower receptacle).
+  // Cord, plate, receptacles and plug are one vertex-coloured mesh; the curve is sampled below so the tests can check it rests on the top and ends in the plug.
   const CORD_R = 0.0025, WALL = 2.94, lie = C.top + CORD_R + 0.0006;
   const cordCurve = new THREE.CatmullRomCurve3([
     [2.905, 0.838, 0.734], [2.905, 0.836, 0.748], [2.906, lie + 0.004, 0.762], [2.908, lie, 0.785], [2.914, lie, 0.83], [2.921, lie, 0.874],
-    [WALL - CORD_R - 0.0015, lie + 0.0012, 0.912], [WALL - 0.002, lie + 0.004, 0.929], [WALL + 0.008, lie + 0.005, 0.937],
+    [2.930, lie + 0.0012, 0.888], [WALL - CORD_R - 0.0015, C.top + 0.030, 0.908], [WALL - CORD_R - 0.0012, C.top + 0.085, 0.915],
+    [WALL - 0.010, C.top + 0.107, 0.915], [WALL - 0.017, C.top + 0.114, 0.915], [WALL - 0.017, C.top + 0.125, 0.915],
   ].map((p) => new THREE.Vector3(...p)));
   const cordParts = [];
   add(new THREE.TubeGeometry(cordCurve, 64, CORD_R, 6, false), 0x101112, cordParts);
-  let entry = cordCurve.getPoint(1);
-  for (let i = 0; i <= 200; i++) { const p = cordCurve.getPoint(i / 200); if (p.x >= WALL) { entry = p; break; } }
-  add(new THREE.CylinderGeometry(0.0062, 0.0066, 0.003, 16).rotateZ(Math.PI / 2).translate(WALL - 0.0005, entry.y, entry.z), 0x2b2b2a, cordParts);
+  // The outlet is a US duplex (NEMA 5-15R), not Room 01's rectangular-faced Taiwanese build (Paul, 2026-11-19): a white single-gang plate 70 x 114 mm, 8 mm thick (0.5 mm into the plaster),
+  // centre 165 mm above the top, behind the deck's far corner. Each receptacle is a ROUND raised boss (the classic US duplex face) with two parallel vertical flat slots, the neutral one on the
+  // left and taller (9 mm against 7 mm), and a round ground hole below them; one plate screw with a slotted head sits between the two. Slots and holes stand 0.2 mm proud so nothing shares a
+  // plane. A chunky black moulded plug sits in the lower receptacle, 1 mm into its face, with the cord leaving through a strain relief downwards; the upper receptacle is empty.
+  const OUT = { y: C.top + 0.165, z: 0.915 }, FACE_X = WALL - 0.0075, REC_X = FACE_X - 0.0015, DARK = 0x1b1a19, PITCH = 0.0205;
+  const flat = (geometry) => geometry.rotateZ(Math.PI / 2); // a cylinder lying along x
+  add(new THREE.BoxGeometry(0.008, 0.114, 0.07).translate(WALL - 0.004 + 0.0005, OUT.y, OUT.z), 0xf4f2ec, cordParts);
+  for (const dy of [PITCH, -PITCH]) {
+    add(flat(new THREE.CylinderGeometry(0.0165, 0.0165, 0.0015, 28)).translate(FACE_X - 0.00075, OUT.y + dy, OUT.z), 0xf8f6f0, cordParts); // the round boss
+    add(flat(new THREE.CylinderGeometry(0.0128, 0.0128, 0.0008, 28)).translate(REC_X - 0.0004, OUT.y + dy, OUT.z), 0xfbfaf6, cordParts); // its slightly lighter face
+    for (const [dz, h] of [[-0.00635, 0.009], [0.00635, 0.007]]) add(new THREE.BoxGeometry(0.0006, h, 0.0021).translate(REC_X - 0.0009, OUT.y + dy + 0.0035, OUT.z + dz), DARK, cordParts); // neutral (left, taller), hot
+    add(flat(new THREE.CylinderGeometry(0.0026, 0.0026, 0.0006, 14)).translate(REC_X - 0.0009, OUT.y + dy - 0.0072, OUT.z), DARK, cordParts); // ground
+  }
+  add(flat(new THREE.CylinderGeometry(0.0034, 0.0034, 0.0012, 16)).translate(FACE_X - 0.0006, OUT.y, OUT.z), 0xd8d5cc, cordParts); // the plate screw head
+  add(new THREE.BoxGeometry(0.0004, 0.0009, 0.0056).translate(FACE_X - 0.0012 - 0.0002, OUT.y, OUT.z), 0x8d8a82, cordParts); // its slot
+  const PLUG = { x1: REC_X + 0.001, depth: 0.018, y: OUT.y - PITCH }, NECK = { y: OUT.y - PITCH - 0.017 - 0.006, len: 0.016, x: WALL - 0.017 };
+  add(new THREE.BoxGeometry(PLUG.depth, 0.034, 0.026).translate(PLUG.x1 - PLUG.depth / 2, PLUG.y, OUT.z), 0x161719, cordParts); // the moulded body, 1 mm into the lower face
+  add(new THREE.BoxGeometry(0.003, 0.022, 0.018).translate(PLUG.x1 - PLUG.depth - 0.0015, PLUG.y + 0.001, OUT.z), 0x242628, cordParts); // a slightly lighter grip panel on its front
+  add(new THREE.CylinderGeometry(CORD_R + 0.0012, CORD_R + 0.0006, NECK.len, 8).translate(NECK.x, NECK.y, OUT.z), 0x161719, cordParts);
   const cordGeometry = mergeGeometries(cordParts, false); cordParts.forEach((part) => part.dispose()); cordGeometry.computeVertexNormals();
   const cordMesh = new THREE.Mesh(cordGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
   cordMesh.name = "room03-record-player-power-cord"; cordMesh.userData.category = "credenza"; cordMesh.castShadow = false; cordMesh.receiveShadow = true; scene.add(cordMesh);
@@ -4171,7 +4189,10 @@ function buildRoom03RecordPlayer(scene) {
       maxX = Math.max(maxX, p.x);
     }
     const mm = (v) => Number((v * 1000).toFixed(1));
-    return { radiusMm: mm(CORD_R), lowestAboveTopMm: mm(lowest), endIntoWallMm: mm(maxX - WALL), startInsideDeckMm: mm(deckBox.max.z - cordCurve.getPoint(0).z),
+    const end = cordCurve.getPoint(1);
+    return { radiusMm: mm(CORD_R), lowestAboveTopMm: mm(lowest), endIntoWallMm: mm(maxX - WALL), plugIntoFaceMm: 1, plateIntoWallMm: 0.5,
+      outletCentreAboveTopMm: mm(OUT.y - C.top), cordEndAboveNeckBottomMm: mm(end.y - (NECK.y - NECK.len / 2)), cordEndInsideNeck: end.y > NECK.y - NECK.len / 2 && end.y < NECK.y + NECK.len / 2 && Math.abs(end.x - NECK.x) < 0.0005 && Math.abs(end.z - OUT.z) < 0.0005,
+      startInsideDeckMm: mm(deckBox.max.z - cordCurve.getPoint(0).z),
       clearOfDeckUnderside: cordCurve.getPoints(200).every((p) => p.z > deckBox.max.z || p.y - CORD_R >= deckBox.min.y - 0.0005), vertices: cordGeometry.attributes.position.count };
   };
   return { mesh, platterMesh, armMesh, cordMesh, setPlaying, stop, motionInfo, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276, cord: cordInfo(),
