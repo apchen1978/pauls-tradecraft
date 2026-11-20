@@ -31,7 +31,7 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
     expect(info.coffeeMaker.hopperLid).toBe("closed");
     expect(info.coffeeMaker.beansVisible).toBeGreaterThanOrEqual(150);
     expect(info.coffeeMaker.carafeRimClearanceToUpperHousingMm).toBeGreaterThanOrEqual(40);
-    for (const key of ["mineral-water-bottle-1", "mineral-water-bottle-2"]) {
+    for (const key of ["mineral-water-bottle-1"]) { // one bottle since 2026-11-21
       const bottle = info.propBounds[key];
       expect(bottle.size[1], "1.5 L-style tall bottle").toBeGreaterThanOrEqual(0.30);
       expect(bottle.size[1]).toBeLessThanOrEqual(0.32);
