@@ -3807,31 +3807,42 @@ function makeCredenzaOakMaps() {
 function buildRightWallCredenza(scene, m) {
   const WALL_X = 2.94, Z_MIN = -0.80, Z_MAX = 1.00, DEPTH = 0.45, TOP_Y = 0.815, PLINTH = 0.08, TOP_T = 0.03;
   const length = Z_MAX - Z_MIN, zMid = (Z_MIN + Z_MAX) / 2, xBack = WALL_X - 0.002, xFront = xBack - DEPTH, xMid = (xBack + xFront) / 2;
-  const parts = { walnut: [], front: [], dark: [] };
+  const parts = { walnut: [], front: [], dark: [], panel: [], rib: [], brassline: [] };
   const hardwareParts = [];
   // Rounded edges only where they are seen (top and door fronts, 2 bevel segments); hidden body, plinth and pulls are plain boxes.
   const box = (bucket, size, position, rounded = false) => { const g = rounded ? roundedBoxGeometry(size, Math.min(0.006, Math.min(...size) * 0.25), 2) : new THREE.BoxGeometry(...size); if (!rounded) { g.deleteAttribute("uv"); g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); } g.translate(...position); parts[bucket].push(rounded ? g : g); return g; };
   const bodyH = TOP_Y - TOP_T - PLINTH;
   box("walnut", [DEPTH - 0.02, bodyH, length], [xMid + 0.01, PLINTH + bodyH / 2, zMid]);
   box("dark", [DEPTH - 0.08, PLINTH, length - 0.06], [xMid + 0.04, PLINTH / 2, zMid]);
-  const doors = 4, gap = 0.006, doorW = (length - gap * (doors + 1)) / doors;
+  // Paul 2026-11-21 (the side cabinet looked plain and not modern): three fluted doors and one wide plain door. The three narrower doors carry vertical flutes (3 mm proud ribs 9 mm apart, the way a
+  // modern reeded walnut front is made) over a slightly darker slab; the wide door at the window end is a smooth, lighter full panel with a thin brass inlay line down it, so the length of the cabinet reads in
+  // layers (texture, then calm). Handles stay the slim brass bars; the plinth is a recessed dark toe kick, and a thin brass edge line runs under the oak top. Still one vertex-colour mesh (the brass
+  // parts join the existing brass mesh), so the draw call count is unchanged.
+  const gap = 0.007, widths = [0.36, 0.36, 0.36], wide = length - gap * 5 - widths.reduce((a, b) => a + b, 0), doorWidths = [...widths, wide];
+  const doors = doorWidths.length; let cursor = Z_MIN + gap;
   for (let i = 0; i < doors; i++) {
-    const z = Z_MIN + gap + doorW / 2 + i * (doorW + gap);
-    box("front", [0.02, bodyH - 0.02, doorW], [xFront - 0.004, PLINTH + bodyH / 2, z], true);
-    // Slim vertical pulls sit on the opening edge at a natural hand height, rather than disguising themselves as top grooves.
-    const pullZ = z + (i % 2 === 0 ? doorW * 0.32 : -doorW * 0.32);
+    const doorW = doorWidths[i], z = cursor + doorW / 2; cursor += doorW + gap;
+    const doorH = bodyH - 0.02, yMid = PLINTH + bodyH / 2, fx = xFront - 0.004, last = i === doors - 1;
+    box(last ? "panel" : "front", [0.02, doorH, doorW], [fx, yMid, z], true); // the door slab
+    if (!last) { // flutes: round-topped ribs would triple the vertices; plain half-round-looking ribs (flat boxes, 3 mm proud) read the same at room distance
+      const pitch = 0.0105, rib = 0.0066, n = Math.floor((doorW - 0.07) / pitch);
+      for (let k = 0; k < n; k++) box("rib", [0.0034, doorH - 0.03, rib], [fx - 0.0105, yMid, z - (n - 1) * pitch / 2 + k * pitch]);
+    } else box("brassline", [0.0016, doorH - 0.06, 0.004], [fx - 0.0108, yMid, z + doorW * 0.3]); // the thin brass inlay line
+    // Slim vertical pulls on the opening edge at a natural hand height.
+    const pullZ = last ? z - doorW / 2 + 0.035 : z + (i % 2 === 0 ? doorW / 2 - 0.035 : -doorW / 2 + 0.035);
     const pullY = PLINTH + bodyH * 0.56;
     const pull = new THREE.BoxGeometry(0.014, 0.082, 0.012);
-    pull.translate(xFront - 0.018, pullY, pullZ);
+    pull.translate(xFront - 0.02, pullY, pullZ);
     hardwareParts.push(pull);
     for (const dy of [-0.027, 0.027]) {
       const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008);
-      standoff.translate(xFront - 0.014, pullY + dy, pullZ);
+      standoff.translate(xFront - 0.016, pullY + dy, pullZ);
       hardwareParts.push(standoff);
     }
   }
+  { const strip = new THREE.BoxGeometry(0.004, 0.006, length - 0.02); strip.translate(xFront - 0.006, TOP_Y - TOP_T - 0.003, zMid); hardwareParts.push(strip); } // the thin brass edge line under the oak top
   // One mesh: warm walnut, slightly lighter door fronts, oak top and recessed shadow lines share one draw call.
-  const tints = { walnut: 0x76543b, front: 0x886344, dark: 0x292724 };
+  const tints = { walnut: 0x76543b, front: 0x6a4a33, dark: 0x201e1b, panel: 0x9a7655, rib: 0x86613f, brassline: 0xc9a45a };
   const all = [];
   for (const [kind, list] of Object.entries(parts)) {
     const tint = new THREE.Color(tints[kind]);
