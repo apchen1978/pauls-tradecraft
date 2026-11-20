@@ -1432,15 +1432,35 @@ let lanternMat = null;
   sofaObj.traverse((m) => {
     if (!m.isMesh || !m.geometry.index) return;
     const g = m.geometry, pos = g.attributes.position, idx = g.index.array, n = pos.count;
-    let lo = Infinity, hi = -Infinity;
-    for (let i = 0; i < n; i++) { const y = pos.getY(i); lo = Math.min(lo, y); hi = Math.max(hi, y); }
-    const cut = lo + (hi - lo) * .88, nb = Array.from({ length: n }, () => new Set());
-    for (let i = 0; i < idx.length; i += 3) { const a = idx[i], b = idx[i + 1], c = idx[i + 2]; nb[a].add(b).add(c); nb[b].add(a).add(c); nb[c].add(a).add(b); }
-    const top = []; for (let i = 0; i < n; i++) if (pos.getY(i) > cut) top.push(i);
-    for (let pass = 0; pass < 20; pass++) { // 7 before 2026-11-21 (Paul: the backrest top still shows thread-like fringe)
-      const next = top.map((i) => { let x = 0, y = 0, z = 0; for (const j of nb[i]) { x += pos.getX(j); y += pos.getY(j); z += pos.getZ(j); } const k = nb[i].size || 1; return [x / k, y / k, z / k]; });
-      top.forEach((i, t) => pos.setXYZ(i, (pos.getX(i) + next[t][0]) / 2, (pos.getY(i) + next[t][1]) / 2, (pos.getZ(i) + next[t][2]) / 2));
+    let lo = Infinity, hi = -Infinity, xlo = Infinity, xhi = -Infinity, zlo = Infinity, zhi = -Infinity;
+    for (let i = 0; i < n; i++) { const y = pos.getY(i), x = pos.getX(i), z = pos.getZ(i); lo = Math.min(lo, y); hi = Math.max(hi, y); xlo = Math.min(xlo, x); xhi = Math.max(xhi, x); zlo = Math.min(zlo, z); zhi = Math.max(zhi, z); }
+    const cut = lo + (hi - lo) * .88;
+    // Paul 2026-11-21: the "threads" are cracks. The AI model splits its vertices along seams (same place, several vertices), so smoothing each vertex on its own pulled the two sides of a seam apart and opened
+    // thin dark slits along the backrest top and the cushion seams. Vertices that share a place are welded into one group here: they are smoothed together and always move together.
+    const q = Math.max(xhi - xlo, hi - lo, zhi - zlo) * 2e-5, keyOf = (i) => `${Math.round(pos.getX(i) / q)},${Math.round(pos.getY(i) / q)},${Math.round(pos.getZ(i) / q)}`;
+    const groupOf = new Int32Array(n), groups = [], byKey = new Map();
+    for (let i = 0; i < n; i++) { const k = keyOf(i); let id = byKey.get(k); if (id === undefined) { id = groups.length; byKey.set(k, id); groups.push([i]); } else groups[id].push(i); groupOf[i] = id; }
+    const nb = Array.from({ length: groups.length }, () => new Set());
+    for (let i = 0; i < idx.length; i += 3) { const a = groupOf[idx[i]], b = groupOf[idx[i + 1]], c = groupOf[idx[i + 2]]; if (a !== b) { nb[a].add(b); nb[b].add(a); } if (b !== c) { nb[b].add(c); nb[c].add(b); } if (a !== c) { nb[a].add(c); nb[c].add(a); } }
+    const gx = new Float32Array(groups.length), gy = new Float32Array(groups.length), gz = new Float32Array(groups.length);
+    for (let id = 0; id < groups.length; id++) { const i = groups[id][0]; gx[id] = pos.getX(i); gy[id] = pos.getY(i); gz[id] = pos.getZ(i); }
+    const top = []; for (let id = 0; id < groups.length; id++) if (gy[id] > cut) top.push(id);
+    for (let pass = 0; pass < 20; pass++) { // 7 before 2026-11-21
+      const next = top.map((id) => { let x = 0, y = 0, z = 0; for (const j of nb[id]) { x += gx[j]; y += gy[j]; z += gz[j]; } const k = nb[id].size || 1; return [x / k, y / k, z / k]; });
+      top.forEach((id, t) => { gx[id] = (gx[id] + next[t][0]) / 2; gy[id] = (gy[id] + next[t][1]) / 2; gz[id] = (gz[id] + next[t][2]) / 2; });
     }
+    for (let id = 0; id < groups.length; id++) for (const i of groups[id]) pos.setXYZ(i, gx[id], gy[id], gz[id]);
+    // The dark "thread" specks along the backrest top are colour, not shape: the model's vertex colours were projected from a picture, and along the rim they sampled the dark edge of the picture. Colours that are
+    // much darker than the fabric around them are replaced by the average of their lighter neighbours (3 passes).
+    const col = g.attributes.color;
+    if (col) {
+      const lum = (i) => .299 * col.getX(i) + .587 * col.getY(i) + .114 * col.getZ(i), values = []; for (let i = 0; i < n; i++) values.push(lum(i)); values.sort((p1, p2) => p1 - p2); const median = values[Math.floor(n / 2)], floor = median * .8;
+      const nbI = Array.from({ length: n }, () => new Set()); for (let i = 0; i < idx.length; i += 3) { const a1 = idx[i], b1 = idx[i + 1], c1 = idx[i + 2]; nbI[a1].add(b1).add(c1); nbI[b1].add(a1).add(c1); nbI[c1].add(a1).add(b1); }
+      let fixed = 0;
+      for (let pass = 0; pass < 3; pass++) { const edits = []; for (let i = 0; i < n; i++) { if (lum(i) >= floor) continue; let r = 0, gg = 0, b = 0, k = 0; for (const j of nbI[i]) if (lum(j) >= floor) { r += col.getX(j); gg += col.getY(j); b += col.getZ(j); k++; } if (k) edits.push([i, r / k, gg / k, b / k]); } for (const [i, r, gg, b] of edits) col.setXYZ(i, r, gg, b); fixed += edits.length; if (!edits.length) break; }
+      col.needsUpdate = true; window.__sofaThreadFix = { ...(window.__sofaThreadFix || {}), darkFixed: fixed, medianLum: +median.toFixed(3) };
+    }
+    window.__sofaThreadFix = { ...(window.__sofaThreadFix || {}), welded: n - groups.length, vertices: n, groups: groups.length };
     pos.needsUpdate = true;
   });
   // the AI model's two cushions are fused into its mesh and their edges melt into the seat and backrest. Rather than cut them out (that tore holes),
@@ -1515,7 +1535,7 @@ let lanternMat = null;
   }
   // Paul 2026-11-21: the sofa shows wiry "threads" (long, hair-thin triangles stretched between vertices of the AI model, most along the backrest top and the seams). Drop every triangle that is both long
   // (an edge over 3 cm and a quality ratio under 0.06, or an edge over 1 cm and a ratio under 0.03; an equilateral triangle is 1) -- needle-thin; nothing visible stands on them, only the stray strands go. Counted in sofaThreadFix.
-  window.__sofaThreadFix = { removed: 0, kept: 0 };
+  window.__sofaThreadFix = { ...(window.__sofaThreadFix || {}), removed: 0, kept: 0 };
   sofaObj.updateMatrixWorld(true);
   sofaObj.traverse((m) => {
     if (!m.isMesh || !m.geometry.index) return;
@@ -1527,6 +1547,20 @@ let lanternMat = null;
     }
     if (keep.length < idx.length) g.setIndex(keep);
   });
+  // Paul 2026-11-21: the AI sofa's backrest top is an open, ragged edge (tiny cracks and scallops that no shading hides). A rolled piping, a soft fabric tube that follows the ridge of the backrest, now runs along
+  // it: the ridge height and depth are read from the model's top vertices every 2 cm along its width, smoothed, and the tube is laid on that line (12 cm shorter at each end, where the backrest turns into the arms). The cracks sit under it.
+  {
+    sofaObj.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(sofaObj), v = new THREE.Vector3(), bins = new Map(), BIN = .02, backZ = box.min.z + (box.max.z - box.min.z) * .5; let r = 0, g2 = 0, b2 = 0, cn = 0;
+    sofaObj.traverse((m) => { if (!m.isMesh) return; const pos = m.geometry.attributes.position, col = m.geometry.attributes.color;
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); if (v.z > backZ || v.y < box.max.y - .12) continue; const k = Math.round(v.x / BIN), cur = bins.get(k); if (!cur || v.y > cur.y) bins.set(k, { x: v.x, y: v.y, z: v.z }); if (col && v.y > box.max.y - .06) { r += col.getX(i); g2 += col.getY(i); b2 += col.getZ(i); cn++; } } });
+    const keys = [...bins.keys()].sort((a1, b1) => a1 - b1), pts = keys.map((k) => bins.get(k));
+    if (pts.length > 10) {
+      const sm = pts.map((p, i) => { let y = 0, z = 0, c = 0; for (let j = Math.max(0, i - 4); j <= Math.min(pts.length - 1, i + 4); j++) { y += pts[j].y; z += pts[j].z; c++; } return new THREE.Vector3(p.x, y / c - .004, z / c + .004); });
+      const curve = new THREE.CatmullRomCurve3(sm.slice(6, sm.length - 6).filter((_, i) => i % 2 === 0), false, "centripetal"), pipe = new THREE.Mesh(new THREE.TubeGeometry(curve, 160, .02, 14, false), new THREE.MeshStandardMaterial({ color: cn ? new THREE.Color(r / cn, g2 / cn, b2 / cn).multiplyScalar(1.02) : 0xd8ccb4, roughness: .92 }));
+      pipe.name = "sofa-backrest-piping"; pipe.castShadow = true; pipe.receiveShadow = true; scene.add(pipe);
+    }
+  }
   prepare(sofaObj, () => fabricMat);
   // Scatter cushions: the AI model's two cushions are fused into its mesh and their edges melt into the seat and arm, so two
   // procedural ones (two sewn sheets with a welt, see the procedural-cloth-goods skill) sit on top and cover them. The AI mesh stays unchanged underneath.
@@ -4826,6 +4860,7 @@ let lanternMat = null;
     recordView: () => { moveToView("record"); return currentView; },
     doorView: () => { moveToView("door"); return currentView; },
     sofaThreadFix: () => window.__sofaThreadFix,
+    debugSofa(mode) { sofaObj.traverse((m) => { if (!m.isMesh) return; if (mode === 'noReceive') m.receiveShadow = false; if (mode === 'noCast') m.castShadow = false; if (mode === 'basic') m.material = new THREE.MeshBasicMaterial({ vertexColors: true }); }); render(); },
     sofaThreads(minEdge = .03, maxArea = .0004) { // QA: long, thin triangles in the sofa model (the 'threads' seen on the backrest top and seams)
       sofaObj.updateMatrixWorld(true); const out = { meshes: 0, tris: 0, thin: 0, byHeight: {}, worst: [] }; const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
       sofaObj.traverse((m) => { if (!m.isMesh) return; out.meshes++; const g = m.geometry, pos = g.attributes.position, idx = g.index ? g.index.array : null, n = idx ? idx.length : pos.count;
