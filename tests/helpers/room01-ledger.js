@@ -11,9 +11,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 219888, meshes: 367 }),
+  scene: Object.freeze({ vertices: 223182, meshes: 388 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 104, phone: 85 }),
+  openingDrawCalls: Object.freeze({ desktop: 105, phone: 86 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
     desktop: Object.freeze({ rain: 102, family: 104, tech: 103, chic: 104, slow: 104, golden: 104, tv: 103 }),
@@ -55,6 +55,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-20", change: "the door corner (Paul, free hand): Room 04 graphite doormat with a brass frame, a brushed-aluminium hook bar with a stitched key-card pouch, and a black smart lock on the door (card reader, fingerprint pad, light, aluminium lever); the door spot for the beige clogs is kept empty until they arrive (+14,049 vertices, +9 meshes, draw calls unchanged)", vertices: 208148, meshes: 363, desktopCalls: 104, phoneCalls: 85 },
     { date: "2026-11-20", change: "Paul's beige clogs by the door (Codex's GLB, 297 KB, 8,182 vertices, loaded on arrival): +8,182 vertices, +4 meshes (the settled room also counts the pair's four materials), draw calls unchanged", vertices: 216330, meshes: 367, desktopCalls: 104, phoneCalls: 85 },
     { date: "2026-11-20", change: "the clogs, second version (Codex GLB v2, 344 KB, 11,740 vertices plus a 1 KB grain map): the heel wall is closed and the pull loops are small; the file carries no normals, so they are computed on load; +3,558 vertices, meshes and draw calls unchanged", vertices: 219888, meshes: 367, desktopCalls: 104, phoneCalls: 85 },
+    { date: "2026-11-21", change: "the day's additions in one measure: two folding umbrellas, three more shelf books, the sofa piping, and Codex's popcorn bowl (228 KB, 10,930 vertices, loaded hidden and shown on series night; the procedural popcorn is gone). Measured on this branch: 223,182 vertices, 388 meshes, one more draw call (desktop 105, phone 86); the per-mood draw-call rows are left as they were, inside the headroom", vertices: 223182, meshes: 388, desktopCalls: 105, phoneCalls: 86 },
   ]),
 });
 
