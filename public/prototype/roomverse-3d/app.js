@@ -3728,6 +3728,7 @@ let lanternMat = null;
   recordRingStyle.textContent = "#recordRing{position:absolute;z-index:4;margin:0;border:3px solid #ffe2a8;border-radius:50%;background:radial-gradient(circle,rgba(255,214,150,.3),transparent 70%);box-shadow:0 0 18px 5px rgba(255,190,90,.8);pointer-events:none;transform:translate(-50%,-50%);animation:recordRingPulse 1.9s ease-out infinite}#recordRing[hidden]{display:none}@keyframes recordRingPulse{0%{opacity:1;box-shadow:0 0 10px 2px rgba(255,190,90,.8)}80%,100%{opacity:0;box-shadow:0 0 30px 10px rgba(255,190,90,0)}}@media(prefers-reduced-motion:reduce){#recordRing{animation:none}}"; document.head.append(recordRingStyle); stage.append(recordRing);
   const recordRingSpot = new THREE.Vector3(), recordRingBox = new THREE.Box3();
   function placeRecordRing() {
+    if (roomMusic.state().playing) recordFound = true; // Paul 2026-11-20: once music plays, from the record player or the TV or the speakers or the robot, the ring has done its job and stays away, as in Rooms 02 to 04
     if (recordFound || document.hidden || director || intro || new URLSearchParams(location.search).get("hint") === "0") { recordRing.hidden = true; return; }
     recordRingBox.setFromObject(sideboard.recordPlayer.group); recordRingBox.getCenter(recordRingSpot); recordRingSpot.y = recordRingBox.max.y - .02;
     camera.updateMatrixWorld(); const p = recordRingSpot.clone().project(camera), edge = new THREE.Vector3(recordRingBox.max.x, recordRingSpot.y, recordRingSpot.z).project(camera), r = stage.getBoundingClientRect();
