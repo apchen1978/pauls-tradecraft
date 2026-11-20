@@ -4091,6 +4091,22 @@ function buildRoom03CredenzaDecor(scene) {
   keepsakeMesh.castShadow = true; keepsakeMesh.receiveShadow = true;
   scene.add(keepsakeMesh);
   const keepsake = { type: "unbranded-sf-cable-car-keepsake", bounds: { min: keepsakeBounds.min.toArray(), max: keepsakeBounds.max.toArray() }, vertices: keepsakeVertices, consoleGapMm: Math.round((keepsakeBounds.min.y - 0.575) * 1000) };
+  // Paul 2026-11-21: the three lying books that stood on the credenza (it now carries kitchenware) go to the little entry nook: stacked on the console's far end, beside the little cable car, the top one a little
+  // off square. Their own mesh, so the keepsake's and the credenza decor's measured bounds stay as they were.
+  {
+    const nookBooks = [], NB = { x: -1.07, z: 3.47, y: 0.575 };
+    const nbook = (width, height, depth, cover, y, yaw) => {
+      for (const [geo, hex] of [[new THREE.BoxGeometry(width, height, depth), cover], [new THREE.BoxGeometry(width - 0.006, height - 0.01, depth + 0.002), CREAM]]) {
+        geo.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(NB.x, y + height / 2, NB.z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)), new THREE.Vector3(1, 1, 1)));
+        const colour = new THREE.Color(hex), n = geo.attributes.position.count, cols = new Float32Array(n * 3); for (let i = 0; i < n; i++) colour.toArray(cols, i * 3);
+        geo.deleteAttribute("uv"); geo.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); nookBooks.push(geo);
+      }
+    };
+    let by = NB.y; for (const [length, height, width, cover, yaw] of [[0.27, 0.045, 0.19, MOSS, 1.6], [0.25, 0.05, 0.18, CLAY, 1.52], [0.23, 0.04, 0.17, BLUE, 1.7]]) { nbook(length, height, width, cover, by, yaw); by += height; }
+    const booksGeometry = mergeGeometries(nookBooks, false); nookBooks.forEach((g) => g.dispose()); booksGeometry.computeVertexNormals();
+    const booksMesh = new THREE.Mesh(booksGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.82 }));
+    booksMesh.name = "room03-nook-books"; booksMesh.userData.category = "entry-nook"; booksMesh.castShadow = true; booksMesh.receiveShadow = true; scene.add(booksMesh);
+  }
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
   geometry.computeVertexNormals();
