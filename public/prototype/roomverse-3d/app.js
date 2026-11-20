@@ -271,15 +271,22 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   [-1, 1].forEach((s) => doorPiece(new THREE.BoxGeometry(.075, 2.1, .045), skirting, s * .4875, 1.05, .0225, "door-jamb"));
   doorPiece(new THREE.BoxGeometry(.9, .05, .045), skirting, 0, 2.075, .0225, "door-lintel");
   const doorBrass = new THREE.MeshStandardMaterial({ color: "#b69a64", metalness: .6, roughness: .38 });
-  doorPiece(new THREE.BoxGeometry(.036, .14, .009), doorBrass, .34, 1.0, .027, "door-handle-plate");
-  doorPiece(new THREE.CylinderGeometry(.009, .009, .035, 10), doorBrass, .34, 1.0, .048, "door-handle-stem").rotation.x = Math.PI / 2;
-  doorPiece(new THREE.CylinderGeometry(.009, .009, .125, 12), doorBrass, .287, 1.0, .065, "door-handle").rotation.z = Math.PI / 2;
+  // Paul 2026-11-20: a smart lock like his own (a slim black body with a card reader and a fingerprint pad, an aluminium lever): tap a key card on the reader and it beeps, the light turns green and the door opens.
+  const lockBlack = new THREE.MeshStandardMaterial({ color: "#18191c", roughness: .42, metalness: .35 }), lockGlass = new THREE.MeshStandardMaterial({ color: "#0b0c0f", roughness: .18, metalness: .2 }), doorAlu = new THREE.MeshStandardMaterial({ color: "#c9ccd0", metalness: .15, roughness: .36 });
+  const lockLedMat = new THREE.MeshStandardMaterial({ color: "#222a35", emissive: "#3a6bff", emissiveIntensity: .35, roughness: .4 });
+  doorPiece(new THREE.BoxGeometry(.05, .34, .014), lockBlack, .34, .99, .027, "door-handle-plate");
+  doorPiece(new THREE.BoxGeometry(.034, .046, .004), lockGlass, .34, 1.1, .0355, "door-lock-reader");
+  doorPiece(new THREE.SphereGeometry(.0032, 12, 8), lockLedMat, .34, 1.075, .0375, "door-lock-led");
+  doorPiece(new THREE.BoxGeometry(.02, .028, .004), lockGlass, .34, .88, .0355, "door-lock-fingerprint");
+  doorPiece(new THREE.CylinderGeometry(.0042, .0042, .005, 12), doorAlu, .34, .84, .0345, "door-lock-keyhole").rotation.x = Math.PI / 2;
+  doorPiece(new THREE.CylinderGeometry(.009, .009, .035, 10), doorAlu, .34, 1.0, .048, "door-handle-stem").rotation.x = Math.PI / 2;
+  doorPiece(new THREE.CylinderGeometry(.009, .009, .125, 12), doorAlu, .287, 1.0, .065, "door-handle").rotation.z = Math.PI / 2;
   [.35, 1.7].forEach((y) => doorPiece(new THREE.CylinderGeometry(.008, .008, .065, 8), doorBrass, -.448, y, .025, "door-hinge"));
   // The portal to Room 02: the leaf and handle sit on a pivot at the hinge edge so the door can swing into the room.
   // At rest the pivot is turned 0 and every world position is exactly what it was before.
   const doorSwing = new THREE.Group(); doorSwing.name = "door-swing"; doorSwing.position.set(-.443, 0, 0); roomDoor.add(doorSwing);
   roomDoor.updateMatrixWorld(true);
-  for (const m of [doorLeaf, ...["door-handle-plate", "door-handle-stem", "door-handle"].map((n) => roomDoor.getObjectByName(n))]) doorSwing.attach(m);
+  for (const m of [doorLeaf, ...["door-handle-plate", "door-handle-stem", "door-handle", "door-lock-reader", "door-lock-led", "door-lock-fingerprint", "door-lock-keyhole"].map((n) => roomDoor.getObjectByName(n))]) doorSwing.attach(m);
   const doorReveal = roomDoor.getObjectByName("door-reveal");
   const DOOR_OPEN = .95; // about 54 degrees: wide enough to see through, and clear of the sofa, side table and plant (a test measures it)
   let doorTexturePromise = null, doorTextureLoaded = false;
@@ -1915,6 +1922,60 @@ let lanternMat = null;
       const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .78 })); m.name = "rug-flip-flops"; m.castShadow = true; m.receiveShadow = true; scene.add(m); PROPS.flips = m;
     }
 
+    // ---- 4. by the door (Paul 2026-11-20, free hand; then: use Room 04's mat, Room 02's sneakers, finer keys, and keep the hooks away from the couplet) ----
+    // Shared with the other rooms: the doormat is Room 04's graphite ribbed mat in a slim brass frame (the same bump pattern), the sneakers are Room 02's model in a navy colourway, and the key hooks hang on
+    // the wall beside the thermostat, over the umbrella stand, not under the blessing couplet.
+    {
+      const MAT = { x: W / 2 - .36, z: doorZ, w: .46, l: .8, f: .02 };
+      let ribSeed = 5; const ribRnd = () => (ribSeed = (ribSeed * 16807) % 2147483647) / 2147483647; // its own grain, so the room's shared random stream is untouched
+      const ribs = canvasTex(128, 128, (ctx, w, h) => { for (let y = 0; y < h; y++) { const v = Math.max(0, Math.min(255, Math.round(128 + Math.sin(y / 16 * Math.PI * 2) * 44 + (ribRnd() - .5) * 22))); ctx.fillStyle = `rgb(${v},${v},${v})`; ctx.fillRect(0, y, w, 1); } });
+      ribs.colorSpace = THREE.NoColorSpace; ribs.wrapS = ribs.wrapT = THREE.RepeatWrapping; ribs.repeat.set(1, 2);
+      const doormat = new THREE.Group(); doormat.name = "entry-doormat";
+      const weave = new THREE.Mesh(new THREE.BoxGeometry(MAT.w - 2 * MAT.f, .012, MAT.l - 2 * MAT.f).translate(MAT.x, .006, MAT.z), new THREE.MeshStandardMaterial({ color: 0x2b2b2e, roughness: 1, bumpMap: ribs, bumpScale: 1.4 }));
+      weave.name = "entry-doormat-weave"; weave.receiveShadow = true; doormat.add(weave);
+      const frameParts = [];
+      for (const [w, l, dx, dz] of [[MAT.w, MAT.f, 0, MAT.l / 2 - MAT.f / 2], [MAT.w, MAT.f, 0, -MAT.l / 2 + MAT.f / 2], [MAT.f, MAT.l - 2 * MAT.f, MAT.w / 2 - MAT.f / 2, 0], [MAT.f, MAT.l - 2 * MAT.f, -MAT.w / 2 + MAT.f / 2, 0]]) frameParts.push([new THREE.BoxGeometry(w, .0135, l).translate(MAT.x + dx, .00675, MAT.z + dz), 0xb8934e]);
+      const frame = solid(frameParts, "entry-doormat-frame", false); scene.remove(frame); doormat.add(frame);
+      const lettering = document.createElement("canvas"); lettering.width = 1024; lettering.height = 512;
+      const ink = lettering.getContext("2d"); ink.fillStyle = "#d9c7a7"; ink.textAlign = "center"; ink.textBaseline = "middle"; ink.font = "600 104px Georgia, 'Times New Roman', serif"; ink.fillText("Roomverse 3D", 512, 256);
+      ink.globalAlpha = .55; ink.fillRect(250, 178, 524, 2); ink.fillRect(250, 335, 524, 2);
+      const print = new THREE.CanvasTexture(lettering); print.colorSpace = THREE.SRGBColorSpace; print.anisotropy = 8;
+      const welcome = new THREE.Mesh(new THREE.PlaneGeometry(MAT.l - .16, MAT.w - .1), new THREE.MeshStandardMaterial({ map: print, transparent: true, roughness: 1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
+      welcome.name = "entry-doormat-welcome"; welcome.rotation.set(-Math.PI / 2, 0, Math.PI / 2); welcome.position.set(MAT.x, .0128, MAT.z); doormat.add(welcome);
+      scene.add(doormat); PROPS.doormat = doormat;
+      // The living room's door opens on a shared passage, so no street shoes here. The spot between the door frame (it ends at z 1.775) and the umbrella stand (z 1.98 and up), toes to the wall, is kept for Paul's beige clogs (a model Codex is drawing); the oatmeal house slippers stay where they were, on the rug in front of the coffee table.
+      PROPS.shoesInfo = { ready: true, placed: false };
+      // The key hooks (Paul's photo): a brushed-aluminium flat bar with four round-capped pegs, hung at coat-hook height on the wall over the thermostat and the light switch, clear of the couplet. One peg holds a ring
+      // with two keys (profile-cut bows with holes, toothed blades, tinted caps) and a leather tag, flat against the wall.
+      const RAIL = { z: 1.99, y: 1.62, len: .34 }, wallX = W / 2, PEG_Z = [-.12, -.04, .04, .12];
+      const metal = new THREE.MeshStandardMaterial({ color: 0xd6d9dd, roughness: .38, metalness: .12 }); // no reflections to catch in this room, so a light, nearly matt aluminium reads better than a dark metal
+      const railGeo = [new THREE.BoxGeometry(.008, .024, RAIL.len).translate(wallX - .004, RAIL.y, RAIL.z)];
+      for (const dz of PEG_Z) railGeo.push(new THREE.CylinderGeometry(.0085, .0085, .03, 24).rotateZ(Math.PI / 2).translate(wallX - .008 - .015, RAIL.y, RAIL.z + dz));
+      const railMesh = new THREE.Mesh(mergeGeometries(railGeo, false), metal); railMesh.name = "entry-hook-rail"; railMesh.castShadow = true; railMesh.receiveShadow = true; scene.add(railMesh);
+      // The key card (Paul's photo: the pouch he carries for the door's magnetic card): a pale-sage leather card holder with a stitched edge, a snap strap with a rivet, a thin black cord and a small steel clasp hooked over a
+      // peg; our own small mark is printed on it (no characters, no brands). It hangs flat against the wall and can be tapped: it beeps on the lock and the door opens.
+      const hookX = wallX - .008 - .015, hookY = RAIL.y, hookZ = RAIL.z + PEG_Z[3];
+      const roundRect = (w, h, r, topR = r) => { const s = new THREE.Shape(); s.moveTo(-w / 2 + r, -h / 2); s.lineTo(w / 2 - r, -h / 2); s.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r); s.lineTo(w / 2, h / 2 - topR); s.quadraticCurveTo(w / 2, h / 2, w / 2 - topR, h / 2); s.lineTo(-w / 2 + topR, h / 2); s.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - topR); s.lineTo(-w / 2, -h / 2 + r); s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2); return s; };
+      const ex = (shape, depth, bevel = .0005) => new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelSize: bevel, bevelThickness: bevel, bevelSegments: 2, curveSegments: 18 });
+      const CARD = { w: .056, h: .088, y0: -.062 }; // the pouch hangs below the strap; y relative to the peg
+      const LEATHER = 0xbfd5c9, LEATHER_DARK = 0x9db8aa, STEEL = 0xcfd2d6, CORD = 0x15161a;
+      const cardParts = [];
+      cardParts.push([ex(roundRect(CARD.w, CARD.h, .014, .004), .0034).translate(0, CARD.y0 - CARD.h / 2, 0), LEATHER]);
+      // stitching: a dashed line round the inside of the edge, small dark-sage dashes laid along the spaced points of an inset outline
+      { const outline = roundRect(CARD.w - .01, CARD.h - .01, .011, .002).getSpacedPoints(70); for (let i = 0; i < outline.length - 1; i += 2) { const a = outline[i], b = outline[i + 1], len = Math.hypot(b.x - a.x, b.y - a.y); if (len < .0005) continue; const d = new THREE.BoxGeometry(len * .9, .0009, .0007).rotateZ(Math.atan2(b.y - a.y, b.x - a.x)).translate((a.x + b.x) / 2, CARD.y0 - CARD.h / 2 + (a.y + b.y) / 2, .0037); cardParts.push([d, LEATHER_DARK]); } }
+      // the strap: a short leather tab folded over the top of the pouch, a snap on it and a rivet near the clasp
+      cardParts.push([ex(roundRect(.022, .046, .009, .009), .0028).translate(0, CARD.y0 - .006 + .0, .0036), LEATHER]);
+      cardParts.push([new THREE.CylinderGeometry(.0072, .0072, .0016, 24).rotateX(Math.PI / 2).translate(0, CARD.y0 - .018, .0074), STEEL]);
+      cardParts.push([new THREE.CylinderGeometry(.0045, .0045, .0018, 24).rotateX(Math.PI / 2).translate(0, CARD.y0 - .018, .0086), 0xe9ebee]);
+      cardParts.push([new THREE.CylinderGeometry(.0036, .0036, .0014, 20).rotateX(Math.PI / 2).translate(0, CARD.y0 + .002, .0070), STEEL]);
+      // our mark, small and plain: a ring with a dot
+      cardParts.push([new THREE.TorusGeometry(.0105, .0011, 8, 36).translate(0, CARD.y0 - .063, .0036), 0xc4622d], [new THREE.CircleGeometry(.0042, 20).translate(0, CARD.y0 - .063, .0036), 0xc4622d]);
+      // the cord loop and the clasp that hooks over the peg
+      cardParts.push([new THREE.TorusGeometry(.0105, .0009, 8, 28).translate(0, CARD.y0 + .012, .0034), CORD], [new THREE.TorusGeometry(.0115, .0012, 8, 28).rotateY(Math.PI / 2).translate(0, -.003, 0), STEEL], [new THREE.CapsuleGeometry(.0035, .016, 4, 10).translate(0, CARD.y0 + .02, .0032), STEEL]);
+      const cardGeos = cardParts.map(([g, hex]) => [g.rotateY(-Math.PI / 2).translate(hookX - .001, hookY, hookZ), hex]);
+      PROPS.keyRail = PROPS.keycard = solid(cardGeos, "entry-keycard");
+    }
+
     // ---- 3. series night: the coffee table, the remote on the sofa ----
     const nightParts = [];
     // popcorn bowl on the coffee table's free left strip
@@ -3481,6 +3542,17 @@ let lanternMat = null;
       portal.frame = requestAnimationFrame(step);
     });
   }
+  // The key card on the hooks (Paul 2026-11-20): tap it and the smart lock beeps twice, its light turns green, and the door opens (the same walk-through as tapping the door). The beep is two short Web Audio tones made on the tap.
+  let lockBeepTimer = 0, beepContext = null;
+  function tapKeycard({ go = true } = {}) {
+    const led = roomDoor.getObjectByName("door-lock-led"), result = { beeped: false, ledGreen: false };
+    try { beepContext ||= new (window.AudioContext || window.webkitAudioContext)(); const ctx = beepContext, now = ctx.currentTime; if (ctx.state === "suspended") void ctx.resume();
+      for (const [at, freq, len] of [[0, 2093, .09], [.13, 2637, .16]]) { const osc = ctx.createOscillator(), gain = ctx.createGain(); osc.type = "sine"; osc.frequency.value = freq; gain.gain.setValueAtTime(.0001, now + at); gain.gain.exponentialRampToValueAtTime(.11, now + at + .01); gain.gain.exponentialRampToValueAtTime(.0001, now + at + len); osc.connect(gain).connect(ctx.destination); osc.start(now + at); osc.stop(now + at + len + .02); }
+      result.beeped = true; } catch { /* no audio: the light still answers */ }
+    if (led) { led.material.emissive.set("#2bd96b"); led.material.emissiveIntensity = 1.6; result.ledGreen = true; clearTimeout(lockBeepTimer); lockBeepTimer = setTimeout(() => { led.material.emissive.set("#3a6bff"); led.material.emissiveIntensity = .35; render(); }, 1800); render(); }
+    if (go) setTimeout(() => { void openPortal(); }, 450);
+    return result;
+  }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && portal && !portalFade) closePortal(); }); // Esc steps back before the fade starts
   window.addEventListener("pageshow", (e) => { if (e.persisted) closePortal(); }); // back/forward cache: the door closes again
   renderer.domElement.addEventListener("pointermove", (e) => {
@@ -3706,6 +3778,8 @@ let lanternMat = null;
     const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
     if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
     if (ray.intersectObject(tvScreen, false).length) { toggleMusic(); return; } // a tap on the TV screen starts (or stops) the music too
+    { const cardBox = new THREE.Box3().setFromObject(PROPS.keycard), cc = cardBox.getCenter(new THREE.Vector3()).project(camera); // the card is small: its tap area is at least 44 px round it
+      if (cc.z < 1 && Math.hypot(e.clientX - (r.left + ((cc.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - cc.y) / 2) * r.height)) <= 44) { tapKeycard(); return; } }
     if (ray.intersectObject(sideboard.recordPlayer.group, true).length) { recordFound = true; recordRing.hidden = true; toggleMusic(true); return; } // the record player on the sideboard (Paul 2026-11-18) switches the same music on or off
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
     if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
@@ -4700,6 +4774,10 @@ let lanternMat = null;
     },
     recordView: () => { moveToView("record"); return currentView; },
     doorView: () => { moveToView("door"); return currentView; },
+    entryShoes: () => PROPS.shoesInfo || null,
+    tapKeycard: (opts) => tapKeycard(opts),
+    lockLed: () => { const m = roomDoor.getObjectByName("door-lock-led").material; return { emissive: m.emissive.getHexString(), intensity: m.emissiveIntensity }; },
+    entryFit() { const bx = (o) => new THREE.Box3().setFromObject(o), mm = (v) => Math.round(v * 1000), mat = bx(PROPS.doormat), shoes = PROPS.shoes ? bx(PROPS.shoes) : null, rail = bx(scene.getObjectByName("entry-hook-rail")), stand = bx(umbrellaStand.children[0]), frameZ = doorZ + doorOuterWidth / 2, wall = W / 2; const ovXZ = (a, b) => a.min.x < b.max.x && a.max.x > b.min.x && a.min.z < b.max.z && a.max.z > b.min.z; return { matSeatMm: mm(mat.min.y), matThickMm: mm(mat.max.y - mat.min.y), shoesSeatMm: shoes ? mm(shoes.min.y) : null, shoesToStandMm: !shoes ? null : ovXZ(shoes, stand) ? -1 : mm(Math.max(stand.min.z - shoes.max.z, stand.min.x - shoes.max.x, shoes.min.x - stand.max.x)), shoesToFrameMm: shoes ? mm(shoes.min.z - frameZ) : null, shoesToWallMm: shoes ? mm(wall - shoes.max.x) : null, shoesToMatMm: !shoes ? null : ovXZ(shoes, mat) ? -1 : mm(shoes.min.z - mat.max.z), railToWallMm: mm(wall - rail.max.x), railBackMm: mm(rail.max.x - Math.min(rail.max.x, wall)), railToFrameMm: mm(rail.min.z - frameZ), railHeightM: +rail.min.y.toFixed(2) }; },
     doorProbe() { camera.updateMatrixWorld(); const fr = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); const seen = {}; scene.traverse((o) => { if (o.isMesh && o.visible && /sofa|side-table|floor-lamp|coffee|window|lamp/i.test(o.name || "")) { const b = new THREE.Box3().setFromObject(o); (seen[o.name] = fr.intersectsBox(b)); } }); return { view: currentView, fov: camera.fov, eye: camera.position.toArray(), seen }; },
     consoleProbe() { scene.updateMatrixWorld(true); const out = []; const add = (o, n) => { const q = new THREE.Box3().setFromObject(o, true); out.push({ n: n || o.name, min: q.min.toArray().map((v) => +v.toFixed(3)), max: q.max.toArray().map((v) => +v.toFixed(3)) }); }; consoleDecor.children.forEach((c) => add(c)); tvWall.traverse((o) => { if (o.name === "tv-console" || o.name === "tv-laptop") add(o); }); return out; },
     propVerts: () => Object.fromEntries(Object.entries(PROPS).filter(([, o]) => o && o.geometry).map(([k, o]) => [k, o.geometry.attributes.position.count])),
