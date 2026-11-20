@@ -3947,7 +3947,7 @@ function buildRoom03CredenzaDecor(scene) {
   // amber glass lantern and a cream crock of wooden spoons. They stand where the books stood (z -0.56) and between it and the first cup; all of it joins the same merged mesh.
   const WICKER = 0xc7a26b, WICKER_DARK = 0x9d7a45, LEAF = [0x5f8446, 0x4d7338, 0x6f9250, 0x3f6a3c];
   {
-    const bz = -0.575, bx = X; // the basket: a tapered woven bowl 17 cm wide and 13 cm tall, five darker weave bands, two small rope handles
+    const bz = -0.47, bx = 2.76; // Paul 2026-11-21: the credenza top was crowded at one end; everything is spread about 13 cm apart along its length now. The basket: a tapered woven bowl 17 cm wide and 13 cm tall, five darker weave bands, two small rope handles
     add(lathe([[0, 0.003], [0.068, 0.003], [0.074, 0.02], [0.082, 0.07], [0.088, 0.125], [0.083, 0.132], [0.079, 0.126], [0.072, 0.08], [0.064, 0.025], [0, 0.02]], 24), WICKER, [bx, TOP_Y, bz]);
     for (let i = 0; i < 5; i++) { const y = 0.022 + i * 0.024, r = 0.072 + (y - 0.02) * 0.14; add(new THREE.TorusGeometry(r, 0.0032, 4, 28).rotateX(Math.PI / 2), WICKER_DARK, [bx, TOP_Y + y, bz]); }
     for (const side of [-1, 1]) add(new THREE.TorusGeometry(0.016, 0.0028, 5, 12, Math.PI).rotateZ(Math.PI), WICKER_DARK, [bx, TOP_Y + 0.108, bz + side * 0.085], [0, Math.PI / 2, 0]);
@@ -3958,17 +3958,17 @@ function buildRoom03CredenzaDecor(scene) {
       add(new THREE.SphereGeometry(1, 8, 5).scale(0.011, len, 0.0035).translate(0, len * 0.9, 0), LEAF[k % 4], [bx, TOP_Y + 0.14, bz], [0, -a, -tilt]);
     }
     // the amber lantern: a short glass cylinder with a brass cap and a small bail handle, standing at the back (z -0.40)
-    const lx = X + 0.1, lz = -0.43;
+    const lx = 2.84, lz = -0.34;
     add(new THREE.CylinderGeometry(0.03, 0.03, 0.085, 16), 0xe9b25e, [lx, TOP_Y + 0.0475, lz]);
     add(new THREE.CylinderGeometry(0.033, 0.033, 0.008, 16), 0xb58c4e, [lx, TOP_Y + 0.004, lz]); add(new THREE.CylinderGeometry(0.033, 0.033, 0.008, 16), 0xb58c4e, [lx, TOP_Y + 0.093, lz]);
     add(new THREE.TorusGeometry(0.026, 0.0016, 5, 16, Math.PI).rotateZ(0), 0xb58c4e, [lx, TOP_Y + 0.097, lz], [0, 0.6, 0]);
     // more kitchenware in the gap where the first cup stood (Paul: the cabinet by the small stove should hold more kitchen things): a stack of four white plates with a mug on top (in the front strip), and a steel
     // utensil holder with a whisk, a ladle and a spatula, as in his reference picture.
-    { const px2 = 2.60, pz2 = -0.38;
+    { const px2 = 2.60, pz2 = -0.60;
       for (let i = 0; i < 4; i++) add(lathe([[0, 0], [0.065, 0], [0.098, 0.011], [0.103, 0.016], [0.095, 0.016], [0.062, 0.005], [0, 0.004]], 28), i % 2 ? 0xf1ece0 : 0xe9e3d4, [px2, TOP_Y + i * 0.0125, pz2]);
       add(lathe([[0, 0], [0.032, 0], [0.036, 0.004], [0.04, 0.07], [0.036, 0.075], [0.031, 0.07], [0, 0.007]], 18), 0x8aa5a8, [px2, TOP_Y + 0.0525, pz2]); // a sage mug on the stack
       add(new THREE.TorusGeometry(0.02, 0.0045, 5, 12, Math.PI).rotateZ(-Math.PI / 2), 0x8aa5a8, [px2 + 0.04, TOP_Y + 0.088, pz2]);
-      const hx = 2.865, hz = -0.30; // the steel utensil holder
+      const hx = 2.86, hz = 0.06; // the steel utensil holder
       add(lathe([[0, 0], [0.036, 0], [0.038, 0.002], [0.04, 0.12], [0.036, 0.12], [0.034, 0.116], [0, 0.004]], 18), 0xb9bdc0, [hx, TOP_Y, hz]);
       for (const [dx, dz, lean, h, kind] of [[-0.012, -0.004, 0.2, 0.2, "whisk"], [0.01, 0.008, -0.12, 0.21, "ladle"], [0.0, -0.012, -0.28, 0.19, "spatula"]]) {
         add(new THREE.CylinderGeometry(0.0028, 0.0034, h, 6), 0x2a2b2d, [hx + dx + Math.sin(lean) * h * 0.5, TOP_Y + 0.06 + Math.cos(lean) * h * 0.5, hz + dz], [0, 0, -lean]);
@@ -3979,7 +3979,7 @@ function buildRoom03CredenzaDecor(scene) {
       }
     }
     // the crock of wooden spoons, to the left of the basket
-    const cx2 = X + 0.08, cz2 = -0.74;
+    const cx2 = 2.80, cz2 = -0.735;
     add(lathe([[0, 0], [0.036, 0], [0.04, 0.01], [0.043, 0.1], [0.04, 0.108], [0.036, 0.1], [0, 0.098]], 18), 0xe4dccb, [cx2, TOP_Y, cz2]);
     for (const [dx, dz, lean, h] of [[-0.012, -0.006, 0.16, 0.2], [0.008, 0.01, -0.1, 0.19], [0.0, -0.012, -0.22, 0.17], [-0.004, 0.012, 0.28, 0.18]]) {
       add(new THREE.CylinderGeometry(0.0045, 0.0055, h, 6), 0xb98a52, [cx2 + dx + Math.sin(lean) * h * 0.5, TOP_Y + 0.1 + Math.cos(lean) * h * 0.5, cz2 + dz], [0, 0, -lean]);
@@ -4008,7 +4008,7 @@ function buildRoom03CredenzaDecor(scene) {
   // Paul 2026-11-17: the mist-blue cup moves in beside the two water bottles so the whole record player shows, and it carries a small easter egg:
   // "Shanghai Slowly Cafe", Room 04's cafe, as if the owner had just flown home from Shanghai with a favourite cup. Drawn in code on a curved
   // label over the kraft sleeve (no download); the text is our own fictional cafe, not a real brand.
-  takeawayCup("mist-blue-kraft", 0.12, 0xb8c4c4, 0xc0a27b);
+  takeawayCup("mist-blue-kraft", 0.26, 0xb8c4c4, 0xc0a27b); // moved closer to the record player (Paul 2026-11-21)
   {
     const canvas = document.createElement("canvas"); canvas.width = 560; canvas.height = 400;
     const g = canvas.getContext("2d");
@@ -4020,7 +4020,7 @@ function buildRoom03CredenzaDecor(scene) {
     const arc = 1.3, facing = -0.8; // radians; the label faces into the room (toward the camera side)
     const label = new THREE.Mesh(new THREE.CylinderGeometry(0.0421, 0.0391, 0.04, 28, 1, true, facing - arc / 2, arc),
       new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.85, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
-    label.name = "room03-takeaway-cup-label"; label.position.set(2.55, TOP_Y - 0.001 + 0.055, 0.12); label.userData.category = "credenza";
+    label.name = "room03-takeaway-cup-label"; label.position.set(2.55, TOP_Y - 0.001 + 0.055, 0.26); label.userData.category = "credenza";
     scene.add(label);
   }
   // Faceted vessel with dried stems (z about -0.22).
@@ -4719,7 +4719,7 @@ function buildHouseholdProps(scene, m) {
   // Paul 2026-11-04: more real, Evian-style PET bottles (no brand text): a slim body with soft grip ribs, a long tapered shoulder, a neck ring
   // and a ridged cap; water fills to the shoulder and a blank label band wraps the middle. Placed as a loose pair, not a row: one a little
   // forward and turned, one set back, at uneven spacing.
-  const bottleSpots = [[2.552, 0.014, -0.7]]; // Paul 2026-11-21: one bottle is enough, which leaves room for kitchen things (it was a pair)
+  const bottleSpots = [[2.552, -0.10, -0.7]]; // Paul 2026-11-21: one bottle is enough, which leaves room for kitchen things (it was a pair)
   const waterBottles = bottleSpots.map(([bx, z, yaw], index) => {
     const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [bx, 0.814, z], ({ shape }) => {
       const profile = [[0, 0.001], [0.030, 0.001], [0.038, 0.004], [0.0415, 0.012], [0.042, 0.030], [0.0395, 0.040], [0.042, 0.050], [0.042, 0.150], [0.0395, 0.160], [0.042, 0.170],
