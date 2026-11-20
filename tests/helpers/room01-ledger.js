@@ -11,7 +11,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 216330, meshes: 367 }),
+  scene: Object.freeze({ vertices: 219888, meshes: 367 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
   openingDrawCalls: Object.freeze({ desktop: 104, phone: 85 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
@@ -54,6 +54,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-20", change: "lived-in small things (Paul, GrokBot's list 1 to 3; vertices may loosen, refinement matters): the side table is 20% wider and carries Room 04's brick-red mug with steam on a coaster printed paul's, and Room 04's notebook with its pen; a glass of water stands on the TV console; two pairs of slippers on the rug (oatmeal scuffs, and Room 02's flip-flops with red straps); series night changes the coffee table (popcorn bowl, a closed laptop, steam off the mug) and puts the remote on the sofa. 8 new meshes, about 53,000 vertices (mug 11.8k, slippers 15.2k, flip-flops 5k, series-night set 17k, notebook 2.9k)", vertices: 194099, meshes: 354, desktopCalls: 104, phoneCalls: 85 },
     { date: "2026-11-20", change: "the door corner (Paul, free hand): Room 04 graphite doormat with a brass frame, a brushed-aluminium hook bar with a stitched key-card pouch, and a black smart lock on the door (card reader, fingerprint pad, light, aluminium lever); the door spot for the beige clogs is kept empty until they arrive (+14,049 vertices, +9 meshes, draw calls unchanged)", vertices: 208148, meshes: 363, desktopCalls: 104, phoneCalls: 85 },
     { date: "2026-11-20", change: "Paul's beige clogs by the door (Codex's GLB, 297 KB, 8,182 vertices, loaded on arrival): +8,182 vertices, +4 meshes (the settled room also counts the pair's four materials), draw calls unchanged", vertices: 216330, meshes: 367, desktopCalls: 104, phoneCalls: 85 },
+    { date: "2026-11-20", change: "the clogs, second version (Codex GLB v2, 344 KB, 11,740 vertices plus a 1 KB grain map): the heel wall is closed and the pull loops are small; the file carries no normals, so they are computed on load; +3,558 vertices, meshes and draw calls unchanged", vertices: 219888, meshes: 367, desktopCalls: 104, phoneCalls: 85 },
   ]),
 });
 
