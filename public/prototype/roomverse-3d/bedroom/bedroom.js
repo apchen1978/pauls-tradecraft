@@ -1672,7 +1672,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // while the darker walnut veneer sits naturally beside the records and oak console.
   // Pair geometry is merged by material to keep this detail to two draw calls.
   const SPEAKER = { width: .16, height: .25, depth: .18, x: .4, bottom: .5 };
-  const speakerWood = woodMat("#704a32", { rough: .74, tint: "#987557" });
+  // Paul 2026-11-20: a touch more like what a young man would own (inspired by a tall black tower with metal-ringed drivers): same footprint, but a matte black cabinet, a graphite baffle, brushed-aluminium rings on both drivers and a thin rust accent line.
+  const speakerWood = new THREE.MeshStandardMaterial({ color: "#1a1b1e", roughness: .72, metalness: .08 });
   const speakerDetail = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .78, metalness: .04, vertexColors: true });
   const speakerParts = { wood: [], details: [] };
   const speakerUnitBounds = [];
@@ -1706,18 +1707,19 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     speakerUnitBounds.push(cabinet.boundingBox.clone());
     // The charcoal front sits just proud of the walnut shell, with the wood edge still visible all around.
     // Keep the inset charcoal baffle crisp and flat; the walnut cabinet carries the softened edge.
-    speakerPart(new THREE.BoxGeometry(.144, .234, .008), speakerParts.details, x, cy, speakerFrontZ - .001, 0, "#25272a");
+    speakerPart(new THREE.BoxGeometry(.144, .234, .008), speakerParts.details, x, cy, speakerFrontZ - .001, 0, "#2a2c31");
     // A shallow, visible 4-inch woofer: rubber surround, shallow cone and a small domed dust cap.
-    speakerPart(new THREE.TorusGeometry(.041, .003, 6, 12), speakerParts.details, x, .595, speakerFrontZ + .004, 0, "#79766f");
+    speakerPart(new THREE.TorusGeometry(.043, .0042, 8, 20), speakerParts.details, x, .595, speakerFrontZ + .004, 0, "#c3c6ca");
     const cone = new THREE.LatheGeometry([
       new THREE.Vector2(0, .006), new THREE.Vector2(.009, .005),
       new THREE.Vector2(.031, .001), new THREE.Vector2(.038, .002), new THREE.Vector2(.038, 0),
     ], 12);
-    speakerPart(cone, speakerParts.details, x, .595, speakerFrontZ + .006, Math.PI / 2, "#55534e");
-    speakerPart(new THREE.SphereGeometry(.011, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .595, speakerFrontZ + .012, Math.PI / 2, "#79766f");
+    speakerPart(cone, speakerParts.details, x, .595, speakerFrontZ + .006, Math.PI / 2, "#3b3e44");
+    speakerPart(new THREE.SphereGeometry(.011, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .595, speakerFrontZ + .012, Math.PI / 2, "#b4b8bd");
     // The smaller tweeter has its own satin ring and rounded dome, so the two-way layout reads at a glance.
-    speakerPart(new THREE.TorusGeometry(.019, .0024, 6, 10), speakerParts.details, x, .69, speakerFrontZ + .004, 0, "#79766f");
-    speakerPart(new THREE.SphereGeometry(.0105, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .69, speakerFrontZ + .006, Math.PI / 2, "#55534e");
+    speakerPart(new THREE.TorusGeometry(.02, .003, 8, 16), speakerParts.details, x, .69, speakerFrontZ + .004, 0, "#c3c6ca");
+    speakerPart(new THREE.BoxGeometry(.1, .004, .002), speakerParts.details, x, .535, speakerFrontZ + .004, 0, "#c4622d"); // the thin rust accent line under the woofer
+    speakerPart(new THREE.SphereGeometry(.0105, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .69, speakerFrontZ + .006, Math.PI / 2, "#25272b");
   }
   const speakers = new THREE.Group(); speakers.name = "vinyl-speakers"; vin.add(speakers);
   for (const [kind, material] of [["wood", speakerWood], ["details", speakerDetail]]) {

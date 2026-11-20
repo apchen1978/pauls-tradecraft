@@ -393,7 +393,7 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.max[2]).toBeLessThan(work.chair.min[2] + .001); // the chair stays in front of it
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
   expect(vinyl.speakers.meshes).toBe(2); // walnut body and vertex-coloured driver details are each one merged draw call
-  expect(vinyl.speakers.vertices).toBeLessThan(1200); // simplified baffle edges and radial detail keep full-load room geometry within budget
+  expect(vinyl.speakers.vertices).toBeLessThan(1600); /* 1200 before the metal-ringed restyle of 2026-11-20 (Paul: vertex counts no longer limit polish) */ // simplified baffle edges and radial detail keep full-load room geometry within budget
   expect(sceneInfo.vertices, "full loaded Room 02 geometry stays under the existing 62,000 vertex ceiling").toBeLessThanOrEqual(CAPS.vertices);
   expect(vinyl.speakers.cabinetRoughness).toBeGreaterThanOrEqual(.7); // matte veneer, not a polished plastic block
   expect(vinyl.speakers.baffleRoughness).toBeGreaterThanOrEqual(.7);
