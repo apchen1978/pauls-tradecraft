@@ -3807,7 +3807,7 @@ function makeCredenzaOakMaps() {
 function buildRightWallCredenza(scene, m) {
   const WALL_X = 2.94, Z_MIN = -0.80, Z_MAX = 1.00, DEPTH = 0.45, TOP_Y = 0.815, PLINTH = 0.08, TOP_T = 0.03;
   const length = Z_MAX - Z_MIN, zMid = (Z_MIN + Z_MAX) / 2, xBack = WALL_X - 0.002, xFront = xBack - DEPTH, xMid = (xBack + xFront) / 2;
-  const parts = { walnut: [], front: [], dark: [], wood: [], rib: [] };
+  const parts = { walnut: [], front: [], dark: [], paint: [], paintDeep: [], paintHi: [], rib: [] };
   const hardwareParts = [];
   // Rounded edges only where they are seen (top and door fronts, 2 bevel segments); hidden body, plinth and pulls are plain boxes.
   const box = (bucket, size, position, rounded = false) => { const g = rounded ? roundedBoxGeometry(size, Math.min(0.006, Math.min(...size) * 0.25), 2) : new THREE.BoxGeometry(...size); if (!rounded) { g.deleteAttribute("uv"); g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); } g.translate(...position); parts[bucket].push(rounded ? g : g); return g; };
@@ -3830,17 +3830,23 @@ function buildRightWallCredenza(scene, m) {
       pull.translate(xFront - 0.02, pullY, pullZ); hardwareParts.push(pull);
       for (const dy of [-0.027, 0.027]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, pullY + dy, pullZ); hardwareParts.push(standoff); }
     } else {
-      // Paul 2026-11-21 (the wide end must keep the original wood finish, and a reference photo of a cabinet with drawers over doors): the wide section keeps the cabinet's original walnut tone and becomes
-      // two stacked drawers over a door, each with the brass pull in the same style (horizontal bars on the drawers, a vertical bar on the door). No new colour, only a change of layering.
-      const drawerH = 0.125, dgap = 0.007, topY = yMid + doorH / 2;
+      // Paul 2026-11-21 (first the wide end kept the plain walnut, which read as a downgrade next to the fluted doors): the wide section is now painted a calm slate blue, an American shaker finish: two
+      // drawers over a door, each with a raised frame (stiles and rails 3.2 cm wide, 6 mm proud) round a recessed panel, and the same brass pulls. The blue sits well beside the olive cabinets and the oak top.
+      const drawerH = 0.125, dgap = 0.007, topY = yMid + doorH / 2, stileW = 0.032;
+      const shaker = (cy, h) => { // one painted front: the slab, four frame bars and the recessed panel
+        box("paint", [0.02, h, doorW], [fx, cy, z], true);
+        box("paintDeep", [0.004, h - 2 * stileW, doorW - 2 * stileW], [fx - 0.0105, cy, z]); // the recessed panel, a little darker
+        for (const sz of [-1, 1]) box("paintHi", [0.007, h, stileW], [fx - 0.0105, cy, z + sz * (doorW / 2 - stileW / 2)], true); // the two stiles
+        for (const sy of [-1, 1]) box("paintHi", [0.007, stileW, doorW - 2 * stileW], [fx - 0.0105, cy + sy * (h / 2 - stileW / 2), z], true); // the top and bottom rails
+      };
       for (const k of [0, 1]) {
         const y = topY - drawerH / 2 - k * (drawerH + dgap);
-        box("wood", [0.02, drawerH, doorW], [fx, y, z], true);
+        shaker(y, drawerH);
         const bar = new THREE.BoxGeometry(0.014, 0.012, 0.11); bar.translate(xFront - 0.02, y, z); hardwareParts.push(bar);
         for (const dz of [-0.04, 0.04]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, y, z + dz); hardwareParts.push(standoff); }
       }
       const doorTop = topY - 2 * drawerH - 2 * dgap, doorBottom = yMid - doorH / 2, doorMid = (doorTop + doorBottom) / 2;
-      box("wood", [0.02, doorTop - doorBottom, doorW], [fx, doorMid, z], true);
+      shaker(doorMid, doorTop - doorBottom);
       const pullZ = z - doorW / 2 + 0.035, pull = new THREE.BoxGeometry(0.014, 0.082, 0.012);
       pull.translate(xFront - 0.02, doorMid + 0.07, pullZ); hardwareParts.push(pull);
       for (const dy of [-0.027, 0.027]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, doorMid + 0.07 + dy, pullZ); hardwareParts.push(standoff); }
@@ -3848,7 +3854,7 @@ function buildRightWallCredenza(scene, m) {
   }
   { const strip = new THREE.BoxGeometry(0.004, 0.006, length - 0.02); strip.translate(xFront - 0.006, TOP_Y - TOP_T - 0.003, zMid); hardwareParts.push(strip); } // the thin brass edge line under the oak top
   // One mesh: warm walnut, slightly lighter door fronts, oak top and recessed shadow lines share one draw call.
-  const tints = { walnut: 0x76543b, front: 0x6a4a33, dark: 0x201e1b, wood: 0x886344, rib: 0x86613f }; // wood: the cabinet's original door tone
+  const tints = { walnut: 0x76543b, front: 0x6a4a33, dark: 0x201e1b, paint: 0x4a6877, paintDeep: 0x41606e, paintHi: 0x587a8a, rib: 0x86613f }; // the painted wide section: a slate blue
   const all = [];
   for (const [kind, list] of Object.entries(parts)) {
     const tint = new THREE.Color(tints[kind]);
