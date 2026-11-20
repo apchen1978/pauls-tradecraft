@@ -1385,14 +1385,57 @@ let lanternMat = null;
   // Paul 2026-11-21 (a wall light he loved in a Taiwanese interior photo): a globe sconce on the left wall above the plant, between the whiteboard and the window corner: a small matte-black half-dome
   // mount holds a frosted blush-white glass sphere that glows warm from inside. No real light (the room's light count stays), only the glow of the glass and a soft halo of light on the wall, both following the mood
   // like the paper lantern's halo: faint by day, warm in the evening.
-  const SCONCE = { x: -W / 2, y: 1.6, z: -1.4, r: .062 };
-  const sconceMat = new THREE.MeshStandardMaterial({ color: "#f3e3da", roughness: .55, metalness: 0, emissive: "#ffc99a", emissiveIntensity: .25 });
+  // Paul 2026-11-21 (second pass: a bare globe looked lonely; raise it above the pictures; give it a shade with art): a pleated linen half-shade, the kind of folded-paper wall light that is
+  // popular in Taiwan and the US now. A matte-black round wall plate, a short brass arm, and a half-cylinder shade of 16 soft pleats (open towards the wall side, glowing from inside) closed top and bottom
+  // with brass half-discs; the light is thrown up and down the wall as two soft fans (halo sprites). No real light is added. It hangs at 2.05 m, above the pictures beside it.
+  const movingBoxHolder = {};
+  const SCONCE = { x: -W / 2, y: 2.05, z: -1.4, r: .07, h: .24 };
+  const sconceMat = new THREE.MeshStandardMaterial({ color: "#f1e2c8", roughness: .85, metalness: 0, emissive: "#ffc27a", emissiveIntensity: .3, side: THREE.DoubleSide });
   const sconceGroup = new THREE.Group(); sconceGroup.name = "wall-sconce"; scene.add(sconceGroup);
-  { const black = new THREE.MeshStandardMaterial({ color: "#16171a", roughness: .5, metalness: .25 });
-    const mount = new THREE.Mesh(new THREE.SphereGeometry(.034, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2).rotateZ(-Math.PI / 2), black); mount.position.set(SCONCE.x + .0005, SCONCE.y - .03, SCONCE.z); mount.name = "wall-sconce-mount"; sconceGroup.add(mount);
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(.012, .014, .03, 16).rotateZ(Math.PI / 2), black); neck.position.set(SCONCE.x + .045, SCONCE.y - .03, SCONCE.z); neck.name = "wall-sconce-neck"; sconceGroup.add(neck);
-    const globe = new THREE.Mesh(new THREE.SphereGeometry(SCONCE.r, 40, 24), sconceMat); globe.position.set(SCONCE.x + .045 + .012 + SCONCE.r * .72, SCONCE.y, SCONCE.z); globe.name = "wall-sconce-globe"; globe.castShadow = false; sconceGroup.add(globe); SCONCE.globeX = globe.position.x; }
-  const sconceHalo = halo(SCONCE.x + .03, SCONCE.y, SCONCE.z, 1.7); sconceHalo.material.opacity = 0;
+  { const black = new THREE.MeshStandardMaterial({ color: "#16171a", roughness: .5, metalness: .25 }), brass = new THREE.MeshStandardMaterial({ color: "#c2a15a", roughness: .35, metalness: .75, side: THREE.DoubleSide });
+    const cx = SCONCE.x + .062 + SCONCE.r, pleats = 16, brassParts = [];
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .014, 32).rotateZ(Math.PI / 2).translate(SCONCE.x + .007, SCONCE.y, SCONCE.z), black); plate.name = "wall-sconce-plate"; sconceGroup.add(plate);
+    brassParts.push(new THREE.CylinderGeometry(.007, .007, .05, 14).rotateZ(Math.PI / 2).translate(SCONCE.x + .037, SCONCE.y, SCONCE.z));
+    const shadeGeo = new THREE.CylinderGeometry(SCONCE.r, SCONCE.r, SCONCE.h, 96, 1, true, 0, Math.PI), sp = shadeGeo.attributes.position; // a half cylinder: its convex side faces the room (+x), the open side the wall
+    for (let i = 0; i < sp.count; i++) { const x = sp.getX(i), z = sp.getZ(i), a = Math.atan2(x, z), f = 1 + .09 * Math.cos(pleats * a); sp.setX(i, x * f); sp.setZ(i, z * f); }
+    shadeGeo.computeVertexNormals();
+    const shade = new THREE.Mesh(shadeGeo.translate(cx, SCONCE.y, SCONCE.z), sconceMat); shade.name = "wall-sconce-shade"; shade.castShadow = false; sconceGroup.add(shade);
+    for (const dy of [-1, 1]) { brassParts.push(new THREE.CircleGeometry(SCONCE.r * 1.04, 40, -Math.PI / 2, Math.PI).rotateX(-Math.PI / 2).translate(cx, SCONCE.y + dy * SCONCE.h / 2, SCONCE.z));
+      brassParts.push(new THREE.TorusGeometry(SCONCE.r * 1.02, .0035, 6, 40, Math.PI).rotateZ(-Math.PI / 2).rotateX(Math.PI / 2).translate(cx, SCONCE.y + dy * SCONCE.h / 2, SCONCE.z)); }
+    const brassMesh = new THREE.Mesh(mergeGeometries(brassParts.map((g) => { const q = g.index ? g.toNonIndexed() : g; q.deleteAttribute("uv"); return q; }), false), brass); brassMesh.name = "wall-sconce-brass"; sconceGroup.add(brassMesh);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(.026, 20, 12), new THREE.MeshBasicMaterial({ color: "#ffe3b0" })); bulb.position.set(cx - .012, SCONCE.y, SCONCE.z); bulb.name = "wall-sconce-bulb"; sconceGroup.add(bulb); SCONCE.globeX = cx; }
+  // Paul 2026-11-21: "the room feels just moved into". A corrugated moving box stands against the left wall under the sconce, in front of the plant with the Post-it, half unpacked: flaps open, a rolled
+  // cream blanket and books peek out, a strip of tape, two hand holes, kraft board with a fine corrugated grain, and in black marker "# ROOM 01 / LIVING ROOM" on the side facing the room. 46 cm wide
+  // (along the wall), 30 cm deep, 36 cm tall, on the floor 3 cm off the wall. Four meshes (kraft board, contents, tape and holes, label) so it costs four draw calls.
+  {
+    const BX = { x: -W / 2 + .03 + .15, z: -.8, w: .46, d: .30, h: .36 }, group = new THREE.Group(); group.name = "moving-box"; group.position.set(BX.x, 0, BX.z); group.rotation.y = .035; scene.add(group);
+    const kraftTex = canvasTex(256, 256, (ctx, w, h) => { ctx.fillStyle = "#c19b68"; ctx.fillRect(0, 0, w, h); for (let x = 0; x < w; x += 4) { ctx.fillStyle = x % 8 === 0 ? "rgba(120,84,44,.16)" : "rgba(255,230,180,.12)"; ctx.fillRect(x, 0, 2, h); } for (let i = 0; i < 120; i++) { ctx.fillStyle = `rgba(90,60,30,${.04 + (i % 5) * .012})`; ctx.fillRect((i * 53) % w, (i * 97) % h, 12 + (i % 7), 1); } });
+    kraftTex.wrapS = kraftTex.wrapT = THREE.RepeatWrapping; kraftTex.repeat.set(2, 2);
+    const kraft = new THREE.MeshStandardMaterial({ map: kraftTex, color: "#ffffff", roughness: .95 });
+    const wallT = .006, kraftParts = [], contentParts = [], tapeParts = [];
+    const colorize = (geo, hex) => { const g = geo.index ? geo.toNonIndexed() : geo.clone(); g.deleteAttribute("uv"); const c = new THREE.Color(hex), n = g.attributes.position.count, a2 = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(a2, i * 3); g.setAttribute("color", new THREE.Float32BufferAttribute(a2, 3)); return g; };
+    const mk = (sx, sy, sz, x, y, z) => { kraftParts.push(new THREE.BoxGeometry(sx, sy, sz).translate(x, y, z)); };
+    mk(BX.d, wallT, BX.w, 0, wallT / 2, 0); // the base
+    mk(wallT, BX.h, BX.w, BX.d / 2 - wallT / 2, BX.h / 2, 0); mk(wallT, BX.h, BX.w, -BX.d / 2 + wallT / 2, BX.h / 2, 0); // the room-facing side and the wall side (x is the depth, towards the room)
+    mk(BX.d - 2 * wallT, BX.h, wallT, 0, BX.h / 2, BX.w / 2 - wallT / 2); mk(BX.d - 2 * wallT, BX.h, wallT, 0, BX.h / 2, -BX.w / 2 + wallT / 2);
+    // the flaps: two long flaps folded back (hinged on the long edges), one short flap standing up leaning back over the contents
+    const flap = (len, wid, hx, hz, offX, offZ, rx, rz) => { const pivot = new THREE.Object3D(); pivot.position.set(hx, BX.h, hz); pivot.rotation.set(rx, 0, rz); pivot.updateMatrix(); const g = new THREE.BoxGeometry(len, .004, wid).translate(offX, 0, offZ); g.applyMatrix4(pivot.matrix); kraftParts.push(g); };
+    flap(BX.d, BX.w / 2 - .01, 0, BX.w / 2, 0, (BX.w / 2 - .01) / 2, (Math.PI / 2 - .35), 0);
+    flap(BX.d, BX.w / 2 - .01, 0, -BX.w / 2, 0, -(BX.w / 2 - .01) / 2, -(Math.PI / 2 - .5), 0);
+    flap(.15, BX.w - .02, BX.d / 2, 0, .075, 0, 0, Math.PI / 2 - .3); // the room-facing flap stands up leaning back over the contents, clear of the writing
+    // contents peeking out: a rolled cream blanket and three books
+    contentParts.push(colorize(new THREE.CylinderGeometry(.075, .075, .3, 20).rotateX(Math.PI / 2).rotateY(.1).translate(-.03, BX.h - .06, -.1), "#e8dcc5"));
+    [["#6b3a2e", .04, .26], ["#3f5a6a", .035, .24], ["#a3643a", .03, .27]].forEach(([c, t, hgt], i) => { const g = new THREE.BoxGeometry(.16, hgt, t); if (i === 2) g.rotateZ(.14); g.translate(.03, BX.h - .12 + hgt / 2 - .1 + .02, .09 + i * (t + .002)); contentParts.push(colorize(g, c)); });
+    // the tape across the room-facing side near the top, and two hand holes
+    tapeParts.push(colorize(new THREE.BoxGeometry(.006, .002, BX.w * .5).translate(BX.d / 2 + .0006, BX.h - .1, 0), "#8a5a34"));
+    for (const dz of [-1, 1]) tapeParts.push(colorize(new THREE.CircleGeometry(.025, 24).scale(1.6, .7, 1).rotateY(Math.PI / 2).translate(BX.d / 2 + .0016, BX.h - .06, dz * BX.w * .33), "#2a1c10"));
+    const addMerged = (parts, material, name) => { const g = mergeGeometries(parts, false); g.computeVertexNormals(); const m = new THREE.Mesh(g, material); m.name = name; m.castShadow = true; m.receiveShadow = true; group.add(m); };
+    addMerged(kraftParts, kraft, "moving-box-kraft"); addMerged(contentParts, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .9 }), "moving-box-contents"); addMerged(tapeParts, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7 }), "moving-box-tape");
+    const label = canvasTex(512, 320, (ctx, w, h) => { ctx.clearRect(0, 0, w, h); ctx.fillStyle = "#1c1814"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "800 78px 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive"; ctx.save(); ctx.translate(w / 2, h * .36); ctx.rotate(-.03); ctx.fillText("# ROOM 01", 0, 0); ctx.restore(); ctx.font = "700 54px 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive"; ctx.save(); ctx.translate(w / 2, h * .66); ctx.rotate(.02); ctx.fillText("LIVING ROOM", 0, 0); ctx.restore(); ctx.fillStyle = "rgba(28,24,20,.8)"; ctx.fillRect(w * .18, h * .87, w * .64, 4); });
+    const lm = new THREE.Mesh(new THREE.PlaneGeometry(BX.w * .74, BX.w * .74 * 320 / 512), new THREE.MeshBasicMaterial({ map: label, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 })); lm.rotation.y = Math.PI / 2; lm.position.set(BX.d / 2 + .0013, BX.h * .47, 0); lm.name = "moving-box-label"; group.add(lm);
+    movingBoxHolder.group = group; movingBoxHolder.info = BX; // PROPS is declared further down; the holder is not
+  }
+  const sconceHalo = halo(SCONCE.x + .02, SCONCE.y + .22, SCONCE.z, 1.0), sconceHaloLow = halo(SCONCE.x + .02, SCONCE.y - .22, SCONCE.z, 1.0); sconceHalo.material.opacity = 0; sconceHaloLow.material.opacity = 0; // the light fans up and down the wall
   const downTrim = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CylinderGeometry(.05, .05, .012, 24).translate(x, H - .006, z))), new THREE.MeshStandardMaterial({ color: "#f2efe8", roughness: .5 }), 0, 0, 0, false);
   downTrim.name = "ceiling-downlight-trims";
   const downLensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
@@ -2062,20 +2105,6 @@ let lanternMat = null;
     const RM = { x: .98, z: -1.36 }, seatY = rayAt(RM.x, RM.z) ?? .46;
     const remoteGeo = [[new THREE.BoxGeometry(.046, .015, .158), 0x1d1f22], [new THREE.BoxGeometry(.034, .0016, .052).translate(0, .0083, -.042), 0x34373b], [new THREE.CylinderGeometry(.0065, .0065, .0016, 14).translate(0, .0083, .003), 0xa5633a]];
     for (const [geo, hex] of remoteGeo) nightParts.push([geo.rotateY(.7).translate(RM.x, seatY + .0035, RM.z), hex]);
-    // the game pad (Room 02's controller, rebuilt small for this room; Paul 2026-11-21): lies on the sofa seat beside the remote on a series night. A dark graphite body with two grips angled back, two sticks, a
-    // touch bar, a d-pad, four coloured buttons and a pale light bar; no logos. Seated by the same ray as the remote.
-    {
-      const PD = { x: .6, z: -1.12, yaw: -.5 }, padY = rayAt(PD.x, PD.z) ?? seatY, parts = [];
-      const body = 0x2e3036, dark = 0x15161a, grey = 0x5a5f68, add = (geo, hex, x, y, z, ry = 0) => parts.push([geo.rotateY(ry).translate(x, y, z), hex]);
-      add(new THREE.BoxGeometry(.15, .022, .062), body, 0, .012, 0);
-      add(new THREE.CylinderGeometry(.011, .011, .022, 16).rotateX(Math.PI / 2), body, -.075, .012, 0); add(new THREE.CylinderGeometry(.011, .011, .022, 16).rotateX(Math.PI / 2), body, .075, .012, 0);
-      for (const sx of [-1, 1]) add(new THREE.CapsuleGeometry(.0215, .05, 4, 10).rotateX(Math.PI / 2).rotateY(-sx * .22), body, sx * .052, .012, .043, 0);
-      for (const sx of [-1, 1]) { add(new THREE.CylinderGeometry(.014, .014, .006, 18), grey, sx * .03, .0245, .014); add(new THREE.CylinderGeometry(.011, .011, .012, 18), dark, sx * .03, .031, .014); }
-      add(new THREE.BoxGeometry(.04, .003, .02), grey, 0, .0235, -.02); add(new THREE.BoxGeometry(.03, .005, .009), grey, -.045, .0245, -.014); add(new THREE.BoxGeometry(.009, .005, .03), grey, -.045, .0245, -.014);
-      for (const [dx, dz, hex] of [[0, -.014, 0xc4622d], [.014, 0, 0x6f8568], [0, .014, 0x8197ab], [-.014, 0, 0xece6dc]]) add(new THREE.CylinderGeometry(.0075, .0075, .005, 14), hex, .045 + dx, .0245, -.014 + dz);
-      add(new THREE.BoxGeometry(.05, .003, .004), 0x7fbfff, 0, .0225, -.03);
-      for (const [geo, hex] of parts) nightParts.push([geo.rotateY(PD.yaw).translate(PD.x, padY - .004, PD.z), hex]);
-    }
     // ---- 4a. a phone (Paul 2026-11-21: take Room 03's phone, no glow or message animation, just the phone): the same 72 x 150 x 8.5 mm body and dark glass, lying on the side table, face up,
     // in the first free spot found by scanning the top (clear of the lamp, mug, coaster and notebook by 12 mm, wholly inside the edge). A dim lock-screen banner is painted on the glass; nothing animates.
     {
@@ -3003,7 +3032,7 @@ let lanternMat = null;
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
     downSpot.intensity = v.down * DOWNLIGHT_CANDELA; downLensMat.emissiveIntensity = v.down * 1.6; lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
-    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo; lanternHalo.material.opacity = v.lanternHalo; sconceHalo.material.opacity = Math.min(.9, v.lanternHalo * 1.7); sconceMat.emissiveIntensity = .22 + v.lanternHalo * 1.3; downHalos.visible = v.down > .02; downHaloMat.opacity = v.down * .85; floorPool.visible = v.floorHalo > .02; floorPool.material.opacity = v.floorHalo * .55;
+    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo; lanternHalo.material.opacity = v.lanternHalo; sconceHalo.material.opacity = Math.min(.8, v.lanternHalo * 1.5); sconceHaloLow.material.opacity = Math.min(.8, v.lanternHalo * 1.5); sconceMat.emissiveIntensity = .22 + v.lanternHalo * 1.3; downHalos.visible = v.down > .02; downHaloMat.opacity = v.down * .85; floorPool.visible = v.floorHalo > .02; floorPool.material.opacity = v.floorHalo * .55;
     dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02; sunBeamMaterial.opacity = dustAmount(v.win) * .85; sunBeam.visible = sunBeamMaterial.opacity > .01;
     shadeGlow.value = v.shade; if (lanternMat) lanternMat.emissiveIntensity = Math.min(1.25, .35 + v.fill * .6); /* follows the main light: bright by day, dim at night */ tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
@@ -4792,7 +4821,7 @@ let lanternMat = null;
       for (let i = 0; i < n; i++) { const t = (geo.attributes.position.getY(i) - bb.min.y) / Math.max(.001, bb.max.y - bb.min.y), k = o.material.name === "body" ? .9 + .08 * t : .96; values[i * 3] = col.r * k; values[i * 3 + 1] = col.g * k; values[i * 3 + 2] = col.b * k; }
       geo.setAttribute("color", new THREE.BufferAttribute(values, 3)); for (const key of Object.keys(geo.attributes)) if (key !== "position" && key !== "normal" && key !== "color") geo.deleteAttribute(key); parts.push(geo); });
     const merged = mergeGeometries(parts, false); merged.computeBoundingBox();
-    const b = merged.boundingBox, cz = -.36;
+    const b = merged.boundingBox, cz = -.175; // Paul 2026-11-21: 3.5 cm from the coffee stool (it was at -.36), to leave room for the moving box under the paintings
     merged.translate(-W / 2 + .02 + .002 - b.min.x, -b.min.y - .0005, cz - (b.min.z + b.max.z) / 2);
     const mesh = new THREE.Mesh(merged, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 }));
     mesh.name = "room01-wall-backpack"; mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh); wallBackpack = mesh;
@@ -4944,10 +4973,12 @@ let lanternMat = null;
         const y = yaw0 + turn, pc = pitch0 + dp; camera.position.copy(eye); camera.lookAt(eye.clone().add(new THREE.Vector3(Math.sin(y) * Math.cos(pc), Math.sin(pc), Math.cos(y) * Math.cos(pc)))); camera.updateMatrixWorld(true);
         out[name] = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)).intersectsBox(box); }
       camera.position.copy(saved.p); camera.quaternion.copy(saved.q); camera.fov = saved.f; camera.updateProjectionMatrix(); camera.updateMatrixWorld(true); return { ...out, halfRangeDeg: Math.round(half * 180 / Math.PI), downDeg: Math.round(down * 180 / Math.PI), fov: doorFov() }; },
-    coffeeStoolFit() { const bx = (o) => new THREE.Box3().setFromObject(o), mm = (v) => Math.round(v * 1000), s = bx(PROPS.coffeeStool).union(bx(PROPS.coffeeStoolPouf)), bag = bx(scene.getObjectByName('room01-wall-backpack')), oak = bx(sideboard.oak), info = PROPS.coffeeStoolInfo; const gapZ = (a, b) => Math.max(a.min.z - b.max.z, b.min.z - a.max.z); return { floorMm: mm(s.min.y), topM: +s.max.y.toFixed(3), wallGapMm: mm(s.min.x - (-W / 2)), toSideboardMm: mm(gapZ(s, oak)), toBagMm: mm(gapZ(s, bag)), info }; },
+    coffeeStoolFit() { if (!scene.getObjectByName('room01-wall-backpack')) return null; const bx = (o) => new THREE.Box3().setFromObject(o), mm = (v) => Math.round(v * 1000), s = bx(PROPS.coffeeStool).union(bx(PROPS.coffeeStoolPouf)), bag = bx(scene.getObjectByName('room01-wall-backpack')), oak = bx(sideboard.oak), info = PROPS.coffeeStoolInfo; const gapZ = (a, b) => Math.max(a.min.z - b.max.z, b.min.z - a.max.z); return { floorMm: mm(s.min.y), topM: +s.max.y.toFixed(3), wallGapMm: mm(s.min.x - (-W / 2)), toSideboardMm: mm(gapZ(s, oak)), toBagMm: mm(gapZ(s, bag)), info }; },
     nightInfo: () => ({ popcorn: PROPS.popcorn.visible, night: PROPS.night.visible, popcornReady: !!PROPS.popcorn.userData.ready }),
     phoneFit() { const b = new THREE.Box3().setFromObject(PROPS.phone), m = (v) => Math.round(v * 1000), side = new THREE.Box3().setFromObject(tableObj), others = { lamp: tableLampObj, mug: PROPS.mug, notebook: PROPS.notebook, coaster: PROPS.sideTable.coaster }, gaps = {}; for (const [k, o] of Object.entries(others)) { const ob = new THREE.Box3().setFromObject(o); if (k === 'lamp') { /* the shade overhangs the table, the phone lies under it: judge by the lamp's foot (111 mm radius) */ const lc = ob.getCenter(new THREE.Vector3()), dx = Math.max(b.min.x - lc.x, 0, lc.x - b.max.x), dz = Math.max(b.min.z - lc.z, 0, lc.z - b.max.z); gaps[k] = m(Math.hypot(dx, dz) - .111); continue; } gaps[k] = ob.intersectsBox(b) ? -1 : m(Math.max(ob.min.x - b.max.x, b.min.x - ob.max.x, ob.min.z - b.max.z, b.min.z - ob.max.z)); } const cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2; return { seatMm: m(b.min.y - sideTop), radialMm: m(Math.max(Math.hypot(b.min.x - TX, b.min.z - TZ), Math.hypot(b.max.x - TX, b.max.z - TZ), Math.hypot(b.min.x - TX, b.max.z - TZ), Math.hypot(b.max.x - TX, b.min.z - TZ))), tableRadiusMm: 330, gaps, at: [+cx.toFixed(3), +cz.toFixed(3)] }; },
     sconceInfo: () => ({ x: SCONCE.x, y: SCONCE.y, z: SCONCE.z, globeX: SCONCE.globeX, glow: +sconceMat.emissiveIntensity.toFixed(2), halo: +sconceHalo.material.opacity.toFixed(2) }),
+    wallItems() { scene.updateMatrixWorld(true); const out = []; scene.children.forEach((o) => { const b = new THREE.Box3().setFromObject(o); if (b.isEmpty()) return; const c = b.getCenter(new THREE.Vector3()); if (c.y > .2 && c.y < 2.6 && b.min.x < -2.3 && b.max.x < -2.0) out.push([o.name || o.type, b.min.toArray().map((v) => +v.toFixed(2)), b.max.toArray().map((v) => +v.toFixed(2))]); }); return out; },
+    movingBoxFit() { if (!movingBoxHolder.group) return null; const b = new THREE.Box3().setFromObject(movingBoxHolder.group), m = (v) => Math.round(v * 1000), soilObj = scene.getObjectByName('room01-plant-soil'), bagObj = scene.getObjectByName('room01-wall-backpack'); if (!soilObj || !bagObj) return null; /* both load a little after the room */ const plant = new THREE.Box3().setFromObject(soilObj), bag = new THREE.Box3().setFromObject(bagObj), gz = (a, c) => Math.max(a.min.z - c.max.z, c.min.z - a.max.z); return { floorMm: m(b.min.y), wallGapMm: m(b.min.x - (-W / 2)), heightMm: m(b.max.y - b.min.y), toPlantMm: m(gz(b, plant)), toBagMm: m(gz(b, bag)), z: [+b.min.z.toFixed(2), +b.max.z.toFixed(2)], x: [+b.min.x.toFixed(3), +b.max.x.toFixed(3)] }; },
     entryShoes: () => PROPS.shoesInfo || null,
     entryShoeMaterials: () => { const out = []; PROPS.shoes.traverse((o) => { if (o.isMesh) { const m = o.material; out.push({ name: m.name, color: m.color.getHexString(), emissive: m.emissive?.getHexString(), emissiveIntensity: m.emissiveIntensity, map: !!m.map, vertexColors: m.vertexColors, rough: m.roughness, metal: m.metalness, attrs: Object.keys(o.geometry.attributes) }); } }); return out; },
     tapKeycard: (opts) => tapKeycard(opts),

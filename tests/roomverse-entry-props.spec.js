@@ -36,7 +36,7 @@ test("Room 01 coffee stool stands clear on the floor; the popcorn bowl shows on 
   expect(Math.abs(f.floorMm), "the stool stands on the floor").toBeLessThanOrEqual(2);
   expect(f.wallGapMm, "clear of the wall, not through it").toBeGreaterThanOrEqual(10);
   expect(f.toSideboardMm, "clear of the sideboard").toBeGreaterThanOrEqual(60);
-  expect(f.toBagMm, "clear of the yellow bag").toBeGreaterThanOrEqual(60);
+  expect(f.toBagMm, "the yellow bag stands 1.5 to 6 cm from the stool (moved up on purpose, 2026-11-21)").toBeGreaterThanOrEqual(15); expect(f.toBagMm).toBeLessThanOrEqual(60);
   expect(f.topM, "tray, canister and cup stand on a 42 cm stool").toBeGreaterThan(.55);
   await page.waitForFunction(() => window.__room.nightInfo().popcornReady, null, { timeout: 60000 });
   expect(await page.evaluate(() => window.__room.nightInfo()), "slow afternoon: the bowl, none of the rest of the night set").toMatchObject({ popcorn: true, night: false });
@@ -59,11 +59,29 @@ test("Room 01 phone on the side table is clear of its neighbours and inside the 
   for (const [k, gap] of Object.entries(p.gaps)) expect(gap, `clear of the ${k} (-1 means they overlap)`).toBeGreaterThanOrEqual(0);
   const golden = await page.evaluate(() => window.__room.sconceInfo());
   expect(golden.x, "on the left wall").toBeCloseTo(-2.6, 2);
-  expect(golden.globeX - golden.x, "the globe stands 8 to 14 cm off the wall").toBeGreaterThan(.08); expect(golden.globeX - golden.x).toBeLessThan(.14);
+  expect(golden.globeX - golden.x, "the shade stands 8 to 16 cm off the wall").toBeGreaterThan(.08); expect(golden.globeX - golden.x).toBeLessThan(.16);
+  expect(golden.y, "hung high, above the pictures").toBeGreaterThanOrEqual(2.0);
   await page.evaluate(() => window.__room.set("mood", "tv")); await page.waitForTimeout(1800);
   const tv = await page.evaluate(() => window.__room.sconceInfo());
   expect(tv.glow, "brighter on a series night than at golden hour").toBeGreaterThan(golden.glow); expect(tv.halo).toBeGreaterThan(golden.halo);
   await page.evaluate(() => window.__room.set("mood", "slow")); await page.waitForTimeout(1800);
   expect((await page.evaluate(() => window.__room.sconceInfo())).glow, "dimmest by day").toBeLessThan(golden.glow);
+  expect(errors).toEqual([]);
+});
+
+// Paul 2026-11-21: "just moved in": a corrugated moving box (# ROOM 01 / LIVING ROOM) stands on the floor against the left wall, between the yellow bag and the plant; the bag moved up to 3.5 cm from the coffee stool; the plant keeps 30 cm clear in front so its Post-it can be tapped.
+test("Room 01 moving box stands on the floor by the wall, clear of the plant, near the bag; the bag is close to the stool", async ({ page }) => {
+  test.setTimeout(200000);
+  const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/prototype/roomverse-3d/?lang=zh&hint=0&mood=golden");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room?.movingBoxFit && window.__room?.coffeeStoolFit && window.__room.wallBackpackInfo?.().ready, null, { timeout: 90000 }); await page.waitForTimeout(2000);
+  await page.waitForFunction(() => window.__room.movingBoxFit() !== null && window.__room.coffeeStoolFit() !== null, null, { timeout: 60000 });
+  const b = await page.evaluate(() => window.__room.movingBoxFit());
+  expect(Math.abs(b.floorMm), "on the floor").toBeLessThanOrEqual(2);
+  expect(b.wallGapMm, "against the wall, not through it").toBeGreaterThanOrEqual(5); expect(b.wallGapMm).toBeLessThanOrEqual(60);
+  expect(b.toPlantMm, "the plant keeps room in front for its Post-it").toBeGreaterThanOrEqual(300);
+  expect(b.toBagMm, "closer to the bag than before (it was far away)").toBeLessThanOrEqual(200); expect(b.toBagMm).toBeGreaterThanOrEqual(30);
+  const stool = await page.evaluate(() => window.__room.coffeeStoolFit());
+  expect(stool.toBagMm, "the bag stands 2 to 5 cm from the stool").toBeGreaterThanOrEqual(15); expect(stool.toBagMm).toBeLessThanOrEqual(60);
   expect(errors).toEqual([]);
 });
