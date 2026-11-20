@@ -2040,15 +2040,7 @@ let lanternMat = null;
     // ---- 3. series night: the coffee table, the remote on the sofa ----
     const nightParts = [];
     // popcorn bowl on the coffee table's free left strip
-    const PB = { x: -.065, z: -.62 }, bowlProfile = [[0, 0], [.04, 0], [.05, .008], [.092, .058], [.1, .074], [.0965, .0745], [.0885, .06], [.046, .014], [0, .012]].map(([r, y]) => new THREE.Vector2(r, y));
-    nightParts.push([new THREE.LatheGeometry(bowlProfile, 40).translate(PB.x, coffeeTop, PB.z), 0xefe6d2]);
-    nightParts.push([new THREE.TorusGeometry(.0985, .0016, 6, 40).rotateX(Math.PI / 2).translate(PB.x, coffeeTop + .0745, PB.z), 0xa5633a]); // a terracotta rim line
-    for (let i = 0; i < 52; i++) { // popcorn: lumpy kernels heaped in the bowl
-      const a = rand() * Math.PI * 2, rr = Math.sqrt(rand()) * .078, h = .02 + (1 - rr / .078) * .05 + rand() * .018, r0 = .012 + rand() * .008;
-      const k = new THREE.IcosahedronGeometry(r0, 1); k.scale(1 + rand() * .3, .8 + rand() * .3, 1 + rand() * .3); k.rotateY(rand() * 6); k.rotateX(rand() * 6);
-      nightParts.push([k.translate(PB.x + Math.cos(a) * rr, coffeeTop + h, PB.z + Math.sin(a) * rr), [0xf3e7c6, 0xefd9a0, 0xf6efdc, 0xd9a65e][Math.floor(rand() * 4)]]);
-    }
-    for (const [dx, dz] of [[.13, .02], [.12, -.07], [-.04, .125]]) { const k = new THREE.IcosahedronGeometry(.0105, 1); k.scale(1.2, .85, 1); nightParts.push([k.translate(PB.x + dx, coffeeTop + .0088, PB.z + dz), 0xf3e7c6]); } // a few that missed
+    const PB = { x: -.065, z: -.62 }; // the popcorn bowl (Codex's model, loaded below) stands on the coffee table's free left strip
     // the closed laptop where the open one was (brushed aluminium, a small dark mark on the lid)
     const LP = { x: .47, z: -.45, yaw: -.55 };
     nightParts.push([at(new THREE.BoxGeometry(.298, .0145, .205), LP.x, coffeeTop + .00725, LP.z, LP.yaw), 0xb7bbbf]);
@@ -2066,7 +2058,13 @@ let lanternMat = null;
     const steamPts = []; for (let i = 0; i < 16; i++) { const t = i / 15; steamPts.push(MUGC.x + Math.sin(t * 5.2) * .014 * t + (rand() - .5) * .006, MUGC.rim + .012 + t * .12, MUGC.z + Math.cos(t * 4.1) * .012 * t + (rand() - .5) * .006); }
     const steam = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(steamPts, 3)), new THREE.PointsMaterial({ map: steamTex, size: .06, sizeAttenuation: true, transparent: true, opacity: .5, depthWrite: false, color: 0xffffff }));
     steam.name = "series-night-mug-steam"; steam.visible = false; steam.frustumCulled = false; steam.raycast = () => {}; scene.add(steam); PROPS.steam = steam;
-    PROPS.apply = (mood) => { const night = mood === "tv"; PROPS.night.visible = night; steam.visible = night; laptopObj.visible = !night; };
+    PROPS.popcorn = new THREE.Group(); PROPS.popcorn.name = "series-night-popcorn"; PROPS.popcorn.visible = false; PROPS.popcorn.position.set(PB.x, coffeeTop, PB.z); scene.add(PROPS.popcorn);
+    loader.loadAsync(new URL("./models/room01-popcorn-bowl-v1.glb", import.meta.url).href).then((asset) => { // Paul 2026-11-21: the procedural popcorn looked like a heap of balls; this is Codex's bowl with real popcorn (recoloured by material name in sRGB)
+      const colours = { bowl: "#efe6d2", rim: "#a5633a", popcorn: "#f3e7c6", butter: "#efd9a0", husk: "#6b4a2b" };
+      asset.scene.traverse((o) => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; const c = colours[o.material.name]; if (c) { o.material = o.material.clone(); o.material.color.set(c); o.material.vertexColors = false; } });
+      PROPS.popcorn.add(asset.scene); PROPS.popcorn.userData.ready = true;
+    }).catch(() => {});
+    PROPS.apply = (mood) => { const night = mood === "tv"; PROPS.night.visible = night; PROPS.popcorn.visible = night; steam.visible = night; laptopObj.visible = !night; };
     PROPS.fit = () => {
       scene.updateMatrixWorld(true); const bx = (o) => new THREE.Box3().setFromObject(o, true), mm = (v) => Math.round(v * 10000) / 10;
       const radii = (o) => { let lo = 1e9, hi = 0; const v = new THREE.Vector3(); o.traverse((m) => { if (!m.isMesh) return; const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); const r = Math.hypot(v.x - TX, v.z - TZ); lo = Math.min(lo, r); hi = Math.max(hi, r); } }); return { lo, hi }; };
