@@ -1382,6 +1382,17 @@ let lanternMat = null;
   const downHaloMat = new THREE.PointsMaterial({ map: haloTex, size: .6, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, color: new THREE.Color(1.6, 1.6, 1.6), toneMapped: false });
   const downHalos = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(DOWNLIGHTS.flatMap(([x, z]) => [x, H - .035, z]), 3)), downHaloMat);
   downHalos.frustumCulled = false; downHalos.raycast = () => {}; downHalos.visible = false; scene.add(downHalos);
+  // Paul 2026-11-21 (a wall light he loved in a Taiwanese interior photo): a globe sconce on the left wall above the plant, between the whiteboard and the window corner: a small matte-black half-dome
+  // mount holds a frosted blush-white glass sphere that glows warm from inside. No real light (the room's light count stays), only the glow of the glass and a soft halo of light on the wall, both following the mood
+  // like the paper lantern's halo: faint by day, warm in the evening.
+  const SCONCE = { x: -W / 2, y: 1.6, z: -1.4, r: .062 };
+  const sconceMat = new THREE.MeshStandardMaterial({ color: "#f3e3da", roughness: .55, metalness: 0, emissive: "#ffc99a", emissiveIntensity: .25 });
+  const sconceGroup = new THREE.Group(); sconceGroup.name = "wall-sconce"; scene.add(sconceGroup);
+  { const black = new THREE.MeshStandardMaterial({ color: "#16171a", roughness: .5, metalness: .25 });
+    const mount = new THREE.Mesh(new THREE.SphereGeometry(.034, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2).rotateZ(-Math.PI / 2), black); mount.position.set(SCONCE.x + .0005, SCONCE.y - .03, SCONCE.z); mount.name = "wall-sconce-mount"; sconceGroup.add(mount);
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(.012, .014, .03, 16).rotateZ(Math.PI / 2), black); neck.position.set(SCONCE.x + .045, SCONCE.y - .03, SCONCE.z); neck.name = "wall-sconce-neck"; sconceGroup.add(neck);
+    const globe = new THREE.Mesh(new THREE.SphereGeometry(SCONCE.r, 40, 24), sconceMat); globe.position.set(SCONCE.x + .045 + .012 + SCONCE.r * .72, SCONCE.y, SCONCE.z); globe.name = "wall-sconce-globe"; globe.castShadow = false; sconceGroup.add(globe); SCONCE.globeX = globe.position.x; }
+  const sconceHalo = halo(SCONCE.x + .03, SCONCE.y, SCONCE.z, 1.7); sconceHalo.material.opacity = 0;
   const downTrim = add(mergeGeometries(DOWNLIGHTS.map(([x, z]) => new THREE.CylinderGeometry(.05, .05, .012, 24).translate(x, H - .006, z))), new THREE.MeshStandardMaterial({ color: "#f2efe8", roughness: .5 }), 0, 0, 0, false);
   downTrim.name = "ceiling-downlight-trims";
   const downLensMat = new THREE.MeshStandardMaterial({ color: "#fff6e6", emissive: "#ffe3bd", emissiveIntensity: 0 });
@@ -2051,6 +2062,65 @@ let lanternMat = null;
     const RM = { x: .98, z: -1.36 }, seatY = rayAt(RM.x, RM.z) ?? .46;
     const remoteGeo = [[new THREE.BoxGeometry(.046, .015, .158), 0x1d1f22], [new THREE.BoxGeometry(.034, .0016, .052).translate(0, .0083, -.042), 0x34373b], [new THREE.CylinderGeometry(.0065, .0065, .0016, 14).translate(0, .0083, .003), 0xa5633a]];
     for (const [geo, hex] of remoteGeo) nightParts.push([geo.rotateY(.7).translate(RM.x, seatY + .0035, RM.z), hex]);
+    // the game pad (Room 02's controller, rebuilt small for this room; Paul 2026-11-21): lies on the sofa seat beside the remote on a series night. A dark graphite body with two grips angled back, two sticks, a
+    // touch bar, a d-pad, four coloured buttons and a pale light bar; no logos. Seated by the same ray as the remote.
+    {
+      const PD = { x: .6, z: -1.12, yaw: -.5 }, padY = rayAt(PD.x, PD.z) ?? seatY, parts = [];
+      const body = 0x2e3036, dark = 0x15161a, grey = 0x5a5f68, add = (geo, hex, x, y, z, ry = 0) => parts.push([geo.rotateY(ry).translate(x, y, z), hex]);
+      add(new THREE.BoxGeometry(.15, .022, .062), body, 0, .012, 0);
+      add(new THREE.CylinderGeometry(.011, .011, .022, 16).rotateX(Math.PI / 2), body, -.075, .012, 0); add(new THREE.CylinderGeometry(.011, .011, .022, 16).rotateX(Math.PI / 2), body, .075, .012, 0);
+      for (const sx of [-1, 1]) add(new THREE.CapsuleGeometry(.0215, .05, 4, 10).rotateX(Math.PI / 2).rotateY(-sx * .22), body, sx * .052, .012, .043, 0);
+      for (const sx of [-1, 1]) { add(new THREE.CylinderGeometry(.014, .014, .006, 18), grey, sx * .03, .0245, .014); add(new THREE.CylinderGeometry(.011, .011, .012, 18), dark, sx * .03, .031, .014); }
+      add(new THREE.BoxGeometry(.04, .003, .02), grey, 0, .0235, -.02); add(new THREE.BoxGeometry(.03, .005, .009), grey, -.045, .0245, -.014); add(new THREE.BoxGeometry(.009, .005, .03), grey, -.045, .0245, -.014);
+      for (const [dx, dz, hex] of [[0, -.014, 0xc4622d], [.014, 0, 0x6f8568], [0, .014, 0x8197ab], [-.014, 0, 0xece6dc]]) add(new THREE.CylinderGeometry(.0075, .0075, .005, 14), hex, .045 + dx, .0245, -.014 + dz);
+      add(new THREE.BoxGeometry(.05, .003, .004), 0x7fbfff, 0, .0225, -.03);
+      for (const [geo, hex] of parts) nightParts.push([geo.rotateY(PD.yaw).translate(PD.x, padY - .004, PD.z), hex]);
+    }
+    // ---- 4a. a phone (Paul 2026-11-21: take Room 03's phone, no glow or message animation, just the phone): the same 72 x 150 x 8.5 mm body and dark glass, lying on the side table, face up,
+    // in the first free spot found by scanning the top (clear of the lamp, mug, coaster and notebook by 12 mm, wholly inside the edge). A dim lock-screen banner is painted on the glass; nothing animates.
+    {
+      const bx3 = (o) => new THREE.Box3().setFromObject(o).expandByScalar(.012), blockers = [tableLampObj, PROPS.mug, PROPS.notebook, PROPS.sideTable.coaster].map(bx3), PW = .072, PL = .150, PH = .0085;
+      const shape = new THREE.Shape(), r = .011, x0 = -PW / 2, y0 = -PL / 2;
+      shape.moveTo(x0 + r, y0); shape.lineTo(-x0 - r, y0); shape.quadraticCurveTo(-x0, y0, -x0, y0 + r); shape.lineTo(-x0, -y0 - r); shape.quadraticCurveTo(-x0, -y0, -x0 - r, -y0); shape.lineTo(x0 + r, -y0); shape.quadraticCurveTo(x0, -y0, x0, -y0 - r); shape.lineTo(x0, y0 + r); shape.quadraticCurveTo(x0, y0, x0 + r, y0);
+      const bodyGeo = new THREE.ExtrudeGeometry(shape, { depth: PH - .0016, bevelEnabled: true, bevelThickness: .0008, bevelSize: .0008, bevelSegments: 2, curveSegments: 6 }); bodyGeo.rotateX(-Math.PI / 2); bodyGeo.translate(0, .0008, 0);
+      const group = new THREE.Group(); group.name = "side-table-phone";
+      const body = new THREE.Mesh(bodyGeo, new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35, metalness: .2 })); body.name = "side-table-phone-body"; body.castShadow = true; body.receiveShadow = true; group.add(body);
+      const cv = document.createElement("canvas"); cv.width = 128; cv.height = 272; const c2 = cv.getContext("2d");
+      c2.fillStyle = "#020306"; c2.fillRect(0, 0, 128, 272); c2.fillStyle = "#e4dcc8"; c2.beginPath(); c2.roundRect(10, 34, 108, 50, 11); c2.fill(); c2.fillStyle = "#c58a3a"; c2.beginPath(); c2.arc(30, 59, 9, 0, Math.PI * 2); c2.fill(); c2.fillStyle = "#5a5246"; c2.fillRect(48, 50, 56, 6); c2.fillRect(48, 63, 38, 5); c2.fillStyle = "#7a7366"; c2.fillRect(34, 128, 60, 14);
+      const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(.066, .143), new THREE.MeshStandardMaterial({ color: "#05070a", roughness: .2, metalness: .15, emissive: "#ffffff", emissiveMap: tex, emissiveIntensity: .1 })); screen.name = "side-table-phone-screen"; screen.rotation.x = -Math.PI / 2; screen.position.y = PH + .0006; group.add(screen);
+      let spot = null;
+      for (let rr = .11; rr <= .225 && !spot; rr += .02) for (let k = 0; k < 24 && !spot; k++) {
+        const ang = Math.PI / 2 + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * Math.PI / 12, x = TX + Math.cos(ang) * rr, z = TZ + Math.sin(ang) * rr, yaw = -ang + Math.PI / 2 + .3; /* starts on the side that faces the room (+z) and works round */
+        const hx = (PW * Math.abs(Math.cos(yaw)) + PL * Math.abs(Math.sin(yaw))) / 2, hz = (PW * Math.abs(Math.sin(yaw)) + PL * Math.abs(Math.cos(yaw))) / 2, probe = new THREE.Box3(new THREE.Vector3(x - hx, sideTop - .05, z - hz), new THREE.Vector3(x + hx, sideTop + .2, z + hz));
+        if (!blockers.some((b) => b.intersectsBox(probe))) spot = { x, z, yaw };
+      }
+      spot ||= { x: TX + .2, z: TZ - .05, yaw: .3 };
+      group.position.set(spot.x, sideTop, spot.z); group.rotation.y = spot.yaw; scene.add(group); PROPS.phone = group;
+    }
+    // ---- 4b. a coffee stool (Paul 2026-11-21): Room 04's Lounge pouf, a padded cylinder with eighteen soft pleats, in a dusty blush pink (a Taiwan-favoured Morandi tone), stands against the left wall between the sideboard and the yellow bag; a small
+    // oak tray on it holds Room 02's graphite coffee canister (with its scoop) and a take-away cup. It is there in every mood. The pouf is the Lounge profile slimmed to a 17 cm radius and stretched to 42 cm.
+    {
+      const CS = { x: -W / 2 + .2, z: .2 }, SR = .17 / .225, SY = .42 / .315, parts = [], fabric = new THREE.Color(0xd9b5ae), PLY = 72; // dusty blush, a Morandi 'mist pink' of the kind Taiwan's homes favour now
+      const profile = [[0, .045, 0, .83], [.177, .045, 0, .82], [.210, .071, .001, .90], [.225, .123, .004, .95], [.224, .274, .004, 1], [.217, .303, .0015, .95], [.212, .309, 0, .68], [.218, .316, 0, .96], [.213, .336, 0, 1.03], [.187, .351, 0, 1.06], [.126, .357, 0, 1.04], [0, .360, 0, 1.02]];
+      const lathe = new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r * SR, (y - .045) * SY + .006)), PLY), lp = lathe.attributes.position, lc = new Float32Array(lp.count * 3);
+      for (let slice = 0; slice <= PLY; slice++) { const angle = (slice % PLY) * Math.PI * 2 / PLY, fold = (1 - Math.cos(18 * angle)) * .5; for (const [row, [radius, , depth, shade]] of profile.entries()) { const i = slice * profile.length + row, r = (radius - depth * fold) * SR; lp.setX(i, r * Math.sin(angle)); lp.setZ(i, r * Math.cos(angle)); const tone = shade * (1 - depth * 18 * fold + Math.min(1, radius * 8) * .022 * Math.sin(angle * 7 + row * .5)); lc.set([fabric.r * tone, fabric.g * tone, fabric.b * tone], i * 3); } }
+      lathe.computeVertexNormals(); { const nrm = lathe.attributes.normal, w = new THREE.Vector3(), o = new THREE.Vector3(); for (let row = 0; row < profile.length; row++) { const last = PLY * profile.length + row; w.fromBufferAttribute(nrm, row).add(o.fromBufferAttribute(nrm, last)).normalize(); nrm.setXYZ(row, w.x, w.y, w.z); nrm.setXYZ(last, w.x, w.y, w.z); } }
+      lathe.setAttribute("color", new THREE.BufferAttribute(lc, 3)); lathe.deleteAttribute("uv");
+      const topY = .006 + (.360 - .045) * SY; // the pouf's top face, 42 cm
+      { const pouf = new THREE.Mesh(lathe.translate(CS.x, 0, CS.z), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); pouf.name = "coffee-stool-pouf"; pouf.castShadow = true; pouf.receiveShadow = true; scene.add(pouf); PROPS.coffeeStoolPouf = pouf; } // its own mesh: the pleat shading lives in its vertex colours
+      parts.push([new THREE.CylinderGeometry(.15, .15, .012, 48).translate(CS.x, 0, CS.z).translate(0, .006, 0), 0x5b4a3a]); // a dark oak base ring, 12 mm, hidden under the pleats' hem
+      const trayY = topY - .004; // the tray sinks 4 mm into the soft top
+      parts.push([new THREE.CylinderGeometry(.135, .13, .014, 48).translate(CS.x, trayY + .007, CS.z), 0xb88f5e], [new THREE.TorusGeometry(.1335, .0055, 8, 48).rotateX(Math.PI / 2).translate(CS.x, trayY + .0145, CS.z), 0xa27a4c]);
+      const ty = trayY + .014;
+      // the canister (graphite, steel lid, scoop), left on the tray
+      const cx = CS.x - .045, cz = CS.z + .03;
+      parts.push([new THREE.CylinderGeometry(.042, .042, .15, 28).translate(cx, ty + .075, cz), 0x3a3d42], [new THREE.CylinderGeometry(.044, .044, .016, 28).translate(cx, ty + .158, cz), 0x8d9096], [new THREE.BoxGeometry(.07, .005, .018).rotateY(.5).translate(cx, ty + .1685, cz), 0x8d9096]);
+      // the take-away cup (white body, kraft sleeve, black lid), right on the tray
+      const ux = CS.x + .05, uz = CS.z - .035;
+      parts.push([new THREE.CylinderGeometry(.04, .03, .106, 24).translate(ux, ty + .053, uz), 0xf4f1e9], [new THREE.CylinderGeometry(.0375, .033, .04, 24).translate(ux, ty + .056, uz), 0xb38c65], [new THREE.CylinderGeometry(.043, .04, .01, 24).translate(ux, ty + .111, uz), 0x292b2d], [new THREE.CylinderGeometry(.0185, .0185, .006, 16).translate(ux, ty + .119, uz), 0x292b2d]);
+      PROPS.coffeeStool = solid(parts, "coffee-stool"); PROPS.coffeeStoolInfo = { topY, trayTop: ty, x: CS.x, z: CS.z };
+    }
     PROPS.night = solid(nightParts, "series-night-props"); PROPS.night.visible = false;
     // steam off the mug (series night): a soft rising wisp, a Points object
     const steamTex = canvasTex(64, 64, (ctx, w, h) => { const g = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2); g.addColorStop(0, "rgba(255,255,255,.55)"); g.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h); });
@@ -2059,12 +2129,12 @@ let lanternMat = null;
     const steam = new THREE.Points(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(steamPts, 3)), new THREE.PointsMaterial({ map: steamTex, size: .06, sizeAttenuation: true, transparent: true, opacity: .5, depthWrite: false, color: 0xffffff }));
     steam.name = "series-night-mug-steam"; steam.visible = false; steam.frustumCulled = false; steam.raycast = () => {}; scene.add(steam); PROPS.steam = steam;
     PROPS.popcorn = new THREE.Group(); PROPS.popcorn.name = "series-night-popcorn"; PROPS.popcorn.visible = false; PROPS.popcorn.position.set(PB.x, coffeeTop, PB.z); scene.add(PROPS.popcorn);
-    loader.loadAsync(new URL("./models/room01-popcorn-bowl-v1.glb", import.meta.url).href).then((asset) => { // Paul 2026-11-21: the procedural popcorn looked like a heap of balls; this is Codex's bowl with real popcorn (recoloured by material name in sRGB)
+    loader.loadAsync(new URL("./models/room01-popcorn-bowl-v2.glb", import.meta.url).href).then((asset) => { // Paul 2026-11-21: the procedural popcorn looked like a heap of balls; this is Codex's bowl with real popcorn (recoloured by material name in sRGB)
       const colours = { bowl: "#efe6d2", rim: "#a5633a", popcorn: "#f3e7c6", butter: "#efd9a0", husk: "#6b4a2b" };
       asset.scene.traverse((o) => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; const c = colours[o.material.name]; if (c) { o.material = o.material.clone(); o.material.color.set(c); o.material.vertexColors = false; } });
       PROPS.popcorn.add(asset.scene); PROPS.popcorn.userData.ready = true;
     }).catch(() => {});
-    PROPS.apply = (mood) => { const night = mood === "tv"; PROPS.night.visible = night; PROPS.popcorn.visible = night; steam.visible = night; laptopObj.visible = !night; };
+    PROPS.apply = (mood) => { const night = mood === "tv"; PROPS.night.visible = night; PROPS.popcorn.visible = night || mood === "slow"; /* Paul 2026-11-21: the bowl also sits on the table on a slow Sunday afternoon, without the rest of the night set */ steam.visible = night; laptopObj.visible = !night; };
     PROPS.fit = () => {
       scene.updateMatrixWorld(true); const bx = (o) => new THREE.Box3().setFromObject(o, true), mm = (v) => Math.round(v * 10000) / 10;
       const radii = (o) => { let lo = 1e9, hi = 0; const v = new THREE.Vector3(); o.traverse((m) => { if (!m.isMesh) return; const pos = m.geometry.attributes.position; for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld); const r = Math.hypot(v.x - TX, v.z - TZ); lo = Math.min(lo, r); hi = Math.max(hi, r); } }); return { lo, hi }; };
@@ -2933,7 +3003,7 @@ let lanternMat = null;
   function setLights(v) {
     hemi.intensity = v.hemi; windowLight.intensity = v.win; windowLight.color.copy(v.winCol); windowLight.position.y = v.sunY; windowLight.shadow.radius = v.shadowRadius;
     downSpot.intensity = v.down * DOWNLIGHT_CANDELA; downLensMat.emissiveIntensity = v.down * 1.6; lampLight.intensity = v.lamp; fill.intensity = v.fill; outMat.color.copy(v.out); hemi.color.copy(v.hemiSky); sideMat.color.copy(v.sideWall); entrySideMat.color.copy(v.entryWall);
-    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo; lanternHalo.material.opacity = v.lanternHalo; downHalos.visible = v.down > .02; downHaloMat.opacity = v.down * .85; floorPool.visible = v.floorHalo > .02; floorPool.material.opacity = v.floorHalo * .55;
+    floorLight.intensity = v.floor; floorHalo.material.opacity = v.floorHalo; tableHalo.material.opacity = v.tableHalo; lanternHalo.material.opacity = v.lanternHalo; sconceHalo.material.opacity = Math.min(.9, v.lanternHalo * 1.7); sconceMat.emissiveIntensity = .22 + v.lanternHalo * 1.3; downHalos.visible = v.down > .02; downHaloMat.opacity = v.down * .85; floorPool.visible = v.floorHalo > .02; floorPool.material.opacity = v.floorHalo * .55;
     dustPoints.material.opacity = dustAmount(v.win); dustPoints.visible = dustPoints.material.opacity > .02; sunBeamMaterial.opacity = dustAmount(v.win) * .85; sunBeam.visible = sunBeamMaterial.opacity > .01;
     shadeGlow.value = v.shade; if (lanternMat) lanternMat.emissiveIntensity = Math.min(1.25, .35 + v.fill * .6); /* follows the main light: bright by day, dim at night */ tableGlow.value = v.table; renderer.toneMappingExposure = v.exposure; ledGlow.intensity = v.led;
     tvStripMat.emissiveIntensity = v.tvWall; tvWashMat.opacity = v.tvWall * .45; tvWallWashMat.opacity = v.wallWarmth; screenReflectionMat.opacity = v.screenReflection;
@@ -4874,6 +4944,10 @@ let lanternMat = null;
         const y = yaw0 + turn, pc = pitch0 + dp; camera.position.copy(eye); camera.lookAt(eye.clone().add(new THREE.Vector3(Math.sin(y) * Math.cos(pc), Math.sin(pc), Math.cos(y) * Math.cos(pc)))); camera.updateMatrixWorld(true);
         out[name] = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)).intersectsBox(box); }
       camera.position.copy(saved.p); camera.quaternion.copy(saved.q); camera.fov = saved.f; camera.updateProjectionMatrix(); camera.updateMatrixWorld(true); return { ...out, halfRangeDeg: Math.round(half * 180 / Math.PI), downDeg: Math.round(down * 180 / Math.PI), fov: doorFov() }; },
+    coffeeStoolFit() { const bx = (o) => new THREE.Box3().setFromObject(o), mm = (v) => Math.round(v * 1000), s = bx(PROPS.coffeeStool).union(bx(PROPS.coffeeStoolPouf)), bag = bx(scene.getObjectByName('room01-wall-backpack')), oak = bx(sideboard.oak), info = PROPS.coffeeStoolInfo; const gapZ = (a, b) => Math.max(a.min.z - b.max.z, b.min.z - a.max.z); return { floorMm: mm(s.min.y), topM: +s.max.y.toFixed(3), wallGapMm: mm(s.min.x - (-W / 2)), toSideboardMm: mm(gapZ(s, oak)), toBagMm: mm(gapZ(s, bag)), info }; },
+    nightInfo: () => ({ popcorn: PROPS.popcorn.visible, night: PROPS.night.visible, popcornReady: !!PROPS.popcorn.userData.ready }),
+    phoneFit() { const b = new THREE.Box3().setFromObject(PROPS.phone), m = (v) => Math.round(v * 1000), side = new THREE.Box3().setFromObject(tableObj), others = { lamp: tableLampObj, mug: PROPS.mug, notebook: PROPS.notebook, coaster: PROPS.sideTable.coaster }, gaps = {}; for (const [k, o] of Object.entries(others)) { const ob = new THREE.Box3().setFromObject(o); if (k === 'lamp') { /* the shade overhangs the table, the phone lies under it: judge by the lamp's foot (111 mm radius) */ const lc = ob.getCenter(new THREE.Vector3()), dx = Math.max(b.min.x - lc.x, 0, lc.x - b.max.x), dz = Math.max(b.min.z - lc.z, 0, lc.z - b.max.z); gaps[k] = m(Math.hypot(dx, dz) - .111); continue; } gaps[k] = ob.intersectsBox(b) ? -1 : m(Math.max(ob.min.x - b.max.x, b.min.x - ob.max.x, ob.min.z - b.max.z, b.min.z - ob.max.z)); } const cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2; return { seatMm: m(b.min.y - sideTop), radialMm: m(Math.max(Math.hypot(b.min.x - TX, b.min.z - TZ), Math.hypot(b.max.x - TX, b.max.z - TZ), Math.hypot(b.min.x - TX, b.max.z - TZ), Math.hypot(b.max.x - TX, b.min.z - TZ))), tableRadiusMm: 330, gaps, at: [+cx.toFixed(3), +cz.toFixed(3)] }; },
+    sconceInfo: () => ({ x: SCONCE.x, y: SCONCE.y, z: SCONCE.z, globeX: SCONCE.globeX, glow: +sconceMat.emissiveIntensity.toFixed(2), halo: +sconceHalo.material.opacity.toFixed(2) }),
     entryShoes: () => PROPS.shoesInfo || null,
     entryShoeMaterials: () => { const out = []; PROPS.shoes.traverse((o) => { if (o.isMesh) { const m = o.material; out.push({ name: m.name, color: m.color.getHexString(), emissive: m.emissive?.getHexString(), emissiveIntensity: m.emissiveIntensity, map: !!m.map, vertexColors: m.vertexColors, rough: m.roughness, metal: m.metalness, attrs: Object.keys(o.geometry.attributes) }); } }); return out; },
     tapKeycard: (opts) => tapKeycard(opts),

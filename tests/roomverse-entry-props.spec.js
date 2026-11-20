@@ -24,3 +24,46 @@ test("Room 01 entry: doormat and sneakers stand on the floor clear of the door f
   await expect.poll(async () => (await page.evaluate(() => window.__room.lockLed())).emissive, { timeout: 4000, message: "the light goes back to its idle blue" }).toBe("3a6bff");
   expect(errors).toEqual([]);
 });
+
+// Paul 2026-11-21: a dusty-blush pouf (Room 04's Lounge pouf, slimmed) stands against the left wall between the sideboard and the yellow bag, with an oak tray, a coffee canister and a take-away cup on it; the popcorn bowl
+// also shows on a slow Sunday afternoon; and the game pad lies on the sofa on a series night.
+test("Room 01 coffee stool stands clear on the floor; the popcorn bowl shows on a slow afternoon and a series night; the pad shows only on a series night", async ({ page }) => {
+  test.setTimeout(200000);
+  const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/prototype/roomverse-3d/?lang=zh&hint=0&mood=slow");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room?.coffeeStoolFit, null, { timeout: 90000 }); await page.waitForTimeout(3000);
+  const f = await page.evaluate(() => window.__room.coffeeStoolFit());
+  expect(Math.abs(f.floorMm), "the stool stands on the floor").toBeLessThanOrEqual(2);
+  expect(f.wallGapMm, "clear of the wall, not through it").toBeGreaterThanOrEqual(10);
+  expect(f.toSideboardMm, "clear of the sideboard").toBeGreaterThanOrEqual(60);
+  expect(f.toBagMm, "clear of the yellow bag").toBeGreaterThanOrEqual(60);
+  expect(f.topM, "tray, canister and cup stand on a 42 cm stool").toBeGreaterThan(.55);
+  await page.waitForFunction(() => window.__room.nightInfo().popcornReady, null, { timeout: 60000 });
+  expect(await page.evaluate(() => window.__room.nightInfo()), "slow afternoon: the bowl, none of the rest of the night set").toMatchObject({ popcorn: true, night: false });
+  await page.evaluate(() => window.__room.set("mood", "tv")); await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => window.__room.nightInfo()), "series night: the bowl and the night set (with the pad on the sofa)").toMatchObject({ popcorn: true, night: true });
+  await page.evaluate(() => window.__room.set("mood", "golden")); await page.waitForTimeout(1500);
+  expect(await page.evaluate(() => window.__room.nightInfo()), "golden hour: neither").toMatchObject({ popcorn: false, night: false });
+  expect(errors).toEqual([]);
+});
+
+// Paul 2026-11-21: Room 03's phone lies on the side table (no glow, no message), and a globe wall sconce hangs on the left wall above the plant; the sconce glows more in the evening moods and has no real light.
+test("Room 01 phone on the side table is clear of its neighbours and inside the edge; the wall sconce follows the mood", async ({ page }) => {
+  test.setTimeout(200000);
+  const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/prototype/roomverse-3d/?lang=zh&hint=0&mood=golden");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room?.phoneFit && window.__room?.sconceInfo, null, { timeout: 90000 }); await page.waitForTimeout(3000);
+  const p = await page.evaluate(() => window.__room.phoneFit());
+  expect(Math.abs(p.seatMm), "the phone lies on the table top").toBeLessThanOrEqual(2);
+  expect(p.radialMm, "wholly inside the table's edge").toBeLessThanOrEqual(p.tableRadiusMm - 10);
+  for (const [k, gap] of Object.entries(p.gaps)) expect(gap, `clear of the ${k} (-1 means they overlap)`).toBeGreaterThanOrEqual(0);
+  const golden = await page.evaluate(() => window.__room.sconceInfo());
+  expect(golden.x, "on the left wall").toBeCloseTo(-2.6, 2);
+  expect(golden.globeX - golden.x, "the globe stands 8 to 14 cm off the wall").toBeGreaterThan(.08); expect(golden.globeX - golden.x).toBeLessThan(.14);
+  await page.evaluate(() => window.__room.set("mood", "tv")); await page.waitForTimeout(1800);
+  const tv = await page.evaluate(() => window.__room.sconceInfo());
+  expect(tv.glow, "brighter on a series night than at golden hour").toBeGreaterThan(golden.glow); expect(tv.halo).toBeGreaterThan(golden.halo);
+  await page.evaluate(() => window.__room.set("mood", "slow")); await page.waitForTimeout(1800);
+  expect((await page.evaluate(() => window.__room.sconceInfo())).glow, "dimmest by day").toBeLessThan(golden.glow);
+  expect(errors).toEqual([]);
+});

@@ -19,7 +19,7 @@ async function openRoom(page, { width, mood = "rain", lang = "zh" }) {
 
 // The models Room 01 loads on entry. It was nine (sofa to laptop); the Room 01 mug and the campus backpack are the two added since, so the count was stale, not a missing request.
 // Listed by name so the next model added to the room is a deliberate edit here instead of a surprise count.
-const ENTRY_MODELS = ["coffee-table", "floor-lamp", "laptop", "low-chair", "plant", "robot", "side-table", "sofa", "table-lamp", "mug-v1", "campus-backpack-v2", "room01-clogs-beige-v2"].map((n) => `${n}.glb`).sort();
+const ENTRY_MODELS = ["coffee-table", "floor-lamp", "laptop", "low-chair", "plant", "robot", "side-table", "sofa", "table-lamp", "mug-v1", "campus-backpack-v2", "room01-clogs-beige-v2", "room01-popcorn-bowl-v2"].map((n) => `${n}.glb`).sort();
 const loadedModels = (glb) => glb.filter((file) => file.endsWith(".glb")).map((file) => file.split("/").pop()).sort();
 
 test("hall stand is clean geometry in the front-left corner", async ({ page }) => {
