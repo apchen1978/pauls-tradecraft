@@ -3771,17 +3771,18 @@ let lanternMat = null;
   renderer.domElement.addEventListener("pointerdown", (e) => {
     if (arrival) { suppressTap = true; downAt = null; finishReturnArrival(); return; }
     if (director) { suppressTap = true; stopDirector(); downAt = null; return; }
-    downAt = [e.clientX, e.clientY];
+    downAt = [e.clientX, e.clientY, e.pointerType]; // a finger is allowed more wobble than a mouse: a tap that moves 10 px is still a tap
   });
   renderer.domElement.addEventListener("pointerup", (e) => {
     if (suppressTap) { suppressTap = false; return; }
-    if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6 || hopping) return;
+    if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > (downAt[2] === "touch" ? 14 : 6) || hopping) return;
+    const touchTap = downAt[2] === "touch";
     const r = renderer.domElement.getBoundingClientRect();
     tap.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(tap, camera);
     // Prioritize this 44 px touch target even while the robot dialogue bubble is open.
     const noteCenter = new THREE.Box3().setFromObject(plantNote).getCenter(new THREE.Vector3()).project(camera);
-    if (noteCenter.z < 1 && Math.hypot(e.clientX - (r.left + ((noteCenter.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - noteCenter.y) / 2) * r.height)) <= 44) { showPlantNote(); return; }
+    if (noteCenter.z < 1 && Math.hypot(e.clientX - (r.left + ((noteCenter.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - noteCenter.y) / 2) * r.height)) <= (touchTap ? 60 : 44)) { showPlantNote(); return; }
     const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
     if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
     if (ray.intersectObject(tvScreen, false).length) { toggleMusic(); return; } // a tap on the TV screen starts (or stops) the music too
