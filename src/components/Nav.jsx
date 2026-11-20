@@ -22,7 +22,7 @@ export default function Nav() {
     // the AI Lab, the Garage, and how I work, the notes and about. "What I do" is gone from the bar: the work itself shows it (its section is still on the page).
     { href: "#showcase", label: t.nav.showcase, tier: "featured" },
     { href: "#works", label: t.nav.works, tier: "major" },
-    { href: "#ai-lab", label: t.nav.aiLab, tier: "major" }, // Paul 2026-11-20: the AI Lab matters as much as the Business Works, so it wears the same bone frame
+    { href: "#ai-lab", label: t.nav.aiLab, tier: "lab" }, // Paul 2026-11-20: the AI Lab is as important as the other two, so it is framed too, in its own colour (a soft sage-mint, kin to the paper green)
     { href: "#garage", label: t.nav.garage },
     { href: "#capabilities", label: t.nav.services },
     { href: "#trade-notes", label: t.nav.notes },
@@ -32,10 +32,12 @@ export default function Nav() {
   const TIER_DESKTOP = {
     featured: "rounded-full border border-gold bg-gold/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-gold/20 hover:text-bone focus-visible:bg-gold/20 xl:px-3.5",
     major: "rounded-full border border-bone/35 px-2.5 py-1.5 text-bone/95 decoration-transparent hover:border-bone/70 hover:text-bone focus-visible:border-bone/70 xl:px-3.5",
+    lab: "rounded-full border border-[#8fbfa8]/80 bg-[#8fbfa8]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#8fbfa8]/20 hover:text-bone focus-visible:bg-[#8fbfa8]/20 xl:px-3.5",
   };
   const TIER_MENU = {
     featured: "border border-gold bg-gold/10 text-bone hover:bg-gold/20",
     major: "border border-bone/35 text-bone hover:border-bone/70",
+    lab: "border border-[#8fbfa8]/80 bg-[#8fbfa8]/10 text-bone hover:bg-[#8fbfa8]/20",
   };
   const followSectionLink = (href) => {
     if (href === "#garage") openGarageThenScroll();
