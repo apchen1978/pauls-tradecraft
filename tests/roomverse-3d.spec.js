@@ -667,7 +667,7 @@ test("new wall paints restore from the URL and work across all seven feelings", 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const mobilePanel = await page.locator("#panel").evaluate((panel) => ({ scroll: panel.scrollHeight, client: panel.clientHeight, width: panel.scrollWidth, clientWidth: panel.clientWidth }));
   expect(mobilePanel.width).toBeLessThanOrEqual(mobilePanel.clientWidth);
-  expect(mobilePanel.scroll).toBeLessThan(1100);
+  expect(mobilePanel.scroll).toBeLessThan(1180); // 1100 before the doorway-view button (2026-11-20) added one more full-width row on the phone
   const newWallLabels = await page.locator('#panel .opts').nth(1).locator('button[data-key="dusk"],button[data-key="wine"]').allTextContents();
   expect(newWallLabels.join(" ")).not.toMatch(/壁紙|wallpaper/i);
   // The shuffle picks index floor(random x n) among the other walls (the room is set to "original" first), so the fraction that lands on a key is derived from the key's place in
