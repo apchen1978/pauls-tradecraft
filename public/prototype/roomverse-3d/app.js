@@ -1943,8 +1943,15 @@ let lanternMat = null;
       const welcome = new THREE.Mesh(new THREE.PlaneGeometry(MAT.l - .16, MAT.w - .1), new THREE.MeshStandardMaterial({ map: print, transparent: true, roughness: 1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
       welcome.name = "entry-doormat-welcome"; welcome.rotation.set(-Math.PI / 2, 0, Math.PI / 2); welcome.position.set(MAT.x, .0128, MAT.z); doormat.add(welcome);
       scene.add(doormat); PROPS.doormat = doormat;
-      // The living room's door opens on a shared passage, so no street shoes here. The spot between the door frame (it ends at z 1.775) and the umbrella stand (z 1.98 and up), toes to the wall, is kept for Paul's beige clogs (a model Codex is drawing); the oatmeal house slippers stay where they were, on the rug in front of the coffee table.
-      PROPS.shoesInfo = { ready: true, placed: false };
+      // The living room's door opens on a shared passage, so no street shoes here. Paul's beige clogs (Codex's model) stand between the door frame (it ends at z 1.775) and the umbrella stand (z 1.98 and up), toes to the wall; the oatmeal house slippers stay where they were, on the rug in front of the coffee table.
+      PROPS.shoes = new THREE.Group(); PROPS.shoes.name = "entry-clogs"; scene.add(PROPS.shoes); PROPS.shoesInfo = { ready: false, placed: false };
+      loader.loadAsync(new URL("./models/room01-clogs-beige-v1.glb", import.meta.url).href).then((asset) => { // Paul's beige clogs (Codex's model): recoloured by material name in sRGB, scaled to fit the slot, toes to the wall
+        const clogs = asset.scene, colours = { upper: "#cdbd94", sole: "#bfae82", lining: "#e6694a", loop: "#cdbd94" };
+        clogs.traverse((o) => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; const c = colours[o.material.name]; if (c) { o.material = o.material.clone(); o.material.color.set(c); o.material.vertexColors = false; o.material.roughness = Math.max(o.material.roughness, .82); } });
+        clogs.scale.multiplyScalar(.93); { const b = new THREE.Box3().setFromObject(clogs), c = b.getCenter(new THREE.Vector3()); clogs.position.set(-c.x, -b.min.y, -c.z); } // 20 cm wide, so the pair fits between the door frame and the umbrella stand
+        PROPS.shoes.position.set(W / 2 - .03 - .1235, 0, 1.883); PROPS.shoes.rotation.y = Math.PI / 2 - .03; PROPS.shoes.add(clogs); PROPS.shoes.updateMatrixWorld(true);
+        PROPS.shoesInfo = { ready: true, placed: true, size: new THREE.Box3().setFromObject(clogs).getSize(new THREE.Vector3()).toArray() };
+      }).catch(() => { PROPS.shoesInfo = { ready: true, placed: false }; });
       // The key hooks (Paul's photo): a brushed-aluminium flat bar with four round-capped pegs, hung at coat-hook height on the wall over the thermostat and the light switch, clear of the couplet. One peg holds a ring
       // with two keys (profile-cut bows with holes, toothed blades, tinted caps) and a leather tag, flat against the wall.
       const RAIL = { z: 1.99, y: 1.62, len: .34 }, wallX = W / 2, PEG_Z = [-.12, -.04, .04, .12];
