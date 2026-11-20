@@ -78,3 +78,20 @@ test.describe("phone touch", () => {
     expect(await page.evaluate(() => window.__room.plantNoteInfo().caption)).toContain("出門前，記得澆花");
   });
 });
+
+// Paul 2026-11-20: the small Post-it by the window did not open its dialogue when tapped. A finger wobbles: a touch tap that drifts up to about 12 px is still a tap, and a finger's target is wider (60 px) than a mouse's (44 px).
+test("Room 01 plant note: a finger tap that wobbles 10 px, 55 px off the note's centre, still opens the dialogue", async ({ browser }) => {
+  test.setTimeout(150000);
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  const page = await context.newPage(); const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/prototype/roomverse-3d/?lang=zh&hint=0");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room?.plantNoteInfo, null, { timeout: 100000 }); await page.waitForTimeout(2500);
+  await page.evaluate(() => window.__room.doorView()); await page.waitForTimeout(1800); // the doorway view shows the note on a phone
+  const info = await page.evaluate(() => window.__room.plantNoteInfo()); const [x, y] = info.screen;
+  expect(x > 20 && x < 370 && y > 20 && y < 820, "the note is on screen in the doorway view").toBe(true);
+  await page.evaluate(([x, y]) => { const c = document.querySelector("#stage canvas"); const ev = (type, cx, cy) => c.dispatchEvent(new PointerEvent(type, { pointerType: "touch", isPrimary: true, clientX: cx, clientY: cy, bubbles: true })); ev("pointerdown", x + 45, y); ev("pointerup", x + 55, y); }, [x, y]);
+  await page.waitForTimeout(600);
+  expect((await page.evaluate(() => window.__room.plantNoteInfo())).visible, "the dialogue is shown").toBe(true);
+  expect(errors.filter((m) => !m.includes("setPointerCapture")), "no page errors (the orbit controls complain about a synthetic pointer id, which a real finger never does)").toEqual([]);
+  await context.close();
+});
