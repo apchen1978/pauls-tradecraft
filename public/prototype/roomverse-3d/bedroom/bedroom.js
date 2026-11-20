@@ -1672,8 +1672,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // while the darker walnut veneer sits naturally beside the records and oak console.
   // Pair geometry is merged by material to keep this detail to two draw calls.
   const SPEAKER = { width: .16, height: .25, depth: .18, x: .4, bottom: .5 };
-  // Paul 2026-11-20: a touch more like what a young man would own (inspired by a tall black tower with metal-ringed drivers): same footprint, but a satin black cabinet, a graphite baffle, brushed-aluminium rings on both drivers and a thin rust accent line.
-  const speakerWood = new THREE.MeshStandardMaterial({ color: "#1a1b1e", roughness: .5, metalness: .12 });
+  // Paul 2026-11-20: a touch more like what a young man would own (inspired by a tall black tower with metal-ringed drivers): same footprint, but a matte black cabinet, a graphite baffle, brushed-aluminium rings on both drivers and a thin rust accent line.
+  const speakerWood = new THREE.MeshStandardMaterial({ color: "#1a1b1e", roughness: .72, metalness: .08 });
   const speakerDetail = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .78, metalness: .04, vertexColors: true });
   const speakerParts = { wood: [], details: [] };
   const speakerUnitBounds = [];
