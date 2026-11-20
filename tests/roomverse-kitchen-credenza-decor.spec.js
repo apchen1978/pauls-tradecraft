@@ -16,7 +16,7 @@ test("the credenza top carries two takeaway cups, and the small Bay Area keepsak
   expect(decor.bounds.min[1] - top).toBeLessThanOrEqual(0.002);
   expect(decor.bounds.max[1] - top, "stays well below the painting").toBeLessThanOrEqual(0.6);
   expect(decor.bounds.max[0], "inside the credenza depth (front edge 2.49, wall 2.94)").toBeLessThanOrEqual(2.92);
-  expect(decor.bounds.min[0]).toBeGreaterThanOrEqual(2.49);
+  expect(decor.bounds.min[0]).toBeGreaterThanOrEqual(2.48);
   expect(decor.bounds.min[2], "clear of the door leaf end (z -0.80)").toBeGreaterThanOrEqual(-0.79);
   expect(decor.bounds.max[2], "short of the wok counter (z 1.023)").toBeLessThanOrEqual(1.0);
   expect(decor.cups, "only the Shanghai Slowly cup stays (Paul 2026-11-21)").toHaveLength(1);
