@@ -3641,6 +3641,22 @@ let lanternMat = null;
   window.addEventListener("pointerup", () => autoMusic(), { passive: true });
   // The record player turns while the music plays, whoever started it (the TV, the speakers, the DJ robot or the record player itself); a stopped room draws nothing extra.
   setInterval(() => { sideboard.recordPlayer.setPlaying(!!roomMusic.state().playing, render); }, 400);
+  // The record player's glowing ring (Paul 2026-11-20, like Rooms 02 and 03): a soft pulsing ring over the turntable until the visitor taps it; the music then plays until they stop it. It shows only
+  // while the turntable is on screen and clear of the edges, lets every tap through, and is drawn in CSS (no cost to the picture).
+  let recordFound = false;
+  const recordRing = document.createElement("div"), recordRingStyle = document.createElement("style");
+  recordRing.id = "recordRing"; recordRing.setAttribute("aria-hidden", "true"); recordRing.hidden = true;
+  recordRingStyle.textContent = "#recordRing{position:absolute;z-index:4;margin:0;border:3px solid #ffe2a8;border-radius:50%;background:radial-gradient(circle,rgba(255,214,150,.3),transparent 70%);box-shadow:0 0 18px 5px rgba(255,190,90,.8);pointer-events:none;transform:translate(-50%,-50%);animation:recordRingPulse 1.9s ease-out infinite}#recordRing[hidden]{display:none}@keyframes recordRingPulse{0%{opacity:1;box-shadow:0 0 10px 2px rgba(255,190,90,.8)}80%,100%{opacity:0;box-shadow:0 0 30px 10px rgba(255,190,90,0)}}@media(prefers-reduced-motion:reduce){#recordRing{animation:none}}"; document.head.append(recordRingStyle); stage.append(recordRing);
+  const recordRingSpot = new THREE.Vector3(), recordRingBox = new THREE.Box3();
+  function placeRecordRing() {
+    if (recordFound || document.hidden || director || intro || new URLSearchParams(location.search).get("hint") === "0") { recordRing.hidden = true; return; }
+    recordRingBox.setFromObject(sideboard.recordPlayer.group); recordRingBox.getCenter(recordRingSpot); recordRingSpot.y = recordRingBox.max.y - .02;
+    camera.updateMatrixWorld(); const p = recordRingSpot.clone().project(camera), edge = new THREE.Vector3(recordRingBox.max.x, recordRingSpot.y, recordRingSpot.z).project(camera), r = stage.getBoundingClientRect();
+    if (p.z >= 1 || Math.abs(p.x) > .86 || Math.abs(p.y) > .8) { recordRing.hidden = true; return; }
+    const cx = (p.x + 1) * r.width / 2, cy = (1 - p.y) * r.height / 2, size = Math.max(48, Math.abs(edge.x - p.x) * r.width * 1.1 + 40);
+    recordRing.hidden = false; Object.assign(recordRing.style, { left: `${cx}px`, top: `${cy}px`, width: `${size}px`, height: `${size}px` });
+  }
+  setInterval(placeRecordRing, 250);
   let musicNightMood = state.mood === "tv"; // the mood the music last followed
   musicSync = () => { const night = state.mood === "tv"; if (night === musicNightMood) return; musicNightMood = night; if (!roomMusic.state().playing) return; musicTrack = night ? 1 : 0; roomMusic.start(musicTrack, musicOptions); announceMusic(musicTrack); }; // entering or leaving series night while music plays changes the piece; a piece picked with the robot stays until then
   window.addEventListener("click", () => autoMusic(), { passive: true }); // the view and mood buttons change the state in their own click handlers, which run before this one
@@ -3690,7 +3706,7 @@ let lanternMat = null;
     const speakerPair = scene.getObjectByName("tv-wall-speakers"); // tapping a speaker (the ray, or within 40 px of one on screen) plays the music
     if (speakerPair && (ray.intersectObject(speakerPair, true).length || speakerPair.userData.unitBoxes.some((box) => { const c = speakerPair.localToWorld(box.getCenter(new THREE.Vector3())).project(camera); return c.z < 1 && Math.hypot(e.clientX - (r.left + ((c.x + 1) / 2) * r.width), e.clientY - (r.top + ((1 - c.y) / 2) * r.height)) <= 40; }))) { toggleMusic(); return; }
     if (ray.intersectObject(tvScreen, false).length) { toggleMusic(); return; } // a tap on the TV screen starts (or stops) the music too
-    if (ray.intersectObject(sideboard.recordPlayer.group, true).length) { toggleMusic(true); return; } // the record player on the sideboard (Paul 2026-11-18) switches the same music on or off
+    if (ray.intersectObject(sideboard.recordPlayer.group, true).length) { recordFound = true; recordRing.hidden = true; toggleMusic(true); return; } // the record player on the sideboard (Paul 2026-11-18) switches the same music on or off
     const hitGuide = ray.intersectObject(guidePivot, true).length > 0;
     if (!hitGuide && !ray.intersectObject(robotObj, true).length) { if (ray.intersectObject(roomDoor, true).length) onTravelChoice(); return; } // tapping the door opens the shared destination chooser
     const pivot = hitGuide ? guidePivot : robotPivot, home = hitGuide ? guideHome : robotHome;
@@ -4612,7 +4628,7 @@ let lanternMat = null;
     },
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : robotCustomLine ? (robotCustomLine[l] || robotCustomLine.zh) : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
-    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), musicTracks: () => roomMusic.tracks(), tapRecordPlayer: () => toggleMusic(true), recordCard: () => ({ shown: !robotBubble.hidden && bubbleTarget === sideboard.recordPlayer.group, text: robotBubble.querySelector("[data-bubble-copy]").textContent, cover: robotBubble.querySelector("[data-cover]")?.hidden === false ? robotBubble.querySelector("[data-cover]").src : null }), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
+    musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), musicTracks: () => roomMusic.tracks(), tapRecordPlayer: () => { recordFound = true; recordRing.hidden = true; return toggleMusic(true); }, recordRingInfo: () => { placeRecordRing(); return { visible: !recordRing.hidden, found: recordFound, w: recordRing.offsetWidth }; }, recordCard: () => ({ shown: !robotBubble.hidden && bubbleTarget === sideboard.recordPlayer.group, text: robotBubble.querySelector("[data-bubble-copy]").textContent, cover: robotBubble.querySelector("[data-cover]")?.hidden === false ? robotBubble.querySelector("[data-cover]").src : null }), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
     speakerScreen() { const g = scene.getObjectByName("tv-wall-speakers"); if (!g) return null; scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = renderer.domElement.getBoundingClientRect(), c = g.localToWorld(g.userData.unitBoxes[0].getCenter(new THREE.Vector3())).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: where the left speaker is on screen
     freezeAmbient(on = true) { ambientFrozen = on; },
     lanternInfo: () => { const globe = scene.getObjectByName("living-room-lantern"); return { fill: fill.position.toArray(), globe: globe ? globe.position.toArray() : null }; }, // QA: the room's fill light must sit at the lantern's centre

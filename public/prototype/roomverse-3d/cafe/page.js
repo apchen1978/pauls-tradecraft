@@ -202,6 +202,21 @@ function watchRecordHint() {
   if (recordHintTimer) return;
   recordHintTimer = setTimeout(() => { recordHintTimer = 0; if (recordOnScreen() && $("bubble").hidden) { recordHintDone = true; openBubble("recordHint", 7000); } }, 1300);
 }
+// The record player's glowing ring (Paul 2026-11-20, like Rooms 02 and 03): a soft pulsing ring over the record player until the visitor taps it; music then plays until they stop it. It only
+// shows while the record player is on screen and sits clear of the edges; it lets every tap through. Drawn in CSS, no cost to the picture.
+let recordFound = false, recordRing = null;
+function placeRecordRing(rect) {
+  if (!recordRing) {
+    recordRing = document.createElement("div"); recordRing.id = "recordRing"; recordRing.setAttribute("aria-hidden", "true"); recordRing.hidden = true;
+    const style = document.createElement("style"); style.textContent = "#recordRing{position:absolute;z-index:4;margin:0;border:3px solid #ffe2a8;border-radius:50%;background:radial-gradient(circle,rgba(255,214,150,.3),transparent 70%);box-shadow:0 0 18px 5px rgba(255,190,90,.8);pointer-events:none;transform:translate(-50%,-50%);animation:recordRingPulse 1.9s ease-out infinite}#recordRing[hidden]{display:none}@keyframes recordRingPulse{0%{opacity:1;box-shadow:0 0 10px 2px rgba(255,190,90,.8)}80%,100%{opacity:0;box-shadow:0 0 30px 10px rgba(255,190,90,0)}}@media(prefers-reduced-motion:reduce){#recordRing{animation:none}}"; document.head.append(style); $("stage").append(recordRing);
+  }
+  const stage = $("stage").getBoundingClientRect();
+  const show = !!rect && !recordFound && params.get("hint") !== "0" && mood !== "closing" && mood !== "series" && rect.right - rect.left > 14
+    && (rect.left + rect.right) / 2 > stage.left + stage.width * .08 && (rect.left + rect.right) / 2 < stage.right - stage.width * .08 && (rect.top + rect.bottom) / 2 > stage.top + stage.height * .1 && (rect.top + rect.bottom) / 2 < stage.bottom - stage.height * .12;
+  recordRing.hidden = !show; if (!show) return;
+  const size = Math.max(48, (rect.right - rect.left) * 1.25);
+  Object.assign(recordRing.style, { left: `${(rect.left + rect.right) / 2 - stage.left}px`, top: `${(rect.top + rect.bottom) / 2 - stage.top}px`, width: `${size}px`, height: `${size}px` });
+}
 function placeUi() {
   if (!room) return;
   const robotRect = room.robotScreen(), catRect = room.catScreen ? room.catScreen() : null, baristaRect = room.baristaScreen ? room.baristaScreen() : null, tabletRect = room.tabletScreen ? room.tabletScreen() : null, menuBox = room.menuScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
@@ -209,7 +224,7 @@ function placeUi() {
   // the small keyboard / screen-reader button sits between the two boards; the boards themselves take taps on the canvas
   placeTarget($("catHit"), catRect); placeTarget($("baristaHit"), baristaRect); placeTarget($("tabletHit"), tabletRect); placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
   const bubble = $("bubble"), anchor = bubbleOwner === "recordHint" ? recordRect : bubbleOwner === "tablet" ? tabletRect : bubbleOwner === "barista" ? baristaRect : bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
-  watchRecordHint();
+  watchRecordHint(); placeRecordRing(recordRect);
   bubble.style.pointerEvents = bubbleOwner === "recordHint" ? "none" : "";
   const closeButton = bubble.querySelector("[data-close]"); if (closeButton) closeButton.hidden = bubbleOwner === "recordHint"; // the hint lets taps through and goes away by itself
   if (bubble.hidden) return;
@@ -267,7 +282,7 @@ $("recordHit").addEventListener("click", () => {
     room.stopRecordPlayback(); closeBubble();
     return;
   }
-  if (room.playRecord()) { recordHintDone = true; clearTimeout(recordHintTimer); recordTrackShown = room.soundState().track; openBubble("record", 7000); }
+  if (room.playRecord()) { recordHintDone = true; recordFound = true; recordRing && (recordRing.hidden = true); clearTimeout(recordHintTimer); recordTrackShown = room.soundState().track; openBubble("record", 7000); }
 });
 $("dripHit").addEventListener("click", () => {
   if (!room) return;

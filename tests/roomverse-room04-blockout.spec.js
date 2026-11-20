@@ -993,3 +993,27 @@ test("the right-wall sconces light the Lounge after dark and are off by day", as
   await expect.poll(level, { timeout: 10000 }).toBe(0);
   expect(errors).toEqual([]);
 });
+
+// Paul 2026-11-20: a glowing ring over the record player until it is tapped (like Rooms 02 and 03); it lets taps through and hides on hint=0.
+for (const width of [390, 1440]) {
+  test(`Room 04 a glowing ring marks the record player until it is tapped (${width}px)`, async ({ page }) => {
+    test.setTimeout(150000);
+    const errors = await open(page, width, "zh", "");
+    await page.evaluate(() => window.__room04.setView("counter"));
+    const ring = page.locator("#recordRing");
+    await expect(ring, "the ring shows over the record player").toBeVisible({ timeout: 15000 });
+    const r = await page.evaluate(() => { const q = document.getElementById("recordRing").getBoundingClientRect(), rec = window.__room04.recordScreen(); return { rx: (q.left + q.right) / 2, ry: (q.top + q.bottom) / 2, cx: (rec.left + rec.right) / 2, cy: (rec.top + rec.bottom) / 2, pe: getComputedStyle(document.getElementById("recordRing")).pointerEvents }; });
+    expect(Math.hypot(r.rx - r.cx, r.ry - r.cy), "centred on the record player").toBeLessThan(6);
+    expect(r.pe, "taps go through").toBe("none");
+    await page.locator("#recordHit").dispatchEvent("click");
+    await expect(ring, "found: the ring goes away").toBeHidden();
+    expect(errors).toEqual([]);
+  });
+}
+test("Room 04 hint=0 keeps the record ring away", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = await open(page, 1440, "zh", "&hint=0");
+  await page.evaluate(() => window.__room04.setView("counter")); await page.waitForTimeout(1500);
+  await expect(page.locator("#recordRing")).toBeHidden();
+  expect(errors).toEqual([]);
+});
