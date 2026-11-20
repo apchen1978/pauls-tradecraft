@@ -2595,26 +2595,26 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const disc = (key, x, y, z, r, h, base = r) =>
       part(key, new THREE.CylinderGeometry(r, base, h, 32).translate(x, y, z));
     const detail = (g, color) => part("loungeDetail", colorize(g, color));
-    const bx = 2.86, bz = 1.18;
+    const bx = 2.86, bz = 1.33; // Paul 2026-11-21: the banquette was too short for three people: 30 cm longer (to 2.2 m), growing towards the corner (the plant moves out of the way); its bar-side end stays where it was
     registerSupport("lounge-banquette-plinth-ground", "ground", { bottomY: 0 });
-    boxPart("oakDeep", 0.47, 0.07, 1.81, bx + 0.02, 0.035, bz);
-    boxPart("oak", 0.55, 0.34, 1.9, bx, 0.23, bz, 0.035);
+    boxPart("oakDeep", 0.47, 0.07, 2.11, bx + 0.02, 0.035, bz);
+    boxPart("oak", 0.55, 0.34, 2.2, bx, 0.23, bz, 0.035);
     // The exposed end has a solid upholstered return, rather than a flat sheet.
-    boxPart("oakDeep", 0.48, 0.29, 0.045, bx, 0.245, bz - 0.925, 0.016);
-    boxPart("oak", 0.07, 0.47, 1.9, bx + 0.23, 0.615, bz, 0.025);
+    boxPart("oakDeep", 0.48, 0.29, 0.045, bx, 0.245, bz - 1.075, 0.016);
+    boxPart("oak", 0.07, 0.47, 2.2, bx + 0.23, 0.615, bz, 0.025);
     const addCushion = (width, height, depth, x, y, z, sag, tone) => {
       part("loungeSeat", colorize(cushionGeometry(width, height, depth, sag).translate(x, y, z), tone));
       detail(cushionWeltGeometry(width, depth, y + 0.003, x, z, 0.0038), 0xb88a68);
     };
     [
-      [-0.614, 0.502, 0.108, 0.566, 0.010, 0xe5d9cd],
-      [0.002, 0.514, 0.103, 0.573, 0.016, 0xffffff],
-      [0.617, 0.507, 0.112, 0.558, 0.012, 0xe5e8df],
+      [-0.700, 0.590, 0.108, 0.566, 0.010, 0xe5d9cd],
+      [0.002, 0.600, 0.103, 0.573, 0.016, 0xffffff],
+      [0.703, 0.592, 0.112, 0.558, 0.012, 0xe5e8df],
     ].forEach(([dz, w, h, d, sag, tone]) => addCushion(w, h, d, bx - 0.025, 0.412, bz + dz, sag, tone));
-    part("loungeSeat", colorize(roundedBox(0.113, 0.37, 1.85, 0.045, 0.0225, 4).translate(bx + 0.145, 0.657, bz), 0xf7f2ed));
+    part("loungeSeat", colorize(roundedBox(0.113, 0.37, 2.15, 0.045, 0.0225, 4).translate(bx + 0.145, 0.657, bz), 0xf7f2ed));
 
     // Two bulging cloth faces meet at the welt. The lower edge sits on the seat.
-    for (const [dz, tilt] of [[-0.59, 0.10], [-0.02, -0.12], [0.58, 0.15]]) {
+    for (const [dz, tilt] of [[-0.69, 0.10], [-0.02, -0.12], [0.68, 0.15]]) {
       const at = (g) => g.rotateZ(tilt).rotateY(-Math.PI / 2).translate(bx + 0.012, 0.62, bz + dz);
       const edge = (a, r = 1) => [Math.sign(Math.cos(a)) * Math.abs(Math.cos(a)) ** 0.65 * 0.181 * r,
         Math.sign(Math.sin(a)) * Math.abs(Math.sin(a)) ** 0.65 * 0.17 * r];
@@ -2631,7 +2631,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
 
     // Loose pillows sink into the seat/back corner; their seams follow the same pose.
-    for (const [z, lean, shade] of [[bz - 0.61, -0.22, 0xc6a878], [bz + 0.58, 0.17, 0xb9a180]]) {
+    for (const [z, lean, shade] of [[bz - 0.71, -0.22, 0xc6a878], [bz + 0.68, 0.17, 0xb9a180]]) {
       const pose = (g) => g.rotateZ(lean).rotateY(-Math.PI / 2).translate(bx - 0.14, 0.565, z);
       const pillow = new THREE.SphereGeometry(1, 32, 18), points = pillow.attributes.position;
       for (let i = 0; i < points.count; i++) {
@@ -2690,7 +2690,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     chairPart("loungeChair", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
     detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
     chairPart("loungeChair", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
-    addContactShadow(bx + 0.02, bz, 0.72, 1.96, 0.0135);
+    addContactShadow(bx + 0.02, bz, 0.72, 2.26, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
     // Soft pleats fade into an inset seam under the rounded seat. Both colours share the Lounge detail batch.
@@ -2753,18 +2753,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }).catch((e) => console.warn("Optional backpack unavailable", e));
 
     const tx = 2.17;
-    for (const [z, surface] of [[0.77, "stone"], [1.48, "oak"]]) {
+    for (const [z, surface] of [[0.70, "stone"], [1.80, "oak"]]) { // Paul 2026-11-21: the two small tables move apart (towards the ends of the longer banquette) and grow from 55 to 62 cm across
       if (surface === "oak") {
         // Cool smoked-sage finish separates the small table from the terracotta upholstery while keeping the room's quiet wood-and-stone palette.
-        part("loungeDetail", colorize(new THREE.CylinderGeometry(0.275, 0.265, 0.038, 32).translate(tx, 0.431, z), 0x6f7b75));
+        part("loungeDetail", colorize(new THREE.CylinderGeometry(0.31, 0.30, 0.038, 32).translate(tx, 0.431, z), 0x6f7b75));
         // A hairline brass inlay follows the upper edge and makes the slim top read as a finished object.
-        part("gold", new THREE.TorusGeometry(0.272, 0.0018, 4, 32).rotateX(Math.PI / 2).translate(tx, 0.445, z), { tile: 1 });
-      } else disc(surface, tx, 0.431, z, 0.275, 0.038, 0.265);
+        part("gold", new THREE.TorusGeometry(0.307, 0.0018, 4, 32).rotateX(Math.PI / 2).translate(tx, 0.445, z), { tile: 1 });
+      } else disc(surface, tx, 0.431, z, 0.31, 0.038, 0.30);
       if (surface === "stone") {
         const tableBase = disc("oakDeep", tx, 0.022, z, 0.183, 0.022);
         tableBase.computeBoundingBox(); registerSupport("lounge-stone-table-base-ground", "ground", { bottomY: tableBase.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
         registerSupport("lounge-stone-table-column-top", "embed", { tip: { x: tx, y: 0.218 + 0.401 / 2, z },
-          surface: { shape: "circle", x: tx, z, radius: 0.265, y: 0.431 - 0.038 / 2 } });
+          surface: { shape: "circle", x: tx, z, radius: 0.30, y: 0.431 - 0.038 / 2 } });
         disc("oak", tx, 0.218, z, 0.082, 0.401, 0.106);
         for (let i = 0; i < 16; i++) {
           const a = i * Math.PI / 8;
@@ -2775,7 +2775,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         for (let i = 0; i < 3; i++) {
           const a = i * Math.PI * 2 / 3;
           registerSupport(`lounge-oak-table-leg-${i}-top`, "embed", { tip: { x: tx + 0.108 * Math.cos(a), y: 0.418, z: z + 0.108 * Math.sin(a) },
-            surface: { shape: "circle", x: tx, z, radius: 0.265, y: 0.431 - 0.038 / 2 } });
+            surface: { shape: "circle", x: tx, z, radius: 0.30, y: 0.431 - 0.038 / 2 } });
           const tableLeg = part("oakDeep", rodGeometry([tx + 0.19 * Math.cos(a), 0.012, z + 0.19 * Math.sin(a)],
             [tx + 0.108 * Math.cos(a), 0.418, z + 0.108 * Math.sin(a)], 0.022));
           tableLeg.computeBoundingBox(); registerSupport(`lounge-oak-table-leg-${i}-ground`, "ground", { bottomY: tableLeg.boundingBox.min.y, floorY: 0.012, tolerance: 0.006 });
@@ -2822,7 +2822,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         for (const side of [-1, 1]) penPart("gold", rodGeometry([side * 0.0035, 0.048, 0.0056], [0, 0.039, 0.0056], 0.0008, 4));
         registerSupport("lounge-notebook-on-table", "rest", {
           base: { x: bookX, y: bookBase, z: bookZ, radius: Math.hypot(0.075, 0.105) },
-          surface: { shape: "circle", x: tx, y: bookBase, z, radius: 0.275 },
+          surface: { shape: "circle", x: tx, y: bookBase, z, radius: 0.31 },
         });
         for (const [i, [x, , zz]] of [penStart, penEnd].entries()) {
           // Audit in notebook-local coordinates so the support turns with the cover.
@@ -2873,22 +2873,22 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
 
     // The lounge corner plant has broad, cupped leaves and lighter new growth above a terracotta pot.
     {
-      const px = 2.90, pz = 2.43;
+      const px = 2.90, pz = 3.08, dz = pz - 2.43; // dz: how far the plant moved from its old spot; the z limits below (made for the old spot) move with it // Paul 2026-11-21: past the wall outlet (z 2.73), so the longer banquette has room and the phone's charging cord keeps its route
       let seed = 21; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
       const GREENS = [0x608642, 0x4f7838, 0x738f47, 0x356743, 0x4e825a, 0x648a46], NEW = [0x9cb459, 0xafc36b];
       // The pot was one flat colour with a closed lid, so it looked like moulded plastic and the soil was never seen. Now: an open pot (outer wall, a rounded rim, the inner wall), colours that
       // run from a darker foot to a pale mineral bloom near the rim with faint vertical streaks, a rim ring, and dark soil with mulch and pebbles just below the rim.
       {
-        const pot = colorize(new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.165, 0.4], [0.15, 0.402], [0.142, 0.39], [0.138, 0.37], [0.0005, 0.365]].map((p) => new THREE.Vector2(p[0], p[1])), 32).translate(px, 0, pz), 0xc4623a);
+        const pot = colorize(new THREE.LatheGeometry([[0.0005, 0], [0.12, 0], [0.16, 0.2], [0.17, 0.38], [0.165, 0.4], [0.15, 0.402], [0.142, 0.39], [0.138, 0.37], [0.0005, 0.365]].map((p) => new THREE.Vector2(p[0], p[1])), 32).translate(px, 0, pz), 0xe4d6bb); // Paul 2026-11-21: a cream glazed pot instead of brick red, which fought the green wainscot
         const pp = pot.attributes.position, pcol = pot.attributes.color, c = new THREE.Color();
         for (let i = 0; i < pp.count; i++) {
           const y = pp.getY(i), a = Math.atan2(pp.getZ(i) - pz, pp.getX(i) - px), streak = 0.5 + 0.5 * Math.sin(a * 9 + y * 5) * Math.sin(a * 3.7 + 1.3);
-          c.setHex(y < 0.06 ? 0x9c4a2a : 0xc4623a).lerp(new THREE.Color(0xdcb596), Math.min(1, Math.max(0, (y - 0.26) / 0.14)) * (0.35 + 0.35 * streak)).multiplyScalar(0.93 + 0.1 * streak);
+          c.setHex(y < 0.06 ? 0xb9a584 : 0xe4d6bb).lerp(new THREE.Color(0xf4ecdc), Math.min(1, Math.max(0, (y - 0.26) / 0.14)) * (0.35 + 0.35 * streak)).multiplyScalar(0.93 + 0.1 * streak);
           pcol.setXYZ(i, c.r, c.g, c.b);
         }
         part("loungeDetail", pot);
       }
-      detail(new THREE.TorusGeometry(0.162, 0.012, 6, 32).rotateX(Math.PI / 2).translate(px, 0.398, pz), 0xb55a36);
+      detail(new THREE.TorusGeometry(0.162, 0.012, 6, 32).rotateX(Math.PI / 2).translate(px, 0.398, pz), 0xc9b690);
       // Paul 2026-11-18: the soil sat 18 mm under the lip and read as a dark hole. It now sits 7 mm under the lip (the inner wall is 145 mm across there) in Room 02's
       // treatment, a disc with a little colour noise in a slightly warmer brown, with the mulch and six pale pebbles on it; the stems start 20 mm under it as before.
       const SOIL_Y = 0.395;
@@ -2931,7 +2931,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const addLeaf = (anchor, angle, upper, palette) => {
         const length = upper ? 0.78 + rnd() * 0.27 : 0.99 + rnd() * 0.22;
         const end = anchor.clone().add(new THREE.Vector3(Math.cos(angle) * 0.155 * length, upper ? 0.07 * length : -0.035 * length, Math.sin(angle) * 0.155 * length));
-        end.x = Math.min(X1 - 0.075, Math.max(2.51, end.x)); end.z = Math.max(2.28, Math.min(2.78, end.z));
+        end.x = Math.min(X1 - 0.075, Math.max(2.51, end.x)); end.z = Math.max(2.28 + dz, Math.min(2.78 + dz, end.z));
         const reach = end.sub(anchor), actualScale = Math.min(length, reach.length() / 0.155), direction = reach.normalize();
         leafDummy.position.copy(anchor); leafDummy.quaternion.setFromUnitVectors(up, direction); leafDummy.rotateY((rnd() - 0.5) * 0.9);
         const widthScale = 0.74 + (leafIndex % 7) * 0.047;
@@ -2945,8 +2945,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         const spread = 0.15 + (i % 2) * 0.045;
         const mainCurve = new THREE.CatmullRomCurve3([root,
           new THREE.Vector3(px + Math.cos(angle) * (rootRadius + 0.045), 0.69, pz + Math.sin(angle) * (rootRadius + 0.035)),
-          new THREE.Vector3(Math.min(3.065, px + Math.cos(angle) * (rootRadius + spread * 0.68)), height, Math.max(2.39, pz + Math.sin(angle) * (rootRadius + spread * 0.7))),
-          new THREE.Vector3(Math.min(3.06, px + Math.cos(angle) * (rootRadius + spread)), height + 0.15, Math.max(2.38, pz + Math.sin(angle) * (rootRadius + spread))) ]);
+          new THREE.Vector3(Math.min(3.065, px + Math.cos(angle) * (rootRadius + spread * 0.68)), height, Math.max(2.39 + dz, pz + Math.sin(angle) * (rootRadius + spread * 0.7))),
+          new THREE.Vector3(Math.min(3.06, px + Math.cos(angle) * (rootRadius + spread)), height + 0.15, Math.max(2.38 + dz, pz + Math.sin(angle) * (rootRadius + spread))) ]);
         const mainRadius = 0.0065 - i * 0.00025, mainSamples = mainCurve.getSpacedPoints(240);
         detail(new THREE.TubeGeometry(mainCurve, 16, mainRadius, 6, false), 0x735a3b);
         // Short root collars emerge from below the soil surface and visibly meet each main stem.
@@ -2959,7 +2959,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         for (let b = 0; b < 2; b++) {
           const t = 0.47 + b * 0.25, attach = mainCurve.getPoint(t), branchAngle = angle + (b ? 0.76 : -0.76);
           const tip = new THREE.Vector3(Math.min(3.06, attach.x + Math.cos(branchAngle) * (0.15 + 0.025 * b)), attach.y + 0.13 + b * 0.055,
-            Math.max(2.38, Math.min(2.72, attach.z + Math.sin(branchAngle) * 0.16)));
+            Math.max(2.38 + dz, Math.min(2.72 + dz, attach.z + Math.sin(branchAngle) * 0.16)));
           const branchCurve = new THREE.CatmullRomCurve3([attach,
             attach.clone().lerp(tip, 0.52).add(new THREE.Vector3(0, 0.035, 0)), tip]);
           detail(new THREE.TubeGeometry(branchCurve, 9, 0.0038, 5, false), 0x6b8a3c);
