@@ -114,7 +114,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     return 2 * Math.atan(tanHalf) * 180 / Math.PI;
   }
   let doorBlend = 0; // 0 in the orbit views, 1 in the doorway view: the field of view widens as the camera glides there and narrows on the way back
-  const doorFov = () => (camera.aspect < .8 ? 92 : 86); // Paul 2026-11-20: the sweep was too short; now wide enough to take in the TV console's left end as well
+  const doorFov = () => (camera.aspect < .8 ? 88 : 82); // Paul 2026-11-20: the sweep was too short; now wide enough to take in the TV console's left end as well
   function fovForYaw() { const base = fovForYawOrbit(); return doorBlend > 0 ? base + (doorFov() - base) * doorBlend : base; }
   function fovForYawOrbit() {
     if (director) return baseFov();
@@ -667,7 +667,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     // lean 16 degrees at the open end: the mustard one rests its spine-side cover on the top corner of the short navy book (its foot corner on the board),
     // and the plum one lies flush against the mustard one, its foot on the board too. Positions are solved from the angle, so nothing floats or cuts in.
     const LEAN = 16 * Math.PI / 180;
-    let edge = -.2, support = null;
+    let edge = -.2455, support = null; // Paul 2026-11-21: the top shelf should be full: the five upright books now start at the left end of the shelf and three more stand after the leaning pair, out to the right end
     uprights.forEach(([name, w, h, cover, band], i) => {
       const volume = new THREE.Group(); volume.name = `shelf-book-${name}`;
       mesh(volume, bookGeometry(w, h, .086, cover, band), bookMat, 0, 0, 0);
@@ -684,6 +684,12 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
       Object.assign(shelfDecor.children[shelfDecor.children.length - 1].userData, { leansOn: support.name, leanDeg: 16, bookW: w, bookH: h, contact: support.leaning ? "face" : "corner" });
       support = { name: volume.name, leaning: true, foot, w };
     });
+    edge = support.foot + support.w / Math.cos(LEAN) + .003; // the books after the leaning pair stand upright against its foot, 3 mm apart, out to the right-hand light strip
+    for (const [name, w, h, cover, band] of [["teal", .040, .318, 0x3f6466], ["sand", .036, .282, 0xcdbd98, 0x8a5a3a], ["wine", .042, .335, 0x6a2f3a]]) {
+      const volume = new THREE.Group(); volume.name = `shelf-book-${name}`;
+      mesh(volume, bookGeometry(w, h, .086, cover, band), bookMat, 0, 0, 0);
+      place(volume, "left-upper", edge + w / 2, w + .002, .091); edge += w + .003;
+    }
     const frame = new THREE.Group(); frame.name = "shelf-small-frame";
     mesh(frame, new THREE.BoxGeometry(.205, .252, .014), oak, 0, .126, 0);
     mesh(frame, new THREE.PlaneGeometry(.176, .221), new THREE.MeshStandardMaterial({ map: art, color: art ? "#ffffff" : "#ddd2b8", roughness: 1 }), 0, .126, .0075);
@@ -1411,7 +1417,7 @@ let lanternMat = null;
     for (let i = 0; i < 260; i++) { const light = rnd() < .5; ctx.fillStyle = light ? `rgba(255,0,0,${.25 + rnd() * .3})` : `rgba(0,0,0,${.2 + rnd() * .25})`; const x = rnd() * w, y = Math.floor(rnd() * h / 3) * 3, len = 8 + rnd() * 40; ctx.fillRect(x, y, len, 1.5 + rnd()); if (x + len > w) ctx.fillRect(x - w, y, len, 1.5); }
   });
   weave.colorSpace = THREE.NoColorSpace;
-  const fabricMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 });
+  const fabricMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92, side: THREE.DoubleSide }); // double sided since 2026-11-21: the thin slits in the AI sofa's surface show its fabric inside, not a dark gap
   fabricMat.onBeforeCompile = (sh) => {
     sh.uniforms.weave = { value: weave };
     sh.vertexShader = "varying vec3 vWP; varying vec3 vWN;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\nvWP = (modelMatrix * vec4(transformed, 1.)).xyz; vWN = normalize(mat3(modelMatrix) * objectNormal);");
@@ -1431,7 +1437,7 @@ let lanternMat = null;
     const cut = lo + (hi - lo) * .88, nb = Array.from({ length: n }, () => new Set());
     for (let i = 0; i < idx.length; i += 3) { const a = idx[i], b = idx[i + 1], c = idx[i + 2]; nb[a].add(b).add(c); nb[b].add(a).add(c); nb[c].add(a).add(b); }
     const top = []; for (let i = 0; i < n; i++) if (pos.getY(i) > cut) top.push(i);
-    for (let pass = 0; pass < 7; pass++) {
+    for (let pass = 0; pass < 20; pass++) { // 7 before 2026-11-21 (Paul: the backrest top still shows thread-like fringe)
       const next = top.map((i) => { let x = 0, y = 0, z = 0; for (const j of nb[i]) { x += pos.getX(j); y += pos.getY(j); z += pos.getZ(j); } const k = nb[i].size || 1; return [x / k, y / k, z / k]; });
       top.forEach((i, t) => pos.setXYZ(i, (pos.getX(i) + next[t][0]) / 2, (pos.getY(i) + next[t][1]) / 2, (pos.getZ(i) + next[t][2]) / 2));
     }
@@ -1507,6 +1513,20 @@ let lanternMat = null;
       if (normal0) { const na = g.attributes.normal; for (let i = 0; i < pos.count; i++) if (!touched[i]) na.setXYZ(i, normal0[i * 3], normal0[i * 3 + 1], normal0[i * 3 + 2]); na.needsUpdate = true; }
     });
   }
+  // Paul 2026-11-21: the sofa shows wiry "threads" (long, hair-thin triangles stretched between vertices of the AI model, most along the backrest top and the seams). Drop every triangle that is both long
+  // (an edge over 3 cm and a quality ratio under 0.06, or an edge over 1 cm and a ratio under 0.03; an equilateral triangle is 1) -- needle-thin; nothing visible stands on them, only the stray strands go. Counted in sofaThreadFix.
+  window.__sofaThreadFix = { removed: 0, kept: 0 };
+  sofaObj.updateMatrixWorld(true);
+  sofaObj.traverse((m) => {
+    if (!m.isMesh || !m.geometry.index) return;
+    const g = m.geometry, pos = g.attributes.position, idx = g.index.array, keep = [], A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), tri = new THREE.Triangle();
+    for (let i = 0; i < idx.length; i += 3) {
+      A.fromBufferAttribute(pos, idx[i]).applyMatrix4(m.matrixWorld); B.fromBufferAttribute(pos, idx[i + 1]).applyMatrix4(m.matrixWorld); C.fromBufferAttribute(pos, idx[i + 2]).applyMatrix4(m.matrixWorld);
+      const ab = A.distanceToSquared(B), bc = B.distanceToSquared(C), ca = C.distanceToSquared(A), longest = Math.sqrt(Math.max(ab, bc, ca)), area = tri.set(A, B, C).getArea(), quality = 4 * Math.sqrt(3) * area / (ab + bc + ca || 1);
+      if ((longest > .03 && quality < .06) || (longest > .01 && quality < .03)) window.__sofaThreadFix.removed++; else { keep.push(idx[i], idx[i + 1], idx[i + 2]); window.__sofaThreadFix.kept++; }
+    }
+    if (keep.length < idx.length) g.setIndex(keep);
+  });
   prepare(sofaObj, () => fabricMat);
   // Scatter cushions: the AI model's two cushions are fused into its mesh and their edges melt into the seat and arm, so two
   // procedural ones (two sewn sheets with a welt, see the procedural-cloth-goods skill) sit on top and cover them. The AI mesh stays unchanged underneath.
@@ -2984,7 +3004,7 @@ let lanternMat = null;
   // The doorway view (Paul 2026-11-20: a new angle as if you had just opened the door and walked in, seeing the sofa and tables, the lamp and the whole room): the camera stands just inside the
   // door in the right wall (x 2.3, eye height 1.52 m), a wide lens, looking diagonally across the room towards the sofa, the rug and the window corner. On a phone's tall frame it aims a little more
   // to the right so the side table and its lamp stay in. The visitor may turn the head about 35 degrees either way (the orbit target sits 35 cm ahead of the eye, so it is almost a pure turn).
-  const DOOR_EYE = new THREE.Vector3(W / 2 - .3, 1.52, doorZ), DOOR_HEAD = .35;
+  const DOOR_EYE = new THREE.Vector3(W / 2 - .3, 1.52, doorZ), DOOR_HEAD = .35, DOOR_DOWN = .1; // the head may tip down only about 6 degrees below its default, so the umbrella stand beside the door stays out of the frame (Paul 2026-11-21)
   const doorShot = () => ({ eye: DOOR_EYE.clone(), focus: camera.aspect < .8 ? new THREE.Vector3(.2, 1.05, -.3) : new THREE.Vector3(-.5, 1.08, .5) });
   const recordShot = () => {
     const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3());
@@ -3008,7 +3028,7 @@ let lanternMat = null;
       recordSaved ||= { minDistance: controls.minDistance, maxDistance: controls.maxDistance, minPolarAngle: controls.minPolarAngle, maxPolarAngle: controls.maxPolarAngle, minAzimuthAngle: controls.minAzimuthAngle, maxAzimuthAngle: controls.maxAzimuthAngle };
       if (view === "door") { // a head turn: the orbit target sits 35 cm ahead of the eye, distance locked, so the camera only turns (a few centimetres of sway), within about 35 degrees either way
         const dir = toFocus.clone().sub(toEye).normalize(), ahead = toEye.clone().addScaledVector(dir, DOOR_HEAD), off = toEye.clone().sub(ahead), az = Math.atan2(off.x, off.z), polar = Math.acos(THREE.MathUtils.clamp(off.y / DOOR_HEAD, -1, 1));
-        Object.assign(controls, { minDistance: DOOR_HEAD, maxDistance: DOOR_HEAD, minPolarAngle: Math.max(.2, polar - .3), maxPolarAngle: Math.min(Math.PI - .2, polar + .35), minAzimuthAngle: az - 1.15, maxAzimuthAngle: az + 1.15 });
+        Object.assign(controls, { minDistance: DOOR_HEAD, maxDistance: DOOR_HEAD, minPolarAngle: Math.max(.2, polar - .3), maxPolarAngle: Math.min(Math.PI - .2, polar + DOOR_DOWN), minAzimuthAngle: az - 1.0, maxAzimuthAngle: az + 1.0 });
         camera.position.copy(toEye); controls.target.copy(ahead); camera.lookAt(ahead); controls.enabled = true; controls.update(); render(); toUrl(); drawPanel(); return;
       }
       const off = toEye.clone().sub(toFocus), az = Math.atan2(off.x, off.z), d = off.length();
@@ -4577,10 +4597,32 @@ let lanternMat = null;
   const vesselGeometry=new THREE.LatheGeometry(standProfile,48); const vp=vesselGeometry.attributes.position; for(let i=0;i<vp.count;i++){const x=vp.getX(i),z=vp.getZ(i),y=vp.getY(i);if(y>.015 && y<.19){const f=1+.035*Math.cos(Math.atan2(z,x)*12);vp.setX(i,x*f);vp.setZ(i,z*f);}} vesselGeometry.computeVertexNormals();
   const vessel=new THREE.Mesh(vesselGeometry,standMat);vessel.castShadow=true;vessel.receiveShadow=true;umbrellaStand.add(vessel);
   const umbrella=new THREE.Group(); umbrella.rotation.z=.08;umbrella.position.set(0,.025,0);umbrellaStand.add(umbrella);
-  const cloth=new THREE.Mesh(new THREE.CylinderGeometry(.035,.008,.49,12,1),new THREE.MeshStandardMaterial({color:0x384f55,roughness:.93}));cloth.position.y=.245;cloth.castShadow=true;umbrella.add(cloth);
-  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.004,.004,.19,10),darkStand);shaft.position.y=.57;umbrella.add(shaft);
-  const handlePath=new THREE.CatmullRomCurve3([new THREE.Vector3(0,.665,0),new THREE.Vector3(.007,.70,0),new THREE.Vector3(.035,.71,0),new THREE.Vector3(.056,.69,0),new THREE.Vector3(.05,.665,0)]);
-  const handle=new THREE.Mesh(new THREE.TubeGeometry(handlePath,16,.006,8,false),new THREE.MeshStandardMaterial({color:0x805b3c,roughness:.65}));umbrella.add(handle);
+  // Paul 2026-11-21 (with his own photos): a compact folding umbrella, not a long straight one. A dusty-pink canopy gathered into a fat, crumpled tube with a seam down it and a blunt closed end, a black
+  // cylindrical handle with a small silver auto-open button on its side, and a black webbing wrist loop; it stands handle up in the stand, the handle showing above the rim.
+  const buildFoldingUmbrella = (umbrella, { hex, seam: seamHex, R, LEN }) => { // R: the tube's radius; LEN: its length; about 6 cm of the canopy shows above the rim
+    {
+    const profile = []; for (let i = 0; i <= 36; i++) { const t = i / 36, y = t * LEN; let r = R * (.9 + .1 * Math.sin(Math.PI * Math.min(1, t * 3))); if (t > .8) r *= 1 - .45 * Math.pow((t - .8) / .2, 1.6); if (t < .06) r *= .55 + .45 * Math.sin(Math.PI / 2 * t / .06); profile.push(new THREE.Vector2(Math.max(.004, r), y)); }
+    const lathe = new THREE.LatheGeometry(profile, 56), pos = lathe.attributes.position;
+    for (let i = 0; i < pos.count; i++) { const x = pos.getX(i), z = pos.getZ(i), y = pos.getY(i), a = Math.atan2(z, x), t = y / LEN; const f = 1 + .055 * Math.sin(3 * a + 4 * t) + .04 * Math.sin(5 * a - 7 * t + 1.3) + .03 * Math.sin(8 * a + 11 * t) + .025 * Math.sin(2 * a + 17 * t); pos.setX(i, x * f); pos.setZ(i, z * f); }
+    lathe.computeVertexNormals();
+    const fabric = new THREE.MeshStandardMaterial({ color: hex, roughness: .72, side: THREE.DoubleSide });
+    const canopy = new THREE.Mesh(lathe, fabric); canopy.castShadow = true; umbrella.add(canopy);
+    const seam = new THREE.Mesh(new THREE.BoxGeometry(.0014, LEN * .86, .003), new THREE.MeshStandardMaterial({ color: seamHex, roughness: .8 })); seam.position.set(R * .98, LEN * .46, 0); umbrella.add(seam);
+    const black = new THREE.MeshStandardMaterial({ color: 0x15161a, roughness: .62, metalness: .1 });
+    const handleH = .12, handle = new THREE.Mesh(new THREE.CylinderGeometry(.0185, .0185, handleH, 36), black); handle.position.y = LEN + handleH / 2 - .012; handle.castShadow = true; umbrella.add(handle);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(.0185, 24, 8, 0, Math.PI * 2, 0, Math.PI / 2), black); cap.position.y = LEN + handleH - .012; cap.scale.y = .25; umbrella.add(cap);
+    const button = new THREE.Mesh(new THREE.BoxGeometry(.011, .026, .006), new THREE.MeshStandardMaterial({ color: 0xcfd3d7, roughness: .3, metalness: .5 })); button.position.set(0, LEN + .02, .0195); umbrella.add(button);
+    // the wrist strap: a flat black webbing loop that leaves the handle's top edge and hangs down along it, narrow and long, with a small twist, the way it lies when nobody holds it
+    const top = LEN + handleH - .012, loopPath = new THREE.CatmullRomCurve3([new THREE.Vector3(-.0125, top - .006, .0135), new THREE.Vector3(-.026, top - .004, .022), new THREE.Vector3(-.031, top - .026, .026), new THREE.Vector3(-.028, top - .055, .024), new THREE.Vector3(-.0235, top - .078, .018), new THREE.Vector3(-.0185, top - .06, .0145), new THREE.Vector3(-.0175, top - .035, .0135)], true);
+    const loopGeo = new THREE.TubeGeometry(loopPath, 48, .0026, 6, true); { const lp = loopGeo.attributes.position; for (let i = 0; i < lp.count; i++) { const k = loopPath.getUtoTmapping ? 0 : 0; } }
+    const loop = new THREE.Mesh(loopGeo, new THREE.MeshStandardMaterial({ color: 0x17181c, roughness: .9 })); loop.scale.set(1, 1, 1); umbrella.add(loop);
+    }
+  };
+  buildFoldingUmbrella(umbrella, { hex: 0xb06b79, seam: 0x935664, R: .027, LEN: .27 }); // dusty pink, leaning to the left
+  umbrella.rotation.order = "ZYX"; umbrella.rotation.set(0, .6, .065); umbrella.position.set(-.029, .025, .003);
+  const umbrella2 = new THREE.Group(); umbrellaStand.add(umbrella2); // the second one, slate blue and a little shorter, leaning to the right
+  buildFoldingUmbrella(umbrella2, { hex: 0x3f527c, seam: 0x2d3b5c, R: .027, LEN: .235 });
+  umbrella2.rotation.order = "ZYX"; umbrella2.rotation.set(0, 3.5, -.07); umbrella2.position.set(.029, .025, -.004);
   scene.add(umbrellaStand);
   buildHallStand();
   buildSuitcase();
@@ -4783,6 +4825,22 @@ let lanternMat = null;
     },
     recordView: () => { moveToView("record"); return currentView; },
     doorView: () => { moveToView("door"); return currentView; },
+    sofaThreadFix: () => window.__sofaThreadFix,
+    sofaThreads(minEdge = .03, maxArea = .0004) { // QA: long, thin triangles in the sofa model (the 'threads' seen on the backrest top and seams)
+      sofaObj.updateMatrixWorld(true); const out = { meshes: 0, tris: 0, thin: 0, byHeight: {}, worst: [] }; const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
+      sofaObj.traverse((m) => { if (!m.isMesh) return; out.meshes++; const g = m.geometry, pos = g.attributes.position, idx = g.index ? g.index.array : null, n = idx ? idx.length : pos.count;
+        for (let i = 0; i < n; i += 3) { const ia = idx ? idx[i] : i, ib = idx ? idx[i + 1] : i + 1, ic = idx ? idx[i + 2] : i + 2; A.fromBufferAttribute(pos, ia).applyMatrix4(m.matrixWorld); B.fromBufferAttribute(pos, ib).applyMatrix4(m.matrixWorld); C.fromBufferAttribute(pos, ic).applyMatrix4(m.matrixWorld);
+          out.tris++; const e = Math.max(A.distanceTo(B), B.distanceTo(C), C.distanceTo(A)), area = new THREE.Triangle(A, B, C).getArea();
+          if (e > minEdge && area < maxArea * (e / minEdge) * .35) { out.thin++; const k = (Math.round(A.y * 10) / 10).toFixed(1); out.byHeight[k] = (out.byHeight[k] || 0) + 1; if (out.worst.length < 5) out.worst.push([+e.toFixed(3), +area.toFixed(5), +A.y.toFixed(2)]); } } });
+      return out; },
+    doorSweep() { // QA: from the doorway eye, turn the head to each end of its allowed range (and look as far down as it allows) and say whether the umbrella stand is in the frame
+      const eye = DOOR_EYE.clone(), base = doorShot(), d0 = base.focus.clone().sub(eye).normalize(), yaw0 = Math.atan2(d0.x, d0.z), pitch0 = Math.asin(d0.y), box = new THREE.Box3().setFromObject(umbrellaStand), out = {};
+      const saved = { p: camera.position.clone(), q: camera.quaternion.clone(), f: camera.fov }; camera.fov = doorFov(); camera.updateProjectionMatrix();
+      const half = (controls.maxAzimuthAngle - controls.minAzimuthAngle) / 2, down = controls.maxPolarAngle - controls.minPolarAngle > 0 ? Math.max(0, DOOR_DOWN) : 0;
+      for (const [name, turn, dp] of [["centre", 0, 0], ["leftEnd", half, 0], ["rightEnd", -half, 0], ["leftEndDown", half, -down], ["rightEndDown", -half, -down], ["centreDown", 0, -down]]) {
+        const y = yaw0 + turn, pc = pitch0 + dp; camera.position.copy(eye); camera.lookAt(eye.clone().add(new THREE.Vector3(Math.sin(y) * Math.cos(pc), Math.sin(pc), Math.cos(y) * Math.cos(pc)))); camera.updateMatrixWorld(true);
+        out[name] = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)).intersectsBox(box); }
+      camera.position.copy(saved.p); camera.quaternion.copy(saved.q); camera.fov = saved.f; camera.updateProjectionMatrix(); camera.updateMatrixWorld(true); return { ...out, halfRangeDeg: Math.round(half * 180 / Math.PI), downDeg: Math.round(down * 180 / Math.PI), fov: doorFov() }; },
     entryShoes: () => PROPS.shoesInfo || null,
     entryShoeMaterials: () => { const out = []; PROPS.shoes.traverse((o) => { if (o.isMesh) { const m = o.material; out.push({ name: m.name, color: m.color.getHexString(), emissive: m.emissive?.getHexString(), emissiveIntensity: m.emissiveIntensity, map: !!m.map, vertexColors: m.vertexColors, rough: m.roughness, metal: m.metalness, attrs: Object.keys(o.geometry.attributes) }); } }); return out; },
     tapKeycard: (opts) => tapKeycard(opts),
