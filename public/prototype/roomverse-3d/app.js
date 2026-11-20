@@ -114,7 +114,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     return 2 * Math.atan(tanHalf) * 180 / Math.PI;
   }
   let doorBlend = 0; // 0 in the orbit views, 1 in the doorway view: the field of view widens as the camera glides there and narrows on the way back
-  const doorFov = () => (camera.aspect < .8 ? 76 : 72);
+  const doorFov = () => (camera.aspect < .8 ? 92 : 86); // Paul 2026-11-20: the sweep was too short; now wide enough to take in the TV console's left end as well
   function fovForYaw() { const base = fovForYawOrbit(); return doorBlend > 0 ? base + (doorFov() - base) * doorBlend : base; }
   function fovForYawOrbit() {
     if (director) return baseFov();
@@ -2985,7 +2985,7 @@ let lanternMat = null;
   // door in the right wall (x 2.3, eye height 1.52 m), a wide lens, looking diagonally across the room towards the sofa, the rug and the window corner. On a phone's tall frame it aims a little more
   // to the right so the side table and its lamp stay in. The visitor may turn the head about 35 degrees either way (the orbit target sits 35 cm ahead of the eye, so it is almost a pure turn).
   const DOOR_EYE = new THREE.Vector3(W / 2 - .3, 1.52, doorZ), DOOR_HEAD = .35;
-  const doorShot = () => ({ eye: DOOR_EYE.clone(), focus: camera.aspect < .8 ? new THREE.Vector3(.9, .9, -1.2) : new THREE.Vector3(-.1, .92, -1.1) });
+  const doorShot = () => ({ eye: DOOR_EYE.clone(), focus: camera.aspect < .8 ? new THREE.Vector3(.2, 1.05, -.3) : new THREE.Vector3(-.5, 1.08, .5) });
   const recordShot = () => {
     const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3());
     const focus = new THREE.Vector3(c.x + .02, b.max.y - .02, c.z), dist = camera.aspect < .8 ? 1.0 : .7;
@@ -3008,7 +3008,7 @@ let lanternMat = null;
       recordSaved ||= { minDistance: controls.minDistance, maxDistance: controls.maxDistance, minPolarAngle: controls.minPolarAngle, maxPolarAngle: controls.maxPolarAngle, minAzimuthAngle: controls.minAzimuthAngle, maxAzimuthAngle: controls.maxAzimuthAngle };
       if (view === "door") { // a head turn: the orbit target sits 35 cm ahead of the eye, distance locked, so the camera only turns (a few centimetres of sway), within about 35 degrees either way
         const dir = toFocus.clone().sub(toEye).normalize(), ahead = toEye.clone().addScaledVector(dir, DOOR_HEAD), off = toEye.clone().sub(ahead), az = Math.atan2(off.x, off.z), polar = Math.acos(THREE.MathUtils.clamp(off.y / DOOR_HEAD, -1, 1));
-        Object.assign(controls, { minDistance: DOOR_HEAD, maxDistance: DOOR_HEAD, minPolarAngle: Math.max(.2, polar - .3), maxPolarAngle: Math.min(Math.PI - .2, polar + .35), minAzimuthAngle: az - .62, maxAzimuthAngle: az + .62 });
+        Object.assign(controls, { minDistance: DOOR_HEAD, maxDistance: DOOR_HEAD, minPolarAngle: Math.max(.2, polar - .3), maxPolarAngle: Math.min(Math.PI - .2, polar + .35), minAzimuthAngle: az - 1.15, maxAzimuthAngle: az + 1.15 });
         camera.position.copy(toEye); controls.target.copy(ahead); camera.lookAt(ahead); controls.enabled = true; controls.update(); render(); toUrl(); drawPanel(); return;
       }
       const off = toEye.clone().sub(toFocus), az = Math.atan2(off.x, off.z), d = off.length();
@@ -4786,7 +4786,7 @@ let lanternMat = null;
     tapKeycard: (opts) => tapKeycard(opts),
     lockLed: () => { const m = roomDoor.getObjectByName("door-lock-led").material; return { emissive: m.emissive.getHexString(), intensity: m.emissiveIntensity }; },
     entryFit() { const bx = (o) => new THREE.Box3().setFromObject(o), mm = (v) => Math.round(v * 1000), mat = bx(PROPS.doormat), shoes = PROPS.shoes ? bx(PROPS.shoes) : null, rail = bx(scene.getObjectByName("entry-hook-rail")), stand = bx(umbrellaStand.children[0]), frameZ = doorZ + doorOuterWidth / 2, wall = W / 2; const ovXZ = (a, b) => a.min.x < b.max.x && a.max.x > b.min.x && a.min.z < b.max.z && a.max.z > b.min.z; return { matSeatMm: mm(mat.min.y), matThickMm: mm(mat.max.y - mat.min.y), shoesSeatMm: shoes ? mm(shoes.min.y) : null, shoesToStandMm: !shoes ? null : ovXZ(shoes, stand) ? -1 : mm(Math.max(stand.min.z - shoes.max.z, stand.min.x - shoes.max.x, shoes.min.x - stand.max.x)), shoesToFrameMm: shoes ? mm(shoes.min.z - frameZ) : null, shoesToWallMm: shoes ? mm(wall - shoes.max.x) : null, shoesToMatMm: !shoes ? null : ovXZ(shoes, mat) ? -1 : mm(shoes.min.z - mat.max.z), railToWallMm: mm(wall - rail.max.x), railBackMm: mm(rail.max.x - Math.min(rail.max.x, wall)), railToFrameMm: mm(rail.min.z - frameZ), railHeightM: +rail.min.y.toFixed(2) }; },
-    doorProbe() { camera.updateMatrixWorld(); const fr = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); const seen = {}; scene.traverse((o) => { if (o.isMesh && o.visible && /sofa|side-table|floor-lamp|coffee|window|lamp/i.test(o.name || "")) { const b = new THREE.Box3().setFromObject(o); (seen[o.name] = fr.intersectsBox(b)); } }); return { view: currentView, fov: camera.fov, eye: camera.position.toArray(), seen }; },
+    doorProbe() { camera.updateMatrixWorld(); const fr = new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); const seen = {}; scene.traverse((o) => { if (o.isMesh && o.visible && /sofa|side-table|floor-lamp|coffee|window|lamp|console/i.test(o.name || "")) { const b = new THREE.Box3().setFromObject(o); (seen[o.name] = fr.intersectsBox(b)); } }); return { view: currentView, fov: camera.fov, eye: camera.position.toArray(), seen }; },
     consoleProbe() { scene.updateMatrixWorld(true); const out = []; const add = (o, n) => { const q = new THREE.Box3().setFromObject(o, true); out.push({ n: n || o.name, min: q.min.toArray().map((v) => +v.toFixed(3)), max: q.max.toArray().map((v) => +v.toFixed(3)) }); }; consoleDecor.children.forEach((c) => add(c)); tvWall.traverse((o) => { if (o.name === "tv-console" || o.name === "tv-laptop") add(o); }); return out; },
     propVerts: () => Object.fromEntries(Object.entries(PROPS).filter(([, o]) => o && o.geometry).map(([k, o]) => [k, o.geometry.attributes.position.count])),
     propFit: () => PROPS.fit(),

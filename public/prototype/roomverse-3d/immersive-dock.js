@@ -5,7 +5,7 @@
 //
 // Fix, desktop only (a window at least 769 px wide with a mouse): the strip becomes a compact, centred, slightly translucent plate that is only as wide as its
 // buttons, and a small button beside it folds the whole thing away ("Hide controls") and brings it back ("Show controls"). The choice is remembered in this browser.
-// Phones and tablets are untouched (they keep the existing full-width strip). Nothing here changes the 3D scene.
+// Phones and tablets (2026-11-20): keep the full-width strip, but get the same fold-away button, so the strip can be hidden to see the whole room. Nothing here changes the 3D scene.
 //
 // Use: initImmersiveDock({ room: document.querySelector(".room"), controls: document.getElementById("immersiveControls") })
 
@@ -33,6 +33,20 @@ const CSS = `
   .room.is-immersive .dock-toggle {
     display: block; position: absolute; z-index: 8; right: calc(12px + env(safe-area-inset-right)); bottom: 12px;
     min-height: 36px; padding: 6px 14px; border: 1px solid #fffa; border-radius: 999px; background: #29352de8; color: #fff;
+    font: 700 13px system-ui, sans-serif; cursor: pointer; transition: bottom .22s ease;
+  }
+  .room.is-immersive .dock-toggle:focus-visible { outline: 3px solid #ffe2a8; outline-offset: 2px; }
+}
+/* Phones and tablets (Paul 2026-11-20: the bottom strip hid too much of Room 01 on a phone): the same fold-away button, a little bigger for a thumb; the strip slides out of the way and the choice is remembered. */
+@media not all and (min-width: 769px) and (hover: hover) and (pointer: fine) {
+  .room.is-immersive .immersive-controls { transition: transform .22s ease, opacity .22s ease, visibility 0s; }
+  .room.is-immersive.dock-collapsed .immersive-controls {
+    transform: translateY(calc(100% + 24px)); opacity: 0; visibility: hidden; pointer-events: none;
+    transition: transform .22s ease, opacity .22s ease, visibility 0s .22s;
+  }
+  .room.is-immersive .dock-toggle {
+    display: block; position: absolute; z-index: 8; right: calc(10px + env(safe-area-inset-right)); bottom: 12px;
+    min-height: 40px; padding: 8px 14px; border: 1px solid #fffa; border-radius: 999px; background: #29352de8; color: #fff;
     font: 700 13px system-ui, sans-serif; cursor: pointer; transition: bottom .22s ease;
   }
   .room.is-immersive .dock-toggle:focus-visible { outline: 3px solid #ffe2a8; outline-offset: 2px; }

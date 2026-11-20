@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 // Desktop full screen (Paul, 2026-11-17): the controls were a full-width strip with a dark gradient that hid the bottom of the room in Rooms 01-03.
-// On a desktop window they are now a compact centred plate with a button that folds them away; phones keep the old strip.
+// On a desktop window they are now a compact centred plate with a button that folds them away; phones keep the full-width strip and (2026-11-20) get the same fold button.
 const ROOMS = [
   { id: "room01", url: "/prototype/roomverse-3d/", hook: "__room" },
   { id: "room02", url: "/prototype/roomverse-3d/bedroom/", hook: "__bedroom" },
@@ -47,13 +47,24 @@ for (const room of ROOMS) {
     expect(errors).toEqual([]);
   });
 
-  test(`${room.id} phone full screen keeps its own strip: no fold button, full-width controls`, async ({ page }) => {
+  test(`${room.id} phone full screen: the full-width strip can be folded away with a thumb-sized button and brought back`, async ({ page }) => {
     test.setTimeout(150000);
     const errors = []; page.on("pageerror", (error) => errors.push(error.message));
     await enterFullScreen(page, room, 390, 844);
-    await expect(page.locator(".dock-toggle"), "no fold button on a phone-sized window").toBeHidden();
-    const strip = await page.locator("#immersiveControls").boundingBox();
+    const toggle = page.locator(".dock-toggle"), controls = page.locator("#immersiveControls");
+    await expect(toggle, "Paul 2026-11-20: the phone has the fold button too").toBeVisible();
+    const strip = await controls.boundingBox();
     expect(strip.width, "the phone strip is still the full width").toBeGreaterThanOrEqual(388);
+    const button = await toggle.boundingBox();
+    expect(button.height, "a thumb-sized button").toBeGreaterThanOrEqual(38);
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(controls, "the strip is folded away").toBeHidden();
+    await expect(toggle, "the button stays in the corner").toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem("roomverse.dock.collapsed"))).toBe("1");
+    await toggle.click();
+    await expect(controls).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem("roomverse.dock.collapsed"))).toBe("0");
     expect(errors).toEqual([]);
   });
 }
