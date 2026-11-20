@@ -17,7 +17,7 @@ for (const width of [390, 1440]) {
     expect(requests.some((r) => r.includes("console-art-river") || r.includes("shelf-art-still"))).toBe(false);
     await page.evaluate(() => __room.loadConsoleDecor());
     const data = await page.evaluate(() => __room.shelfDecor());
-    expect(data.ready).toBe(true); expect(data.objects).toHaveLength(13); expect(data.overlaps).toEqual([]);
+    expect(data.ready).toBe(true); expect(data.objects).toHaveLength(16 /* 13 before the top shelf was filled up with three more books, 2026-11-21 */); expect(data.overlaps).toEqual([]);
     expect(data.art).toBe("shelf-art-still-v1.webp");
     expect(await page.evaluate(() => __room.consoleDetails().artFile)).toBe("console-art-river-v1.webp");
     expect(requests.filter((r) => r.endsWith("/shelf-art-still-v1.webp"))).toHaveLength(1);
@@ -29,7 +29,7 @@ for (const width of [390, 1440]) {
       expect(item.fits, item.name).toBe(true); expect(item.supported, item.name).toBe(true);
       expect(item.max[1] - item.min[1], item.name).toBeLessThan(.5);
     }
-    expect(data.objects.filter((o) => o.name.startsWith("shelf-book-")).length).toBe(7);
+    expect(data.objects.filter((o) => o.name.startsWith("shelf-book-")).length).toBe(10); // 7 before the top shelf was filled up (2026-11-21)
     // Paul 2026-11-19: the last two books lean at the open end, one on the short navy book's top corner, the other flush on it; feet on the board (supported above)
     expect(data.leans.map((l) => [l.name, l.on])).toEqual([["shelf-book-mustard", "shelf-book-navy-short"], ["shelf-book-plum", "shelf-book-mustard"]]);
     for (const l of data.leans) {
@@ -60,7 +60,7 @@ test("shelf texture failure leaves solid props and a working room", async ({ pag
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await page.evaluate(() => __room.loadConsoleDecor());
   const shelf = await page.evaluate(() => __room.shelfDecor());
-  expect(shelf.objects).toHaveLength(13);
+  expect(shelf.objects).toHaveLength(16);
   expect(shelf.art).toBe(null);
   expect((await page.evaluate(() => __room.consoleDetails())).artLoaded).toBe(false);
   await page.evaluate(() => __room.setOrbitAngle(180));
