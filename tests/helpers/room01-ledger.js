@@ -11,9 +11,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 223182, meshes: 388 }),
+  scene: Object.freeze({ vertices: 241530, meshes: 395 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 105, phone: 86 }),
+  openingDrawCalls: Object.freeze({ desktop: 111, phone: 89 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
     desktop: Object.freeze({ rain: 102, family: 104, tech: 103, chic: 104, slow: 104, golden: 104, tv: 103 }),
@@ -56,6 +56,8 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-20", change: "Paul's beige clogs by the door (Codex's GLB, 297 KB, 8,182 vertices, loaded on arrival): +8,182 vertices, +4 meshes (the settled room also counts the pair's four materials), draw calls unchanged", vertices: 216330, meshes: 367, desktopCalls: 104, phoneCalls: 85 },
     { date: "2026-11-20", change: "the clogs, second version (Codex GLB v2, 344 KB, 11,740 vertices plus a 1 KB grain map): the heel wall is closed and the pull loops are small; the file carries no normals, so they are computed on load; +3,558 vertices, meshes and draw calls unchanged", vertices: 219888, meshes: 367, desktopCalls: 104, phoneCalls: 85 },
     { date: "2026-11-21", change: "the day's additions in one measure: two folding umbrellas, three more shelf books, the sofa piping, and Codex's popcorn bowl (228 KB, 10,930 vertices, loaded hidden and shown on series night; the procedural popcorn is gone). Measured on this branch: 223,182 vertices, 388 meshes, one more draw call (desktop 105, phone 86); the per-mood draw-call rows are left as they were, inside the headroom", vertices: 223182, meshes: 388, desktopCalls: 105, phoneCalls: 86 },
+    { date: "2026-11-21", change: "popcorn bowl v2 (Codex, 340 KB, 16,482 vertices; the full heap) shown on series night and on a slow afternoon, a game pad on the sofa on a series night, and a dusty-blush coffee stool (Room 04 pouf, slimmed) with an oak tray, a canister and a take-away cup; draw calls unchanged (desktop 105, phone 86)", vertices: 238970, meshes: 390, desktopCalls: 105, phoneCalls: 86 },
+    { date: "2026-11-21", change: "a phone on the side table (Room 03's body and glass, static) and a globe wall sconce (mount, neck, frosted globe, a halo sprite; no real light): +2,560 vertices, +5 meshes; the settled opening frame now draws 111 (desktop) and 89 (phone) calls, inside the headroom; the per-mood rows keep their earlier values", vertices: 241530, meshes: 395, desktopCalls: 111, phoneCalls: 89 },
   ]),
 });
 

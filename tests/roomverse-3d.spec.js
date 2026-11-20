@@ -405,7 +405,7 @@ for (const width of [390, 1440]) {
       await expect(page.locator("#panel")).toBeVisible();
       await expect(page.locator("#stage canvas")).toBeVisible();
       // Eleven models: the nine of the first rooms, the coffee mug (#517, the tenth) and the campus backpack (the eleventh, added since). Named, so the next one is a deliberate edit here and not a surprise count.
-      expect(glb.filter((u) => u.endsWith(".glb")).map((u) => u.split("/").pop()).sort()).toEqual(["campus-backpack-v2", "coffee-table", "floor-lamp", "laptop", "low-chair", "mug-v1", "plant", "robot", "room01-clogs-beige-v2", "side-table", "sofa", "table-lamp"].map((n) => `${n}.glb`));
+      expect(glb.filter((u) => u.endsWith(".glb")).map((u) => u.split("/").pop()).sort()).toEqual(["campus-backpack-v2", "coffee-table", "floor-lamp", "laptop", "low-chair", "mug-v1", "plant", "robot", "room01-clogs-beige-v2", "room01-popcorn-bowl-v2", "side-table", "sofa", "table-lamp"].map((n) => `${n}.glb`));
       expect(glb.some((url) => url.endsWith("/low-chair.glb"))).toBe(true);
       expect(glb.some((url) => url.endsWith("/low-chair-hy21.glb"))).toBe(false);
 
