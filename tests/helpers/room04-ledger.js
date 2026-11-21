@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 219064, meshes: 127 }),
+  scene: Object.freeze({ vertices: 226802, meshes: 129 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 68, phone: 62 }),
+  openingDrawCalls: Object.freeze({ desktop: 70, phone: 64 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   // Paul, 2026-11-16: the room may grow to 200,000-230,000 vertices and 144-150 meshes; the caps take the top of that range. Phones are still checked by the draw-call caps.
   caps: Object.freeze({ vertices: 230000, meshes: 150, desktopCalls: 115, phoneCalls: 105 }),
@@ -120,5 +120,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-21", change: "window curtains (Paul: no curtains on a big sunny window is not believable): two floor-length linen panels drawn to the two sides, pleated, with a black rod and ball finials (two meshes, +4,002 vertices); the street view and the middle of the window stay open; the lounge got a longer banquette, bigger small tables, a moved plant (no count change)", vertices: 201195, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
     { date: "2026-11-22", change: "bar stools (Paul, reference photo): the arrival design is a pale-oak stool with a caned round seat, slim splayed legs and a curved back band held by the two rear legs (the three older designs stay in the look picker)", vertices: 218315, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
     { date: "2026-11-22", change: "pastry case (Paul): Room 03's golden quick-bread loaf with a split top lies in the back strip of the upper glass shelf with two cut slices in the front strip (the croissant batch; nothing moved, no new mesh)", vertices: 219064, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
+    { date: "2026-11-22", change: "lounge detail (Paul): channel stitching with buttons on the banquette back, a ten-by-seven smooth plant leaf with a creased midrib and veins in the colour (the 154 instances share it), a foot ring on the corner plant pot; and the curtains (Paul): the street window's flat pleated panels, which cut through the plant's leaves, become gathered tie-back bundles with jute ties clear of the plant, and the floor-to-ceiling window beside the door gets the same pair (two more meshes, +5.5k vertices)", vertices: 226802, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
   ]),
 });

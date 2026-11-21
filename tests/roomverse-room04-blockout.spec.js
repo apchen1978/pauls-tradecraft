@@ -297,7 +297,7 @@ test("Room 04 lounge plant grows from its soil and stays clear of the wall and b
     expect(join.overlapMm).toBeGreaterThanOrEqual(3);
   }
   expect(plant.leafCount).toBe(154);
-  expect(plant.leafPrototypeVertices).toBe(15);
+  expect(plant.leafPrototypeVertices).toBe(70);
   expect(plant.leafBoundsMm.xMax).toBeLessThanOrEqual(3195); // right wall is x = 3200 mm
   expect(plant.leafBoundsMm.zMin).toBeGreaterThan(2150); // banquette ends near z = 2130 mm
 });
