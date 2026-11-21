@@ -394,6 +394,8 @@ function makeMaterials() {
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
     beam: std(COLORS.beam, 0.79, { map: makeWoodTexture(false) }),
     olive: std(COLORS.olive, 0.88, { map: makeCabinetTexture() }),
+    // Paul 2026-11-21 (colour-blocking, more vibrant): the oven-side base cabinets turn a dusty terracotta clay, the warm complement of the slate-blue credenza opposite.
+    clay: std(0xb9735a, 0.88, { map: makeCabinetTexture() }),
     stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
     black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38), brass: std(0xb58a50, 0.34, { metalness: 0.48 }),
     hoodSteel: std(0xc4c9ca, 0.5, { map: makeBrushedMetalTexture(), metalness: 0.2 }),
@@ -773,20 +775,20 @@ function buildSideKitchen(b, m, scene) {
   const ovenBay = { width: 0.60, bottom: 0.16, top: 0.82 };
   const sideWidth = (cabLen - ovenBay.width) / 2;
   for (const sign of [-1, 1]) {
-    addBox(b, "wok-base-cabinet", m.olive, [cabDepth, bodyH, sideWidth], [cabX, bodyY, counterZ + sign * (ovenBay.width / 2 + sideWidth / 2)]);
+    addBox(b, "wok-base-cabinet", m.clay, [cabDepth, bodyH, sideWidth], [cabX, bodyY, counterZ + sign * (ovenBay.width / 2 + sideWidth / 2)]);
   }
-  addBox(b, "wok-base-cabinet", m.olive, [cabDepth, ovenBay.bottom - kickTop, ovenBay.width], [cabX, kickTop + (ovenBay.bottom - kickTop) / 2, counterZ]);
-  addBox(b, "wok-base-cabinet", m.olive, [cabDepth, bodyTop - ovenBay.top, ovenBay.width], [cabX, ovenBay.top + (bodyTop - ovenBay.top) / 2, counterZ]);
+  addBox(b, "wok-base-cabinet", m.clay, [cabDepth, ovenBay.bottom - kickTop, ovenBay.width], [cabX, kickTop + (ovenBay.bottom - kickTop) / 2, counterZ]);
+  addBox(b, "wok-base-cabinet", m.clay, [cabDepth, bodyTop - ovenBay.top, ovenBay.width], [cabX, ovenBay.top + (bodyTop - ovenBay.top) / 2, counterZ]);
   const kickDepth = 0.46;
   const kickMaxX = 2.872;
   const kickX = kickMaxX - kickDepth / 2;
-  addBox(b, "wok-base-cabinet", m.olive, [kickDepth, 0.10, cabLen - 0.08], [kickX, 0.07, counterZ]);
+  addBox(b, "wok-base-cabinet", m.clay, [kickDepth, 0.10, cabLen - 0.08], [kickX, 0.07, counterZ]);
   const doorX = cabX - cabDepth / 2 + 0.006;
   const doorHeight = ovenBay.top - ovenBay.bottom;
   const cabinetPullOffsetFromOvenMm = Math.round(sideWidth * 0.16 * 1000);
   for (const sign of [-1, 1]) {
     const doorZ = counterZ + sign * (ovenBay.width / 2 + sideWidth / 2);
-    addBox(b, "wok-base-cabinet", m.olive, [0.012, doorHeight, sideWidth - 0.012], [doorX, ovenBay.bottom + doorHeight / 2, doorZ]);
+    addBox(b, "wok-base-cabinet", m.clay, [0.012, doorHeight, sideWidth - 0.012], [doorX, ovenBay.bottom + doorHeight / 2, doorZ]);
     // Put both pulls at the inner, oven-facing opening edges so the adjacent wall cannot block the hand approach.
     addBox(b, "wok-base-cabinet", m.brass, [0.016, 0.09, 0.012], [doorX - 0.012, ovenBay.bottom + doorHeight * 0.57, doorZ - sign * (sideWidth * 0.34)]);
   }
@@ -3761,7 +3763,7 @@ function makeCredenzaOakMaps() {
   let state = 20261104;
   const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
   const boards = 4, boardH = H / boards;
-  const tone = [[196, 150, 99], [184, 138, 90], [204, 158, 106], [190, 144, 94]];
+  const tone = [[228, 218, 198], [220, 209, 188], [234, 224, 204], [224, 213, 192]]; // Paul 2026-11-21: a pale warm limestone-oak, so the top sits quietly between the slate blue and the walnut
   const streaks = [];
   for (let i = 0; i < 150; i++) {
     streaks.push({ y: random() * H, k: 1 + Math.floor(random() * 3), phase: random() * TAU, amp: 1 + random() * 5, width: 0.6 + random() * 1.8, dark: random() < 0.62, alpha: 0.05 + random() * 0.12 });
@@ -3780,12 +3782,12 @@ function makeCredenzaOakMaps() {
     for (let b = 0; b < boards; b++) { const t = tone[b]; ctx.fillStyle = `rgb(${t[0]},${t[1]},${t[2]})`; ctx.fillRect(0, b * boardH, W, boardH + 1); }
     for (const st of streaks) {
       ctx.lineWidth = st.width;
-      ctx.strokeStyle = st.dark ? `rgba(92,58,30,${st.alpha})` : `rgba(240,205,150,${st.alpha * 0.9})`;
+      ctx.strokeStyle = st.dark ? `rgba(140,115,88,${st.alpha})` : `rgba(252,246,232,${st.alpha * 0.9})`;
       for (const dy of [-H, 0, H]) wavy(ctx, st, dy);
     }
-    ctx.fillStyle = "rgba(70,42,22,.30)";
+    ctx.fillStyle = "rgba(110,86,62,.26)";
     for (const po of pores) ctx.fillRect(po.x, po.y, po.len, 0.9);
-    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(60,38,20,.34)"; ctx.fillRect(0, b * boardH, W, 1.4); }
+    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(120,96,70,.30)"; ctx.fillRect(0, b * boardH, W, 1.4); }
   }, W, H);
   const grey = (paint) => { const t = makeTexture(paint, W, H); t.colorSpace = THREE.NoColorSpace; return t; };
   const roughness = grey((ctx) => {
