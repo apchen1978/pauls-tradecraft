@@ -55,11 +55,13 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
     expect(mugs.min[2], "the mug clears the record player's right edge").toBeGreaterThan(0.76);
     expect(mugs.max[2], "the mug stays on the credenza, short of the wok counter").toBeLessThan(1.0);
     expect(mugs.max[0] - mugs.min[0], "a mug body with a handle, not a wide prop").toBeLessThan(0.13);
-    const dish = info.propBounds["counter-stone-dish"];
-    expect(dish.min[1] - 0.955, "the stone dish sits on the counter").toBeGreaterThanOrEqual(-0.002);
+    await page.waitForFunction(() => window.__room03.info().propBounds["counter-popcorn-bowl"]?.size[1] > 0.05, null, { timeout: 30000 }); // the popcorn bowl is Room 01's model, loaded after the first frame (Paul 2026-11-22)
+    const popcorn = await page.evaluate(() => window.__room03.info().propBounds["counter-popcorn-bowl"]);
+    const dish = popcorn;
+    expect(dish.min[1] - 0.955, "the popcorn bowl sits on the counter").toBeGreaterThanOrEqual(-0.002);
     expect(dish.min[1] - 0.955).toBeLessThanOrEqual(0.0035);
-    expect(dish.max[2], "the dish stays inside the front edge of the counter").toBeLessThanOrEqual(-1.65);
-    expect(dish.min[2], "the dish clears the coffee maker front").toBeGreaterThan(-1.85);
+    expect(dish.max[2], "the bowl stays inside the front edge of the counter").toBeLessThanOrEqual(-1.65);
+    expect(dish.min[2], "the bowl clears the coffee maker front").toBeGreaterThan(-1.85);
     const bowl = info.propBounds["wok-wood-serving-bowl"];
     expect(bowl.min[1] - 0.955, "wooden bowl sits on the wok counter").toBeGreaterThanOrEqual(-0.002);
     expect(bowl.min[1] - 0.955).toBeLessThanOrEqual(0.002);
