@@ -1805,7 +1805,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // still life), and a small milk jug stands beside the cup. Both ride in buckets the room already batches (terracotta,
   // cover, paper, ceramic), so no draw call and no mesh is added.
   {
-    const sillX = X0 - 0.02, sillZ = 0.95, sillTop = WINDOW.y0 + 0.005, sillYaw = Math.PI / 2 + 0.06;
+    const sillX = X0 - 0.02, sillZ = -0.18, sillTop = WINDOW.y0 + 0.005, sillYaw = Math.PI / 2 + 0.06;
     const closedBook = (key, w, h, d, y, turn) => {
       const at = (geometry, k) => part(k, place(geometry, sillX, sillZ, sillYaw + turn, y));
       at(new THREE.BoxGeometry(w, h, d).translate(0, h / 2, 0), key);
@@ -1817,9 +1817,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     registerSupport("window-sill-books", "rest", { base: { x: sillX, y: sillTop, z: sillZ, radius: 0.07 }, surface: { shape: "rect", x0: X0 - 0.11, x1: X0 + 0.07, z0: WINDOW.z0 - 0.06, z1: WINDOW.z1 + 0.06, y: sillTop } });
     // A 55 mm milk jug beside the cup: a turned ceramic body with a small loop handle.
     const jx = tx(0.19), jz = tz(-0.10);
-    const jugProfile = [[0, 0.001], [0.024, 0.001], [0.027, 0.005], [0.023, 0.013], [0.020, 0.044], [0.024, 0.051], [0.021, 0.055], [0.017, 0.052], [0.016, 0.045], [0.018, 0.015], [0.021, 0.007], [0, 0.004]];
+    const jugProfile = [[0, 0.001], [0.020, 0.001], [0.023, 0.005], [0.019, 0.013], [0.016, 0.060], [0.021, 0.068], [0.018, 0.073], [0.014, 0.070], [0.013, 0.062], [0.0145, 0.015], [0.018, 0.007], [0, 0.004]];
     part("ceramic", new THREE.LatheGeometry(jugProfile.map(([r, h]) => new THREE.Vector2(r, h)), 20).translate(jx, tableTop, jz), { tile: 1 });
-    part("ceramic", new THREE.TorusGeometry(0.0105, 0.0021, 6, 12).rotateY(Math.PI / 2).translate(0.025, 0.031, 0).translate(jx, tableTop, jz), { tile: 1 });
+    part("ceramic", new THREE.TorusGeometry(0.0125, 0.0022, 6, 14).rotateY(Math.PI / 2).translate(0.022, 0.040, 0).translate(jx, tableTop, jz), { tile: 1 });
     registerSupport("window-table-milk-jug", "rest", { base: { x: jx, y: tableTop, z: jz, radius: 0.03 }, surface: { shape: "circle", x: SEAT.x, z: SEAT.z, radius: 0.3, y: tableTop } });
   }
 
