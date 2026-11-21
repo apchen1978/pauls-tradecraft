@@ -1021,5 +1021,191 @@
         "sha256": "29a83140d68329d08206b36a670a5e5188422fea8329a98111c3e246580ce322"
       }
     ]
+  },
+  {
+    "id": "roomtv-room01-canal-night",
+    "source": "docs/gallery/sources/roomtv-room01-canal-night-source.webp",
+    "sourceSha256": "a9708d1eded9068fda7a6269a097671166f77ee688a6b8d2b38d6c549bed32bf",
+    "derivatives": [
+      {
+        "file": "roomverse-roomtv-room01-canal-night.webp",
+        "width": 1024,
+        "height": 428,
+        "bytes": 65092,
+        "quality": 76,
+        "sha256": "d89d93b7a5543ba7a262d8003e29e024cbedcbdf5c1dcc087e58b030bf5be4dd"
+      },
+      {
+        "file": "roomverse-roomtv-room01-canal-night-mobile.webp",
+        "width": 800,
+        "height": 334,
+        "bytes": 44298,
+        "quality": 78,
+        "sha256": "ba240dc04b3d7e2882b62156cb3fa93e89f4f315efa0626d4535f4e5d3cc8f33"
+      },
+      {
+        "file": "roomverse-roomtv-room01-canal-night-thumb.webp",
+        "width": 480,
+        "height": 201,
+        "bytes": 20742,
+        "quality": 80,
+        "sha256": "451f0c12fb596a60f0679daebbc10ef1d0400e3db7f7a4e7365f5bd15d9d4650"
+      }
+    ]
+  },
+  {
+    "id": "roomtv-room04-rain-street",
+    "source": "docs/gallery/sources/roomtv-room04-rain-street-source.webp",
+    "sourceSha256": "85534114945a68f2b8b37a2235e4b055ce65bb22d11af0dd4ba3dcedbe7a328c",
+    "derivatives": [
+      {
+        "file": "roomverse-roomtv-room04-rain-street.webp",
+        "width": 1024,
+        "height": 472,
+        "bytes": 60894,
+        "quality": 76,
+        "sha256": "8802885e3455d182846de4c915d82dc20c541f9c806e8cc367efeed5d9c70c01"
+      },
+      {
+        "file": "roomverse-roomtv-room04-rain-street-mobile.webp",
+        "width": 800,
+        "height": 369,
+        "bytes": 44364,
+        "quality": 78,
+        "sha256": "9ca63be449515e37b57ab4863efee134dd1071c6773f2a2eca311aa8e076152b"
+      },
+      {
+        "file": "roomverse-roomtv-room04-rain-street-thumb.webp",
+        "width": 480,
+        "height": 221,
+        "bytes": 22758,
+        "quality": 80,
+        "sha256": "9937e0251c17002860c46c803b221c398aa48c5c0997965c0a03a09e25a91ab5"
+      }
+    ]
+  },
+  {
+    "id": "roomtv-room04-rooftop",
+    "source": "docs/gallery/sources/roomtv-room04-rooftop-source.webp",
+    "sourceSha256": "ebce3cf7b5373dadfde7148cb3fce694cef41c49635a782327bac23caf21c312",
+    "derivatives": [
+      {
+        "file": "roomverse-roomtv-room04-rooftop.webp",
+        "width": 1024,
+        "height": 472,
+        "bytes": 46884,
+        "quality": 76,
+        "sha256": "12ce752589af15626a1139fa3fd962a0c9aa81c57bb5497e911ea5255f8c0233"
+      },
+      {
+        "file": "roomverse-roomtv-room04-rooftop-mobile.webp",
+        "width": 800,
+        "height": 369,
+        "bytes": 34642,
+        "quality": 78,
+        "sha256": "c067aeecfffafd0f4e7453225fb103e224b38e83fe09a5802a15be1c76715d4e"
+      },
+      {
+        "file": "roomverse-roomtv-room04-rooftop-thumb.webp",
+        "width": 480,
+        "height": 221,
+        "bytes": 17574,
+        "quality": 80,
+        "sha256": "e0cc2d714cc11aecd115a77e257ee30001b2a62b8eb21cbf5de8166fcdc3bc91"
+      }
+    ]
+  },
+  {
+    "id": "roomtv-room04-window-lamp",
+    "source": "docs/gallery/sources/roomtv-room04-window-lamp-source.webp",
+    "sourceSha256": "86ce59fc7d1a3e4cf1340106c74a570ea8453c0e24a888a4880fb6dc147f5aaa",
+    "derivatives": [
+      {
+        "file": "roomverse-roomtv-room04-window-lamp.webp",
+        "width": 1024,
+        "height": 472,
+        "bytes": 35188,
+        "quality": 76,
+        "sha256": "5c454e10192d869a24f141e407a4b628d59d6e737d9733bcc2f018a9436b8043"
+      },
+      {
+        "file": "roomverse-roomtv-room04-window-lamp-mobile.webp",
+        "width": 800,
+        "height": 369,
+        "bytes": 24116,
+        "quality": 78,
+        "sha256": "50d0de130a3e7050c4b51ecb4d99f6351d3052e17c4513a501de66d8bf276c19"
+      },
+      {
+        "file": "roomverse-roomtv-room04-window-lamp-thumb.webp",
+        "width": 480,
+        "height": 221,
+        "bytes": 12980,
+        "quality": 80,
+        "sha256": "3c0a397123680870c70d86d6fd884c726c6cfebaff28caf08abc4f5282e4f282"
+      }
+    ]
+  },
+  {
+    "id": "roomtv-room03-city-night",
+    "source": "docs/gallery/sources/roomtv-room03-city-night-source.webp",
+    "sourceSha256": "eb472f3c89e8d233250e6910db599e65edd53cb2b5465b4fd5c755ef9b11bf8d",
+    "derivatives": [
+      {
+        "file": "roomverse-roomtv-room03-city-night.webp",
+        "width": 640,
+        "height": 360,
+        "bytes": 30830,
+        "quality": 76,
+        "sha256": "316d8a48761416eb0a8397e28b31c225dde90791464abaed5cc9a0de1b8a287b"
+      },
+      {
+        "file": "roomverse-roomtv-room03-city-night-mobile.webp",
+        "width": 640,
+        "height": 360,
+        "bytes": 34122,
+        "quality": 78,
+        "sha256": "f2ad832e936e824bfe7973f1f68fe2e8446acfce6364a387379d4f54f2ba8355"
+      },
+      {
+        "file": "roomverse-roomtv-room03-city-night-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 21816,
+        "quality": 80,
+        "sha256": "1058b7fb1af04a1b7ae7c71997fdb012fa886145f316f4fbf43f1a165e8786e7"
+      }
+    ]
+  },
+  {
+    "id": "roomtv-room03-parade",
+    "source": "docs/gallery/sources/roomtv-room03-parade-source.webp",
+    "sourceSha256": "44f7517a2bd2fffc4670d47dd58a8dfb12d2186cfa2a23c2192675b057641e11",
+    "derivatives": [
+      {
+        "file": "roomverse-roomtv-room03-parade.webp",
+        "width": 640,
+        "height": 360,
+        "bytes": 44634,
+        "quality": 76,
+        "sha256": "23571531745db8a37650588c3ec07fe737ad4ff7cdf5c4d3714920a401c46ee9"
+      },
+      {
+        "file": "roomverse-roomtv-room03-parade-mobile.webp",
+        "width": 640,
+        "height": 360,
+        "bytes": 49436,
+        "quality": 78,
+        "sha256": "ba19eb2c7bcd3d4ffba38d58408c8d22359f88677a75ea1d50ba590ed5d60d2a"
+      },
+      {
+        "file": "roomverse-roomtv-room03-parade-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 31726,
+        "quality": 80,
+        "sha256": "e3cb9090bcdf0b23e220bdfe3da22f29dd8b17093ac129fbbe8b3fc30342fe5f"
+      }
+    ]
   }
 ]
