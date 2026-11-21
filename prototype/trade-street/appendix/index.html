@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>附錄：貿易條件速查卡 — Paul's Tradecraft</title>
+  <meta name="description" content="報價單上那三個字母，決定這一櫃貨誰扛哪一段。用互動卡片看 EXW、FCA、FOB、CIF、DDP 的責任光譜與風險轉移點。教學示意，規則整理，不含具體天數、費用或比例。" />
+  <link rel="canonical" href="https://paulstradecraft.com/prototype/trade-street/appendix/" />
+  <link rel="icon" href="data:," />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Paul's Tradecraft" />
+  <meta property="og:title" content="附錄：貿易條件速查卡 · The trade-terms card" />
+  <meta property="og:description" content="報價單上那三個字母，決定這一櫃貨誰扛哪一段。互動卡片：EXW、FCA、FOB、CIF、DDP 的責任光譜。" />
+  <meta property="og:url" content="https://paulstradecraft.com/prototype/trade-street/appendix/" />
+  <meta property="og:image" content="https://paulstradecraft.com/prototype/trade-street/assets/trade-street-map.webp" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <style>
+    :root {
+      --salt: #F3F7F6; --white: #ffffff; --sky: #DCEBEE; --ink: #12323A; --teal: #1E7F86; --deep: #0E4A52; --deep2: #155E67;
+      --moss: #54686C; --line: #CBDADD; --amber: #B9761C; --amber-soft: #F6E7CB; --amber-line: #DDBF86; --red: #B2452F;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--salt); color: var(--ink);
+      font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", "WenQuanYi Micro Hei", "Droid Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+      font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+    }
+    html:lang(en) body { font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, "Noto Sans", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+    button, a { font: inherit; }
+    :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+    .skip { position: absolute; left: 12px; top: 12px; transform: translateY(-160%); background: var(--white); color: var(--ink); padding: 8px 12px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    .skip:focus { transform: none; }
+    .page { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 72px; }
+    .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+    .eyebrow { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--deep); }
+    .lang { display: flex; gap: 8px; }
+    .lang button { min-width: 48px; min-height: 44px; padding: 4px 14px; border: 2px solid var(--deep); border-radius: 999px; background: transparent; color: var(--deep); font-weight: 700; cursor: pointer; }
+    .lang button[aria-pressed="true"] { background: var(--deep); color: var(--white); }
+    .boundary { display: block; margin: 16px 0 0; padding: 8px 12px; border: 2px dashed var(--teal); border-radius: 10px; color: var(--deep); font-size: 14px; font-weight: 600; line-height: 1.5; max-width: 880px; }
+    .kicker { margin: 22px 0 0; font-size: 13px; font-weight: 800; letter-spacing: .14em; color: var(--amber); text-transform: uppercase; }
+    h1 { margin: 4px 0 0; font-size: clamp(32px, 6.5vw, 50px); line-height: 1.12; letter-spacing: -.02em; }
+    .intro { margin: 12px 0 0; max-width: 680px; font-size: 19px; font-weight: 600; }
+    .lede { margin: 8px 0 0; max-width: 680px; color: var(--moss); }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 18px; }
+    .primary { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 22px; border-radius: 999px; border: 2px solid var(--deep); background: var(--deep); color: var(--white); font-weight: 700; text-decoration: none; }
+    .primary:hover { background: var(--deep2); }
+    .link { color: var(--deep); font-weight: 700; }
+
+    /* ---- the card ------------------------------------------------------------------------------------------ */
+    .card { margin: 28px 0 0; border: 3px solid var(--deep); border-radius: 24px; background: var(--white); overflow: hidden; box-shadow: 0 1px 0 var(--line), 0 24px 44px -28px rgba(14, 74, 82, .55); }
+    .card-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; color: var(--white);
+      background:
+        repeating-linear-gradient(115deg, rgba(255, 255, 255, .055) 0 2px, transparent 2px 14px),
+        linear-gradient(135deg, var(--deep) 0%, var(--deep2) 58%, var(--teal) 100%); }
+    .card-head p { margin: 0; }
+    .card-tag { font-size: 12px; font-weight: 800; letter-spacing: .16em; opacity: .85; }
+    .card-title { margin-top: 2px; font-size: clamp(18px, 4.6vw, 26px); font-weight: 800; line-height: 1.25; text-wrap: balance; }
+    .stamp { flex: none; display: grid; place-items: center; width: 84px; height: 84px; border: 3px double rgba(255, 255, 255, .78); border-radius: 50%; text-align: center; font-size: 11px; font-weight: 800; letter-spacing: .08em; line-height: 1.25; transform: rotate(-9deg); opacity: .94; }
+    .stamp b { display: block; font-size: 17px; letter-spacing: 0; }
+    @media (max-width: 479px) { .stamp { width: 68px; height: 68px; font-size: 9px; } .stamp b { font-size: 14px; } }
+
+    .pick-wrap { padding: 20px 20px 4px; }
+    .pick { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 0; padding: 0; border: 0; }
+    .pick button { display: grid; justify-items: center; align-content: center; gap: 0; min-height: 66px; padding: 6px 4px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); color: var(--ink); cursor: pointer; transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease; }
+    .pick button b { font-size: clamp(16px, 3.4vw, 21px); letter-spacing: .02em; line-height: 1.2; }
+    .pick button span { font-size: 12px; color: var(--moss); line-height: 1.3; }
+    .pick button:hover { border-color: var(--teal); background: var(--sky); }
+    .pick button[aria-checked="true"] { transform: translateY(-3px); border-color: var(--deep); background: var(--deep); color: var(--white); box-shadow: 0 10px 18px -10px rgba(14, 74, 82, .7); }
+    .pick button[aria-checked="true"] span { color: #D6ECEE; }
+    .spectrum { display: flex; align-items: center; gap: 10px; margin: 12px 2px 0; font-size: 12px; font-weight: 700; color: var(--moss); }
+    .spectrum i { flex: 1; height: 8px; border-radius: 999px; background: linear-gradient(90deg, var(--amber-soft), var(--sky) 40%, var(--teal) 78%, var(--deep)); }
+
+    .now { padding: 18px 20px 0; }
+    .term-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin: 0; }
+    .term-code { font-size: clamp(34px, 7vw, 46px); font-weight: 800; letter-spacing: .02em; line-height: 1.1; color: var(--deep); }
+    .term-name { font-size: 20px; font-weight: 700; }
+    .term-en { color: var(--moss); font-size: 15px; }
+    .one-line { margin: 8px 0 0; max-width: 760px; font-size: 18px; font-weight: 600; }
+
+    .strip-wrap { padding: 14px 20px 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 10px; padding: 0; list-style: none; font-size: 13px; font-weight: 700; color: var(--moss); }
+    .legend li { display: inline-flex; align-items: center; gap: 6px; }
+    .sw { width: 16px; height: 16px; border-radius: 5px; }
+    .sw.s { background: var(--deep); }
+    .sw.b { background: var(--amber-soft); border: 2px solid var(--amber-line); }
+    .sw.r { background: var(--red); border-radius: 50%; }
+    .strip { --x: 1; position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin: 58px 0 0; padding: 0; list-style: none; }
+    /* the risk rail: a thin track above the six legs; the red pin slides along it and only a short needle reaches into a leg */
+    .strip::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 4px; border-radius: 2px; background: var(--line); }
+    .leg { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 112px; padding: 10px 4px; text-align: center; border: 2px solid var(--white); transition: background .4s ease, color .4s ease, border-color .4s ease; }
+    .leg:first-child { border-radius: 16px 0 0 16px; }
+    .leg:nth-child(6) { border-radius: 0 16px 16px 0; }
+    .leg svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .leg .lab { font-size: 13px; font-weight: 700; line-height: 1.3; }
+    .leg .who { margin-top: 2px; padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: .06em; }
+    .leg.s { background: var(--deep); color: var(--white); }
+    .leg.s .who { background: rgba(255, 255, 255, .18); }
+    .leg.b { background: var(--amber-soft); color: var(--ink); border-color: var(--amber-line); }
+    .leg.b .who { background: var(--white); color: #6B4A0E; }
+    .risk { position: absolute; left: calc(var(--x) / 6 * 100%); top: -46px; height: 58px; width: 0; pointer-events: none; transition: left .5s cubic-bezier(.3, .8, .3, 1); }
+    .risk::before { content: ""; position: absolute; left: -1.5px; top: 34px; bottom: 0; width: 3px; background: var(--red); border-radius: 2px; }
+    .risk::after { content: ""; position: absolute; left: -8px; top: 26px; width: 16px; height: 16px; border-radius: 50%; background: var(--red); border: 3px solid var(--white); box-shadow: 0 0 0 3px rgba(178, 69, 47, .3); }
+    .risk-label { position: absolute; left: 0; top: 0; transform: translateX(-50%); padding: 1px 10px; border-radius: 999px; background: var(--red); color: var(--white); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .risk.edge-r .risk-label { transform: translateX(-100%); }
+    .risk.edge-l .risk-label { transform: translateX(-12%); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 2px solid var(--line); border-radius: 999px; background: var(--salt); font-size: 14px; font-weight: 600; }
+    .chip small { font-size: 12px; font-weight: 800; letter-spacing: .06em; color: var(--moss); }
+    .chip.risk-chip { border-color: var(--red); background: #FBEDE9; }
+    .chip.risk-chip small { color: var(--red); }
+
+    .facts { display: grid; gap: 12px; margin: 18px 0 0; padding: 0 20px 22px; }
+    @media (min-width: 760px) { .facts { grid-template-columns: repeat(2, 1fr); } .facts .wide { grid-column: 1 / -1; } }
+    .fact { margin: 0; padding: 12px 14px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); }
+    .fact h3 { margin: 0 0 2px; font-size: 13px; font-weight: 800; letter-spacing: .1em; color: var(--teal); }
+    .fact p { margin: 0; font-size: 16px; }
+    .fact.watch { border-color: var(--amber-line); background: #FFFAF0; }
+    .fact.watch h3 { color: #8A5A0C; }
+
+    /* ---- the rest of the page ------------------------------------------------------------------------------- */
+    section.block { margin-top: 36px; }
+    .block h2 { margin: 0; font-size: 24px; line-height: 1.3; }
+    .block > p { margin: 6px 0 0; max-width: 720px; color: var(--moss); }
+    .how { display: grid; gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+    @media (min-width: 760px) { .how { grid-template-columns: repeat(2, 1fr); } }
+    .how button { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 12px; width: 100%; min-height: 60px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); color: var(--ink); text-align: left; cursor: pointer; transition: border-color .18s ease, background .18s ease; }
+    .how button:hover { border-color: var(--teal); background: var(--sky); }
+    .how .when { font-weight: 600; }
+    .how .go { padding: 2px 12px; border-radius: 999px; background: var(--deep); color: var(--white); font-size: 14px; font-weight: 800; letter-spacing: .04em; }
+    .how .note { grid-column: 1 / -1; font-size: 13px; color: var(--moss); }
+
+    .street { margin-top: 36px; padding: 20px; border: 3px solid var(--deep); border-radius: 22px; background: linear-gradient(180deg, var(--sky), #EAF3F4); }
+    .street h2 { margin: 0; font-size: 22px; }
+    .street p { margin: 8px 0 0; max-width: 760px; }
+    .gap { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: auto auto auto; gap: 0; margin: 18px 0 0; }
+    .gap .flag { align-self: end; justify-self: center; max-width: 100%; margin-bottom: 4px; padding: 2px 10px; border-radius: 12px; background: var(--red); color: var(--white); font-size: 12px; font-weight: 800; line-height: 1.3; text-align: center; }
+    .gap .f1 { grid-column: 1; grid-row: 1; }
+    .gap .f2 { grid-column: 4; grid-row: 1; }
+    .gap ol { display: contents; margin: 0; padding: 0; list-style: none; }
+    .gap li { grid-row: 2; position: relative; display: grid; justify-items: center; padding: 8px 2px 10px; background: var(--white); border-top: 3px solid var(--deep); border-bottom: 3px solid var(--deep); text-align: center; }
+    .gap li:first-child { border-left: 3px solid var(--deep); border-radius: 14px 0 0 14px; }
+    .gap li:last-child { border-right: 3px solid var(--deep); border-radius: 0 14px 14px 0; }
+    .gap li small { font-size: 12px; font-weight: 700; color: var(--moss); }
+    .gap li b { font-size: 15px; }
+    .gap .span { grid-column: 1 / -1; grid-row: 3; margin-top: 8px; padding: 6px 12px; border-radius: 10px; background: repeating-linear-gradient(135deg, var(--deep) 0 10px, var(--deep2) 10px 20px); color: var(--white); font-size: 13px; font-weight: 700; text-align: center; }
+
+    .ribbon { margin-top: 26px; padding: 14px 16px; border: 2px solid var(--amber-line); border-left-width: 8px; border-radius: 14px; background: #FFFAF0; }
+    .ribbon h2 { margin: 0; font-size: 17px; }
+    .ribbon p { margin: 4px 0 0; }
+    .sources { margin: 26px 0 0; padding-top: 14px; border-top: 2px solid var(--line); font-size: 14px; color: var(--moss); }
+    .sources h2 { margin: 0 0 4px; font-size: 14px; letter-spacing: .08em; }
+    .sources ul { margin: 0; padding-left: 20px; }
+    .sources a { color: var(--deep); font-weight: 600; }
+    .cta { margin-top: 32px; padding: 22px 20px; border: 3px solid var(--deep); border-radius: 22px; background: var(--white); }
+    .cta h2 { margin: 0; font-size: 22px; }
+    .cta p { margin: 6px 0 0; max-width: 680px; color: var(--moss); }
+    .caveat { margin: 24px 0 0; font-size: 13px; color: var(--moss); max-width: 760px; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* phone: the six legs stand in a column and the red pin runs down the side */
+    @media (max-width: 639px) {
+      .card-head { padding: 14px 16px; }
+      .pick-wrap, .now, .strip-wrap { padding-left: 16px; padding-right: 16px; }
+      .facts { padding-left: 16px; padding-right: 16px; }
+      .pick { gap: 5px; }
+      .pick button span { display: none; }
+      .strip { grid-template-columns: 1fr; grid-auto-rows: 64px; margin: 6px 0 0 22px; }
+      .strip::before { left: -14px; right: auto; top: 0; bottom: 0; width: 4px; height: auto; }
+      .leg { grid-template-columns: 34px 1fr auto; justify-items: start; align-items: center; gap: 0 10px; min-height: 0; padding: 4px 12px; text-align: left; }
+      .leg:first-child { border-radius: 16px 16px 0 0; }
+      .leg:nth-child(6) { border-radius: 0 0 16px 16px; }
+      .leg .who { margin-top: 0; }
+      .risk { left: -12px; right: auto; top: calc(var(--x) / 6 * 100%); bottom: auto; width: 22px; height: 0; transition: top .5s cubic-bezier(.3, .8, .3, 1); }
+      .risk::before { left: 0; right: 0; top: -1.5px; bottom: auto; width: auto; height: 3px; }
+      .risk::after { left: -8px; top: -8px; }
+      .risk-label { display: none; }
+      .street { padding: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" id="skip" href="#main">跳至內容</a>
+  <main class="page" id="main">
+    <header class="top">
+      <p class="eyebrow" id="eyebrow">作品館 · 教學玩具 · 附錄</p>
+      <div class="lang" id="lang-group" role="group" aria-label="語言">
+        <button type="button" data-lang="zh" aria-pressed="true">中文</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </header>
+    <p class="boundary" id="boundary"></p>
+    <p class="kicker" id="kicker"></p>
+    <h1 id="title" tabindex="-1">貿易條件速查卡</h1>
+    <p class="intro" id="intro"></p>
+    <p class="lede" id="lede"></p>
+    <div class="actions">
+      <a class="primary" id="play-top" href="../">走一趟貿易街</a>
+    </div>
+
+    <article class="card" id="card" aria-labelledby="card-title">
+      <div class="card-head">
+        <div>
+          <p class="card-tag" id="card-tag"></p>
+          <p class="card-title" id="card-title"></p>
+        </div>
+        <div class="stamp" aria-hidden="true"><span>INCOTERMS®<b>2020</b></span></div>
+      </div>
+      <div class="pick-wrap">
+        <div class="pick" id="pick" role="radiogroup" aria-labelledby="card-title"></div>
+        <div class="spectrum" aria-hidden="true"><span id="spec-left"></span><i></i><span id="spec-right"></span></div>
+      </div>
+      <div class="now">
+        <p class="term-line"><span class="term-code" id="term-code"></span><span class="term-name" id="term-name"></span><span class="term-en" id="term-en"></span></p>
+        <p class="one-line" id="one-line"></p>
+      </div>
+      <div class="strip-wrap">
+        <ul class="legend" id="legend"></ul>
+        <ol class="strip" id="strip"></ol>
+        <ul class="chips" id="chips"></ul>
+        <p class="sr" id="live" role="status" aria-live="polite"></p>
+      </div>
+      <div class="facts" id="facts"></div>
+    </article>
+
+    <section class="block" aria-labelledby="how-title">
+      <h2 id="how-title"></h2>
+      <p id="how-lede"></p>
+      <ul class="how" id="how"></ul>
+    </section>
+
+    <section class="street" aria-labelledby="street-title">
+      <h2 id="street-title"></h2>
+      <p id="street-p1"></p>
+      <div class="gap" id="gap" role="group" aria-labelledby="street-title"></div>
+      <p id="street-p2"></p>
+    </section>
+
+    <aside class="ribbon" aria-labelledby="ribbon-title">
+      <h2 id="ribbon-title"></h2>
+      <p id="ribbon-p"></p>
+    </aside>
+
+    <section class="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title"></h2>
+      <ul id="sources"></ul>
+    </section>
+
+    <section class="cta" aria-labelledby="cta-title">
+      <h2 id="cta-title"></h2>
+      <p id="cta-text"></p>
+      <div class="actions">
+        <a class="primary" id="play-bottom" href="../">走一趟貿易街</a>
+        <a class="link" id="cast-link" href="../cast/">認識街上的人</a>
+        <a class="link" id="home" href="/#showcase">回到作品館</a>
+      </div>
+    </section>
+    <p class="caveat" id="caveat"></p>
+  </main>
+  <script type="module" src="appendix.js"></script>
+</body>
+</html>

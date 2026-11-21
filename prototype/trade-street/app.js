@@ -65,6 +65,7 @@ export const UI = {
     takeawayCase: "想看一櫃貨在出海之前，怎麼先判斷做不做得成：第一個貨櫃案例",
     entryTitle: "先選這一週的情況", routeLabel: "十四站", lightsLabel: "四個時間點", routeHint: "點地圖上的圓點，看那一站是誰、在做什麼。橘色圈是要做決定的站。",
     castLink: "認識街上的人",
+    appendixLink: "附錄：貿易條件速查卡",
     mapAlt: "貿易街的港口：左邊是工廠，道路通向右邊的碼頭，吊車正把貨櫃吊上船，遠方海面另有一艘船駛離，右下角是岸上的文件角。",
     previewClose: "關閉", stopLabel: (n, name) => `第 ${n} 站：${name}`,
     start: "出發", seeSteps: "先看 12 步流程",
@@ -118,6 +119,7 @@ export const UI = {
     takeawayCase: "Want to see how a first container is judged before it ships? The first-container case",
     entryTitle: "First, pick this week's situation", routeLabel: "Fourteen stops", lightsLabel: "Four moments", routeHint: "Tap a dot on the map to see who is there and what they do. An orange ring marks a stop where you decide.",
     castLink: "Meet the people on the street",
+    appendixLink: "Appendix: the trade-terms card",
     mapAlt: "The Trade Street harbour: the factory on the left, a road leading to the quay on the right where a crane loads a container onto a ship, another ship sailing away in the distance, and the documents corner on shore at the bottom right.",
     previewClose: "Close", stopLabel: (n, name) => `Stop ${n}: ${name}`,
     start: "Set off", seeSteps: "Read the 12 steps first",
@@ -707,6 +709,10 @@ function boot() {
     for (const id of ["see-cast", "cast-link"]) {
       $(id).textContent = t.castLink;
       $(id).href = `cast/${state.lang === "en" ? "?lang=en" : ""}`;
+    }
+    for (const id of ["see-appendix", "appendix-link"]) {
+      $(id).textContent = t.appendixLink;
+      $(id).href = `appendix/${state.lang === "en" ? "?lang=en" : ""}`;
     }
     $("see-steps").href = `../one-container-12-steps/${state.lang === "en" ? "?lang=en" : ""}`;
     $("lights").setAttribute("aria-label", t.lightsLabel);
