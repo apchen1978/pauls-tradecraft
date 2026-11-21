@@ -1,9 +1,9 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=9";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=10";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COLLECTION[lang];
-const roomCollectionIds = new Set(["room02-la-coast-collection", "room01-corner-watercolour"]);
+const roomCollectionIds = new Set(["room02-la-coast-collection", "room01-corner-watercolour", "room02-city-new-york", "room02-city-san-francisco", "room02-city-brooklyn", "room03-bay-cable-car", "room03-ferry-building", "room03-marin-hills"]);
 const $ = (id) => document.getElementById(id);
 document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
 document.title = `${copy.title} · Paul’s Tradecraft`;

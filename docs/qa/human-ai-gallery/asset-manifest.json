@@ -649,5 +649,191 @@
         "sha256": "2bff8c9e7b1af28a15cbaaf178d83818bc32e8e47383733d7f52f75aee032449"
       }
     ]
+  },
+  {
+    "id": "room02-city-new-york",
+    "source": "docs/gallery/sources/roomverse-room02-city-new-york-source.webp",
+    "sourceSha256": "f4b5fc1f3bad9bc2dd6f263ce2fc391b9da650b7d7255c1aa8f8e1dee4c08b95",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-city-new-york.webp",
+        "width": 1200,
+        "height": 1600,
+        "bytes": 115580,
+        "quality": 76,
+        "sha256": "79c2eb4ea82ca28560ae87a33a8f55ad126d05c9b6d39438fa1b15d23244dcaa"
+      },
+      {
+        "file": "roomverse-room02-city-new-york-mobile.webp",
+        "width": 800,
+        "height": 1067,
+        "bytes": 74894,
+        "quality": 78,
+        "sha256": "6d96aa506f2338031b92f5fb9a4c6972f6d3644c8e9b1efb913d05f70e0053f2"
+      },
+      {
+        "file": "roomverse-room02-city-new-york-thumb.webp",
+        "width": 480,
+        "height": 640,
+        "bytes": 37484,
+        "quality": 80,
+        "sha256": "6dce7e71205e37ae344453475cee56bb2166afdca75a3f5612206d21429db05a"
+      }
+    ]
+  },
+  {
+    "id": "room02-city-san-francisco",
+    "source": "docs/gallery/sources/roomverse-room02-city-san-francisco-source.webp",
+    "sourceSha256": "8aa6eab410c02974c1512f1e17d23677e54529e46e55a4797924b6ef543c36d0",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-city-san-francisco.webp",
+        "width": 1200,
+        "height": 1600,
+        "bytes": 111318,
+        "quality": 76,
+        "sha256": "6584976a528ce7b108d92784dc2d4421e8131739bdd946bf134832b50ca8d4ce"
+      },
+      {
+        "file": "roomverse-room02-city-san-francisco-mobile.webp",
+        "width": 800,
+        "height": 1067,
+        "bytes": 72356,
+        "quality": 78,
+        "sha256": "e001d4108f059c439d0915869018891c0d9f13d9c645eb229541ec19e8c7eea1"
+      },
+      {
+        "file": "roomverse-room02-city-san-francisco-thumb.webp",
+        "width": 480,
+        "height": 640,
+        "bytes": 35774,
+        "quality": 80,
+        "sha256": "b07dc54f2efbb0339baf803844e1cf3ea6436b557769dd88a232ace2ab297541"
+      }
+    ]
+  },
+  {
+    "id": "room02-city-brooklyn",
+    "source": "docs/gallery/sources/roomverse-room02-city-brooklyn-source.webp",
+    "sourceSha256": "8820a0d4dc1abc85f1aff9497598af5c8a631d28249fb5aaace4af7901464bcb",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-city-brooklyn.webp",
+        "width": 1200,
+        "height": 1600,
+        "bytes": 141366,
+        "quality": 76,
+        "sha256": "424cf2a5f3eb3257c9a375926b166e8c4277c5508c14a6d9d458b091b5bc614b"
+      },
+      {
+        "file": "roomverse-room02-city-brooklyn-mobile.webp",
+        "width": 800,
+        "height": 1067,
+        "bytes": 108406,
+        "quality": 78,
+        "sha256": "ba94d1e1eb09b1aef541461e5caed046b07c6b84b2368fd05ab0be46e9a7f8fb"
+      },
+      {
+        "file": "roomverse-room02-city-brooklyn-thumb.webp",
+        "width": 480,
+        "height": 640,
+        "bytes": 54444,
+        "quality": 80,
+        "sha256": "13d2fdddfe1dbe5fced16e665c65c4d4caa5f1da2ef214060f0fd5a041e6f4a2"
+      }
+    ]
+  },
+  {
+    "id": "room03-bay-cable-car",
+    "source": "docs/gallery/sources/roomverse-room03-bay-cable-car-source.webp",
+    "sourceSha256": "1bfedff2ac163f8332aa6ba4c9a59fa95abfa857abc5842dd97ebe1186ef686b",
+    "derivatives": [
+      {
+        "file": "roomverse-room03-bay-cable-car.webp",
+        "width": 800,
+        "height": 616,
+        "bytes": 85828,
+        "quality": 76,
+        "sha256": "17e4e9adc5a3e36dc538bf040b8a41b51bb4292b9b79d57d303cd1146bcc0687"
+      },
+      {
+        "file": "roomverse-room03-bay-cable-car-mobile.webp",
+        "width": 800,
+        "height": 616,
+        "bytes": 96838,
+        "quality": 78,
+        "sha256": "dd8e67af924adc861c68ad2add1171646e23b6270c3e14a8f6daf602ff624716"
+      },
+      {
+        "file": "roomverse-room03-bay-cable-car-thumb.webp",
+        "width": 480,
+        "height": 370,
+        "bytes": 41834,
+        "quality": 80,
+        "sha256": "0a8b0560de73f2652450b6b5394c7c8f3341c179bf83772358242ddff59e1da3"
+      }
+    ]
+  },
+  {
+    "id": "room03-ferry-building",
+    "source": "docs/gallery/sources/roomverse-room03-ferry-building-source.webp",
+    "sourceSha256": "e4ad65ea10bd421a48744b260f6d5d155ad1dfcc2a23234648d69b99d12ad5b0",
+    "derivatives": [
+      {
+        "file": "roomverse-room03-ferry-building.webp",
+        "width": 1200,
+        "height": 900,
+        "bytes": 115656,
+        "quality": 76,
+        "sha256": "2522526b218dbb8c73f7295b464d27d9d9540290dbfe3a69074d346eed7c636a"
+      },
+      {
+        "file": "roomverse-room03-ferry-building-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 60988,
+        "quality": 78,
+        "sha256": "161aa1878592b57bc22cd595b9a732084993d89e1ff2965b8fc80e3af5f63af3"
+      },
+      {
+        "file": "roomverse-room03-ferry-building-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 29258,
+        "quality": 80,
+        "sha256": "48a0fea763b97593f2efcdc307914bee9e216a11c135fa40ebf81812957beb82"
+      }
+    ]
+  },
+  {
+    "id": "room03-marin-hills",
+    "source": "docs/gallery/sources/roomverse-room03-marin-hills-source.webp",
+    "sourceSha256": "efd8b609d3226841b9486af2fee3dae01ddeb04c64c63a7ae7ce9a2cd2fdf97f",
+    "derivatives": [
+      {
+        "file": "roomverse-room03-marin-hills.webp",
+        "width": 1200,
+        "height": 900,
+        "bytes": 110338,
+        "quality": 76,
+        "sha256": "940b9008b9af767bfd04aee744e902ad12ddace5cad30904c4497e0c7907204d"
+      },
+      {
+        "file": "roomverse-room03-marin-hills-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 56506,
+        "quality": 78,
+        "sha256": "b326ba605b49ffcd63e153a0a7c7da1b378051d789c3d8fd3e6dd8a207b43991"
+      },
+      {
+        "file": "roomverse-room03-marin-hills-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 26554,
+        "quality": 80,
+        "sha256": "8dbe410ce60305d69330389ea7674cc3b8e8e92a0abbec073df1b3dfb2b77f77"
+      }
+    ]
   }
 ]

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+const ROOM_IDS = ["room02-la-coast-collection", "room01-corner-watercolour", "room02-city-new-york", "room02-city-san-francisco", "room02-city-brooklyn", "room03-bay-cable-car", "room03-ferry-building", "room03-marin-hills"];
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
@@ -17,7 +18,7 @@ async function loaded(page) {
 
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
-  expect(PIECES).toHaveLength(21);
+  expect(PIECES).toHaveLength(27);
   expect(PIECES.slice(5, 10).map((piece) => piece.id)).toEqual([
     "roomverse-room01-concept",
     "roomverse-room02-brooklyn-concept",
@@ -25,7 +26,7 @@ test("collection: bilingual records, local images, provenance and required-field
     "roomverse-room04-shanghai-slowly-concept",
     "roomverse-room04-shanghai-slowly-interior-concept",
   ]);
-  expect(PIECES.filter((piece) => ["room02-la-coast-collection", "room01-corner-watercolour"].includes(piece.id)).map((piece) => piece.id)).toEqual(["room02-la-coast-collection", "room01-corner-watercolour"]);
+  expect(PIECES.filter((piece) => ROOM_IDS.includes(piece.id)).map((piece) => piece.id)).toEqual(ROOM_IDS);
   for (const id of ["winter-lamplight", "stage-after-show"]) expect(PIECES.some((piece) => piece.id === id)).toBe(true);
   expect(Object.keys(COLLECTION.zh).sort()).toEqual(Object.keys(COLLECTION.en).sort());
   const manifest = JSON.parse(readFileSync(`${QA}/asset-manifest.json`, "utf8"));
@@ -133,10 +134,10 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("#roomverse-title")).toHaveText(COLLECTION[lang].roomverseTitle);
       await expect(page.locator("#roomverse-note")).toHaveText(COLLECTION[lang].roomverseNote);
       await expect(page.locator("#room-collection-title")).toHaveText(COLLECTION[lang].roomCollectionTitle);
-      await expect(page.locator("#room-collection article")).toHaveCount(2);
+      await expect(page.locator("#room-collection article")).toHaveCount(8);
       await expect(page.locator("#room-collection article").first()).toHaveAttribute("data-piece", "room02-la-coast-collection");
-      await expect(page.locator("#room-collection article").last()).toHaveAttribute("data-piece", "room01-corner-watercolour");
-      await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.filter((piece) => ["room02-la-coast-collection", "room01-corner-watercolour"].includes(piece.id)).map((piece) => piece.title[lang]));
+      await expect(page.locator("#room-collection article").last()).toHaveAttribute("data-piece", "room03-marin-hills");
+      await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.filter((piece) => ROOM_IDS.includes(piece.id)).map((piece) => piece.title[lang]));
       const roomverseBoxes = await page.locator("#roomverse article").evaluateAll((articles) => articles.map((article) => article.getBoundingClientRect().toJSON()));
       if (width >= 1000) expect(roomverseBoxes.map(({ top }) => top)).toEqual(roomverseBoxes.map(() => roomverseBoxes[0].top));
       if (width === 390) {
