@@ -2685,7 +2685,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (let row = 0; row <= 10; row++) {
       const u = row / 10, x = bx - 0.335 + u * 0.365;
       for (let col = 0; col <= 7; col++) {
-        const v = col / 7, z = bz + 0.39 + v * 0.36;
+        const v = col / 7, z = bz + 0.17 + v * 0.32; // Paul 2026-11-22: after the banquette grew, this throw lay under the end pillow (z bz+0.5 to +0.86) and looked cut off; it now lies in the free stretch between the two pillows
         const drop = Math.max(0, (0.13 - u) / 0.13);
         throwPositions.push(x, 0.469 - drop * 0.095 + 0.004 * Math.sin(v * 15 + u * 5) - 0.006 * Math.sin(u * Math.PI), z);
         if (row < 10 && col < 7) {
