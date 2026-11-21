@@ -2775,6 +2775,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     chairPart("loungeChair", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
     detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
     chairPart("loungeChair", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
+    // Paul 2026-11-22 (finer lounge detail): the armchair is stitched like the bench: a centre crease down the seat cushion, a row of top-stitching along its front edge, and four vertical channel
+    // seams on the back with a button on each (built in the chair's own frame, so they turn with it). All in the Lounge detail batch.
+    {
+      const seam = 0x0d2321, front = 0.026 + 0.275;
+      chairPart("loungeDetail", colorize(new THREE.BoxGeometry(0.0035, 0.0016, 0.5).translate(0, 0.4305, 0.026), seam));
+      for (let k = -5; k <= 5; k++) chairPart("loungeDetail", colorize(new THREE.BoxGeometry(0.012, 0.0014, 0.0032).translate(k * 0.052, 0.3935, front - 0.001), seam)); // the front top-stitching
+      for (const sx of [-0.19, -0.075, 0.075, 0.19]) {
+        const face = (g) => g.rotateX(-0.12).translate(0, 0.574, -0.264);
+        chairPart("loungeDetail", colorize(face(new THREE.BoxGeometry(0.0035, 0.3, 0.003).translate(sx, 0, 0.0595)), seam));
+        for (const by of [-0.075, 0.075]) chairPart("loungeDetail", colorize(face(new THREE.SphereGeometry(0.0085, 10, 6).scale(1, 1, 0.45).translate(sx, by, 0.0605)), 0x081716));
+      }
+    }
     addContactShadow(bx + 0.02, bz, 0.72, 2.26, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
 
@@ -2817,6 +2829,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       }
       cover.setAttribute("color", new THREE.BufferAttribute(colors, 3));
       part("loungeDetail", cover.translate(px, 0, pz));
+      // Paul 2026-11-22: a deep-set button in the middle of the top with a ring of pull where the cloth gathers into it, a shade darker than the cover.
+      { const dark = new THREE.Color(color).multiplyScalar(0.5);
+        detail(new THREE.SphereGeometry(0.016, 14, 8).scale(1, 0.55, 1).translate(px, 0.371, pz), dark.getHex());
+        detail(new THREE.TorusGeometry(0.026, 0.0028, 6, 20).rotateX(Math.PI / 2).translate(px, 0.368, pz), new THREE.Color(color).multiplyScalar(0.72).getHex()); }
       addContactShadow(px, pz, 0.52, 0.52, 0.0135);
     }
     // A backpack set down between the two poufs (the same model as Room 02's, unscaled, in plum with cream straps; Room 02's is navy, Room 01's are rose and
@@ -2869,6 +2885,24 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       // Different things on the two tables (Paul: two identical sets look fake). Marble table: a tablet turned a little and a card holder. Oak table: a closed notebook with a
       // pen across it, a smaller phone, and a latte on the other side.
       const yawBox = (key, w, h, d, x, y, zz, yaw, r = 0.012) => part(key, roundedBox(w, h, d, r, Math.min(r / 2, h / 4), 4).rotateY(yaw).translate(x, y, zz));
+      // Paul 2026-11-22: one more small thing on each table, each different: a cream bud vase with three ranunculus on the marble table, a stoneware sugar pot with an oak lid on the dark table.
+      if (surface === "stone") {
+        const vx = tx + 0.14, vz = z - 0.14;
+        detail(new THREE.LatheGeometry([[0, 0], [0.022, 0], [0.028, 0.012], [0.03, 0.035], [0.018, 0.062], [0.011, 0.075], [0.013, 0.082], [0.0095, 0.082], [0.0095, 0.07], [0, 0.07]].map(([r, y]) => new THREE.Vector2(r, y)), 20).translate(vx, 0.45, vz), 0xeae0cc);
+        for (const [dx, dz, h, tilt, bloom] of [[0.0, 0.0, 0.17, 0, 0xf2d9d0], [0.018, 0.006, 0.145, 0.32, 0xe9b9a8], [-0.016, -0.008, 0.15, -0.3, 0xf6e7c8]]) {
+          const tip = [dx * 1.6 + Math.sin(tilt) * 0.03, 0.45 + h, dz * 1.6];
+          detail(rodGeometry([vx + dx * 0.4, 0.45 + 0.06, vz + dz * 0.4], [vx + tip[0], tip[1], vz + tip[2]], 0.0022, 5), 0x5f7d3f);
+          detail(new THREE.SphereGeometry(0.016, 12, 8).scale(1, 0.8, 1).translate(vx + tip[0], tip[1] + 0.008, vz + tip[2]), bloom);
+          detail(new THREE.SphereGeometry(0.0055, 8, 6).translate(vx + tip[0], tip[1] + 0.016, vz + tip[2]), 0xd8a35a);
+        }
+        registerSupport("lounge-stone-table-bud-vase", "rest", { base: { x: vx, y: 0.45, z: vz, radius: 0.03 }, surface: { shape: "circle", x: tx, y: 0.45, z, radius: 0.31 } });
+      } else {
+        const sx = tx + 0.19, sz = z - 0.17;
+        detail(new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.036, 0.008], [0.036, 0.045], [0.032, 0.05], [0, 0.05]].map(([r, y]) => new THREE.Vector2(r, y)), 22).translate(sx, 0.45, sz), 0xd9c9a8);
+        detail(new THREE.LatheGeometry([[0, 0.05], [0.034, 0.05], [0.03, 0.058], [0.012, 0.064], [0, 0.066]].map(([r, y]) => new THREE.Vector2(r, y)), 22).translate(sx, 0.45, sz), 0xb98a52);
+        detail(new THREE.SphereGeometry(0.0065, 8, 6).translate(sx, 0.45 + 0.07, sz), 0xc9a45a);
+        registerSupport("lounge-oak-table-sugar-pot", "rest", { base: { x: sx, y: 0.45, z: sz, radius: 0.037 }, surface: { shape: "circle", x: tx, y: 0.45, z, radius: 0.31 } });
+      }
       if (surface === "stone") {
         ceramicCup({ x: tx + 0.145, y: 0.45, z: z + 0.062, scale: 1.05, coffee: true });
         // The latte heart (Card H f) moved here from the record corner (Paul 2026-11-18): the atlas's latte half on this cup's coffee, 0.9 mm over the surface and
