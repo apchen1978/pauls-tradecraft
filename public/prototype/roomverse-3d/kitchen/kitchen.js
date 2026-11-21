@@ -3818,38 +3818,41 @@ function buildRightWallCredenza(scene, m) {
   // parts join the existing brass mesh), so the draw call count is unchanged.
   const gap = 0.007, widths = [0.36, 0.36, 0.36], wide = length - gap * 5 - widths.reduce((a, b) => a + b, 0), doorWidths = [...widths, wide];
   const doors = doorWidths.length; let cursor = Z_MIN + gap;
+  // Paul 2026-11-21 (colour-blocking): the left door and the wide window-end section are both painted the same slate blue, the three walnut fluted fronts become a middle pair of two with their pulls on the meeting
+  // edges at the centre; every vertical pull (blue and walnut) hangs at the same height and has the same size, so the handles read as one set.
+  const PULL_Y = 0.44, drawerH = 0.125, dgap = 0.007, stileW = 0.032;
+  const verticalPull = (pz) => { const pull = new THREE.BoxGeometry(0.014, 0.082, 0.012); pull.translate(xFront - 0.02, PULL_Y, pz); hardwareParts.push(pull);
+    for (const dy of [-0.027, 0.027]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, PULL_Y + dy, pz); hardwareParts.push(standoff); } };
+  const shaker = (fx, z, doorW, cy, h) => { // one painted front: the slab, four frame bars and the recessed panel
+    box("paint", [0.02, h, doorW], [fx, cy, z], true);
+    box("paintDeep", [0.004, h - 2 * stileW, doorW - 2 * stileW], [fx - 0.0105, cy, z]); // the recessed panel, a little darker
+    for (const sz of [-1, 1]) box("paintHi", [0.007, h, stileW], [fx - 0.0105, cy, z + sz * (doorW / 2 - stileW / 2)], true); // the two stiles
+    for (const sy of [-1, 1]) box("paintHi", [0.007, stileW, doorW - 2 * stileW], [fx - 0.0105, cy + sy * (h / 2 - stileW / 2), z], true); // the top and bottom rails
+  };
   for (let i = 0; i < doors; i++) {
     const doorW = doorWidths[i], z = cursor + doorW / 2; cursor += doorW + gap;
     const doorH = bodyH - 0.02, yMid = PLINTH + bodyH / 2, fx = xFront - 0.004, last = i === doors - 1;
-    if (!last) { // the three fluted doors (the left side stays as it was)
+    if (i === 0) { // the left door: slate blue like the window end, its pull on the edge that meets the walnut pair
+      shaker(fx, z, doorW, yMid, doorH); verticalPull(z + doorW / 2 - 0.035);
+    } else if (!last) { // the middle pair of fluted walnut doors: pulls on the two meeting edges
       box("front", [0.02, doorH, doorW], [fx, yMid, z], true); // the door slab
       const pitch = 0.0105, rib = 0.0066, n = Math.floor((doorW - 0.07) / pitch); // flutes: plain ribs (flat boxes, 3 mm proud) read the same as round ones at room distance
       for (let k = 0; k < n; k++) box("rib", [0.0034, doorH - 0.03, rib], [fx - 0.0105, yMid, z - (n - 1) * pitch / 2 + k * pitch]);
       // Slim vertical pulls on the opening edge at a natural hand height.
-      const pullZ = z + (i % 2 === 0 ? doorW / 2 - 0.035 : -doorW / 2 + 0.035), pullY = PLINTH + bodyH * 0.56, pull = new THREE.BoxGeometry(0.014, 0.082, 0.012);
-      pull.translate(xFront - 0.02, pullY, pullZ); hardwareParts.push(pull);
-      for (const dy of [-0.027, 0.027]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, pullY + dy, pullZ); hardwareParts.push(standoff); }
+      verticalPull(z + (i === 1 ? doorW / 2 - 0.035 : -doorW / 2 + 0.035));
     } else {
       // Paul 2026-11-21 (first the wide end kept the plain walnut, which read as a downgrade next to the fluted doors): the wide section is now painted a calm slate blue, an American shaker finish: two
       // drawers over a door, each with a raised frame (stiles and rails 3.2 cm wide, 6 mm proud) round a recessed panel, and the same brass pulls. The blue sits well beside the olive cabinets and the oak top.
-      const drawerH = 0.125, dgap = 0.007, topY = yMid + doorH / 2, stileW = 0.032;
-      const shaker = (cy, h) => { // one painted front: the slab, four frame bars and the recessed panel
-        box("paint", [0.02, h, doorW], [fx, cy, z], true);
-        box("paintDeep", [0.004, h - 2 * stileW, doorW - 2 * stileW], [fx - 0.0105, cy, z]); // the recessed panel, a little darker
-        for (const sz of [-1, 1]) box("paintHi", [0.007, h, stileW], [fx - 0.0105, cy, z + sz * (doorW / 2 - stileW / 2)], true); // the two stiles
-        for (const sy of [-1, 1]) box("paintHi", [0.007, stileW, doorW - 2 * stileW], [fx - 0.0105, cy + sy * (h / 2 - stileW / 2), z], true); // the top and bottom rails
-      };
+      const topY = yMid + doorH / 2;
       for (const k of [0, 1]) {
         const y = topY - drawerH / 2 - k * (drawerH + dgap);
-        shaker(y, drawerH);
+        shaker(fx, z, doorW, y, drawerH);
         const bar = new THREE.BoxGeometry(0.014, 0.012, 0.11); bar.translate(xFront - 0.02, y, z); hardwareParts.push(bar);
         for (const dz of [-0.04, 0.04]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, y, z + dz); hardwareParts.push(standoff); }
       }
       const doorTop = topY - 2 * drawerH - 2 * dgap, doorBottom = yMid - doorH / 2, doorMid = (doorTop + doorBottom) / 2;
-      shaker(doorMid, doorTop - doorBottom);
-      const pullZ = z - doorW / 2 + 0.035, pull = new THREE.BoxGeometry(0.014, 0.082, 0.012);
-      pull.translate(xFront - 0.02, doorMid + 0.07, pullZ); hardwareParts.push(pull);
-      for (const dy of [-0.027, 0.027]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, doorMid + 0.07 + dy, pullZ); hardwareParts.push(standoff); }
+      shaker(fx, z, doorW, doorMid, doorTop - doorBottom);
+      verticalPull(z - doorW / 2 + 0.035);
     }
   }
   { const strip = new THREE.BoxGeometry(0.004, 0.006, length - 0.02); strip.translate(xFront - 0.006, TOP_Y - TOP_T - 0.003, zMid); hardwareParts.push(strip); } // the thin brass edge line under the oak top
