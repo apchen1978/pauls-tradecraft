@@ -2052,9 +2052,15 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
           end: { ...strawEnd, z: strawEnd.z + partShift }, rim: { x: hx, y: top + rimH, z: hz + partShift, radius: 0.034 }, tubeRadius: 0.0021 });
       }
     }
-    partShift = counterShift(-0.92);
-    slab("oak", [-1.14, -0.69], [top, top + 0.018], [c.z1 - 0.28, c.z1 - 0.07], { tile: 1 });
-    for (const x of [-1.03, -0.81]) ceramicCup({ x, y: top + 0.018, z: c.z1 - 0.18, coffee: true });
+    // Paul 2026-11-22: the oak cup board was one straight 45 cm slab built with the counter shift of its middle, but the counter edge swings about 20 cm across that stretch, so its right end hung over the
+    // front edge. It is now turned to follow the edge (its yaw is the slope of the shift curve) and each cup takes the shift of its own x.
+    {
+      const bx0 = -1.14, bx1 = -0.69, bxm = (bx0 + bx1) / 2, slope = (counterShift(bx1) - counterShift(bx0)) / (bx1 - bx0);
+      partShift = counterShift(bxm);
+      part("oak", new THREE.BoxGeometry(bx1 - bx0, 0.018, 0.21).rotateY(-Math.atan(slope)).translate(bxm, top + 0.009, c.z1 - 0.175), { tile: 1 });
+      for (const x of [-1.03, -0.81]) { partShift = counterShift(x); ceramicCup({ x, y: top + 0.018, z: c.z1 - 0.175, coffee: true }); }
+    }
+    partShift = counterShift(-0.57); // Paul 2026-11-22: the biscuit plate was built with the shift of the board beside it (x -0.92, 19 cm towards the guests) but stands at x -0.57, where the counter edge has swung 12 cm the other way: it hung over the front edge. It now follows the counter at its own x.
     part("ceramic", new THREE.CylinderGeometry(0.06, 0.06, 0.008, 18).translate(-0.57, top + 0.004, c.z1 - 0.2), { tile: 1 });
     part("cookie", new THREE.SphereGeometry(0.028, 10, 6).scale(1.4, 0.45, 1).translate(-0.57, top + 0.015, c.z1 - 0.2), { tile: 1 });
     part("steel", rodGeometry([-0.66, top + 0.012, c.z1 - 0.14], [-0.52, top + 0.012, c.z1 - 0.14], 0.002, 6), { tile: 1 });
@@ -2662,10 +2668,27 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const x of [-2.0, -1.8]) for (const dz of [-0.04, 0.04]) part("black", rodGeometry([x, T, zc + dz], [x, T + 0.12, zc + dz], 0.0028, 6), { tile: 1 });
     for (const dz of [-0.04, 0.04]) { part("black", rodGeometry([-2.0, T + 0.12, zc + dz], [-1.8, T + 0.12, zc + dz], 0.0028, 6), { tile: 1 }); part("black", rodGeometry([-2.0, T + 0.005, zc + dz], [-1.8, T + 0.005, zc + dz], 0.0028, 6), { tile: 1 }); }
     slab("paper", [-1.985, -1.815], [T + 0.01, T + 0.115], [zc - 0.012, zc + 0.012], { tile: 1 });
-    partShift = counterShift(-1.12);
-    // tiny succulent in a clay pot: a rosette of flat leaves
-    part("terracotta", new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.034, 0.06], [0.037, 0.07], [0.0005, 0.07]].map((p) => new THREE.Vector2(p[0], p[1])), 18).translate(-1.12, T, zc), { tile: 1 });
-    for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2, ring = i % 2 ? 0.014 : 0.024, leaf = new THREE.SphereGeometry(0.02, 8, 5); leaf.scale(0.55, 0.15, 1); leaf.translate(0, 0, 0.02); leaf.rotateX(-(i % 2 ? 0.8 : 0.4)).rotateY(a); part("leaf", leaf.translate(-1.12 + Math.cos(a) * ring * 0.4, T + 0.075 + (i % 2) * 0.01, zc + Math.sin(a) * ring * 0.4), { tile: 1 }); }
+    partShift = counterShift(-1.21);
+    // Paul 2026-11-22: the little succulent stood inside the oak board (its pot was 3.7 cm wide at x -1.12, the board starts at -1.14). It moves 9 cm out to x -1.21, clear of the board and of the menu
+    // folder, and is livelier: a glazed terracotta pot with a cream band, an echeveria rosette of three rings of pointed leaves (green going to teal, with rose tips and a pale bloom on the back of each) and a
+    // short flower stalk with three coral bells.
+    {
+      const SX = -1.21, tint = new THREE.Color();
+      part("terracotta", new THREE.LatheGeometry([[0.0005, 0], [0.026, 0], [0.034, 0.05], [0.038, 0.066], [0.0335, 0.07], [0.0005, 0.07]].map((q) => new THREE.Vector2(q[0], q[1])), 20).translate(SX, T, zc), { tile: 1 });
+      part("loungeDetail", colorize(new THREE.CylinderGeometry(0.0388, 0.0364, 0.012, 20, 1, true).translate(SX, T + 0.052, zc), 0xe9dcc2), { tile: 1 });
+      part("loungeDetail", colorize(new THREE.CylinderGeometry(0.0335, 0.0335, 0.002, 20).translate(SX, T + 0.0695, zc), 0x3b2a1c), { tile: 1 }); // soil
+      for (const [n, rr, tilt, len, hue] of [[11, 0.020, 1.15, 0.030, 0x3f8a6a], [8, 0.013, 0.8, 0.027, 0x58a07a], [5, 0.006, 0.35, 0.022, 0x8cc08a]]) for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2 + (n % 2) * 0.3, leaf = new THREE.SphereGeometry(1, 8, 6).scale(0.0075, 0.0035, len);
+        leaf.translate(0, 0, len); leaf.rotateX(-tilt).rotateY(a);
+        const lp = leaf.attributes.position, cols = new Float32Array(lp.count * 3);
+        for (let k = 0; k < lp.count; k++) { const along = Math.min(1, Math.max(0, (Math.hypot(lp.getX(k), lp.getZ(k)) - 0.0) / (len * 2))); tint.set(hue).lerp(new THREE.Color(0xd96a7a), Math.pow(along, 3) * 0.75).toArray(cols, k * 3); }
+        leaf.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); leaf.deleteAttribute("uv");
+        part("loungeDetail", leaf.translate(SX + Math.cos(a) * rr * 0.4, T + 0.072 + (3 - n / 4) * 0.0035, zc + Math.sin(a) * rr * 0.4), { tile: 1 });
+      }
+      part("loungeDetail", colorize(rodGeometry([SX + 0.004, T + 0.075, zc], [SX + 0.016, T + 0.15, zc + 0.006], 0.0016, 5), 0x6aa06a), { tile: 1 });
+      for (const [bx2, by2, bz2] of [[0.016, 0.152, 0.006], [0.026, 0.139, 0.012], [0.007, 0.139, 0.0]]) part("loungeDetail", colorize(new THREE.SphereGeometry(0.0062, 8, 6).scale(1, 1.3, 1).translate(SX + bx2, T + by2, zc + bz2), 0xe86a55), { tile: 1 });
+    }
+
     partShift = counterShift(-0.9);
     // receipt spike: a steel disc, a pin and a few white slips
     part("steel", new THREE.CylinderGeometry(0.03, 0.03, 0.008, 20).translate(-0.9, T + 0.004, zc), { tile: 1 }); part("steel", new THREE.CylinderGeometry(0.0025, 0.0025, 0.12, 6).translate(-0.9, T + 0.068, zc), { tile: 1 });
