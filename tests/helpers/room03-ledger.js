@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 139358, meshes: 154 }),
+  scene: Object.freeze({ vertices: 139367, meshes: 154 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 99, phone: 96 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -93,6 +93,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-21", change: "window floor plant (Paul): stems start inside the pot below the soil, three layers of cupped arching leaves with midribs, hand-painted vine band on the pot (same sage glaze)", vertices: 136654, meshes: 151, desktopCalls: 95, phoneCalls: 92 },    { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
     { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
     { date: "2026-11-22", change: "stove wall (Paul, reference photos): flat induction hob with a touch strip and no knobs, patchwork azulejo panel with a brass frame behind it, oven without knobs and a stainless bar handle", vertices: 139358, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
+    { date: "2026-11-22", change: "counter bread (Paul, reference photo): a golden quick-bread loaf with a split top in a dark steel loaf pan, a rectangular slice in front", vertices: 139367, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
   ]),
 });
 
