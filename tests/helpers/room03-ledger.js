@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 155173, meshes: 158 }),
+  scene: Object.freeze({ vertices: 155852, meshes: 158 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 103, phone: 100 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -95,6 +95,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "stove wall (Paul, reference photos): flat induction hob with a touch strip and no knobs, patchwork azulejo panel with a brass frame behind it, oven without knobs and a stainless bar handle", vertices: 139358, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
     { date: "2026-11-22", change: "counter bread (Paul, reference photo): a golden quick-bread loaf with a split top in a dark steel loaf pan, a rectangular slice in front", vertices: 139367, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
     { date: "2026-11-22", change: "counter popcorn (Paul): the stone dish beside the bread is replaced by Room 01's popcorn bowl (shared Codex model, re-glazed blue; four more meshes, +15.8k vertices)", vertices: 155173, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
+    { date: "2026-11-22", change: "credenza end (Paul): the crock of thin spoons is replaced by a stoneware canister with a terracotta band and oak lid plus a turned walnut pepper mill", vertices: 155852, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
   ]),
 });
 

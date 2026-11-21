@@ -3975,15 +3975,20 @@ function buildRoom03CredenzaDecor(scene) {
   // amber glass lantern and a cream crock of wooden spoons. They stand where the books stood (z -0.56) and between it and the first cup; all of it joins the same merged mesh.
   const WICKER = 0xc7a26b, WICKER_DARK = 0x9d7a45, LEAF = [0x5f8446, 0x4d7338, 0x6f9250, 0x3f6a3c];
   {
-    // The flat top holds only cooking things, laid out in order from the window end towards the stove (Paul 2026-11-21): a crock of wooden spoons against the wall, a cherry-red enamel casserole with a round
+    // The flat top holds only cooking things, laid out in order from the window end towards the stove (Paul 2026-11-21): a stoneware canister and a walnut pepper mill against the wall, a cherry-red enamel casserole with a round
     // board of halved lemon and lime beside it, a floral lidded spice pot, a tray of good bottles (balsamic vinegar, olive oil, soy sauce and the Thanksgiving table's burgundy wine bottle, copied), and two
     // stacks of dinner plates side by side by the wall (with a mug on one), 4 cm clear of the record player (z 0.32 on). Anything that did not look finished was taken out.
-    const crockX = 2.85, crockZ = -0.74;
-    add(lathe([[0, 0], [0.036, 0], [0.04, 0.01], [0.043, 0.1], [0.04, 0.108], [0.036, 0.1], [0, 0.098]], 18), 0xe4dccb, [crockX, TOP_Y, crockZ]);
-    for (const [dx, dz, lean, h] of [[-0.012, -0.006, 0.16, 0.2], [0.008, 0.01, -0.1, 0.19], [0.0, -0.012, -0.22, 0.17], [-0.004, 0.012, 0.28, 0.18]]) {
-      add(new THREE.CylinderGeometry(0.0045, 0.0055, h, 6), 0xb98a52, [crockX + dx + Math.sin(lean) * h * 0.5, TOP_Y + 0.1 + Math.cos(lean) * h * 0.5, crockZ + dz], [0, 0, -lean]);
-      add(new THREE.SphereGeometry(1, 8, 5).scale(0.016, 0.026, 0.0045), 0xb98a52, [crockX + dx + Math.sin(lean) * h, TOP_Y + 0.1 + Math.cos(lean) * h + 0.01, crockZ + dz], [0, 0, -lean]);
-    }
+    // Paul 2026-11-22 (the crock of thin spoons read as odd sticks in a white jar): a matte stoneware canister with a blue glaze band, an oak lid and a brass knob, and a turned walnut pepper mill with brass rings,
+    // the kind of kitchenware in the 2026 design shops. Both stand against the wall at the window end, clear of each other and of the round board.
+    const canX = 2.85, canZ = -0.744, millZ = -0.6745;
+    add(lathe([[0, 0], [0.039, 0], [0.044, 0.008], [0.044, 0.118], [0.04, 0.122], [0, 0.122]], 28), 0xe9e0cf, [canX, TOP_Y, canZ]);
+    add(new THREE.CylinderGeometry(0.0446, 0.0446, 0.02, 28, 1, true), 0xc4704f, [canX, TOP_Y + 0.07, canZ]);
+    add(new THREE.CylinderGeometry(0.0446, 0.0446, 0.004, 28, 1, true), 0xf3ead8, [canX, TOP_Y + 0.088, canZ]);
+    add(lathe([[0, 0.12], [0.043, 0.12], [0.043, 0.128], [0.037, 0.134], [0, 0.136]], 28), 0xb98a52, [canX, TOP_Y, canZ]);
+    add(new THREE.SphereGeometry(0.0095, 12, 8), 0xc9a45a, [canX, TOP_Y + 0.144, canZ]);
+    add(lathe([[0, 0], [0.022, 0], [0.021, 0.02], [0.015, 0.07], [0.013, 0.1], [0.018, 0.135], [0.02, 0.16], [0.012, 0.172], [0, 0.174]], 24), 0x7a5636, [canX, TOP_Y, millZ]);
+    for (const y of [0.022, 0.108]) add(new THREE.TorusGeometry(y < 0.05 ? 0.0215 : 0.0135, 0.0018, 6, 20).rotateX(Math.PI / 2), 0xc9a45a, [canX, TOP_Y + y, millZ]);
+    add(new THREE.SphereGeometry(0.0115, 12, 8), 0x7a5636, [canX, TOP_Y + 0.178, millZ]);
     { const bx3 = 2.82, bz3 = -0.575; // the round board with a halved lemon and a halved lime
       add(new THREE.CylinderGeometry(0.075, 0.075, 0.016, 28), 0xc79a5f, [bx3, TOP_Y + 0.008, bz3]); add(new THREE.TorusGeometry(0.075, 0.0045, 5, 28).rotateX(Math.PI / 2), 0xa9793f, [bx3, TOP_Y + 0.016, bz3]);
       add(new THREE.SphereGeometry(1, 16, 8).scale(0.03, 0.022, 0.026), 0xf1d54a, [bx3 - 0.025, TOP_Y + 0.025, bz3 - 0.012]); add(new THREE.CylinderGeometry(0.022, 0.022, 0.004, 18), 0xf8ecae, [bx3 - 0.025, TOP_Y + 0.046, bz3 - 0.012]);
