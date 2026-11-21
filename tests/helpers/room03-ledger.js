@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 119207, meshes: 150 }),
+  scene: Object.freeze({ vertices: 131828, meshes: 151 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 88, phone: 85 }),
+  openingDrawCalls: Object.freeze({ desktop: 95, phone: 92 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 88, golden: 88, movie: 89, night: 88, dinner: 90, sunday: 89, thanksgiving: 94 }),
-    phone: Object.freeze({ daylight: 85, golden: 85, movie: 86, night: 85, dinner: 87, sunday: 86, thanksgiving: 91 }),
+    desktop: Object.freeze({ daylight: 95, golden: 95, movie: 96, night: 95, dinner: 97, sunday: 96, thanksgiving: 101 }),
+    phone: Object.freeze({ daylight: 92, golden: 92, movie: 93, night: 92, dinner: 94, sunday: 93, thanksgiving: 98 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -89,6 +89,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "record-player cord now ends in a plug in a US duplex outlet (Paul: it vanished into the plaster): white plate, two round receptacle faces with slots and ground hole, a slotted plate screw, a black moulded plug in the lower receptacle and the cord climbing the wall into it; merged into the same vertex-coloured cord mesh, so no new mesh and no new draw call", vertices: 117816, meshes: 149, desktopCalls: 87, phoneCalls: 84 },
     { date: "2026-11-19", change: "US Decora outlets (Paul): the record-player outlet becomes a Decora duplex; a GFCI with TEST and RESET on the backsplash beside the sink (empty); a Decora duplex on the entry wall behind the window-side floor lamp, with the lamp cord leaving its pole, lying on the floor and climbing the wall into a black plug. The two new outlets and the lamp cord are one vertex-coloured mesh (one more mesh, one more draw call)", vertices: 118919, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
     { date: "2026-11-19", change: "Floor lamp joint and cord (Paul): the stem now ends inside the tripod hub with a short collar and the legs start inside the hub; the lamp cord lies in a loose S across the floor (more tube segments). Same meshes and draw calls", vertices: 119207, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
+    { date: "2026-11-21", change: "the credenza and its surroundings (Paul): fluted walnut doors and a slate-blue shaker drawer-and-door front, the top now holds only tidy cooking things (a crock of spoons, a red casserole, a board with lemon and lime, a floral spice pot, a tray of four bottles with the Thanksgiving wine bottle copied, two stacks of plates), one cup and one bottle (the bottle moved to the floor by the window lounge chair beside a tall leafy plant), the three books on the entry-nook console; vertices 131,828, meshes 151, opening draw calls desktop 95 and phone 92, per-mood rows re-measured", vertices: 131828, meshes: 151, desktopCalls: 95, phoneCalls: 92 },
   ]),
 });
 

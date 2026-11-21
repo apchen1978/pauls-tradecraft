@@ -35,15 +35,13 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
       const bottle = info.propBounds[key];
       expect(bottle.size[1], "1.5 L-style tall bottle").toBeGreaterThanOrEqual(0.30);
       expect(bottle.size[1]).toBeLessThanOrEqual(0.32);
-      expect(bottle.min[1] - 0.815, "bottle sits on the credenza").toBeGreaterThanOrEqual(-0.002);
-      expect(bottle.min[1] - 0.815).toBeLessThanOrEqual(0.002);
-      expect(bottle.min[0]).toBeGreaterThanOrEqual(2.49);
-      expect(bottle.max[0]).toBeLessThanOrEqual(2.94);
-      expect(bottle.min[2]).toBeGreaterThanOrEqual(-0.80);
-      expect(bottle.max[2]).toBeLessThanOrEqual(1.00);
-      for (const cup of info.credenzaDecor.cups) {
-        expect(bottle.max[2] < cup.bounds.min[2] || bottle.min[2] > cup.bounds.max[2], "water bottle clears each coffee cup").toBe(true);
-      }
+      // Paul 2026-11-21: the water bottle stands on the floor beside the window lounge chair (somebody sitting there may want a drink).
+      expect(bottle.min[1], "bottle stands on the floor").toBeGreaterThanOrEqual(-0.002);
+      expect(bottle.min[1]).toBeLessThanOrEqual(0.004);
+      expect(bottle.min[0], "beside the lounge chair, near the glass").toBeGreaterThanOrEqual(-3.0);
+      expect(bottle.max[0]).toBeLessThanOrEqual(-1.6);
+      expect(bottle.min[2]).toBeGreaterThanOrEqual(-0.9);
+      expect(bottle.max[2]).toBeLessThanOrEqual(0.2);
     }
     expect(info.cookbookCount).toBe(3);
     expect(info.storageBoxCount).toBe(2);

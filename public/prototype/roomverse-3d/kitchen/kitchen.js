@@ -3947,43 +3947,55 @@ function buildRoom03CredenzaDecor(scene) {
   // amber glass lantern and a cream crock of wooden spoons. They stand where the books stood (z -0.56) and between it and the first cup; all of it joins the same merged mesh.
   const WICKER = 0xc7a26b, WICKER_DARK = 0x9d7a45, LEAF = [0x5f8446, 0x4d7338, 0x6f9250, 0x3f6a3c];
   {
-    const bz = -0.47, bx = 2.76; // Paul 2026-11-21: the credenza top was crowded at one end; everything is spread about 13 cm apart along its length now. The basket: a tapered woven bowl 17 cm wide and 13 cm tall, five darker weave bands, two small rope handles
-    add(lathe([[0, 0.003], [0.068, 0.003], [0.074, 0.02], [0.082, 0.07], [0.088, 0.125], [0.083, 0.132], [0.079, 0.126], [0.072, 0.08], [0.064, 0.025], [0, 0.02]], 24), WICKER, [bx, TOP_Y, bz]);
-    for (let i = 0; i < 5; i++) { const y = 0.022 + i * 0.024, r = 0.072 + (y - 0.02) * 0.14; add(new THREE.TorusGeometry(r, 0.0032, 4, 28).rotateX(Math.PI / 2), WICKER_DARK, [bx, TOP_Y + y, bz]); }
-    for (const side of [-1, 1]) add(new THREE.TorusGeometry(0.016, 0.0028, 5, 12, Math.PI).rotateZ(Math.PI), WICKER_DARK, [bx, TOP_Y + 0.108, bz + side * 0.085], [0, Math.PI / 2, 0]);
-    // the plant: a small terracotta pot standing in the basket and a fan of ten long leaves
-    add(lathe([[0, 0], [0.032, 0], [0.038, 0.06], [0.04, 0.07], [0.034, 0.07], [0, 0.065]], 16), 0xb5603a, [bx, TOP_Y + 0.07, bz]);
-    for (let k = 0; k < 10; k++) {
-      const a = k * Math.PI * 2 / 10 + 0.3, tilt = 0.45 + (k % 3) * 0.2, len = 0.085 + (k % 4) * 0.018;
-      add(new THREE.SphereGeometry(1, 8, 5).scale(0.011, len, 0.0035).translate(0, len * 0.9, 0), LEAF[k % 4], [bx, TOP_Y + 0.14, bz], [0, -a, -tilt]);
-    }
-    // the amber lantern: a short glass cylinder with a brass cap and a small bail handle, standing at the back (z -0.40)
-    const lx = 2.84, lz = -0.34;
-    add(new THREE.CylinderGeometry(0.03, 0.03, 0.085, 16), 0xe9b25e, [lx, TOP_Y + 0.0475, lz]);
-    add(new THREE.CylinderGeometry(0.033, 0.033, 0.008, 16), 0xb58c4e, [lx, TOP_Y + 0.004, lz]); add(new THREE.CylinderGeometry(0.033, 0.033, 0.008, 16), 0xb58c4e, [lx, TOP_Y + 0.093, lz]);
-    add(new THREE.TorusGeometry(0.026, 0.0016, 5, 16, Math.PI).rotateZ(0), 0xb58c4e, [lx, TOP_Y + 0.097, lz], [0, 0.6, 0]);
-    // more kitchenware in the gap where the first cup stood (Paul: the cabinet by the small stove should hold more kitchen things): a stack of four white plates with a mug on top (in the front strip), and a steel
-    // utensil holder with a whisk, a ladle and a spatula, as in his reference picture.
-    { const px2 = 2.60, pz2 = -0.60;
-      for (let i = 0; i < 4; i++) add(lathe([[0, 0], [0.065, 0], [0.098, 0.011], [0.103, 0.016], [0.095, 0.016], [0.062, 0.005], [0, 0.004]], 28), i % 2 ? 0xf1ece0 : 0xe9e3d4, [px2, TOP_Y + i * 0.0125, pz2]);
-      add(lathe([[0, 0], [0.032, 0], [0.036, 0.004], [0.04, 0.07], [0.036, 0.075], [0.031, 0.07], [0, 0.007]], 18), 0x8aa5a8, [px2, TOP_Y + 0.0525, pz2]); // a sage mug on the stack
-      add(new THREE.TorusGeometry(0.02, 0.0045, 5, 12, Math.PI).rotateZ(-Math.PI / 2), 0x8aa5a8, [px2 + 0.04, TOP_Y + 0.088, pz2]);
-      const hx = 2.86, hz = 0.06; // the steel utensil holder
-      add(lathe([[0, 0], [0.036, 0], [0.038, 0.002], [0.04, 0.12], [0.036, 0.12], [0.034, 0.116], [0, 0.004]], 18), 0xb9bdc0, [hx, TOP_Y, hz]);
-      for (const [dx, dz, lean, h, kind] of [[-0.012, -0.004, 0.2, 0.2, "whisk"], [0.01, 0.008, -0.12, 0.21, "ladle"], [0.0, -0.012, -0.28, 0.19, "spatula"]]) {
-        add(new THREE.CylinderGeometry(0.0028, 0.0034, h, 6), 0x2a2b2d, [hx + dx + Math.sin(lean) * h * 0.5, TOP_Y + 0.06 + Math.cos(lean) * h * 0.5, hz + dz], [0, 0, -lean]);
-        const tip = [hx + dx + Math.sin(lean) * h, TOP_Y + 0.06 + Math.cos(lean) * h, hz + dz];
-        if (kind === "whisk") add(new THREE.SphereGeometry(1, 10, 6).scale(0.013, 0.03, 0.013), 0xc9ccce, [tip[0] + Math.sin(lean) * 0.02, tip[1] + 0.015, tip[2]], [0, 0, -lean]);
-        else if (kind === "ladle") add(new THREE.SphereGeometry(1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(0.026, 0.016, 0.026), 0xc9ccce, [tip[0] + Math.sin(lean) * 0.01, tip[1] + 0.008, tip[2]], [Math.PI, 0, -lean]);
-        else add(new THREE.BoxGeometry(0.04, 0.05, 0.003), 0x2a2b2d, [tip[0] + Math.sin(lean) * 0.02, tip[1] + 0.022, tip[2]], [0, 0, -lean]);
-      }
-    }
-    // the crock of wooden spoons, to the left of the basket
-    const cx2 = 2.80, cz2 = -0.735;
-    add(lathe([[0, 0], [0.036, 0], [0.04, 0.01], [0.043, 0.1], [0.04, 0.108], [0.036, 0.1], [0, 0.098]], 18), 0xe4dccb, [cx2, TOP_Y, cz2]);
+    // The flat top holds only cooking things, laid out in order from the window end towards the stove (Paul 2026-11-21): a crock of wooden spoons against the wall, a cherry-red enamel casserole with a round
+    // board of halved lemon and lime beside it, a floral lidded spice pot, a tray of good bottles (balsamic vinegar, olive oil, soy sauce and the Thanksgiving table's burgundy wine bottle, copied), and two
+    // stacks of dinner plates side by side by the wall (with a mug on one), 4 cm clear of the record player (z 0.32 on). Anything that did not look finished was taken out.
+    const crockX = 2.85, crockZ = -0.74;
+    add(lathe([[0, 0], [0.036, 0], [0.04, 0.01], [0.043, 0.1], [0.04, 0.108], [0.036, 0.1], [0, 0.098]], 18), 0xe4dccb, [crockX, TOP_Y, crockZ]);
     for (const [dx, dz, lean, h] of [[-0.012, -0.006, 0.16, 0.2], [0.008, 0.01, -0.1, 0.19], [0.0, -0.012, -0.22, 0.17], [-0.004, 0.012, 0.28, 0.18]]) {
-      add(new THREE.CylinderGeometry(0.0045, 0.0055, h, 6), 0xb98a52, [cx2 + dx + Math.sin(lean) * h * 0.5, TOP_Y + 0.1 + Math.cos(lean) * h * 0.5, cz2 + dz], [0, 0, -lean]);
-      add(new THREE.SphereGeometry(1, 8, 5).scale(0.016, 0.026, 0.0045), 0xb98a52, [cx2 + dx + Math.sin(lean) * h, TOP_Y + 0.1 + Math.cos(lean) * h + 0.01, cz2 + dz], [0, 0, -lean]);
+      add(new THREE.CylinderGeometry(0.0045, 0.0055, h, 6), 0xb98a52, [crockX + dx + Math.sin(lean) * h * 0.5, TOP_Y + 0.1 + Math.cos(lean) * h * 0.5, crockZ + dz], [0, 0, -lean]);
+      add(new THREE.SphereGeometry(1, 8, 5).scale(0.016, 0.026, 0.0045), 0xb98a52, [crockX + dx + Math.sin(lean) * h, TOP_Y + 0.1 + Math.cos(lean) * h + 0.01, crockZ + dz], [0, 0, -lean]);
+    }
+    { const bx3 = 2.82, bz3 = -0.575; // the round board with a halved lemon and a halved lime
+      add(new THREE.CylinderGeometry(0.075, 0.075, 0.016, 28), 0xc79a5f, [bx3, TOP_Y + 0.008, bz3]); add(new THREE.TorusGeometry(0.075, 0.0045, 5, 28).rotateX(Math.PI / 2), 0xa9793f, [bx3, TOP_Y + 0.016, bz3]);
+      add(new THREE.SphereGeometry(1, 16, 8).scale(0.03, 0.022, 0.026), 0xf1d54a, [bx3 - 0.025, TOP_Y + 0.025, bz3 - 0.012]); add(new THREE.CylinderGeometry(0.022, 0.022, 0.004, 18), 0xf8ecae, [bx3 - 0.025, TOP_Y + 0.046, bz3 - 0.012]);
+      add(new THREE.SphereGeometry(1, 16, 8).scale(0.026, 0.02, 0.023), 0x8fbf3d, [bx3 + 0.028, TOP_Y + 0.024, bz3 + 0.022]); add(new THREE.CylinderGeometry(0.019, 0.019, 0.004, 18), 0xdce8a6, [bx3 + 0.028, TOP_Y + 0.042, bz3 + 0.022]);
+    }
+    { const cx3 = 2.65, cz3 = -0.62; // the cherry-red enamel casserole with its lid, a brass knob and two side handles
+      add(lathe([[0, 0], [0.065, 0], [0.078, 0.01], [0.082, 0.07], [0.078, 0.082], [0.072, 0.082], [0, 0.08]], 28), 0xc6362a, [cx3, TOP_Y, cz3]);
+      add(lathe([[0, 0.078], [0.08, 0.078], [0.083, 0.082], [0.07, 0.098], [0.02, 0.104], [0, 0.104]], 28), 0xc6362a, [cx3, TOP_Y, cz3]);
+      add(new THREE.SphereGeometry(0.011, 12, 8), 0xc9a45a, [cx3, TOP_Y + 0.113, cz3]);
+      for (const sz of [-1, 1]) add(new THREE.BoxGeometry(0.02, 0.012, 0.02), 0xa82a20, [cx3, TOP_Y + 0.07, cz3 + sz * 0.094]);
+    }
+    { const RX = 2.66, RZ = -0.44; // a ceramic lidded spice pot with a wooden spoon and a blue-and-white band
+      add(lathe([[0, 0], [0.04, 0], [0.047, 0.03], [0.045, 0.085], [0.04, 0.09], [0, 0.09]], 20), 0xf1ece0, [RX, TOP_Y, RZ]); add(new THREE.CylinderGeometry(0.0475, 0.0475, 0.018, 20, 1, true), 0x3b6fa6, [RX, TOP_Y + 0.05, RZ]);
+      add(lathe([[0, 0.09], [0.043, 0.09], [0.04, 0.1], [0.02, 0.106], [0, 0.106]], 18), 0xc79a5f, [RX, TOP_Y, RZ]); add(new THREE.SphereGeometry(0.008, 8, 6), 0xa9793f, [RX, TOP_Y + 0.112, RZ]);
+      add(new THREE.CylinderGeometry(0.0025, 0.003, 0.07, 6), 0xb98a52, [RX + 0.012, TOP_Y + 0.12, RZ], [0, 0, -0.5]); add(new THREE.SphereGeometry(1, 8, 5).scale(0.01, 0.014, 0.004), 0xb98a52, [RX + 0.033, TOP_Y + 0.148, RZ], [0, 0, -0.5]);
+    }
+    { const tx2 = 2.855, tz2 = -0.235; // the tray of good bottles: 4 bottles, each 7 to 8 cm across, plain labels (no brands)
+      add(new THREE.BoxGeometry(0.105, 0.012, 0.36), 0xb88b5b, [tx2, TOP_Y + 0.006, tz2]);
+      for (const sz of [-1, 1]) add(new THREE.BoxGeometry(0.105, 0.018, 0.008), 0xa27a4c, [tx2, TOP_Y + 0.015, tz2 + sz * 0.176]);
+      const y0 = TOP_Y + 0.012;
+      const bottle = (z, r, h, body, cap, labelHex, neck = 0.42) => { // a broad-shouldered bottle with a screw cap and a plain label with a thin gold rim
+        add(lathe([[0, 0], [r * 0.92, 0], [r, 0.008], [r, h * 0.58], [r * 0.9, h * 0.7], [r * 0.62, h * 0.8], [r * neck, h * 0.88], [r * neck, h * 0.97], [0, h * 0.97]], 26), body, [tx2, y0, z]);
+        add(new THREE.CylinderGeometry(r * neck + 0.004, r * neck + 0.006, 0.026, 16), cap, [tx2, y0 + h * 0.97 + 0.01, z]);
+        add(new THREE.CylinderGeometry(r * 1.025, r * 1.025, h * 0.32, 24, 1, true), labelHex, [tx2, y0 + h * 0.34, z]);
+        add(new THREE.CylinderGeometry(r * 1.03, r * 1.03, 0.003, 24, 1, true), 0xcdbf9c, [tx2, y0 + h * 0.34 + h * 0.17, z]);
+      };
+      bottle(tz2 - 0.135, 0.040, 0.235, 0x1b2b1e, 0x1b1b1b, 0xe8dcc0, 0.3);   // balsamic vinegar
+      bottle(tz2 - 0.045, 0.043, 0.185, 0x7a8a3a, 0x20301a, 0xf0e8cc, 0.4);   // olive oil
+      bottle(tz2 + 0.045, 0.042, 0.17, 0x2a1a12, 0xc6362a, 0xf2ece0, 0.5);    // soy sauce
+      { const wz = tz2 + 0.135; // the burgundy wine bottle copied from the Thanksgiving table: dark green glass, a cream label band, a burgundy foil capsule
+        add(lathe([[0, 0], [0.034, 0], [0.038, 0.006], [0.038, 0.06], [0, 0.06]], 20), 0x1f2b22, [tx2, y0, wz]);
+        add(lathe([[0, 0.06], [0.038, 0.06], [0.038, 0.14], [0, 0.14]], 20), 0xd8ceba, [tx2, y0, wz]);
+        add(lathe([[0, 0.14], [0.038, 0.14], [0.038, 0.17], [0.034, 0.19], [0.022, 0.215], [0.0155, 0.235], [0.015, 0.255], [0, 0.255]], 20), 0x1f2b22, [tx2, y0, wz]);
+        add(lathe([[0, 0.255], [0.015, 0.255], [0.015, 0.285], [0.0165, 0.292], [0.0165, 0.30], [0, 0.30]], 20), 0x5a1a22, [tx2, y0, wz]); }
+    }
+    { const plateStack = (px2, pz2, withMug) => { // a stack of four dinner plates, 16 cm across
+        for (let i = 0; i < 4; i++) add(lathe([[0, 0], [0.05, 0], [0.076, 0.009], [0.08, 0.013], [0.074, 0.013], [0.048, 0.004], [0, 0.003]], 28), i % 2 ? 0xf1ece0 : 0xe9e3d4, [px2, TOP_Y + i * 0.0125, pz2]);
+        if (withMug) { add(lathe([[0, 0], [0.032, 0], [0.036, 0.004], [0.04, 0.07], [0.036, 0.075], [0.031, 0.07], [0, 0.007]], 18), 0x8aa5a8, [px2, TOP_Y + 0.0525, pz2]); add(new THREE.TorusGeometry(0.02, 0.0045, 5, 12, Math.PI).rotateZ(-Math.PI / 2), 0x8aa5a8, [px2 + 0.04, TOP_Y + 0.088, pz2]); }
+      };
+      plateStack(2.82, 0.03, true); plateStack(2.82, 0.2, false); // side by side by the wall; the second ends at z 0.28, 4 cm from the record player (z 0.32)
     }
   }
   // Replace the tiny decorative ceramic cup with two useful takeaway cups, set along the clear front strip.
@@ -4022,13 +4034,6 @@ function buildRoom03CredenzaDecor(scene) {
       new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.85, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
     label.name = "room03-takeaway-cup-label"; label.position.set(2.55, TOP_Y - 0.001 + 0.055, 0.26); label.userData.category = "credenza";
     scene.add(label);
-  }
-  // Faceted vessel with dried stems (z about -0.22).
-  const vesselProfile = [[0, 0.004], [0.030, 0.004], [0.046, 0.020], [0.054, 0.075], [0.050, 0.150], [0.038, 0.202], [0.024, 0.222], [0.022, 0.265], [0.029, 0.28], [0.018, 0.28], [0, 0.26]];
-  add(lathe(vesselProfile, 8), 0xc9b79c, [X, TOP_Y, -0.22]);
-  for (const [dz, dx, lean, height] of [[-0.012, 0.01, 0.12, 0.24], [0.014, -0.012, -0.08, 0.30], [0.002, 0.016, 0.28, 0.21], [-0.016, -0.014, -0.22, 0.27]]) {
-    add(new THREE.CylinderGeometry(0.0016, 0.0022, height, 4), 0x8c7a4e, [X + dx + Math.sin(lean) * height * 0.5, TOP_Y + 0.265 + Math.cos(lean) * height * 0.5, -0.22 + dz], [lean * 0.4, 0, -lean]);
-    add(new THREE.SphereGeometry(0.011, 6, 4), 0xb9a37a, [X + dx + Math.sin(lean) * height, TOP_Y + 0.265 + Math.cos(lean) * height, -0.22 + dz], [0, 0, 0], [0.8, 1.9, 0.8]);
   }
   // Paul moved the upright books out so the record player has a clear, supported footprint.
   // The small unbranded San Francisco cable car now rests on the entry nook's TV console.
@@ -4106,6 +4111,26 @@ function buildRoom03CredenzaDecor(scene) {
     const booksGeometry = mergeGeometries(nookBooks, false); nookBooks.forEach((g) => g.dispose()); booksGeometry.computeVertexNormals();
     const booksMesh = new THREE.Mesh(booksGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.82 }));
     booksMesh.name = "room03-nook-books"; booksMesh.userData.category = "entry-nook"; booksMesh.castShadow = true; booksMesh.receiveShadow = true; scene.add(booksMesh);
+  }
+  // Paul 2026-11-21: the green plant leaves the credenza (it holds cooking things only now) and stands on the floor by the window instead, beside the lounge chair: a tall glazed pot in sage with a big
+  // leafy plant (a dozen large oval leaves on slim stems, two shades of green). Its own mesh; it needs no power and keeps clear of the chair (which ends at z 0.22) and the glass.
+  {
+    const floorParts = [], FX = -2.72, FZ = 0.78;
+    const fadd = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+      geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale)));
+      const colour = new THREE.Color(hex), n = geometry.attributes.position.count, cols = new Float32Array(n * 3); for (let q = 0; q < n; q++) colour.toArray(cols, q * 3);
+      geometry.deleteAttribute("uv"); geometry.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); floorParts.push(geometry);
+    };
+    fadd(new THREE.LatheGeometry([[0, 0.002], [0.12, 0.002], [0.15, 0.1], [0.165, 0.3], [0.17, 0.34], [0.158, 0.345], [0.15, 0.33], [0, 0.32]].map(([x, y]) => new THREE.Vector2(x, y)), 28), 0x9bad94, [FX, 0, FZ]); // the pot
+    fadd(new THREE.CylinderGeometry(0.15, 0.15, 0.004, 24), 0x4a3526, [FX, 0.322, FZ]); // soil
+    for (let q = 0; q < 14; q++) {
+      const a = q * 2.399, tilt = 0.3 + (q % 4) * 0.16, h = 0.34 + (q % 5) * 0.09, lx = Math.cos(a) * (0.03 + tilt * 0.12), lz = Math.sin(a) * (0.03 + tilt * 0.12);
+      fadd(new THREE.CylinderGeometry(0.0035, 0.0045, h, 5), 0x5d7a45, [FX + lx * 0.5, 0.33 + h / 2, FZ + lz * 0.5], [Math.sin(a) * tilt * 0.6, 0, -Math.cos(a) * tilt * 0.6]);
+      fadd(new THREE.SphereGeometry(1, 12, 8).scale(0.085, 0.012, 0.13), q % 3 ? 0x3f7a3c : 0x5b9444, [FX + lx, 0.33 + h, FZ + lz], [tilt * 0.9, -a, 0]);
+    }
+    const floorGeometry = mergeGeometries(floorParts, false); floorParts.forEach((g) => g.dispose()); floorGeometry.computeVertexNormals();
+    const floorMesh = new THREE.Mesh(floorGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.78, side: THREE.DoubleSide }));
+    floorMesh.name = "room03-window-floor-plant"; floorMesh.userData.category = "plants"; floorMesh.castShadow = true; floorMesh.receiveShadow = true; scene.add(floorMesh);
   }
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
@@ -4719,9 +4744,9 @@ function buildHouseholdProps(scene, m) {
   // Paul 2026-11-04: more real, Evian-style PET bottles (no brand text): a slim body with soft grip ribs, a long tapered shoulder, a neck ring
   // and a ridged cap; water fills to the shoulder and a blank label band wraps the middle. Placed as a loose pair, not a row: one a little
   // forward and turned, one set back, at uneven spacing.
-  const bottleSpots = [[2.552, -0.10, -0.7]]; // Paul 2026-11-21: one bottle is enough, which leaves room for kitchen things (it was a pair)
-  const waterBottles = bottleSpots.map(([bx, z, yaw], index) => {
-    const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [bx, 0.814, z], ({ shape }) => {
+  const bottleSpots = [[-1.93, -0.55, -0.7, 0.001]]; // Paul 2026-11-21: the water bottle stands on the floor beside the window lounge chair (whoever sits there may want a drink), which frees the credenza top // Paul 2026-11-21: one bottle is enough, which leaves room for kitchen things (it was a pair)
+  const waterBottles = bottleSpots.map(([bx, z, yaw, baseY = 0.814], index) => {
+    const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [bx, baseY, z], ({ shape }) => {
       const profile = [[0, 0.001], [0.030, 0.001], [0.038, 0.004], [0.0415, 0.012], [0.042, 0.030], [0.0395, 0.040], [0.042, 0.050], [0.042, 0.150], [0.0395, 0.160], [0.042, 0.170],
         [0.042, 0.196], [0.039, 0.214], [0.031, 0.236], [0.022, 0.256], [0.0165, 0.272], [0.0155, 0.280], [0.018, 0.283], [0.018, 0.286], [0.0155, 0.288], [0, 0.288]]
         .map(([radius, y]) => new THREE.Vector2(radius, y));
