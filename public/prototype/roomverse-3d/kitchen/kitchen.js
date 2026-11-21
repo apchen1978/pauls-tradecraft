@@ -4121,12 +4121,41 @@ function buildRoom03CredenzaDecor(scene) {
       const colour = new THREE.Color(hex), n = geometry.attributes.position.count, cols = new Float32Array(n * 3); for (let q = 0; q < n; q++) colour.toArray(cols, q * 3);
       geometry.deleteAttribute("uv"); geometry.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); floorParts.push(geometry);
     };
-    fadd(new THREE.LatheGeometry([[0, 0.002], [0.12, 0.002], [0.15, 0.1], [0.165, 0.3], [0.17, 0.34], [0.158, 0.345], [0.15, 0.33], [0, 0.32]].map(([x, y]) => new THREE.Vector2(x, y)), 28), 0x9bad94, [FX, 0, FZ]); // the pot
-    fadd(new THREE.CylinderGeometry(0.15, 0.15, 0.004, 24), 0x4a3526, [FX, 0.322, FZ]); // soil
-    for (let q = 0; q < 14; q++) {
-      const a = q * 2.399, tilt = 0.3 + (q % 4) * 0.16, h = 0.34 + (q % 5) * 0.09, lx = Math.cos(a) * (0.03 + tilt * 0.12), lz = Math.sin(a) * (0.03 + tilt * 0.12);
-      fadd(new THREE.CylinderGeometry(0.0035, 0.0045, h, 5), 0x5d7a45, [FX + lx * 0.5, 0.33 + h / 2, FZ + lz * 0.5], [Math.sin(a) * tilt * 0.6, 0, -Math.cos(a) * tilt * 0.6]);
-      fadd(new THREE.SphereGeometry(1, 12, 8).scale(0.085, 0.012, 0.13), q % 3 ? 0x3f7a3c : 0x5b9444, [FX + lx, 0.33 + h, FZ + lz], [tilt * 0.9, -a, 0]);
+    const POT = [[0, 0.002], [0.12, 0.002], [0.15, 0.1], [0.165, 0.3], [0.17, 0.34], [0.158, 0.345], [0.15, 0.33], [0, 0.32]];
+    const potR = (y) => { for (let i = 1; i < POT.length - 3; i++) if (y <= POT[i + 1][1]) { const [r0, y0] = POT[i], [r1, y1] = POT[i + 1]; return r0 + (r1 - r0) * (y - y0) / (y1 - y0); } return 0.17; };
+    fadd(new THREE.LatheGeometry(POT.map(([x, y]) => new THREE.Vector2(x, y)), 36), 0x9bad94, [FX, 0, FZ]); // the pot, same sage glaze
+    fadd(new THREE.CylinderGeometry(0.15, 0.15, 0.004, 28), 0x4a3526, [FX, 0.322, FZ]); // soil
+    // Hand-painted band on the upper pot (Paul 2026-11-21: same colour, more painted atmosphere): two cream stripes at the rim, a running vine of leaf pairs in deep green with a terracotta dot between them, and
+    // a mustard dot border below. Flat decals lying 1 mm off the glaze (tangent ellipsoids), so they read as paint, not relief.
+    const decal = (a, y, sx, sy, hex, rollZ = 0) => { const r = potR(y) + 0.0012; fadd(new THREE.SphereGeometry(1, 8, 5).scale(sx, sy, 0.0016), hex, [FX + Math.cos(a) * r, y, FZ + Math.sin(a) * r], [0, Math.PI / 2 - a, rollZ]); };
+    for (const [sy, hex] of [[0.322, 0xf1e8d2], [0.304, 0xc4623a]]) fadd(new THREE.CylinderGeometry(potR(sy) + 0.0012, potR(sy) + 0.0012, 0.005, 48, 1, true), hex, [FX, sy, FZ]);
+    for (let q = 0; q < 14; q++) { const a = q * Math.PI * 2 / 14;
+      decal(a, 0.262, 0.026, 0.0085, 0x2f5a3a, 0.5); decal(a + 0.13, 0.268, 0.024, 0.008, 0x3f7a3c, -0.55); // a leaf pair
+      decal(a + 0.0 + Math.PI / 14, 0.282, 0.0065, 0.0065, 0xc4623a); // terracotta bud between leaves
+      decal(a, 0.222, 0.006, 0.006, 0xd9a441); } // mustard dot border
+    // Fourteen slim stems fan out of one tuft: each starts 2.2 cm BELOW the soil (y 0.30), inside the pot, and rises to its own tip; the leaves hang off the tips in three layers (long arching outer leaves,
+    // mid leaves, short upright inner ones), each cupped along its length with a pale midrib.
+    const up = new THREE.Vector3(0, 1, 0);
+    for (let q = 0; q < 16; q++) {
+      const a = q * 2.399, layer = q % 3, tilt = [0.62, 0.4, 0.18][layer] + (q % 4) * 0.03, h = [0.4, 0.48, 0.55][layer] + (q % 5) * 0.03;
+      const ox = Math.cos(a), oz = Math.sin(a), r0 = 0.012 + (q % 4) * 0.008;
+      const base = new THREE.Vector3(FX + ox * r0, 0.30, FZ + oz * r0);
+      const tip = new THREE.Vector3(FX + ox * (r0 + Math.sin(tilt) * h), 0.322 + Math.cos(tilt) * h, FZ + oz * (r0 + Math.sin(tilt) * h));
+      const dir = tip.clone().sub(base), len = dir.length(), mid = base.clone().add(tip).multiplyScalar(0.5);
+      const stemGeo = new THREE.CylinderGeometry(0.0035, 0.0048, len, 5);
+      stemGeo.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up, dir.clone().normalize()));
+      fadd(stemGeo, 0x5d7a45, [mid.x, mid.y, mid.z]);
+      // leaf: a cupped, arching ellipsoid whose base sits on the stem tip and whose length points outward and droops
+      const L = [0.15, 0.125, 0.095][layer], Wd = [0.052, 0.046, 0.04][layer], droop = [0.55, 0.32, 0.05][layer];
+      const f = new THREE.Vector3(ox * Math.cos(droop), Math.sin(0.35 - droop) * 0.6, oz * Math.cos(droop)).normalize();
+      const xAx = new THREE.Vector3().crossVectors(up, f).normalize(), yAx = new THREE.Vector3().crossVectors(f, xAx).normalize();
+      const leafGeo = new THREE.SphereGeometry(1, 14, 10), lp = leafGeo.attributes.position;
+      for (let i = 0; i < lp.count; i++) { const z = lp.getZ(i); lp.setXYZ(i, lp.getX(i) * Wd * (1 - 0.25 * z * z), lp.getY(i) * 0.006 - 0.022 * z * z + 0.014 * Math.abs(lp.getX(i)), z * L); } // cupped and arched
+      leafGeo.applyMatrix4(new THREE.Matrix4().makeBasis(xAx, yAx, f).setPosition(tip.x + f.x * L, tip.y + f.y * L, tip.z + f.z * L));
+      fadd(leafGeo, q % 3 === 0 ? 0x5b9444 : layer === 2 ? 0x6fa24a : 0x3f7a3c, [0, 0, 0]);
+      const rib = new THREE.CylinderGeometry(0.0016, 0.001, L * 1.7, 4); rib.rotateX(Math.PI / 2);
+      rib.applyMatrix4(new THREE.Matrix4().makeBasis(xAx, yAx, f).setPosition(tip.x + f.x * L + yAx.x * 0.0035, tip.y + f.y * L + yAx.y * 0.0035, tip.z + f.z * L + yAx.z * 0.0035));
+      fadd(rib, 0xa9c47a, [0, 0, 0]);
     }
     const floorGeometry = mergeGeometries(floorParts, false); floorParts.forEach((g) => g.dispose()); floorGeometry.computeVertexNormals();
     const floorMesh = new THREE.Mesh(floorGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.78, side: THREE.DoubleSide }));
