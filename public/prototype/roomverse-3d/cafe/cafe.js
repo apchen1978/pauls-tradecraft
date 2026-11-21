@@ -1243,6 +1243,34 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       part("cookie", new THREE.CapsuleGeometry(0.012, 0.044, 4, 8).rotateZ(Math.PI / 2).translate(ex, base + 0.0115, pz + 0.13), { tile: 1 });
       detail(new THREE.SphereGeometry(1, 12, 8).scale(0.034, 0.004, 0.011).translate(ex, base + 0.0235, pz + 0.13), glaze);
     }
+    // Paul 2026-11-22 (the quick bread of Room 03, a golden loaf with one long crack along the top): it lies lengthways in the back strip of the upper glass shelf, behind the plates, and two cut slices
+    // lie in the front strip. Nothing that was in the case moved; the loaf is 9 cm wide in a 16 cm strip, the slices 7 cm deep in a 13 cm strip. The crust is baked into vertex colours (the croissant batch).
+    {
+      const LX = 1.43, LZ = pz - 0.17, LY = shelfY + 0.003 - 0.0005;
+      const dome = new THREE.SphereGeometry(1, 36, 16, 0, Math.PI * 2, 0, Math.PI / 2), dp = dome.attributes.position, dc = new Float32Array(dp.count * 3), tint = new THREE.Color();
+      for (let i = 0; i < dp.count; i++) {
+        let x = dp.getX(i), y = dp.getY(i), z = dp.getZ(i);
+        x = Math.sign(x) * Math.pow(Math.abs(x), 0.75); z = Math.sign(z) * Math.pow(Math.abs(z), 0.85);
+        const px = x * 0.1, pz2 = z * 0.045, az = Math.abs(pz2);
+        let py = y * 0.052;
+        py += Math.max(0, 1 - Math.abs(az - 0.012) / 0.01) * y * 0.006 + 0.003 * Math.sin(px * 46 + pz2 * 23) * y;
+        if (az < 0.007) py -= (1 - az / 0.007) * 0.012 * y; // the crack
+        dp.setXYZ(i, px, py, pz2);
+        const patch = 0.5 + 0.5 * Math.sin(px * 31 + 1.7) * Math.cos(pz2 * 47);
+        tint.set(0xd49632).lerp(new THREE.Color(0xa9651f), 0.25 + 0.4 * patch * (0.3 + y));
+        if (y < 0.12) tint.set(0xb67a2a); else if (az < 0.009) tint.set(0x8f5a24);
+        tint.toArray(dc, i * 3);
+      }
+      dome.setAttribute("color", new THREE.Float32BufferAttribute(dc, 3)); dome.computeVertexNormals();
+      dome.deleteAttribute("uv");
+      part("croissant", dome.rotateY(0.08).translate(LX, LY, LZ), { tile: 1 });
+      part("croissant", colorize(new THREE.BoxGeometry(0.15, 0.0016, 0.006), 0xedc171).translate(LX, LY + 0.0505, LZ), { tile: 1 }); // the pale crumb in the crack
+      registerSupport("pastry-quick-bread-shelf", "rest", { base: { x: LX, y: LY, z: LZ, radius: 0.047 }, surface: { shape: "box", x0: x0 + 0.014, x1: x1 - 0.014, z0: zb + 0.01, z1: zf - 0.015, y: shelfY + 0.003 } });
+      for (const [sx, sz, yaw] of [[1.37, pz + 0.16, 0.2], [1.47, pz + 0.175, -0.15]]) {
+        part("croissant", colorize(new THREE.BoxGeometry(0.085, 0.014, 0.068), 0xb87a2a).rotateY(yaw).translate(sx, shelfY + 0.003 + 0.007 - 0.0005, sz), { tile: 1 });
+        part("croissant", colorize(new THREE.BoxGeometry(0.077, 0.0145, 0.06), 0xf0d28c).rotateY(yaw).translate(sx, shelfY + 0.003 + 0.00725 - 0.0005, sz), { tile: 1 });
+      }
+    }
     // A compact bottle tray: four generic green sparkling waters and two clear mineral waters.
     slab("kraft", [1.87, 2.27], [base + 0.0088, base + 0.018], [pz - 0.105, pz + 0.105], { tile: 1 }); // bottom 0.2 mm into the plate under it (it hung 1 mm over)
     // Four green sparkling waters, then (Paul 2026-11-18) two small still waters in place of the plain clear ones: Room 03's Evian-style bottle by its record player

@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 218315, meshes: 127 }),
+  scene: Object.freeze({ vertices: 219064, meshes: 127 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 68, phone: 62 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -119,5 +119,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-20", change: "light atmosphere, first prototype in the closing mood only (Paul, from a game still): soft additive halos round the glowing lamps and sconces (Points, no mesh), wall-wash glows round the two sconces and a pool under the standing lamp (one 12-vertex decal mesh), lower fill light, and a CSS vignette; all driven by one live.glow value, so no other mood draws them (opening draw calls unchanged)", vertices: 197193, meshes: 125, desktopCalls: 66, phoneCalls: 60 },
     { date: "2026-11-21", change: "window curtains (Paul: no curtains on a big sunny window is not believable): two floor-length linen panels drawn to the two sides, pleated, with a black rod and ball finials (two meshes, +4,002 vertices); the street view and the middle of the window stay open; the lounge got a longer banquette, bigger small tables, a moved plant (no count change)", vertices: 201195, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
     { date: "2026-11-22", change: "bar stools (Paul, reference photo): the arrival design is a pale-oak stool with a caned round seat, slim splayed legs and a curved back band held by the two rear legs (the three older designs stay in the look picker)", vertices: 218315, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
+    { date: "2026-11-22", change: "pastry case (Paul): Room 03's golden quick-bread loaf with a split top lies in the back strip of the upper glass shelf with two cut slices in the front strip (the croissant batch; nothing moved, no new mesh)", vertices: 219064, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
   ]),
 });
