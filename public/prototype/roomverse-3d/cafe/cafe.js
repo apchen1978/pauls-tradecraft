@@ -688,6 +688,37 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const streetW = 4.5, streetH = streetW / 1.5;
   const street = add("window-street-view", new THREE.PlaneGeometry(streetW, streetH), materials.street, X0 - 1.35, (WINDOW.y0 + WINDOW.y1) / 2 + 0.05, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false });
   street.rotation.y = Math.PI / 2; // faces +x, into the room
+  // Curtains (Paul 2026-11-21: a big south-facing street window with no curtains is not believable in summer sun; use Room 01's linen style, leave the street view alone): two floor-length linen panels
+  // gathered to the two sides of the 2.4 m window, each 60 cm wide with eleven soft pleats of uneven spacing, hung from a slim black rod with wooden-ball finials 25 cm above the frame, each drawn in at the waist (1.2 m) as if tied back. The middle 1.2 m of the window stays open, so the painted street is as visible as before. Two meshes (fabric, rod).
+  {
+    const CX = X0 + 0.085, TOP = 2.7, BOT = 0.02, W_PANEL = 0.6, GAP_EDGE = 0.04;
+    const fabric = new THREE.MeshStandardMaterial({ color: 0xe7ddc8, roughness: 0.94, side: THREE.DoubleSide });
+    const panels = [];
+    for (const side of [-1, 1]) {
+      const zEdge = side < 0 ? WINDOW.z0 - GAP_EDGE : WINDOW.z1 + GAP_EDGE, zInner = zEdge - side * -W_PANEL * -1; // the panel runs from the window's edge towards the middle
+      const zA = side < 0 ? WINDOW.z0 - GAP_EDGE : WINDOW.z1 + GAP_EDGE, dir = side < 0 ? 1 : -1; // towards the middle of the window
+      const SEG_Z = 44, SEG_Y = 24, geo = new THREE.PlaneGeometry(1, 1, SEG_Z, SEG_Y), pos = geo.attributes.position;
+      let seed = side < 0 ? 5 : 9; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const phase = [], widths = []; let total = 0; for (let k = 0; k < 11; k++) { const w2 = 0.7 + rnd() * 0.7; widths.push(w2); total += w2; }
+      for (let i = 0; i < pos.count; i++) {
+        const u = pos.getX(i) + 0.5, v = pos.getY(i) + 0.5; // u across (0..1, from the edge), v up (0..1)
+        let acc = 0, t = u * total, k = 0; while (k < 10 && t > acc + widths[k]) { acc += widths[k]; k++; }
+        const local = (t - acc) / widths[k], pleat = Math.sin(local * Math.PI * 2) * (0.028 + 0.012 * (1 - v)); // deeper at the hem
+        // the panel is drawn back: it narrows at the waist (the tie-back at 1.2 m) and flares to the floor
+        const waist = 1 - 0.38 * Math.exp(-Math.pow((v * (TOP - BOT) + BOT - 1.2) / 0.28, 2)), y = BOT + v * (TOP - BOT);
+        pos.setXYZ(i, CX + pleat, y, zA + dir * u * W_PANEL * waist);
+      }
+      geo.computeVertexNormals(); geo.deleteAttribute("uv"); panels.push(geo);
+    }
+    const colour = (g, hex) => { const c = new THREE.Color(hex), n = g.attributes.position.count, a2 = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(a2, i * 3); g.setAttribute("color", new THREE.Float32BufferAttribute(a2, 3)); return g; };
+    const fabricGeo = mergeGeometries(panels.map((g) => colour(g, 0xffffff)), false);
+    const curtainMat = new THREE.MeshStandardMaterial({ vertexColors: true, color: 0xe7ddc8, roughness: 0.94, side: THREE.DoubleSide });
+    add("window-curtains", fabricGeo, curtainMat, 0, 0, 0, { cast: true, receive: true });
+    const rodZ0 = WINDOW.z0 - 0.25, rodZ1 = WINDOW.z1 + 0.25, rod = [new THREE.CylinderGeometry(0.014, 0.014, rodZ1 - rodZ0, 14).rotateX(Math.PI / 2).translate(CX - 0.02, TOP + 0.02, (rodZ0 + rodZ1) / 2)];
+    for (const zz of [rodZ0, rodZ1]) rod.push(new THREE.SphereGeometry(0.03, 14, 10).translate(CX - 0.02, TOP + 0.02, zz));
+    for (const zz of [WINDOW.z0 + 0.1, WINDOW.z1 - 0.1]) rod.push(new THREE.BoxGeometry(0.03, 0.025, 0.05).translate(CX - 0.045, TOP + 0.02, zz)); // two wall brackets
+    add("window-curtain-rod", mergeGeometries(rod.map((g) => { const q = g.index ? g.toNonIndexed() : g; q.deleteAttribute("uv"); return q; }), false), new THREE.MeshStandardMaterial({ color: 0x24211d, roughness: 0.5, metalness: 0.4 }), 0, 0, 0, { cast: false, receive: true });
+  }
   // Skirting: 11 cm high and 2 cm thick on the side walls and the two exposed ends of the brick wall, merged into one mesh.
   const skirting = [], skirtH = 0.11, skirtT = 0.02;
   const addSkirt = (x0, x1, z0, z1) => skirting.push(new THREE.BoxGeometry(x1 - x0, skirtH, z1 - z0).translate((x0 + x1) / 2, skirtH / 2, (z0 + z1) / 2));
