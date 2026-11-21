@@ -8,7 +8,11 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
+<<<<<<< Updated upstream
   scene: Object.freeze({ vertices: 234289, meshes: 129 }),
+=======
+  scene: Object.freeze({ vertices: 241024, meshes: 129 }),
+>>>>>>> Stashed changes
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 70, phone: 64 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -125,7 +129,12 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "window coverings (Paul): the curtain bundles, rods and cloth are gone (they hid the plaque and crowded the plant); both big windows get a linen roller blind rolled up near the head, with a head tube, oak hem bar, pull cord and brackets (two meshes each, replacing the curtain and rod meshes)", vertices: 221254, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "stitching redone (Paul: it looked drawn on): padded channels that really bulge 1 cm out of the bench back and the armchair back (front and rear), sunken tonal grooves with two rows of running yarn stitches, covered buttons with pleat rings, a centre crease and front stitch rows on the armchair seat (+18k vertices)", vertices: 239544, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "window table: two closed books and a ceramic milk jug join the still life (shared small things, recoloured; existing buckets, no new draw calls)", vertices: 239983, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
+<<<<<<< Updated upstream
     { date: "2026-11-22", change: "stitching trim (Paul): the armchair seat's crease and front stitch rows are removed (a groove lying on a soft cushion read as applied; the back's padded channels keep the stitching); padded-channel bulges, buttons and grooves use fewer facets (-6.5k vertices)", vertices: 233113, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "counter edge (Paul): the biscuit plate and the oak cup board hung over the curved counter edge because they were built with the shift of a different x; each now follows the counter at its own x (the board is turned to the edge slope); the little succulent leaves the board and becomes a livelier echeveria with a flower stalk (+1.2k vertices)", vertices: 234289, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
+=======
+    { date: "2026-11-22", change: "counter: a WiFi card (WIFI / SH-CAFE-5G / mima shanghai2026) leaning on the stone, painted into the shared decor canvas so it needs no texture of its own (+1 draw call for the card face)", vertices: 240025, meshes: 129, desktopCalls: 71, phoneCalls: 65 },
+    { date: "2026-11-22", change: "bar-area pass (Paul: keep polishing the counter): a glass water carafe with its tumbler and a brass service bell join the stone, each with a registered rest support; the WiFi card moves to the front edge where the visitor can read it", vertices: 241024, meshes: 129, desktopCalls: 71, phoneCalls: 65 },
+>>>>>>> Stashed changes
   ]),
 });
