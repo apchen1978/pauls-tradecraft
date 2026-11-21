@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 240505, meshes: 400 }),
+  scene: Object.freeze({ vertices: 241184, meshes: 404 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 116, phone: 88 }),
+  openingDrawCalls: Object.freeze({ desktop: 116, phone: 89 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
     desktop: Object.freeze({ rain: 114, family: 116, tech: 115, chic: 116, slow: 121, golden: 116, tv: 120 }),
-    phone: Object.freeze({ rain: 86, family: 88, tech: 87, chic: 88, slow: 93, golden: 88, tv: 92 }),
+    phone: Object.freeze({ rain: 87, family: 89, tech: 88, chic: 89, slow: 94, golden: 89, tv: 93 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -59,6 +59,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-21", change: "popcorn bowl v2 (Codex, 340 KB, 16,482 vertices; the full heap) shown on series night and on a slow afternoon, a game pad on the sofa on a series night, and a dusty-blush coffee stool (Room 04 pouf, slimmed) with an oak tray, a canister and a take-away cup; draw calls unchanged (desktop 105, phone 86)", vertices: 238970, meshes: 390, desktopCalls: 105, phoneCalls: 86 },
     { date: "2026-11-21", change: "a phone on the side table (Room 03's body and glass, static) and a globe wall sconce (mount, neck, frosted globe, a halo sprite; no real light): +2,560 vertices, +5 meshes; the settled opening frame now draws 111 (desktop) and 89 (phone) calls, inside the headroom; the per-mood rows are re-measured", vertices: 241530, meshes: 395, desktopCalls: 111, phoneCalls: 89 },
     { date: "2026-11-21", change: "the pleated half-shade wall sconce (merged to four meshes), a corrugated moving box (kraft, contents, tape, label: four meshes) against the left wall, and no game pad: vertices 240,505, meshes 400, opening draw calls desktop 116 and phone 88", vertices: 240505, meshes: 400, desktopCalls: 116, phoneCalls: 88 },
+    { date: "2026-11-22", change: "wine bottle (Paul): Room 03's Thanksgiving wine bottle stands in the bottom compartment of the TV wall's left shelf, beyond the little cooker (one mesh and its contact patch; the phone draw-call numbers are re-measured, one higher)", vertices: 241184, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
   ]),
 });
 
