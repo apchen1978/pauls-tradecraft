@@ -4009,14 +4009,18 @@ function buildRoom03CredenzaDecor(scene) {
       add(new THREE.BoxGeometry(0.105, 0.012, 0.36), 0xb88b5b, [tx2, TOP_Y + 0.006, tz2]);
       for (const sz of [-1, 1]) add(new THREE.BoxGeometry(0.105, 0.018, 0.008), 0xa27a4c, [tx2, TOP_Y + 0.015, tz2 + sz * 0.176]);
       const y0 = TOP_Y + 0.012;
-      const bottle = (z, r, h, body, cap, labelHex, neck = 0.42) => { // a broad-shouldered bottle with a screw cap and a plain label with a thin gold rim
+      const bottle = (z, r, h, body, cap, labelHex, neck = 0.42) => { // a broad-shouldered bottle with a screw cap (Paul 2026-11-22: no paper label on these two; the olive oil and the wine below are the kitchen's own bottles, copied)
         add(lathe([[0, 0], [r * 0.92, 0], [r, 0.008], [r, h * 0.58], [r * 0.9, h * 0.7], [r * 0.62, h * 0.8], [r * neck, h * 0.88], [r * neck, h * 0.97], [0, h * 0.97]], 26), body, [tx2, y0, z]);
         add(new THREE.CylinderGeometry(r * neck + 0.004, r * neck + 0.006, 0.026, 16), cap, [tx2, y0 + h * 0.97 + 0.01, z]);
-        add(new THREE.CylinderGeometry(r * 1.025, r * 1.025, h * 0.32, 24, 1, true), labelHex, [tx2, y0 + h * 0.34, z]);
-        add(new THREE.CylinderGeometry(r * 1.03, r * 1.03, 0.003, 24, 1, true), 0xcdbf9c, [tx2, y0 + h * 0.34 + h * 0.17, z]);
       };
       bottle(tz2 - 0.135, 0.040, 0.235, 0x1b2b1e, 0x1b1b1b, 0xe8dcc0, 0.3);   // balsamic vinegar
-      bottle(tz2 - 0.045, 0.043, 0.185, 0x7a8a3a, 0x20301a, 0xf0e8cc, 0.4);   // olive oil
+      { const oz = tz2 - 0.045; // the olive oil copied from the oven-side counter: dark green glass, a blank olive-gold paper band, a narrow gold neck ring and a dark screw cap
+        add(lathe([[0, 0], [0.026, 0], [0.032, 0.004], [0.034, 0.012], [0.034, 0.085]], 24), 0x263b2b, [tx2, y0, oz]);
+        add(lathe([[0, 0.085], [0.034, 0.085], [0.034, 0.125], [0, 0.125]], 24), 0xb7a979, [tx2, y0, oz]);
+        add(lathe([[0, 0.125], [0.034, 0.125], [0.031, 0.15], [0.018, 0.174], [0.013, 0.18], [0.013, 0.198], [0, 0.198]], 24), 0x263b2b, [tx2, y0, oz]);
+        add(lathe([[0, 0.198], [0.013, 0.198], [0.013, 0.205], [0.014, 0.209], [0.014, 0.215], [0, 0.215]], 24), 0x786b44, [tx2, y0, oz]);
+        add(new THREE.CylinderGeometry(0.015, 0.015, 0.029, 16), 0x292b25, [tx2, y0 + 0.2295, oz]);
+        add(new THREE.TorusGeometry(0.0145, 0.0015, 4, 16).rotateX(Math.PI / 2), 0x81734a, [tx2, y0 + 0.218, oz]); }
       bottle(tz2 + 0.045, 0.042, 0.17, 0x2a1a12, 0xc6362a, 0xf2ece0, 0.5);    // soy sauce
       { const wz = tz2 + 0.135; // the burgundy wine bottle copied from the Thanksgiving table: dark green glass, a cream label band, a burgundy foil capsule
         add(lathe([[0, 0], [0.034, 0], [0.038, 0.006], [0.038, 0.06], [0, 0.06]], 20), 0x1f2b22, [tx2, y0, wz]);

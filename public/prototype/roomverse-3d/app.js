@@ -751,6 +751,19 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     // 1.08x keeps it inside the 11 cm shelf depth (the switch lever is the front-most point), nudged 5 mm towards the wall.
     cooker.scale.setScalar(1.08); cooker.position.z = .005;
     place(cooker, "left-lower", .125, .11, .09);
+    // Paul 2026-11-22: the burgundy wine bottle of Room 03's Thanksgiving table (a dark green glass bottle with a cream band and a burgundy foil capsule) stands in the bottom compartment of the
+    // viewer's left shelf, at the outer end beyond the little cooker. One vertex-coloured mesh built from the same profile.
+    {
+      const wine = new THREE.Group(); wine.name = "shelf-wine-bottle";
+      const parts = [[[[0, 0], [.034, 0], [.038, .006], [.038, .06], [0, .06]], 0x1f2b22], [[[0, .06], [.038, .06], [.038, .14], [0, .14]], 0xd8ceba], [[[0, .14], [.038, .14], [.038, .17], [.034, .19], [.022, .215], [.0155, .235], [.015, .255], [0, .255]], 0x1f2b22], [[[0, .255], [.015, .255], [.015, .285], [.0165, .292], [.0165, .30], [0, .30]], 0x5a1a22]].map(([profile, hex]) => {
+        const g = new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), 28), colour = new THREE.Color(hex), colors = new Float32Array(g.attributes.position.count * 3);
+        for (let i = 0; i < g.attributes.position.count; i++) colour.toArray(colors, i * 3);
+        g.deleteAttribute("uv"); g.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3)); return g;
+      });
+      const bottle = new THREE.Mesh(mergeGeometries(parts, false), new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: .3, metalness: 0 }));
+      bottle.castShadow = true; bottle.receiveShadow = true; wine.add(bottle);
+      place(wine, "left-lower", .235, .085, .085);
+    }
     shelfDecorReady = true;
   }
   let consoleDecorPromise = null, consoleDecorLoaded = false, consoleArtLoaded = false;
