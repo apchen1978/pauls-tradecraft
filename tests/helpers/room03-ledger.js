@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 136654, meshes: 151 }),
+  scene: Object.freeze({ vertices: 138574, meshes: 152 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 95, phone: 92 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -90,7 +90,9 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "US Decora outlets (Paul): the record-player outlet becomes a Decora duplex; a GFCI with TEST and RESET on the backsplash beside the sink (empty); a Decora duplex on the entry wall behind the window-side floor lamp, with the lamp cord leaving its pole, lying on the floor and climbing the wall into a black plug. The two new outlets and the lamp cord are one vertex-coloured mesh (one more mesh, one more draw call)", vertices: 118919, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
     { date: "2026-11-19", change: "Floor lamp joint and cord (Paul): the stem now ends inside the tripod hub with a short collar and the legs start inside the hub; the lamp cord lies in a loose S across the floor (more tube segments). Same meshes and draw calls", vertices: 119207, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
     { date: "2026-11-21", change: "the credenza and its surroundings (Paul): fluted walnut doors and a slate-blue shaker drawer-and-door front, the top now holds only tidy cooking things (a crock of spoons, a red casserole, a board with lemon and lime, a floral spice pot, a tray of four bottles with the Thanksgiving wine bottle copied, two stacks of plates), one cup and one bottle (the bottle moved to the floor by the window lounge chair beside a tall leafy plant), the three books on the entry-nook console; vertices 131,828, meshes 151, opening draw calls desktop 95 and phone 92, per-mood rows re-measured", vertices: 131828, meshes: 151, desktopCalls: 95, phoneCalls: 92 },
-    { date: "2026-11-21", change: "window floor plant (Paul): stems start inside the pot below the soil, three layers of cupped arching leaves with midribs, hand-painted vine band on the pot (same sage glaze)", vertices: 136654, meshes: 151, desktopCalls: 95, phoneCalls: 92 },  ]),
+    { date: "2026-11-21", change: "window floor plant (Paul): stems start inside the pot below the soil, three layers of cupped arching leaves with midribs, hand-painted vine band on the pot (same sage glaze)", vertices: 136654, meshes: 151, desktopCalls: 95, phoneCalls: 92 },    { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
+    { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
+  ]),
 });
 
 export const CAPS = Object.freeze({

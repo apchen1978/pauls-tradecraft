@@ -385,6 +385,8 @@ function makeMaterials() {
     floor: std(0xcdbb9e, 0.88, { map: makeTerrazzoTexture(), metalness: 0.01 }),
     wall: std(0xd0deea, 0.94, { map: makePlasterTexture() }),
     wokWall: std(0x907258, 0.9, { map: makeFineNoise(47, 0.025) }),
+    // Paul 2026-11-21 (is the stainless chimney still what a US kitchen has? 2026 hoods are sculptural, plastered or tiled, in warm putty/clay neutrals, with a slim brass detail): a limewash plaster hood.
+    wokPlaster: std(0xe9ddc6, 0.93, { map: makeFineNoise(31, 0.035) }),
     wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
     wokIron: std(0x343733, 0.42, { metalness: 0.08, emissive: 0x16120e, emissiveIntensity: 0.18 }),
     ovenGlass: std(0x15191a, 0.2, { metalness: 0.18 }),
@@ -905,10 +907,11 @@ function buildSideKitchen(b, m, scene) {
   scene.userData.wokTile = { material: wokTile, repeatM: tileRepeatM, status: "pending", readyBeforeFirstPaint: false };
 
   const hoodShape = new THREE.Shape();
-  hoodShape.moveTo(-0.26, -0.12); hoodShape.lineTo(-0.14, 0.10); hoodShape.lineTo(0.14, 0.10); hoodShape.lineTo(0.26, -0.12); hoodShape.closePath();
-  const hoodGeometry = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.38, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.008, bevelSize: 0.006 });
+  hoodShape.moveTo(-0.26, -0.12); hoodShape.quadraticCurveTo(-0.185, -0.035, -0.14, 0.10); hoodShape.lineTo(0.14, 0.10); hoodShape.quadraticCurveTo(0.185, -0.035, 0.26, -0.12); hoodShape.closePath(); // a bell: the sides sweep in with a curve
+  const hoodGeometry = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.38, bevelEnabled: true, bevelSegments: 4, bevelThickness: 0.008, bevelSize: 0.006 });
   hoodGeometry.translate(0, 0, -0.19);
-  addSideMesh(hoodGeometry, m.wokSteel, "wok-kitchen-sloped-hood", [cookX + 0.04, 1.72, cookZ], [0, Math.PI / 2, 0]);
+  addSideMesh(hoodGeometry, m.wokPlaster, "wok-kitchen-sloped-hood", [cookX + 0.04, 1.72, cookZ], [0, Math.PI / 2, 0]);
+  addSideMesh(new THREE.BoxGeometry(0.536, 0.016, 0.396), m.brass, "wok-kitchen-hood-rim", [cookX + 0.04, 1.72 - 0.116, cookZ], [0, Math.PI / 2, 0]); // a slim brass rim round the lower edge
 
   const soffitY = 2.61;
   const capH = 0.05;
@@ -918,10 +921,10 @@ function buildSideKitchen(b, m, scene) {
   const ductTop = capY - capH / 2 + 0.002;
   const ductH = ductTop - ductBottom;
   const ductX = wallFaceX - 0.09;
-  const duct = new THREE.Mesh(new THREE.BoxGeometry(0.16, ductH, 0.22), m.wokSteel);
+  const duct = new THREE.Mesh(new THREE.BoxGeometry(0.16, ductH, 0.22), m.wokPlaster);
   duct.position.set(ductX, ductBottom + ductH / 2, cookZ); duct.name = "wok-kitchen-hood-duct"; duct.userData.category = "side-kitchen";
   duct.castShadow = true; duct.receiveShadow = true; scene.add(duct);
-  const ductCap = new THREE.Mesh(new THREE.BoxGeometry(0.20, capH, 0.26), m.wokSteel);
+  const ductCap = new THREE.Mesh(new THREE.BoxGeometry(0.20, capH, 0.26), m.wokPlaster);
   ductCap.position.set(ductX, capY, cookZ); ductCap.name = "wok-kitchen-hood-duct-cap"; ductCap.userData.category = "side-kitchen";
   ductCap.castShadow = true; ductCap.receiveShadow = true; scene.add(ductCap);
 
