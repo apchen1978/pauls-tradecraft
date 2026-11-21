@@ -1418,7 +1418,7 @@ let lanternMat = null;
     const brassMesh = new THREE.Mesh(mergeGeometries(brassParts.map((g) => { const q = g.index ? g.toNonIndexed() : g; q.deleteAttribute("uv"); return q; }), false), brass); brassMesh.name = "wall-sconce-brass"; sconceGroup.add(brassMesh);
     const bulb = new THREE.Mesh(new THREE.SphereGeometry(.026, 20, 12), new THREE.MeshBasicMaterial({ color: "#ffe3b0" })); bulb.position.set(cx - .012, SCONCE.y, SCONCE.z); bulb.name = "wall-sconce-bulb"; sconceGroup.add(bulb); SCONCE.globeX = cx; }
   // Paul 2026-11-21: "the room feels just moved into". A corrugated moving box stands against the left wall under the sconce, in front of the plant with the Post-it, half unpacked: flaps open, a rolled
-  // cream blanket and books peek out, a strip of tape, two hand holes, kraft board with a fine corrugated grain, and in black marker "# ROOM 01 / LIVING ROOM" on the side facing the room. 46 cm wide
+  // cream blanket and books peek out, a strip of tape, kraft board with a fine corrugated grain, and in black marker "# ROOM 01 / LIVING ROOM" on the side facing the room. 46 cm wide
   // (along the wall), 30 cm deep, 36 cm tall, on the floor 3 cm off the wall. Four meshes (kraft board, contents, tape and holes, label) so it costs four draw calls.
   {
     const BX = { x: -W / 2 + .03 + .15, z: -.8, w: .46, d: .30, h: .36 }, group = new THREE.Group(); group.name = "moving-box"; group.position.set(BX.x, 0, BX.z); group.rotation.y = .035; scene.add(group);
@@ -1439,9 +1439,9 @@ let lanternMat = null;
     // contents peeking out: a rolled cream blanket and three books
     contentParts.push(colorize(new THREE.CylinderGeometry(.075, .075, .3, 20).rotateX(Math.PI / 2).rotateY(.1).translate(-.03, BX.h - .06, -.1), "#e8dcc5"));
     [["#6b3a2e", .04, .26], ["#3f5a6a", .035, .24], ["#a3643a", .03, .27]].forEach(([c, t, hgt], i) => { const g = new THREE.BoxGeometry(.16, hgt, t); if (i === 2) g.rotateZ(.14); g.translate(.03, BX.h - .12 + hgt / 2 - .1 + .02, .09 + i * (t + .002)); contentParts.push(colorize(g, c)); });
-    // the tape across the room-facing side near the top, and two hand holes
+    // the tape across the room-facing side near the top
     tapeParts.push(colorize(new THREE.BoxGeometry(.006, .002, BX.w * .5).translate(BX.d / 2 + .0006, BX.h - .1, 0), "#8a5a34"));
-    for (const dz of [-1, 1]) tapeParts.push(colorize(new THREE.CircleGeometry(.025, 24).scale(1.6, .7, 1).rotateY(Math.PI / 2).translate(BX.d / 2 + .0016, BX.h - .06, dz * BX.w * .33), "#2a1c10"));
+    // (Paul 2026-11-22: the two black oval hand holes read as a pair of eyes and a Taiwanese carton does not have them; they are gone)
     const addMerged = (parts, material, name) => { const g = mergeGeometries(parts, false); g.computeVertexNormals(); const m = new THREE.Mesh(g, material); m.name = name; m.castShadow = true; m.receiveShadow = true; group.add(m); };
     addMerged(kraftParts, kraft, "moving-box-kraft"); addMerged(contentParts, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .9 }), "moving-box-contents"); addMerged(tapeParts, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .7 }), "moving-box-tape");
     const label = canvasTex(512, 320, (ctx, w, h) => { ctx.clearRect(0, 0, w, h); ctx.fillStyle = "#1c1814"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "800 78px 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive"; ctx.save(); ctx.translate(w / 2, h * .36); ctx.rotate(-.03); ctx.fillText("# ROOM 01", 0, 0); ctx.restore(); ctx.font = "700 54px 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive"; ctx.save(); ctx.translate(w / 2, h * .66); ctx.rotate(.02); ctx.fillText("LIVING ROOM", 0, 0); ctx.restore(); ctx.fillStyle = "rgba(28,24,20,.8)"; ctx.fillRect(w * .18, h * .87, w * .64, 4); });
@@ -4825,11 +4825,11 @@ let lanternMat = null;
   }).catch(e=>{casualBackpackError=String(e);console.warn('Optional backpack unavailable',e);});
   // Paul 2026-11-18: the floor under the 福杯滿溢 scroll and the home board was empty. A second copy of Room 02's campus backpack (the same model, 1.15x its
   // 46 cm, so about 53 cm tall) stands there, back to the left wall, front to the room, set on the floor by its measured lowest point (0.5 mm in) and its back
-  // 2 mm off the skirting face, in a mustard-and-olive colourway (Room 02's is navy, the bag by the door is rose). A small mint bear charm hangs on its front,
+  // 2 mm off the skirting face, in a cobalt-and-cream colourway since 2026-11-22 (it was mustard and olive; Room 02's is navy, the bag by the door is rose). A small mint bear charm hangs on its front,
   // touching the fabric. The bag is one vertex-coloured mesh; the charm another.
   let wallBackpack = null, wallBackpackError = null;
   loader.loadAsync(new URL("./bedroom/models/campus-backpack-v2.glb", import.meta.url).href).then((asset) => {
-    const bag = asset.scene, S = 1.15, palette = { body: "#c6963a", strap: "#4b4a36", zip: "#8a3b2b", base: "#3b382c" };
+    const bag = asset.scene, S = 1.15, palette = { body: "#3d63b8", strap: "#ece4d2", zip: "#f2c14e", base: "#2b3f78" }; // Paul 2026-11-22: the room already has plenty of browns and tans, so this bag turns cobalt blue (a 2026 colour in Taiwan, East Asia and the US), cream straps, butter-yellow zips; it echoes the blue stripes of the rug
     bag.scale.setScalar(S); bag.rotation.y = Math.PI / 2 - .12; bag.updateMatrixWorld(true);
     const inverse = new THREE.Matrix4(), parts = [];
     bag.traverse((o) => { if (!o.isMesh) return; const geo = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); geo.applyMatrix4(o.matrixWorld);
