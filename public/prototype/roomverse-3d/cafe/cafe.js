@@ -1360,7 +1360,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const ring = new THREE.TorusGeometry(0.019, 0.0028, 5, 16); ring.rotateY(Math.PI / 2); ring.translate(sx * (eggRadius(0.42) + 0.0175), 0.42, -0.006); glow(ring, CYAN);
     }
     add2("robotDark", new THREE.CylinderGeometry(0.0032, 0.0032, 0.06, 8).translate(0.02, 0.62, -0.01));
-    glow(new THREE.SphereGeometry(0.0095, 12, 8).translate(0.02, 0.655, -0.01), AMBER);
+    glow(new THREE.SphereGeometry(0.0095, 10, 6).translate(0.02, 0.655, -0.01), AMBER);
     // A status strip on the chest: a lit bar and three dots.
     { const bar = new THREE.CapsuleGeometry(0.0035, 0.046, 3, 8); bar.rotateZ(Math.PI / 2); bar.translate(0, 0.255, eggRadius(0.255) + 0.0015); glow(bar, CYAN);
       for (const dx of [-0.026, 0, 0.026]) glow(new THREE.CircleGeometry(0.0045, 12).translate(dx, 0.232, eggRadius(0.232) + 0.0015), dx === 0.026 ? AMBER : 0xe8fbff); }
@@ -2609,7 +2609,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // cylinder. It is now a charcoal ceramic jar with softly rounded shoulders, a brass lid with a knob, two thin gold bands and a small ivory label (drawn below).
     part("loungeDetail", colorize(new THREE.LatheGeometry([[0.0005, 0], [0.040, 0], [0.045, 0.012], [0.046, 0.04], [0.046, 0.088], [0.043, 0.104], [0.0005, 0.106]].map((p) => new THREE.Vector2(p[0], p[1])), 28).translate(0.22, T, zc), 0x34424f), { tile: 1 });
     part("gold", new THREE.CylinderGeometry(0.0485, 0.0485, 0.014, 28).translate(0.22, T + 0.112, zc), { tile: 1 });
-    part("gold", new THREE.SphereGeometry(0.0095, 12, 8).translate(0.22, T + 0.1285, zc), { tile: 1 });
+    part("gold", new THREE.SphereGeometry(0.0095, 10, 6).translate(0.22, T + 0.1285, zc), { tile: 1 });
     for (const [y, r] of [[0.016, 0.0455], [0.098, 0.0447]]) part("gold", new THREE.TorusGeometry(r, 0.0011, 6, 36).rotateX(Math.PI / 2).translate(0.22, T + y, zc), { tile: 1 });
     for (let i = 0; i < 6; i++) slab("paper", [0.22 - 0.028 + (i % 3) * 0.02, 0.22 - 0.012 + (i % 3) * 0.02], [T + 0.004 + Math.floor(i / 3) * 0.016, T + 0.018 + Math.floor(i / 3) * 0.016], [zc - 0.012, zc + 0.004], { tile: 1 });
     // Sugar tongs (Paul 2026-11-17: the plain oak strip beside the jar read as a stick): a small saucer with a gold line, and a pair of oak tongs lying on it, two arms
@@ -2702,17 +2702,17 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // pleated ring round it, and a double top-stitch row on each side of the seam. Yarn is a light tan against the burgundy, never pure black. Defined once, reused by the armchair.
     const yarn = (g, hex) => detail(g, hex);
     const seamUp = (map, x, z, y0, y1, thread, groove, { buttons = [], button = 0x6a2a20, ring = 0x7d3a2c } = {}) => {
-      yarn(map(new THREE.CylinderGeometry(0.0022, 0.0022, y1 - y0, 6).translate(x - 0.0004, (y0 + y1) / 2, z)), groove);
+      yarn(map(new THREE.CylinderGeometry(0.0022, 0.0022, y1 - y0, 4).translate(x - 0.0004, (y0 + y1) / 2, z)), groove);
       for (let y = y0 + 0.008; y < y1 - 0.012; y += 0.022) for (const side of [-1, 1]) yarn(map(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0145, 5, 1, true).translate(x - 0.0014, y + (side > 0 ? 0.011 : 0), z + side * 0.0085)), thread); // two rows of running stitches, offset by half a stitch
       for (const by of buttons) {
-        yarn(map(new THREE.SphereGeometry(0.0095, 12, 8).scale(0.4, 1, 1).translate(x - 0.0022, by, z)), button);
-        yarn(map(new THREE.TorusGeometry(0.0105, 0.0014, 5, 14).rotateY(Math.PI / 2).translate(x - 0.0026, by, z)), ring);
-        for (let q = 0; q < 4; q++) { const ang = (q * Math.PI) / 4; yarn(map(new THREE.BoxGeometry(0.0012, 0.0012, 0.017).rotateX(ang).translate(x - 0.0036, by, z)), ring); } // pleat creases
+        yarn(map(new THREE.SphereGeometry(0.0095, 10, 6).scale(0.4, 1, 1).translate(x - 0.0022, by, z)), button);
+        yarn(map(new THREE.TorusGeometry(0.0105, 0.0014, 4, 12).rotateY(Math.PI / 2).translate(x - 0.0026, by, z)), ring);
+        for (let q = 0; q < 2; q++) { const ang = (q * Math.PI) / 2; yarn(map(new THREE.BoxGeometry(0.0012, 0.0012, 0.017).rotateX(ang).translate(x - 0.0036, by, z)), ring); } // pleat creases
       }
     };
     for (let k = 0; k <= 10; k++) seamUp((g) => g, bx + 0.0885, bz - 1.0 + k * 0.2, 0.5, 0.812, 0xc9a27a, 0x35100c, { buttons: [0.585, 0.735] });
     // the padded channels themselves (this is what keeps it from looking drawn on): each panel between two seams bulges 1.1 cm out of the back in the same cloth, so the seams really sit in grooves
-    for (let k = 0; k < 10; k++) part("loungeSeat", colorize(new THREE.SphereGeometry(1, 20, 12).scale(0.011, 0.158, 0.094).translate(bx + 0.0885, 0.657, bz - 1.0 + (k + 0.5) * 0.2), 0xf7f2ed));
+    for (let k = 0; k < 10; k++) part("loungeSeat", colorize(new THREE.SphereGeometry(1, 14, 8).scale(0.011, 0.158, 0.094).translate(bx + 0.0885, 0.657, bz - 1.0 + (k + 0.5) * 0.2), 0xf7f2ed));
     // Two bulging cloth faces meet at the welt. The lower edge sits on the seat.
     for (const [dz, tilt] of [[-0.69, 0.10], [-0.02, -0.12], [0.68, 0.15]]) {
       const at = (g) => g.rotateZ(tilt).rotateY(-Math.PI / 2).translate(bx + 0.012, 0.62, bz + dz);
@@ -2791,30 +2791,26 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
     chairPart("loungeChair", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
     // Paul 2026-11-22 (finer lounge detail, redone): the armchair uses the bench's real upholstery detail in its own petrol colours with a cream wool yarn: four buttoned channel seams on the back
-    // front, three plain ones on the REAR of the back (so it looks finished from behind), a centre crease with a ladder stitch down the seat and a double stitch row along the seat's front edge.
+    // front, three plain ones on the REAR of the back (so it looks finished from behind), a centre crease with a ladder stitch down the seat.
     {
-      const groove = 0x0f2321, thread = 0xb9b49c, tilt = (g) => g.rotateX(-0.12).translate(0, 0.574, -0.264);
+      const groove = 0x1c3b38, thread = 0xb9b49c, tilt = (g) => g.rotateX(-0.12).translate(0, 0.574, -0.264);
       const place2 = (g) => { chairPart("loungeDetail", colorize(g, g.userData.hex)); };
       const yarnC = (g, hex) => { g.userData.hex = hex; place2(g); };
       const seamBack = (sx, z, dir, buttons) => { // a vertical seam in the back's own tilted frame; dir +1 front face, -1 rear face
         const y0 = -0.15, y1 = 0.15;
-        yarnC(tilt(new THREE.CylinderGeometry(0.0022, 0.0022, y1 - y0, 6).translate(sx, 0, z + dir * 0.0004)), groove);
+        yarnC(tilt(new THREE.CylinderGeometry(0.0022, 0.0022, y1 - y0, 4).translate(sx, 0, z + dir * 0.0004)), groove);
         for (let y = y0 + 0.008; y < y1 - 0.012; y += 0.022) for (const side of [-1, 1]) yarnC(tilt(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0145, 5, 1, true).translate(sx + side * 0.0085, y + (side > 0 ? 0.011 : 0), z + dir * 0.0014)), thread);
         for (const by of buttons) {
-          yarnC(tilt(new THREE.SphereGeometry(0.0095, 12, 8).scale(1, 1, 0.4).translate(sx, by, z + dir * 0.0022)), 0x24504b);
-          yarnC(tilt(new THREE.TorusGeometry(0.0105, 0.0014, 5, 14).translate(sx, by, z + dir * 0.0026)), 0x3a6862);
+          yarnC(tilt(new THREE.SphereGeometry(0.0095, 10, 6).scale(1, 1, 0.4).translate(sx, by, z + dir * 0.0022)), 0x24504b);
+          yarnC(tilt(new THREE.TorusGeometry(0.0105, 0.0014, 4, 12).translate(sx, by, z + dir * 0.0026)), 0x3a6862);
         }
       };
       for (const sx of [-0.2, -0.1, 0, 0.1, 0.2]) seamBack(sx, 0.0595, 1, [-0.075, 0.075]);
       for (const sx of [-0.15, 0, 0.15]) seamBack(sx, -0.0595, -1, []);
       // padded channels, as on the bench: each panel bulges about 1 cm out of the back in the chair's own cloth
-      for (const cx of [-0.15, -0.05, 0.05, 0.15]) chairPart("loungeChair", tilt(new THREE.SphereGeometry(1, 20, 12).scale(0.046, 0.16, 0.0095).translate(cx, 0, 0.0595)));
-      for (const cx of [-0.075, 0.075]) chairPart("loungeChair", tilt(new THREE.SphereGeometry(1, 20, 12).scale(0.07, 0.16, 0.0095).translate(cx, 0, -0.0595)));
-      // seat: a sunken centre crease with a ladder stitch (bars across it), kept to the flat middle of the cushion
-      yarnC(new THREE.CylinderGeometry(0.0022, 0.0022, 0.36, 6).rotateX(Math.PI / 2).translate(0, 0.4283, 0.04), groove);
-      for (let z = -0.13; z < 0.21; z += 0.022) for (const side of [-1, 1]) yarnC(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0145, 5, 1, true).rotateX(Math.PI / 2).translate(side * 0.0085, 0.4292, z + 0.026 + (side > 0 ? 0.011 : 0)), thread);
-      // front edge: a double running stitch (two rows, offset by half a stitch), 2.6 mm yarn, following the front face of the cushion
-      for (const [row, yy] of [[0, 0.4], [1, 0.388]]) for (let x = -0.23; x < 0.23; x += 0.0145) yarnC(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0085, 5, 1, true).rotateZ(Math.PI / 2).translate(x + row * 0.007, yy, 0.026 + 0.2755 + 0.0004), thread);
+      for (const cx of [-0.15, -0.05, 0.05, 0.15]) chairPart("loungeChair", tilt(new THREE.SphereGeometry(1, 14, 8).scale(0.046, 0.16, 0.0095).translate(cx, 0, 0.0595)));
+      for (const cx of [-0.075, 0.075]) chairPart("loungeChair", tilt(new THREE.SphereGeometry(1, 14, 8).scale(0.07, 0.16, 0.0095).translate(cx, 0, -0.0595)));
+      // (Paul 2026-11-22: no stitching on the seat cushion: a groove lying on a soft top cannot sink into it, so it read as applied; the cushion keeps its welt, and the stitching lives in the padded channels of the back only)
     }
     addContactShadow(bx + 0.02, bz, 0.72, 2.26, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);

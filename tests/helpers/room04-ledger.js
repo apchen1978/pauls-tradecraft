@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 239983, meshes: 129 }),
+  scene: Object.freeze({ vertices: 233113, meshes: 129 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 70, phone: 64 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -125,5 +125,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "window coverings (Paul): the curtain bundles, rods and cloth are gone (they hid the plaque and crowded the plant); both big windows get a linen roller blind rolled up near the head, with a head tube, oak hem bar, pull cord and brackets (two meshes each, replacing the curtain and rod meshes)", vertices: 221254, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "stitching redone (Paul: it looked drawn on): padded channels that really bulge 1 cm out of the bench back and the armchair back (front and rear), sunken tonal grooves with two rows of running yarn stitches, covered buttons with pleat rings, a centre crease and front stitch rows on the armchair seat (+18k vertices)", vertices: 239544, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "window table: two closed books and a ceramic milk jug join the still life (shared small things, recoloured; existing buckets, no new draw calls)", vertices: 239983, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
+    { date: "2026-11-22", change: "stitching trim (Paul): the armchair seat's crease and front stitch rows are removed (a groove lying on a soft cushion read as applied; the back's padded channels keep the stitching); padded-channel bulges, buttons and grooves use fewer facets (-6.5k vertices)", vertices: 233113, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
   ]),
 });
