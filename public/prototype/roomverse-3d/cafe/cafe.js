@@ -2093,17 +2093,21 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // the shared decor canvas, so the card needs no texture of its own. Every piece rest on the stone with a registered
     // support, and all of them ride in buckets the room already batches (glass, water, gold, paper).
     {
-      const cfX = 0.63, cfZ = c.z1 - 0.15;
-      const carafe = [[0, 0.004], [0.030, 0.004], [0.033, 0.010], [0.030, 0.060], [0.024, 0.105], [0.019, 0.135], [0.021, 0.150], [0.019, 0.158], [0.016, 0.150], [0.014, 0.135], [0.019, 0.100], [0.023, 0.058], [0.026, 0.012], [0, 0.008]];
-      part("glass", new THREE.LatheGeometry(carafe.map(([r, h]) => new THREE.Vector2(r, h)), 22).translate(cfX, top, cfZ), { tile: 1 });
-      part("water", new THREE.CylinderGeometry(0.0245, 0.0225, 0.085, 18).translate(cfX, top + 0.052, cfZ), { tile: 1 });
-      registerSupport("bar-water-carafe", "rest", { base: { x: cfX, y: top, z: cfZ, radius: 0.034 },
-        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
-      const glX = 0.72, glZ = c.z1 - 0.09;
-      const tumbler = [[0, 0.001], [0.024, 0.001], [0.026, 0.004], [0.023, 0.052], [0.021, 0.058], [0.0195, 0.052], [0.0205, 0.006], [0, 0.005]];
-      part("glass", new THREE.LatheGeometry(tumbler.map(([r, h]) => new THREE.Vector2(r, h)), 20).translate(glX, top, glZ), { tile: 1 });
-      registerSupport("bar-water-tumbler", "rest", { base: { x: glX, y: top, z: glZ, radius: 0.027 },
-        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
+      // Paul 2026-11-22: the glass carafe read as fake (too transparent) and blocked the record player, so the water moved
+      // off the counter: a stoneware jug with two small cups now stands on the upper back-bar shelf, where a cafe keeps a
+      // help-yourself water station. Opaque glaze instead of clear glass, and nothing in front of the player.
+      const juX = -1.30, juZ = BACK + 0.13, juY = 2.15 + 0.035;
+      const glazed = (g) => part("loungeDetail", colorize(g, 0x9aae9a), { tile: 1 });
+      const jug = [[0, 0.002], [0.042, 0.002], [0.048, 0.010], [0.050, 0.055], [0.045, 0.100], [0.032, 0.135], [0.024, 0.160], [0.026, 0.172], [0.023, 0.176], [0.020, 0.170], [0.020, 0.150], [0.028, 0.120], [0.040, 0.070], [0, 0.030]];
+      glazed(new THREE.LatheGeometry(jug.map(([r, h]) => new THREE.Vector2(r, h)), 22).translate(juX, juY, juZ));
+      glazed(new THREE.TorusGeometry(0.022, 0.0035, 6, 14, Math.PI * 1.15).rotateY(Math.PI / 2).rotateZ(0.4).translate(juX - 0.046, juY + 0.105, juZ));
+      registerSupport("bar-shelf-water-jug", "rest", { base: { x: juX, y: juY, z: juZ, radius: 0.05 },
+        surface: { shape: "rect", x0: -2.5, x1: -1, z0: BACK, z1: BACK + 0.24, y: juY } });
+      for (const [cx, cz] of [[-1.44, juZ + 0.02], [-1.15, juZ - 0.01]]) {
+        glazed(new THREE.LatheGeometry([[0, 0.001], [0.022, 0.001], [0.025, 0.005], [0.024, 0.045], [0.026, 0.052], [0.023, 0.050], [0.021, 0.006], [0, 0.006]].map(([r, h]) => new THREE.Vector2(r, h)), 18).translate(cx, juY, cz));
+        registerSupport(`bar-shelf-water-cup-${cx}`, "rest", { base: { x: cx, y: juY, z: cz, radius: 0.026 },
+          surface: { shape: "rect", x0: -2.5, x1: -1, z0: BACK, z1: BACK + 0.24, y: juY } });
+      }
       const bX = 0.41, bZ = c.z1 - 0.13;
       part("gold", new THREE.CylinderGeometry(0.030, 0.032, 0.004, 20).translate(bX, top + 0.002, bZ), { tile: 1 });
       const bellDome = new THREE.SphereGeometry(0.026, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); bellDome.scale(1, 0.72, 1);
