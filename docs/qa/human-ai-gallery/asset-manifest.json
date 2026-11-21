@@ -835,5 +835,191 @@
         "sha256": "8dbe410ce60305d69330389ea7674cc3b8e8e92a0abbec073df1b3dfb2b77f77"
       }
     ]
+  },
+  {
+    "id": "room02-sports-basketball",
+    "source": "docs/gallery/sources/roomverse-room02-sports-basketball-source.webp",
+    "sourceSha256": "ba2c59a3af2422e81599d2472ab3eb3900649e38a1042cc0945dc21c0403777e",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-sports-basketball.webp",
+        "width": 720,
+        "height": 1020,
+        "bytes": 57006,
+        "quality": 76,
+        "sha256": "4bf7a2fdd0b49d127aac2a00afba2dd9f27bfad8b4cdfd16a80eb49e880e1844"
+      },
+      {
+        "file": "roomverse-room02-sports-basketball-mobile.webp",
+        "width": 720,
+        "height": 1020,
+        "bytes": 62040,
+        "quality": 78,
+        "sha256": "276388b31117a156ebee58317abff81bec15e6f0c86b06923b2a86f153261551"
+      },
+      {
+        "file": "roomverse-room02-sports-basketball-thumb.webp",
+        "width": 480,
+        "height": 680,
+        "bytes": 32752,
+        "quality": 80,
+        "sha256": "266e44abce678fdf70df098a9d222fa6694eb0444ffff5389ecfe73745e2fbc0"
+      }
+    ]
+  },
+  {
+    "id": "room02-sports-football",
+    "source": "docs/gallery/sources/roomverse-room02-sports-football-source.webp",
+    "sourceSha256": "8fa86d45f344c2420895cc7a0d54f9feefa2e9f4d3cebbf3a100cc5d67063535",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-sports-football.webp",
+        "width": 720,
+        "height": 1020,
+        "bytes": 99578,
+        "quality": 76,
+        "sha256": "788a5f953ad5a2f861e2b961ecff9b8947ddcf72b3d26862210607bbf400abd3"
+      },
+      {
+        "file": "roomverse-room02-sports-football-mobile.webp",
+        "width": 720,
+        "height": 1020,
+        "bytes": 110526,
+        "quality": 78,
+        "sha256": "b72f99f9b3e812b24a4090237693229aeefde98596b52cd8ed451f8086577d2b"
+      },
+      {
+        "file": "roomverse-room02-sports-football-thumb.webp",
+        "width": 480,
+        "height": 680,
+        "bytes": 43876,
+        "quality": 80,
+        "sha256": "b7c5d279551a71bc82d0fe4ae22dbc3f65a9b6d8fa40c8c3685d64dbe95b5708"
+      }
+    ]
+  },
+  {
+    "id": "room02-sports-running",
+    "source": "docs/gallery/sources/roomverse-room02-sports-running-source.webp",
+    "sourceSha256": "7e42f1117681936cb91f433656e270ef1d3a71c5f9a27502240f6b5f91e6a4a2",
+    "derivatives": [
+      {
+        "file": "roomverse-room02-sports-running.webp",
+        "width": 720,
+        "height": 1020,
+        "bytes": 65940,
+        "quality": 76,
+        "sha256": "e3ab12a4f67c46cfeaa8bb7271dc056fab6d01a2bb74357fa29aabd81684a485"
+      },
+      {
+        "file": "roomverse-room02-sports-running-mobile.webp",
+        "width": 720,
+        "height": 1020,
+        "bytes": 81340,
+        "quality": 78,
+        "sha256": "d52b65b045733eb96a3ebe82f9406cdc3c420d55727ebcba727ace945dcc6fa3"
+      },
+      {
+        "file": "roomverse-room02-sports-running-thumb.webp",
+        "width": 480,
+        "height": 680,
+        "bytes": 37718,
+        "quality": 80,
+        "sha256": "f73b11bf2e1f0f30c36c8a4dc8dea35be01511eb6657011915c6829259c1127b"
+      }
+    ]
+  },
+  {
+    "id": "room04-shanghai-bund-dawn",
+    "source": "docs/gallery/sources/roomverse-room04-shanghai-bund-dawn-source.webp",
+    "sourceSha256": "257e9949fd33ddd8106e1814f813bacd72b62ba0da061c71621610cd766f92f3",
+    "derivatives": [
+      {
+        "file": "roomverse-room04-shanghai-bund-dawn.webp",
+        "width": 1020,
+        "height": 816,
+        "bytes": 13274,
+        "quality": 76,
+        "sha256": "75d16d4f132468fe69853be22a53647bee57195b1900fdd1a55833be2bca906e"
+      },
+      {
+        "file": "roomverse-room04-shanghai-bund-dawn-mobile.webp",
+        "width": 800,
+        "height": 640,
+        "bytes": 9770,
+        "quality": 78,
+        "sha256": "f6a544caba3cd9c9a125a8b8d5764f0fcdc5aec59a4e8d71af494cabc3cee642"
+      },
+      {
+        "file": "roomverse-room04-shanghai-bund-dawn-thumb.webp",
+        "width": 480,
+        "height": 384,
+        "bytes": 5568,
+        "quality": 80,
+        "sha256": "37f0a2dd2a07a24509071102e8d3d5b581be3629a418a048b44a2219e5b3f407"
+      }
+    ]
+  },
+  {
+    "id": "room04-shanghai-ferry-night",
+    "source": "docs/gallery/sources/roomverse-room04-shanghai-ferry-night-source.webp",
+    "sourceSha256": "805c3cd27bc3b149924ca3c2315fa2678cf3499deedf7a997d546dace4a4b0f7",
+    "derivatives": [
+      {
+        "file": "roomverse-room04-shanghai-ferry-night.webp",
+        "width": 1020,
+        "height": 816,
+        "bytes": 52364,
+        "quality": 76,
+        "sha256": "2e4f87cfd22ad940d7ba38f4fdc409fd3d668e09d5a01190e29a08dc2db8bd74"
+      },
+      {
+        "file": "roomverse-room04-shanghai-ferry-night-mobile.webp",
+        "width": 800,
+        "height": 640,
+        "bytes": 32980,
+        "quality": 78,
+        "sha256": "a6f0dc07d73118e6bd7cf210432371a364e9daea99b4eb276d84ace831470e88"
+      },
+      {
+        "file": "roomverse-room04-shanghai-ferry-night-thumb.webp",
+        "width": 480,
+        "height": 384,
+        "bytes": 17170,
+        "quality": 80,
+        "sha256": "dc3b0a01d2cd3016462af121746e6852e9660104dfe927716a35dcd27b49de9d"
+      }
+    ]
+  },
+  {
+    "id": "room04-shanghai-shikumen-door",
+    "source": "docs/gallery/sources/roomverse-room04-shanghai-shikumen-door-source.webp",
+    "sourceSha256": "951b25e7d93caddc736d823ac051961da59b948ecfe5a198d3ae81f8508e9a7d",
+    "derivatives": [
+      {
+        "file": "roomverse-room04-shanghai-shikumen-door.webp",
+        "width": 816,
+        "height": 1020,
+        "bytes": 85478,
+        "quality": 76,
+        "sha256": "5a95e55858217589cdae8202f98e1caadb2ec7c134007aa4f007f0dce7b94c54"
+      },
+      {
+        "file": "roomverse-room04-shanghai-shikumen-door-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 58046,
+        "quality": 78,
+        "sha256": "17e70d05b046452f817f5db0c9bc2ded3b0fa4d95f25c9e90de347d99c039f1a"
+      },
+      {
+        "file": "roomverse-room04-shanghai-shikumen-door-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 28774,
+        "quality": 80,
+        "sha256": "29a83140d68329d08206b36a670a5e5188422fea8329a98111c3e246580ce322"
+      }
+    ]
   }
 ]
