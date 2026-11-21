@@ -18,7 +18,7 @@ async function loaded(page) {
 
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
-  expect(PIECES).toHaveLength(27);
+  expect(PIECES).toHaveLength(33);
   expect(PIECES.slice(5, 10).map((piece) => piece.id)).toEqual([
     "roomverse-room01-concept",
     "roomverse-room02-brooklyn-concept",
