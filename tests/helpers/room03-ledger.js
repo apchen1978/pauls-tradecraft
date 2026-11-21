@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 155992, meshes: 158 }),
+  scene: Object.freeze({ vertices: 171132, meshes: 158 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 103, phone: 100 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -98,6 +98,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "credenza end (Paul): the crock of thin spoons is replaced by a stoneware canister with a terracotta band and oak lid plus a turned walnut pepper mill", vertices: 155852, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "credenza bottles (Paul): the olive oil is the oven-side counter's own bottle copied across and the wine is the Thanksgiving bottle; the balsamic and soy bottles lose their paper labels", vertices: 155944, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "counter bread (Paul): baking parchment hangs over the loaf pan's long edges (+48 vertices)", vertices: 155992, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
+    { date: "2026-11-22", change: "small stove area (Paul): the hob splashback becomes real zellige (16 x 8 hand-set glazed bricks, each 2-8 mm proud, +-1 degree, own palette colour and glaze lip, on a grout bed), and the oven front is refined (bevelled door plate, picture-frame reveal, chrome bezel on the glass, joint lines, handle end caps)", vertices: 171132, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
   ]),
 });
 

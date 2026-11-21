@@ -643,10 +643,48 @@ function buildKitchen(b, m) {
     addGeometryToBucket(b, "backsplash", m.mainTile, geometry, [0, 0, 0]);
   }
   {
-    // The patchwork azulejo panel behind the hob, in front of the plain backsplash (2 mm proud), under the hood; the hub screen sits on it.
+    // The patchwork azulejo panel behind the hob, in front of the plain backsplash, under the hood; the hub screen sits on it.
+    // Paul 2026-11-22: a flat printed panel did not read as tile at the stove, so the panel is now REAL tile: 32 glazed bricks
+    // (8 x 4, the same cells the texture paints) each with its own depth, tilt and glaze-edge bevel, over a grout bed. Every
+    // tile keeps its cell of the shared azulejo texture as its face, so the pattern survives while the surface becomes relief.
     m.hobTile = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.34, map: makeAzulejoTexture() });
     m.hobTile.name = "main-hob-azulejo";
-    addGeometryToBucket(b, "backsplash", m.hobTile, new THREE.PlaneGeometry(1.0, 0.5).translate(0.82, 1.21, -2.2655), [0, 0, 0]);
+    {
+      // 16 x 8 glazed bricks of 6.25 cm (zellige is small and hand-set, and small bricks are what make the relief read at
+      // arm's length). No mergeVertices: welding coincident corners across two tiles bled their texture cells together and
+      // drew dark seams, so every brick keeps its own vertices.
+      const COLS = 16, ROWS = 8, CELL = 0.0625, GAP = 0.0025, tileW = CELL - GAP, T = 0.016;
+      const tiles = [];
+      const jit = (i, k) => { const v = Math.sin((i * 12.9898 + k * 78.233) * 43758.5453); return v - Math.floor(v); };
+      // Zellige is a wall of hand-glazed single-colour bricks, not a printed picture, so each brick takes ONE flat colour
+      // out of the azulejo palette and a darker glaze lip on its edges: the relief does the work, the glaze does the rest.
+      const PALETTE = [[8, 8], [136, 8], [64, 24], [20, 264], [64, 64]]; // cream, pale, cobalt, terracotta, ochre
+      const WEIGHT = [0, 1, 0, 1, 0, 1, 1, 2, 1, 3, 0, 1, 4, 1, 0, 1];   // mostly cream and pale; colour is the accent, not the field
+      // a well-mixed hash: sin-based jitter clustered neighbours into blocks of one colour
+      const mix = (n) => { let x = Math.imul((n ^ 0x9e3779b9) >>> 0, 2654435761) >>> 0; x ^= x >>> 15; x = Math.imul(x, 2246822519) >>> 0; return ((x ^ (x >>> 13)) >>> 8) / 16777216; };
+      for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
+        const index = j * COLS + i;
+        const x = 0.82 + (i - (COLS - 1) / 2) * CELL, y = 1.21 + ((ROWS - 1) / 2 - j) * CELL;
+        const g = roundedBoxGeometry([tileW, tileW, T], 0.0018, 1);
+        const uv = g.attributes.uv, pos = g.attributes.position;
+        const pick = PALETTE[WEIGHT[Math.floor(mix(index) * WEIGHT.length)]];
+        const fu = (pick[0] + 2) / 1024, fv = 1 - (pick[1] + 2) / 512;
+        const lu = 4 / 1024, lv = 1 - 4 / 512; // the grout colour in the texture's corner: a light warm edge, not a black line
+        for (let n = 0; n < uv.count; n++) {
+          const front = pos.getZ(n) > T * 0.34;
+          uv.setXY(n, front ? fu : lu, front ? fv : lv);
+        }
+        const depth = 0.002 + jit(index, 1) * 0.006;
+        const tilt = (jit(index, 2) - 0.5) * 0.030;
+        const spin = (jit(index, 3) - 0.5) * 0.018;
+        g.applyMatrix4(new THREE.Matrix4().makeRotationZ(tilt));
+        g.applyMatrix4(new THREE.Matrix4().makeRotationY(spin));
+        g.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, -2.2665 + depth + T / 2));
+        tiles.push(g);
+      }
+      addGeometryToBucket(b, "backsplash", m.hobTile, mergeGeometries(tiles), [0, 0, 0]);
+      tiles.forEach((g) => g.dispose());
+    }
     for (const sy of [-1, 1]) addBox(b, "kitchen", m.brass, [1.02, 0.01, 0.007], [0.82, 1.21 + sy * 0.255, -2.2635]); // a slim brass frame round the panel
     for (const sx of [-1, 1]) addBox(b, "kitchen", m.brass, [0.01, 0.5, 0.007], [0.82 + sx * 0.505, 1.21, -2.2635]);
   }
@@ -823,15 +861,38 @@ function buildSideKitchen(b, m, scene) {
   const oven = { width: 0.56, height: 0.62, depth: 0.43, frontX: doorX - 0.008, centerY: (ovenBay.bottom + ovenBay.top) / 2 };
   const ovenBodyX = oven.frontX + oven.depth / 2 + 0.004;
   addBox(b, "side-kitchen", m.black, [oven.depth, oven.height, oven.width], [ovenBodyX, oven.centerY, counterZ]);
-  addBox(b, "side-kitchen", m.steel, [0.018, oven.height, oven.width], [oven.frontX, oven.centerY, counterZ]);
+  // Paul 2026-11-22: the oven front is the face you see beside the hob, so it gets the same care as the tile wall. The door
+  // is a bevelled plate with a real picture-frame reveal around the glass, a shadow gap at its edges, a dark cavity behind
+  // the glass with a warm strip in it, and a handle with turned end caps instead of bare bar ends.
+  addGeometryToBucket(b, "side-kitchen", m.steel, roundedBoxGeometry([0.018, oven.height, oven.width], 0.004), [oven.frontX, oven.centerY, counterZ]);
   const windowY = ovenBay.bottom + 0.285;
+  // the cavity: a dark box behind the glass, so the window reads as depth and not as a sticker
+  addBox(b, "side-kitchen", m.black, [0.010, 0.300, 0.395], [oven.frontX + 0.006, windowY, counterZ]);
   addBox(b, "side-kitchen", m.ovenGlass, [0.008, 0.31, 0.405], [oven.frontX - 0.011, windowY, counterZ]);
-  addBox(b, "side-kitchen", m.black, [0.008, 0.012, 0.415], [oven.frontX - 0.012, windowY - 0.17, counterZ]);
-  addBox(b, "side-kitchen", m.black, [0.008, 0.012, 0.415], [oven.frontX - 0.012, windowY + 0.17, counterZ]);
+  // a warm strip at the top of the cavity: emissive pixels, not another light source
+  addBox(b, "side-kitchen", m.wokGlow, [0.004, 0.006, 0.300], [oven.frontX - 0.004, windowY + 0.142, counterZ]);
+  // the oven glass is opaque, so the interior cannot be seen: a slim chrome bezel on the glass itself gives the window a
+  // second plane that catches the room light, and the warm strip is repeated 1 mm in front of the glass where it reads.
+  for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.0025, 0.007, 0.371], [oven.frontX - 0.0155, windowY + sy * 0.148, counterZ]);
+  for (const sz of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.0025, 0.303, 0.007], [oven.frontX - 0.0155, windowY, counterZ + sz * 0.182]);
+  addBox(b, "side-kitchen", m.wokGlow, [0.002, 0.005, 0.286], [oven.frontX - 0.0158, windowY + 0.136, counterZ]);
+  // the picture-frame reveal: four slim stepped rails that stand 2 mm proud of the door plate, 3 mm wide
+  for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.006, 0.016, 0.429], [oven.frontX - 0.014, windowY + sy * 0.163, counterZ]);
+  for (const sz of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.006, 0.342, 0.014], [oven.frontX - 0.014, windowY, counterZ + sz * 0.2075]);
+  // the joint lines: a thin dark slot under the trim and a hinge shadow at the foot of the door
+  addBox(b, "side-kitchen", m.black, [0.004, 0.003, 0.412], [oven.frontX - 0.0145, windowY - 0.174, counterZ]);
+  addBox(b, "side-kitchen", m.black, [0.004, 0.006, 0.418], [oven.frontX - 0.011, ovenBay.bottom + 0.004, counterZ]);
   // Brushed horizontal handle and two simple, readable control knobs; no branding or extra light source.
   // Paul 2026-11-22 (reference: a stainless range with long bar handles, no fussy dials): a full-width brushed stainless bar on two standoffs; the oven has no knobs, only the touch timer panel below.
-  addBox(b, "side-kitchen", m.steel, [0.016, 0.018, 0.46], [oven.frontX - 0.034, windowY + 0.205, counterZ]);
-  for (const dz of [-0.19, 0.19]) addBox(b, "side-kitchen", m.steel, [0.03, 0.01, 0.01], [oven.frontX - 0.02, windowY + 0.205, counterZ + dz]);
+  const handleBar = roundedBoxGeometry([0.018, 0.018, 0.46], 0.006);
+  addGeometryToBucket(b, "side-kitchen", m.steel, handleBar, [oven.frontX - 0.034, windowY + 0.205, counterZ]);
+  for (const sz of [-1, 1]) {
+    // a tapered standoff and a turned end cap, so the bar ends look machined rather than cut
+    const cap = new THREE.CylinderGeometry(0.0105, 0.0105, 0.012, 14).rotateX(Math.PI / 2).translate(oven.frontX - 0.034, windowY + 0.205, counterZ + sz * 0.236);
+    addGeometryToBucket(b, "side-kitchen", m.steel, cap, [0, 0, 0]);
+    const stem = new THREE.CylinderGeometry(0.006, 0.008, 0.014, 12).rotateX(Math.PI / 2).translate(oven.frontX - 0.024, windowY + 0.205, counterZ + sz * 0.19);
+    addGeometryToBucket(b, "side-kitchen", m.steel, stem, [0, 0, 0]);
+  }
   // Dark-glass timer panel and small amber indicators echo the kitchen's appliance UI.
   // These are emissive pixels only, not another light source.
   const ovenPanelY = ovenBay.top - 0.044;
