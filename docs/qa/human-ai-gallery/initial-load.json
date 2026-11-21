@@ -4,19 +4,19 @@
     {
       "width": 390,
       "requests": 9,
-      "encodedBodyBytes": 165936,
+      "encodedBodyBytes": 160524,
       "resources": [
         {
           "url": "/gallery/styles.css",
-          "bytes": 1938
+          "bytes": 2022
         },
         {
           "url": "/gallery/app.js",
-          "bytes": 1544
+          "bytes": 1824
         },
         {
           "url": "/gallery/pieces.js",
-          "bytes": 5360
+          "bytes": 12490
         },
         {
           "url": "/gallery/assets/imagined-harbor-thumb.webp",
@@ -31,8 +31,8 @@
           "bytes": 22098
         },
         {
-          "url": "/gallery/assets/trade-street-thumb.webp",
-          "bytes": 44400
+          "url": "/gallery/assets/ai-lab-digital-room-thumb.webp",
+          "bytes": 31016
         },
         {
           "url": "/favicon.png",
@@ -43,19 +43,19 @@
     {
       "width": 1440,
       "requests": 10,
-      "encodedBodyBytes": 210638,
+      "encodedBodyBytes": 190052,
       "resources": [
         {
           "url": "/gallery/styles.css",
-          "bytes": 1938
+          "bytes": 2022
         },
         {
           "url": "/gallery/app.js",
-          "bytes": 1544
+          "bytes": 1824
         },
         {
           "url": "/gallery/pieces.js",
-          "bytes": 5360
+          "bytes": 12490
         },
         {
           "url": "/gallery/assets/imagined-harbor-thumb.webp",
@@ -70,12 +70,12 @@
           "bytes": 22098
         },
         {
-          "url": "/gallery/assets/trade-street-thumb.webp",
-          "bytes": 44400
+          "url": "/gallery/assets/ai-lab-digital-room-thumb.webp",
+          "bytes": 31016
         },
         {
-          "url": "/gallery/assets/nightglow-together-thumb.webp",
-          "bytes": 44702
+          "url": "/gallery/assets/ai-lab-open-horizon-thumb.webp",
+          "bytes": 29528
         },
         {
           "url": "/favicon.png",
