@@ -10,13 +10,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 139367, meshes: 154 }),
+  scene: Object.freeze({ vertices: 155173, meshes: 158 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 99, phone: 96 }),
+  openingDrawCalls: Object.freeze({ desktop: 103, phone: 100 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 99, golden: 99, movie: 100, night: 99, dinner: 101, sunday: 100, thanksgiving: 105 }),
-    phone: Object.freeze({ daylight: 96, golden: 96, movie: 97, night: 96, dinner: 98, sunday: 97, thanksgiving: 102 }),
+    desktop: Object.freeze({ daylight: 103, golden: 103, movie: 104, night: 103, dinner: 105, sunday: 104, thanksgiving: 109 }),
+    phone: Object.freeze({ daylight: 100, golden: 100, movie: 101, night: 100, dinner: 102, sunday: 101, thanksgiving: 106 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
@@ -26,7 +26,7 @@ export const LEDGER = Object.freeze({
   resizedPhoneCalls: 92,
   // Opening draw calls when the desktop window is resized (more of the room is in view at the wider sizes). Measured 2026-11-05 on main 4af7e5f;
   // 1440 px is the ledger's own number (openingDrawCalls.desktop). These were red against the 1440 cap of 80 before.
-  desktopCallsByWidth: Object.freeze({ 1280: 100, 1920: 100 }),
+  desktopCallsByWidth: Object.freeze({ 1280: 104, 1920: 104 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -94,6 +94,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
     { date: "2026-11-22", change: "stove wall (Paul, reference photos): flat induction hob with a touch strip and no knobs, patchwork azulejo panel with a brass frame behind it, oven without knobs and a stainless bar handle", vertices: 139358, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
     { date: "2026-11-22", change: "counter bread (Paul, reference photo): a golden quick-bread loaf with a split top in a dark steel loaf pan, a rectangular slice in front", vertices: 139367, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
+    { date: "2026-11-22", change: "counter popcorn (Paul): the stone dish beside the bread is replaced by Room 01's popcorn bowl (shared Codex model, re-glazed blue; four more meshes, +15.8k vertices)", vertices: 155173, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
   ]),
 });
 
