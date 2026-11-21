@@ -131,7 +131,7 @@ export const LOOK_GROUPS = Object.freeze({
   gallery: Object.freeze({ a: 1, b: 2 }), // two sets of eight wall prints (Codex cards 49 and 52 G)
   rug: Object.freeze({ weave: "", jute: "room04-rug-1-jute.webp", wool: "room04-rug-2-wool-lattice.webp", abstract: "room04-rug-3-abstract.webp", stripe: "room04-rug-4-stripe.webp", ivory: "../../tex/rug-ivory-v1.webp", medallion: "../../tex/rug-medallion-v1.webp", slate: "../../bedroom/art/room02-a1-living-rug-v1.webp", arches: "../../bedroom/art/room02-rug-modern-v1.webp", oat: "../../bedroom/art/room02-rug-oat-v1.webp" }), // the round rug at the window seat (Codex card 52 B)
   menu: Object.freeze({ board: ["room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"], chalk: ["room04-menu-a-chalk-art-big.webp", "room04-menu-a-small.webp"], minimal: ["room04-menu-b-minimal-big.webp", "room04-menu-b-small.webp"], script: ["room04-menu-c-script-big.webp", "room04-menu-c-small.webp"] }), // the two chalk menus (Codex card 52 D)
-  stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
+  stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, arc: 4, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
   clock: Object.freeze({ tech: 1, classic: 2, wood: 3 }), // the wall clock (Codex card 49): A futuristic, B classical brass, or the round oak one. The hands show the real time.
   // Room 01's wallpapers, shared from ../tex/: [file, metres per tile]. "none" keeps the painted wall colour.
   lounge: Object.freeze({
@@ -156,7 +156,7 @@ export const WINDOW_RUG_RECTS = Object.freeze({
 });
 // The rug each mood brings to the window seat, until the visitor picks a rug themselves. Golden hour keeps the round jute weave.
 export const RUG_BY_MOOD = Object.freeze({ morning: "ivory", noon: "arches", golden: "weave", rain: "oat", closing: "medallion", series: "slate" });
-export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "herringbone", lamp: "bamboo", scarf: "olive", chair: "black", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", ceiling: "white", lounge: "terracotta", menu: "board", stool: "bentwood" });
+export const DEFAULT_LOOK = Object.freeze({ brick: "red", counter: "honey", back: "olive", wall: "warm", floor: "herringbone", lamp: "bamboo", scarf: "olive", chair: "black", wallpaper: "none", wainscot: "same", clock: "tech", gallery: "a", rug: "weave", ceiling: "white", lounge: "terracotta", menu: "board", stool: "arc" });
 // What goes well below each of Room 01's wallpapers (the first is the pick a new choice of paper switches to): never simply the green again.
 export const WAINSCOT_FOR_PAPER = Object.freeze({ stripe: ["navy", "charcoal", "walnut"], botanical: ["terracotta", "walnut", "oat"], grasscloth: ["navy", "walnut", "olive"], sagewash: ["cream", "charcoal", "walnut"], planeleaf: ["olive", "walnut", "cream"], windowshadow: ["walnut", "charcoal", "olive"] });
 
@@ -543,6 +543,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     lid: new THREE.MeshStandardMaterial({ color: 0xf1eee8, roughness: 0.6 }),
     tablet: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.25, emissive: 0x9fc5d6, emissiveIntensity: 0.35 }),
     gold: new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: 0.3, metalness: 0.78, emissive: 0x4d3812, emissiveIntensity: 0.7 }), // metalness 1 rendered black here (nothing but the small reflection map to light it), so a little diffuse stays
+    paleOak: new THREE.MeshStandardMaterial({ color: 0xd8b886, roughness: 0.6 }), // Paul 2026-11-22: the pale, silky oak of the curved-back bar stools
     cane: new THREE.MeshStandardMaterial({ color: 0xcaa66b, roughness: 0.85, bumpMap: makeCaneBumpTexture(), bumpScale: 0.018 }),
     bentwood: new THREE.MeshStandardMaterial({ color: 0x9a6a3a, roughness: 0.55 }),
     loungeSeat: new THREE.MeshPhysicalMaterial({ color: LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0], vertexColors: true, roughness: 0.93, map: fabric.map, bumpMap: fabric.bump, bumpScale: 2.8, sheen: 0.65, sheenRoughness: 0.65, sheenColor: new THREE.Color(0xf1e2cb) }),
@@ -3300,7 +3301,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   };
 
   // ---------- the bar stools (Codex card 52 A): three designs, four stools along the counter, seat 65 cm ----------
-  const stoolSets = { bentwood: new THREE.Group(), leather: new THREE.Group(), metal: new THREE.Group() };
+  const stoolSets = { arc: new THREE.Group(), bentwood: new THREE.Group(), leather: new THREE.Group(), metal: new THREE.Group() };
   // The mesh diet (2026-11-20): only the arrival stools are built at load; each other design is built the first time it is chosen (`ensureStool`, called by setLook). The two unused
   // designs were 5 meshes and about 9,400 vertices that info() counted although nobody saw them.
   let ensureStool = () => {};
@@ -3314,9 +3315,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         const at = (g) => g.rotateY(yaw).translate(x, 0, z + counterShift(x)), lp = lb.lp;
         const atPoint = (r, a, y) => ({ x: x + r * Math.cos(a + yaw), y, z: z + counterShift(x) + r * Math.sin(a + yaw) });
         const legs = (key, top, radius) => {
-          const seatRadius = kind === "bentwood" ? 0.19 : kind === "leather" ? 0.175 : 0.17;
-          const seatBottom = kind === "bentwood" ? 0.63 : kind === "leather" ? 0.58 : 0.61;
-          const ringY = kind === "bentwood" ? 0.22 : kind === "leather" ? 0.25 : 0.2;
+          const seatRadius = kind === "bentwood" || kind === "arc" ? 0.19 : kind === "leather" ? 0.175 : 0.17;
+          const seatBottom = kind === "bentwood" || kind === "arc" ? 0.63 : kind === "leather" ? 0.58 : 0.61;
+          const ringY = kind === "bentwood" || kind === "arc" ? 0.22 : kind === "leather" ? 0.25 : 0.2;
           for (let k = 0; k < 4; k++) {
             const a = (k / 4) * Math.PI * 2 + Math.PI / 4;
             const stoolLeg = at(rodGeometry([Math.cos(a) * 0.205, 0, Math.sin(a) * 0.205], [Math.cos(a) * 0.15, top, Math.sin(a) * 0.15], radius, 10));
@@ -3325,10 +3326,25 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
             registerSupport(`${label}-seat`, "embed", { tip: atPoint(0.15, a, top), surface: { shape: "circle", x, z: z + counterShift(x), radius: seatRadius, y: seatBottom } });
             registerSupport(`${label}-ground`, "ground", { bottomY: stoolLeg.boundingBox.min.y });
             registerSupport(`${label}-ring`, "join", { a: atPoint(0.205 + (0.15 - 0.205) * ringY / top, a, ringY),
-              b: atPoint(rail(0.205, ringY), a, ringY), radiusA: radius, radiusB: kind === "leather" ? 0.011 : kind === "bentwood" ? 0.009 : 0.008 });
+              b: atPoint(rail(0.205, ringY), a, ringY), radiusA: radius, radiusB: kind === "leather" ? 0.011 : kind === "bentwood" ? 0.009 : kind === "arc" ? 0.0095 : 0.008 });
           }
         };
-        if (kind === "bentwood") {
+        if (kind === "arc") {
+          // Paul 2026-11-22 (a trending counter stool from a reference photo): pale oak with a caned round seat, slim splayed legs, a low foot ring, and a curved back that wraps the sitter like an arm: a
+          // 166-degree band 9.5 cm high, held 13 cm above the seat by the two rear legs, which run on up from the seat into it. The back sits on the room side (+z), away from the counter.
+          legs("paleOak", 0.645, 0.0135);
+          lp("cane", at(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 40).translate(0, 0.64, 0))); lp("paleOak", at(new THREE.TorusGeometry(0.19, 0.0145, 8, 40).rotateX(Math.PI / 2).translate(0, 0.652, 0)));
+          for (const y of [0.22, 0.42]) lp("paleOak", at(new THREE.TorusGeometry(rail(0.205, y), 0.0095, 8, 32).rotateX(Math.PI / 2).translate(0, y, 0)));
+          const span = 1.45, rO = 0.205, rI = 0.183, y0 = 0.775, bandH = 0.095, shape = new THREE.Shape(), c = -Math.PI / 2;
+          shape.absarc(0, 0, rO, c - span, c + span, false); shape.absarc(0, 0, rI, c + span, c - span, true); shape.closePath();
+          const band = new THREE.ExtrudeGeometry(shape, { depth: bandH, bevelEnabled: true, bevelSegments: 2, bevelSize: 0.004, bevelThickness: 0.004, curveSegments: 28 });
+          band.rotateX(-Math.PI / 2); lp("paleOak", at(band.translate(0, y0, 0)));
+          for (const a of [Math.PI / 4, (3 * Math.PI) / 4]) {
+            const tip = [Math.cos(a) * 0.194, y0 + bandH / 2, Math.sin(a) * 0.194];
+            lp("paleOak", at(rodGeometry([Math.cos(a) * 0.15, 0.645, Math.sin(a) * 0.15], tip, 0.0135, 10)));
+            registerSupport(`bar-stool-arc-${x}-post-${a > 2 ? "r" : "l"}-back`, "join", { a: atPoint(0.194, a, y0 + bandH / 2), b: atPoint(0.194, a, y0 + bandH / 2), radiusA: 0.0135, radiusB: 0 });
+          }
+        } else if (kind === "bentwood") {
           legs("bentwood", 0.645, 0.015); // the leg tops run 15 mm into the seat (the seat's underside is at 0.63 m); they used to stop exactly at the underside (embed 0 mm)
           lp("cane", at(new THREE.CylinderGeometry(0.19, 0.19, 0.02, 36).translate(0, 0.64, 0))); lp("bentwood", at(new THREE.TorusGeometry(0.19, 0.014, 8, 36).rotateX(Math.PI / 2).translate(0, 0.652, 0)));
           for (const y of [0.22, 0.42]) lp("bentwood", at(new THREE.TorusGeometry(rail(0.205, y), 0.009, 8, 32).rotateX(Math.PI / 2).translate(0, y, 0)));
