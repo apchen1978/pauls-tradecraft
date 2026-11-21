@@ -5,28 +5,39 @@
 //   Day (the "day" group): Track 1 "窗邊的午後": C major, 96 beats a minute, a light bounce. A sixteen-bar form, all major chords. First half: Cmaj9, Fmaj9, Cadd9, G6/9, Fmaj9, Cadd9, D9, G7.
 //   Second half, a lift: Fmaj9, G6/9, Cmaj9, Cadd9, Fmaj9, Bbmaj9, D9, G7. Syncopated piano chord hits, a bouncing walking bass, a bright vibraphone layer that sparkles on the off-beats and doubles the
 //   melody an octave up in the second half, a whisper of ride and brushes.
-//   Series night (the "night" group): Track 2 "追劇夜": D major, 70 beats a minute, a film-score feel after the usual toolkit of screen music: a simple piano motif and a rising ostinato in straight
-//   eighths, a slow string pad and a cello line, a deep sub pedal and a low pulsing bass for weight, soft timpani-like hits, a filtered-noise swell before each turn, a wide reverb, and a long lyrical
-//   melody (the second time round doubled by the vibraphone an octave up). Eight bars: Dmaj9, Gmaj9, Bm9, Aadd9, then D/F#, Gmaj7#11, A7sus4, A, back to the start.
+//   Series night (the "night" group): Track 2 "追劇夜" (rewritten 2026-11-22, see TRACKS): an epic D-minor piece at 84 beats a minute, sixteen bars: a hush of low piano and tremolo strings, a build with timpani and horns,
+//   a full-orchestra climax (pounding piano octaves, horns and trombones, double timpani, a cymbal crash), then a fall back to the opening. Original melody; no vibraphone.
 // Chords are rolled low to high; there are small random differences in timing and loudness; the band goes through a soft compressor and a synthetic room reverb, with a very faint vinyl hiss.
 // Nothing plays until the visitor taps (browsers allow sound only after a tap); a second tap, hiding the page or leaving stops it. start() must be called from inside that tap. In playlist
 // mode a piece goes round again, with no gap, until the visitor stops it or leaves.
 import { createPiano } from "./piano.js?v=auto";
 import { createRoomSound } from "./cafe/sound.js?v=auto"; // Room 04's music engine plays the day piece
 const realPiano = createPiano(), PIANO_K = 2.4; // PIANO_K scales the old synth levels to the louder piano samples
-const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 16; // a piece is sixteen bars (the day piece's whole form, or the night piece's eight bars twice)
+const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 16; // a piece is sixteen bars
 const TRACKS = [
   // Series night: "bass" is a deep pedal and a low pulse under the bar; "chord" feeds the rising ostinato and the string pad.
-  { title: "追劇夜", group: "night", style: "cinema", bpm: 70, swing: 0, send: 0.5,
+  // Paul 2026-11-22: series night was too gentle and its bright piano ostinato with the vibraphone sounded like temple bells. It is now an EPIC piece in D minor, 84 beats a minute: a slow build from a lone low
+  // piano and tremolo strings (minor-major 7th colour, the classic spy-thriller shade, but an original melody) to a full-orchestra climax of horns, strings, pounding octaves and timpani in bars 9 to 12,
+  // then a fall back to the opening. No vibraphone, no bell tones. `level` is the loudness of each bar (the dynamics).
+  { title: "追劇夜", group: "night", style: "epic", bpm: 84, swing: 0, send: 0.62,
+    level: [0.4, 0.46, 0.52, 0.6, 0.6, 0.7, 0.8, 0.95, 1.4, 1.45, 1.5, 1.6, 1.25, 1.0, 0.75, 0.55],
     bars: [
-      { bass: 38, chord: [54, 57, 61, 64], tune: [[0, 78, 3], [3, 81, 1]] },                      // Dmaj9: F# held, an A pickup
-      { bass: 43, chord: [59, 62, 66, 69], tune: [[0, 83, 2], [2, 81, 1], [3, 78, 1]] },          // Gmaj9: B A F#
-      { bass: 47, chord: [57, 61, 62, 66], tune: [[0, 81, 2], [2, 78, 2]] },                      // Bm9: A F#, the one soft shadow
-      { bass: 45, chord: [57, 61, 64, 71], tune: [[0, 76, 2], [2, 81, 1.5], [3.5, 83, 0.5]] },    // Aadd9: E A, a step up to the B
-      { bass: 42, chord: [57, 62, 66, 69], tune: [[0, 86, 3], [3, 85, 1]] },                      // D/F#: the high D, the C# leaning in
-      { bass: 43, chord: [59, 62, 66, 73], tune: [[0, 83, 2], [2, 81, 1], [3, 78, 1]] },          // Gmaj7#11: a wide, floating colour
-      { bass: 45, chord: [55, 62, 64, 69], tune: [[0, 81, 2], [2, 79, 1], [3, 78, 1]] },          // A7sus4: waiting
-      { bass: 45, chord: [57, 61, 64, 69], tune: [[0, 76, 3], [3, 78, 1]] },                      // A: resolves, the F# leads back to the start
+      { bass: 38, chord: [50, 53, 57, 61], tune: [[0, 69, 2], [2, 74, 2]] },                          // Dm(maj7): the lone, rising A to D
+      { bass: 34, chord: [53, 57, 62, 65], tune: [[0, 73, 1.5], [1.5, 74, 0.5], [2, 77, 2]] },        // Bbmaj7: C# leaning in, up to F
+      { bass: 43, chord: [55, 58, 62, 65], tune: [[0, 76, 2], [2, 74, 1], [3, 72, 1]] },              // Gm9: E, D, C, falling
+      { bass: 45, chord: [55, 57, 61, 65], tune: [[0, 73, 2.5], [2.5, 69, 1.5]] },                    // A7b9: the tension, A below
+      { bass: 38, chord: [50, 53, 57, 61], tune: [[0, 74, 2], [2, 77, 2]] },                          // Dm(maj7): horns join, quietly
+      { bass: 34, chord: [53, 57, 62, 65], tune: [[0, 81, 3], [3, 79, 1]] },                          // Bbmaj7
+      { bass: 43, chord: [55, 58, 62, 66], tune: [[0, 79, 2], [2, 77, 1], [3, 74, 1]] },              // Gm(maj7): the shadow
+      { bass: 45, chord: [57, 62, 64, 67], tune: [[0, 76, 2], [2, 73, 2]] },                          // A7sus4: the breath before the wave (timpani roll, noise swell)
+      { bass: 34, chord: [53, 58, 62, 65], tune: [[0, 82, 3], [3, 81, 1]] },                          // Bb: the climax opens, full orchestra
+      { bass: 41, chord: [57, 60, 65, 69], tune: [[0, 81, 2], [2, 77, 2]] },                          // F/A
+      { bass: 43, chord: [55, 58, 62, 67], tune: [[0, 79, 1.5], [1.5, 81, 0.5], [2, 82, 2]] },        // Gm
+      { bass: 45, chord: [57, 61, 64, 69], tune: [[0, 85, 3], [3, 81, 1]] },                          // A: the high C#, the peak
+      { bass: 38, chord: [50, 57, 62, 65], tune: [[0, 86, 2], [2, 81, 2]] },                          // Dm: the high D, coming down
+      { bass: 34, chord: [53, 57, 62, 65], tune: [[0, 82, 2], [2, 79, 2]] },                          // Bb
+      { bass: 40, chord: [52, 55, 58, 62], tune: [[0, 76, 2], [2, 79, 2]] },                          // Em7b5: suspended, unresolved
+      { bass: 45, chord: [55, 57, 61, 65], tune: [[0, 73, 3], [3, 69, 1]] },                          // A7: back to the opening
     ] },
 ];
 const nextInGroup = (index) => { for (let k = 1; k <= TRACKS.length; k++) { const j = (index + k) % TRACKS.length; if (TRACKS[j].group === TRACKS[index].group) return j; } return index; };
@@ -37,6 +48,9 @@ const VIBES = { partials: [[1, 0.7, "sine", 1], [4, 0.28, "sine", 0.3], [10, 0.0
 const BASS = { partials: [[1, 1, "sine", 1], [2, 0.28, "triangle", 0.5], [3, 0.06, "sine", 0.3]], attack: 0.015, lowpass: 700 };
 const SUB = { partials: [[1, 1, "sine", 1], [2, 0.12, "sine", 0.5]], attack: 0.25, lowpass: 400 };
 const STRINGS = { partials: [[1, 0.5, "sawtooth", 1], [1.007, 0.5, "sawtooth", 1]], lowpass: 1100 };
+const HORN = { partials: [[1, 0.55, "sawtooth", 1], [1.004, 0.4, "sawtooth", 1], [0.5, 0.18, "square", 1]], lowpass: 1700, attack: 0.1, vibrato: 5 }; // a brass section: stacked saws, a square an octave down, a slow swell
+const STR_TREM = { partials: [[1, 0.5, "sawtooth", 1], [1.006, 0.5, "sawtooth", 1]], lowpass: 1500, attack: 0.18, tremolo: 0.85, tremRate: 11 }; // strings played with a fast bow tremolo
+const BASS_DRIVE = { partials: [[1, 1, "sawtooth", 1], [2, 0.3, "triangle", 0.5]], lowpass: 520, attack: 0.01 };
 const CELLO = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 650, attack: 0.3, vibrato: 8 };
 const STRING_LEAD = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 1300, attack: 0.25, vibrato: 9 };
 
@@ -58,7 +72,7 @@ function createNightMusic() { // the cinematic engine, for series night
       osc.connect(g); g.connect(out); osc.start(time); osc.stop(time + length + 0.05);
     }
     let last = out;
-    if (recipe.tremolo) { const trem = ctx.createGain(), lfo = ctx.createOscillator(), depth = ctx.createGain(); trem.gain.value = 1 - recipe.tremolo / 2; lfo.frequency.value = 5.2; depth.gain.value = recipe.tremolo / 2; lfo.connect(depth); depth.connect(trem.gain); lfo.start(time); lfo.stop(time + length + 0.05); out.connect(trem); last = trem; }
+    if (recipe.tremolo) { const trem = ctx.createGain(), lfo = ctx.createOscillator(), depth = ctx.createGain(); trem.gain.value = 1 - recipe.tremolo / 2; lfo.frequency.value = recipe.tremRate ?? 5.2; depth.gain.value = recipe.tremolo / 2; lfo.connect(depth); depth.connect(trem.gain); lfo.start(time); lfo.stop(time + length + 0.05); out.connect(trem); last = trem; }
     last.connect(filter); panned(filter, position).connect(bus); noteCount += 1;
   };
   const piano = (time, midi, gain, length, position = 0) => { if (realPiano.play(ctx, bus, time, midi, gain * PIANO_K, length, position)) { noteCount += 1; return; } note(time, midi, EPIANO, gain, length, position); }; // a real piano note, or the synth fallback
@@ -93,20 +107,32 @@ function createNightMusic() { // the cinematic engine, for series night
     if (playlist && barIndex >= BARS_PER_TRACK) { const before = trackIndex; trackIndex = nextInGroup(trackIndex); seed = 5 + trackIndex * 17; barIndex = 0; const changed = trackIndex; sendNode?.gain.setTargetAtTime(TRACKS[trackIndex].send, ctx.currentTime, 0.6); if (changed !== before) setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // a piece goes round again; a different piece of the group would be announced when its first note sounds
     const track = TRACKS[trackIndex], beat = 60 / track.bpm, barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime, second = barIndex >= track.bars.length || (track.style === "bright" && barIndex >= 8);
 
-      const ext = [...bar.chord, bar.chord[0] + 12, bar.chord[1] + 12];
-      [0, 1, 2, 3, 4, 5, 4, 3].forEach((pick, i) => piano(t0 + i * 0.5 * beat + jitter(5), ext[pick], vary(i % 4 === 0 ? 0.05 : 0.032), beat * 1.6, -0.2 + pick * 0.07)); // the rising ostinato, straight eighths
-      note(t0, bar.bass, SUB, 0.22, barLength * 1.05); // a deep pedal under the bar
-      for (let i = 0; i < 4; i++) note(t0 + i * beat + jitter(4), bar.bass, BASS, i === 0 ? 0.14 : 0.09, beat * 0.95); // a low pulse on every beat: the weight and drive
-      note(t0, bar.bass + 12, CELLO, 0.03, barLength * 1.1, -0.35); // a cello line on the root
-      bar.chord.forEach((midi, i) => note(t0, midi, STRINGS, 0.013, barLength * 1.2, (i % 2 ? 1 : -1) * (0.35 + 0.1 * i))); // a slow string pad, wide
-      if (barIndex % 8 === 0 || barIndex % 8 === 4) drum(t0, 0.14); // soft timpani-like hits
+      const lv = (track.level || [])[barIndex % track.bars.length] ?? 1, section = barIndex % 16 < 4 ? 0 : barIndex % 16 < 8 ? 1 : barIndex % 16 < 12 ? 2 : 3; // 0 hush, 1 build, 2 climax, 3 fall
+      // the lone piano, deep: a low octave on the first beat, then single low notes (the thriller shade), thickening to pounding octaves in the climax
+      piano(t0 + jitter(4), bar.bass + 12, vary(0.1 * lv), beat * 3.5, -0.1); piano(t0 + jitter(4), bar.bass, vary(0.09 * lv), beat * 3.5, -0.1);
+      if (section >= 1) for (const at of [1.5, 2.5, 3.5]) piano(t0 + at * beat + jitter(5), bar.bass + 12, vary(0.05 * lv), beat * 0.9, -0.1);
+      if (section === 2) for (let i = 0; i < 8; i++) { piano(t0 + i * 0.5 * beat + jitter(4), bar.chord[i % 4], vary(0.04 * lv), beat * 0.9, 0.1); piano(t0 + i * 0.5 * beat + jitter(4), bar.chord[i % 4] + 12, vary(0.03 * lv), beat * 0.9, 0.18); }
+      // the weight: a sub pedal, and a driving bass pattern (the figure leans on the second half of the bar) from the build onwards
+      note(t0, bar.bass, SUB, 0.24 * lv, barLength * 1.05);
+      if (section >= 1) for (const [at, g] of [[0, 0.15], [1.5, 0.1], [2, 0.12], [3.5, 0.09]]) note(t0 + at * beat + jitter(4), bar.bass, BASS_DRIVE, g * lv * 0.6, beat * 0.9);
+      // strings: a tremolo pad, wide, always; the cellos double the bass line an octave up; violins an octave higher from the build
+      bar.chord.forEach((midi, i) => note(t0, midi, STR_TREM, 0.016 * lv, barLength * 1.15, (i % 2 ? 1 : -1) * (0.35 + 0.1 * i)));
+      note(t0, bar.bass + 12, CELLO, 0.03 * lv, barLength * 1.1, -0.35);
+      if (section >= 1) bar.chord.forEach((midi, i) => note(t0, midi + 12, STR_TREM, 0.007 * lv, barLength * 1.15, (i % 2 ? -1 : 1) * 0.5));
+      // timpani: a hit every fourth bar in the quiet opening, on every bar from the build, two per bar in the climax; the bar before the climax is a crescendo roll
+      if (section === 0 && barIndex % 4 === 0) drum(t0, 0.11 * lv);
+      if (section >= 1) drum(t0, 0.2 * lv);
+      if (section === 2) drum(t0 + 2 * beat, 0.17 * lv);
+      if (barIndex % 16 === 7) { for (let i = 0; i < 16; i++) drum(t0 + i * 0.25 * beat, (0.03 + 0.1 * (i / 15)) * lv); swell(t0, barLength); }
+      if (barIndex % 16 === 8) tick(t0, 0.09, 6500, 1.4); // the cymbal crash on the downbeat of the climax
+      // the melody: piano plus strings throughout, the horn section from bar 5 (soft) and in full from the climax, with trombones an octave below in the climax
       for (const [at, midi, length] of bar.tune) {
         const when = t0 + at * beat + jitter(6);
-        piano(when, midi, vary(0.075), beat * (length + 0.6), 0.15); // a long, lyrical melody on the piano
-        note(when, midi, STRING_LEAD, 0.016, beat * (length + 0.6), 0.25); // softly doubled by strings
-        if (second) note(when, midi + 12, VIBES, vary(0.022), beat * (length + 1), -0.25); // the second time round, the vibraphone doubles it an octave up
+        piano(when, midi, vary(0.07 * lv), beat * (length + 0.6), 0.15);
+        note(when, midi, STRING_LEAD, 0.018 * lv, beat * (length + 0.7), 0.25);
+        if (barIndex % 16 >= 4) note(when, midi, HORN, vary((section === 2 ? 0.05 : 0.02) * lv), beat * (length + 0.5), -0.15);
+        if (section === 2) note(when, midi - 12, HORN, vary(0.038 * lv), beat * (length + 0.5), 0.2);
       }
-      if (barIndex % 8 === 6) swell(t0, barLength * 2); // a breath before the turn
     nextTime += barLength; barIndex += 1;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };

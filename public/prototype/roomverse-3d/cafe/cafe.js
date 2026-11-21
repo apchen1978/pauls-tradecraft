@@ -2094,17 +2094,17 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // support, and all of them ride in buckets the room already batches (glass, water, gold, paper).
     {
       // Paul 2026-11-22: the glass carafe read as fake (too transparent) and blocked the record player, so the water moved
-      // off the counter: a stoneware water jug with two small cups now stands on the upper back-bar shelf, the way a cafe
-      // leaves a help-yourself water station. Opaque glaze instead of clear glass, and nothing in front of the player.
+      // off the counter: a stoneware jug with two small cups now stands on the upper back-bar shelf, where a cafe keeps a
+      // help-yourself water station. Opaque glaze instead of clear glass, and nothing in front of the player.
       const juX = -1.30, juZ = BACK + 0.13, juY = 2.15 + 0.035;
-      const cushion = (g) => part("loungeDetail", colorize(g, 0x9aae9a), { tile: 1 });
+      const glazed = (g) => part("loungeDetail", colorize(g, 0x9aae9a), { tile: 1 });
       const jug = [[0, 0.002], [0.042, 0.002], [0.048, 0.010], [0.050, 0.055], [0.045, 0.100], [0.032, 0.135], [0.024, 0.160], [0.026, 0.172], [0.023, 0.176], [0.020, 0.170], [0.020, 0.150], [0.028, 0.120], [0.040, 0.070], [0, 0.030]];
-      cushion(new THREE.LatheGeometry(jug.map(([r, h]) => new THREE.Vector2(r, h)), 22).translate(juX, juY, juZ));
-      cushion(new THREE.TorusGeometry(0.022, 0.0035, 6, 14, Math.PI * 1.15).rotateY(Math.PI / 2).rotateZ(0.4).translate(juX - 0.046, juY + 0.105, juZ));
+      glazed(new THREE.LatheGeometry(jug.map(([r, h]) => new THREE.Vector2(r, h)), 22).translate(juX, juY, juZ));
+      glazed(new THREE.TorusGeometry(0.022, 0.0035, 6, 14, Math.PI * 1.15).rotateY(Math.PI / 2).rotateZ(0.4).translate(juX - 0.046, juY + 0.105, juZ));
       registerSupport("bar-shelf-water-jug", "rest", { base: { x: juX, y: juY, z: juZ, radius: 0.05 },
         surface: { shape: "rect", x0: -2.5, x1: -1, z0: BACK, z1: BACK + 0.24, y: juY } });
       for (const [cx, cz] of [[-1.44, juZ + 0.02], [-1.15, juZ - 0.01]]) {
-        cushion(new THREE.LatheGeometry([[0, 0.001], [0.022, 0.001], [0.025, 0.005], [0.024, 0.045], [0.026, 0.052], [0.023, 0.050], [0.021, 0.006], [0, 0.006]].map(([r, h]) => new THREE.Vector2(r, h)), 18).translate(cx, juY, cz));
+        glazed(new THREE.LatheGeometry([[0, 0.001], [0.022, 0.001], [0.025, 0.005], [0.024, 0.045], [0.026, 0.052], [0.023, 0.050], [0.021, 0.006], [0, 0.006]].map(([r, h]) => new THREE.Vector2(r, h)), 18).translate(cx, juY, cz));
         registerSupport(`bar-shelf-water-cup-${cx}`, "rest", { base: { x: cx, y: juY, z: cz, radius: 0.026 },
           surface: { shape: "rect", x0: -2.5, x1: -1, z0: BACK, z1: BACK + 0.24, y: juY } });
       }
