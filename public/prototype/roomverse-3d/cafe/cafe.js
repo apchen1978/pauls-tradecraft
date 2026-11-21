@@ -689,44 +689,37 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const streetW = 4.5, streetH = streetW / 1.5;
   const street = add("window-street-view", new THREE.PlaneGeometry(streetW, streetH), materials.street, X0 - 1.35, (WINDOW.y0 + WINDOW.y1) / 2 + 0.05, (WINDOW.z0 + WINDOW.z1) / 2, { cast: false, receive: false });
   street.rotation.y = Math.PI / 2; // faces +x, into the room
-  // Curtains (Paul 2026-11-21: a big street window with no curtains is not believable in sun, and at night it would be closed). Paul 2026-11-22: the flat pleated panels cut through the big plant's
-  // leaves, which real cloth never does, so the curtains are now GATHERED AND TIED BACK, as in Room 01: each panel is pulled into a fluted bundle hung on its own side of the window, cinched with a
-  // rope tie at 1.15 m, narrow at the tie and flaring a little to the floor and the rod. A bundle is a solid volume 13 to 25 cm wide and 8 to 16 cm deep, so nothing can pass through it, and it
-  // stands clear of the plant (z -1.30 to -1.10, beyond the window's left edge at -0.9; the plant's leaves end at about -1.11). `gathered` is shared with the front window below.
-  const gathered = (name, mapPos, { yTop, yBot, tieY, a0 = 0.095, b0 = 0.06, seed = 7 }) => {
-    const ROWS = 34, COLS = 32, FL = 8, positions = [], colors = [], indices = [], col = new THREE.Color();
-    let sd = seed; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647, ph = rnd() * 6;
-    const radius = (y) => { const tie = Math.exp(-Math.pow((y - tieY) / 0.2, 2)), hem = Math.pow(Math.max(0, 1 - (y - yBot) / Math.max(0.01, tieY - yBot)), 2) * (y < tieY ? 1 : 0), top = y > tieY ? Math.pow((y - tieY) / (yTop - tieY), 2) : 0; return { tie, k: (1 - 0.34 * tie) * (1 + 0.4 * hem + 0.18 * top) }; };
+  // Window coverings (Paul 2026-11-21: a big street window with no covering is not believable in sun, and at night it would be closed). Paul 2026-11-22: the curtain panels cut through the plant's leaves and
+  // hid the "Christ is the Head of this House" plaque, so there is no curtain, rod or cloth any more: both big windows carry a linen ROLLER BLIND, rolled up nearly to the head (it hangs 16 cm over
+  // the glass on the street window, 20 cm on the front window), with a rolled head tube on two black brackets, a smooth taut panel with a faint weave in the colour, a slim oak hem bar and a small
+  // pull cord. Flat, so it cannot cut through anything; the two windows share the build (`rollerBlind`).
+  const rollerBlind = (name, mapPos, { c0, c1, headY, hemY, wallGap }) => {
+    const W = c1 - c0, ROWS = 8, COLS = 28, pos = [], cols = [], idx = [], tint = new THREE.Color();
     for (let r = 0; r <= ROWS; r++) {
-      const y = yBot + (r / ROWS) * (yTop - yBot), { tie, k } = radius(y);
+      const y = headY - (r / ROWS) * (headY - hemY);
       for (let c = 0; c <= COLS; c++) {
-        const th = (c / COLS) * Math.PI * 2, flute = 1 + 0.2 * (1 - 0.45 * tie) * Math.sin(FL * th + ph + 0.8 * Math.sin(y * 2.9) + y * 1.1), A = a0 * k * flute, B = b0 * k * flute;
-        positions.push(...mapPos(Math.cos(th) * A, y, B + Math.sin(th) * B));
-        col.setRGB(1, 1, 1).multiplyScalar(0.86 + 0.14 * Math.min(1, Math.max(0, (flute - 0.78) / 0.44)) + 0.03 * Math.sin(y * 30 + c));
-        colors.push(col.r, col.g, col.b);
-        if (r && c) { const i = r * (COLS + 1) + c; indices.push(i, i - 1, i - COLS - 2, i, i - COLS - 2, i - COLS - 1); }
+        pos.push(...mapPos(c0 + (c / COLS) * W, y, wallGap));
+        tint.set(0xeae0ca).multiplyScalar(0.93 + 0.05 * Math.sin(c * 3.1) + 0.04 * Math.sin(r * 1.3 + c * 0.4));
+        cols.push(tint.r, tint.g, tint.b);
+        if (r && c) { const i = r * (COLS + 1) + c; idx.push(i, i - 1, i - COLS - 2, i, i - COLS - 2, i - COLS - 1); }
       }
     }
-    const fabric = new THREE.BufferGeometry(); fabric.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3)); fabric.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3)); fabric.setIndex(indices); fabric.computeVertexNormals();
-    // the rope tie: a ring round the cinch, 6 mm outside the cloth, in warm jute
-    const { k: kt } = radius(tieY), AT = a0 * kt * 0.86 + 0.006, BT = b0 * kt * 0.86 + 0.006, jute = new THREE.Color(0xb89b6a);
-    const ring = new THREE.CatmullRomCurve3(Array.from({ length: 24 }, (_, i) => { const th = (i / 24) * Math.PI * 2; return new THREE.Vector3(...mapPos(Math.cos(th) * AT, tieY, BT + Math.sin(th) * BT)); }), true);
-    const tie = new THREE.TubeGeometry(ring, 48, 0.011, 6, true), tc = new Float32Array(tie.attributes.position.count * 3);
-    for (let i = 0; i < tie.attributes.position.count; i++) jute.toArray(tc, i * 3);
-    tie.setAttribute("color", new THREE.Float32BufferAttribute(tc, 3)); tie.deleteAttribute("uv");
-    return { fabric, tie, name };
+    const panel = new THREE.BufferGeometry(); panel.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); panel.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); panel.setIndex(idx); panel.computeVertexNormals();
+    const tinted = (g, hex) => { const q = g.index ? g : g, c = new THREE.Color(hex), n = q.attributes.position.count, a2 = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(a2, i * 3); q.setAttribute("color", new THREE.Float32BufferAttribute(a2, 3)); q.deleteAttribute("uv"); return q; };
+    const tube = new THREE.CylinderGeometry(0.04, 0.04, W, 24).rotateX(Math.PI / 2), tp = tube.attributes.position;
+    for (let i = 0; i < tp.count; i++) { const q = mapPos(c0 + tp.getZ(i) + W / 2, headY + tp.getY(i), wallGap - 0.012 + tp.getX(i)); tp.setXYZ(i, ...q); }
+    const hem = new THREE.BoxGeometry(1, 1, 1), hp = hem.attributes.position;
+    for (let i = 0; i < hp.count; i++) { const q = mapPos(c0 + (hp.getZ(i) + 0.5) * W, hemY - 0.013 + hp.getY(i) * 0.026, wallGap + hp.getX(i) * 0.02); hp.setXYZ(i, ...q); }
+    const cord = new THREE.CylinderGeometry(0.003, 0.003, 0.34, 6), cp = cord.attributes.position;
+    for (let i = 0; i < cp.count; i++) { const q = mapPos(c0 + W - 0.06 + cp.getZ(i), hemY - 0.17 + cp.getY(i), wallGap + 0.016 + cp.getX(i)); cp.setXYZ(i, ...q); }
+    const tassel = new THREE.SphereGeometry(0.012, 8, 6), sp = tassel.attributes.position;
+    for (let i = 0; i < sp.count; i++) { const q = mapPos(c0 + W - 0.06 + sp.getZ(i), hemY - 0.35 + sp.getY(i) * 1.5, wallGap + 0.016 + sp.getX(i)); sp.setXYZ(i, ...q); }
+    add(name, mergeGeometries([panel, tinted(tube, 0xe0d3b8), tinted(hem, 0xb98a52), tinted(cord, 0xb89b6a), tinted(tassel, 0xb89b6a)], false), new THREE.MeshStandardMaterial({ vertexColors: true, color: 0xffffff, roughness: 0.92, side: THREE.DoubleSide }), 0, 0, 0, { cast: true, receive: true });
+    const brackets = [c0 + 0.04, c1 - 0.04].map((cc) => { const g = new THREE.BoxGeometry(0.05, 0.07, 0.016), gp = g.attributes.position; for (let i = 0; i < gp.count; i++) { const q = mapPos(cc + gp.getZ(i), headY + gp.getY(i), wallGap - 0.03 + gp.getX(i)); gp.setXYZ(i, ...q); } const t = g.toNonIndexed(); t.deleteAttribute("uv"); return t; });
+    add(`${name}-brackets`, mergeGeometries(brackets, false), new THREE.MeshStandardMaterial({ color: 0x24211d, roughness: 0.5, metalness: 0.4 }), 0, 0, 0, { cast: false, receive: true });
   };
-  {
-    const WALL = X0 + 0.015, TOP = 2.62, BOT = 0.02, TIE = 1.15, ZL = WINDOW.z0 - 0.4, ZR = WINDOW.z1 + 0.12;
-    const bundles = [gathered("left", (u, y, o) => [WALL + o, y, ZL + u], { yTop: TOP, yBot: BOT, tieY: TIE, seed: 5 }), gathered("right", (u, y, o) => [WALL + o, y, ZR + u], { yTop: TOP, yBot: BOT, tieY: TIE, seed: 9 })];
-    const fabricGeo = mergeGeometries(bundles.flatMap((bd) => [bd.fabric, bd.tie]), false);
-    const curtainMat = new THREE.MeshStandardMaterial({ vertexColors: true, color: 0xe7ddc8, roughness: 0.94, side: THREE.DoubleSide });
-    add("window-curtains", fabricGeo, curtainMat, 0, 0, 0, { cast: true, receive: true });
-    const rodZ0 = ZL - 0.2, rodZ1 = ZR + 0.2, rodY = TOP + 0.04, rod = [new THREE.CylinderGeometry(0.014, 0.014, rodZ1 - rodZ0, 14).rotateX(Math.PI / 2).translate(WALL + 0.06, rodY, (rodZ0 + rodZ1) / 2)];
-    for (const zz of [rodZ0, rodZ1]) rod.push(new THREE.SphereGeometry(0.03, 14, 10).translate(WALL + 0.06, rodY, zz));
-    for (const zz of [ZL, ZR]) rod.push(new THREE.BoxGeometry(0.06, 0.025, 0.05).translate(WALL + 0.03, rodY, zz)); // a bracket over each bundle
-    add("window-curtain-rod", mergeGeometries(rod.map((g) => { const q = g.index ? g.toNonIndexed() : g; q.deleteAttribute("uv"); return q; }), false), new THREE.MeshStandardMaterial({ color: 0x24211d, roughness: 0.5, metalness: 0.4 }), 0, 0, 0, { cast: false, receive: true });
-  }
+  // the street window (left wall, looking out along -x): across = z, the blind sits 5 mm off the wall plane
+  rollerBlind("window-roller-blind", (across, y, off) => [X0 + off, y, across], { c0: WINDOW.z0 - 0.06, c1: WINDOW.z1 + 0.06, headY: 2.62, hemY: WINDOW.y1 - 0.16, wallGap: 0.07 });
   // Skirting: 11 cm high and 2 cm thick on the side walls and the two exposed ends of the brick wall, merged into one mesh.
   const skirting = [], skirtH = 0.11, skirtT = 0.02;
   const addSkirt = (x0, x1, z0, z1) => skirting.push(new THREE.BoxGeometry(x1 - x0, skirtH, z1 - z0).translate((x0 + x1) / 2, skirtH / 2, (z0 + z1) / 2));
@@ -2200,17 +2193,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     frameBar(WIN.x0, WIN.x1, WIN.y0, WIN.y0 + bar); frameBar(WIN.x0, WIN.x1, WIN.y1 - bar, WIN.y1);
     for (const k of [1, 2]) { const x = WIN.x0 + (W * k) / 3; frameBar(x - bar / 2, x + bar / 2, WIN.y0, WIN.y1); const y = WIN.y0 + (H * k) / 3; frameBar(WIN.x0, WIN.x1, y - bar / 2, y + bar / 2); }
     part("pane", new THREE.PlaneGeometry(W, H).rotateY(Math.PI).translate((WIN.x0 + WIN.x1) / 2, (WIN.y0 + WIN.y1) / 2, zf), { tile: 1 });
-    // Paul 2026-11-22: the floor-to-ceiling window beside the door gets the same tied-back curtains: two gathered bundles, one just outside each edge of the glass (the right one 7 cm clear of the door
-    // leaf), hung from a black rod with wooden-ball finials 15 cm above the frame. Solid volumes 9 cm out from the wall, so they stand clear of everything and the street stays in view.
-    {
-      const WALLZ = FW - 0.015, XL = WIN.x0 - 0.1, XR = WIN.x1 - 0.12, TOPC = 2.62, rodY = TOPC + 0.04;
-      const bundles = [gathered("front-left", (u, y, o) => [XL + u, y, WALLZ - o], { yTop: TOPC, yBot: 0.02, tieY: 1.15, a0: 0.085, seed: 3 }), gathered("front-right", (u, y, o) => [XR + u, y, WALLZ - o], { yTop: TOPC, yBot: 0.02, tieY: 1.15, a0: 0.085, seed: 11 })];
-      add("front-window-curtains", mergeGeometries(bundles.flatMap((bd) => [bd.fabric, bd.tie]), false), new THREE.MeshStandardMaterial({ vertexColors: true, color: 0xe7ddc8, roughness: 0.94, side: THREE.DoubleSide }), 0, 0, 0, { cast: true, receive: true });
-      const rx0 = XL - 0.22, rx1 = XR + 0.22, rod = [new THREE.CylinderGeometry(0.014, 0.014, rx1 - rx0, 14).rotateZ(Math.PI / 2).translate((rx0 + rx1) / 2, rodY, WALLZ - 0.06)];
-      for (const xx of [rx0, rx1]) rod.push(new THREE.SphereGeometry(0.03, 14, 10).translate(xx, rodY, WALLZ - 0.06));
-      for (const xx of [XL, XR]) rod.push(new THREE.BoxGeometry(0.05, 0.025, 0.06).translate(xx, rodY, WALLZ - 0.03));
-      add("front-window-curtain-rod", mergeGeometries(rod.map((g) => { const q = g.index ? g.toNonIndexed() : g; q.deleteAttribute("uv"); return q; }), false), new THREE.MeshStandardMaterial({ color: 0x24211d, roughness: 0.5, metalness: 0.4 }), 0, 0, 0, { cast: false, receive: true });
-    }
+    // Paul 2026-11-22: the floor-to-ceiling window beside the door gets the same linen roller blind as the street window (rolled up, 20 cm over the glass), so the two windows match.
+    rollerBlind("front-window-roller-blind", (across, y, off) => [across, y, FW - off], { c0: WIN.x0 - 0.04, c1: WIN.x1 + 0.04, headY: 2.6, hemY: WIN.y1 - 0.2, wallGap: 0.07 });
     // Door: a steel-framed glass leaf with a push-pull bar, a kick plate, and a glazed transom above.
     const stile = 0.07, dz = FW + 0.09;
     const doorBar = (x0, x1, y0, y1) => slab("frame", [x0, x1], [y0, y1], [dz - 0.03, dz + 0.03], { tile: 1 });
@@ -2690,14 +2674,22 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       [0.703, 0.592, 0.112, 0.558, 0.012, 0xe5e8df],
     ].forEach(([dz, w, h, d, sag, tone]) => addCushion(w, h, d, bx - 0.025, 0.412, bz + dz, sag, tone));
     part("loungeSeat", colorize(roundedBox(0.113, 0.37, 2.15, 0.045, 0.0225, 4).translate(bx + 0.145, 0.657, bz), 0xf7f2ed));
-    // Paul 2026-11-22 (the lounge needs finer detail): vertical channel stitching on the banquette back, a seam every 20 cm with two deep-set buttons on each, the way a tailored bench is upholstered.
-    // The seams sit 1 mm proud of the cloth, the buttons are flattened domes; all in the existing detail batch.
-    for (let k = 0; k <= 10; k++) {
-      const sz = bz - 1.0 + k * 0.2, fx = bx + 0.0885;
-      detail(new THREE.BoxGeometry(0.004, 0.31, 0.0045).translate(fx - 0.0005, 0.657, sz), 0x3a140f);
-      for (const by of [0.585, 0.735]) detail(new THREE.SphereGeometry(0.0085, 10, 6).scale(0.45, 1, 1).translate(fx - 0.002, by, sz), 0x2a0f0b);
-    }
-
+    // Paul 2026-11-22 (the first stitching read as lines drawn on): real upholstery detail. A channel seam is a SUNKEN GROOVE (a dark tonal tube, 4.4 mm) crossed by a ladder of hand stitches in warm
+    // wool yarn (a thread bar every 11 mm, each a rounded 2.6 mm cylinder lying across the groove, alternately a hair higher so the row looks twisted), a covered button at each pull with a
+    // pleated ring round it, and a double top-stitch row on each side of the seam. Yarn is a light tan against the burgundy, never pure black. Defined once, reused by the armchair.
+    const yarn = (g, hex) => detail(g, hex);
+    const seamUp = (map, x, z, y0, y1, thread, groove, { buttons = [], button = 0x6a2a20, ring = 0x7d3a2c } = {}) => {
+      yarn(map(new THREE.CylinderGeometry(0.0022, 0.0022, y1 - y0, 6).translate(x - 0.0004, (y0 + y1) / 2, z)), groove);
+      for (let y = y0 + 0.008; y < y1 - 0.012; y += 0.022) for (const side of [-1, 1]) yarn(map(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0145, 5, 1, true).translate(x - 0.0014, y + (side > 0 ? 0.011 : 0), z + side * 0.0085)), thread); // two rows of running stitches, offset by half a stitch
+      for (const by of buttons) {
+        yarn(map(new THREE.SphereGeometry(0.0095, 12, 8).scale(0.4, 1, 1).translate(x - 0.0022, by, z)), button);
+        yarn(map(new THREE.TorusGeometry(0.0105, 0.0014, 5, 14).rotateY(Math.PI / 2).translate(x - 0.0026, by, z)), ring);
+        for (let q = 0; q < 4; q++) { const ang = (q * Math.PI) / 4; yarn(map(new THREE.BoxGeometry(0.0012, 0.0012, 0.017).rotateX(ang).translate(x - 0.0036, by, z)), ring); } // pleat creases
+      }
+    };
+    for (let k = 0; k <= 10; k++) seamUp((g) => g, bx + 0.0885, bz - 1.0 + k * 0.2, 0.5, 0.812, 0xc9a27a, 0x35100c, { buttons: [0.585, 0.735] });
+    // the padded channels themselves (this is what keeps it from looking drawn on): each panel between two seams bulges 1.1 cm out of the back in the same cloth, so the seams really sit in grooves
+    for (let k = 0; k < 10; k++) part("loungeSeat", colorize(new THREE.SphereGeometry(1, 20, 12).scale(0.011, 0.158, 0.094).translate(bx + 0.0885, 0.657, bz - 1.0 + (k + 0.5) * 0.2), 0xf7f2ed));
     // Two bulging cloth faces meet at the welt. The lower edge sits on the seat.
     for (const [dz, tilt] of [[-0.69, 0.10], [-0.02, -0.12], [0.68, 0.15]]) {
       const at = (g) => g.rotateZ(tilt).rotateY(-Math.PI / 2).translate(bx + 0.012, 0.62, bz + dz);
@@ -2775,17 +2767,31 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     chairPart("loungeChair", cushionGeometry(0.615, 0.105, 0.55, 0.009).translate(0, 0.377, 0.026));
     detail(cushionWeltGeometry(0.615, 0.55, 0.381, ax, az - 0.026, 0.0045), LOOK_GROUPS.lounge[DEFAULT_LOOK.lounge][0]);
     chairPart("loungeChair", roundedBox(0.615, 0.43, 0.118, 0.061, 0.035).rotateX(-0.12).translate(0, 0.574, -0.264));
-    // Paul 2026-11-22 (finer lounge detail): the armchair is stitched like the bench: a centre crease down the seat cushion, a row of top-stitching along its front edge, and four vertical channel
-    // seams on the back with a button on each (built in the chair's own frame, so they turn with it). All in the Lounge detail batch.
+    // Paul 2026-11-22 (finer lounge detail, redone): the armchair uses the bench's real upholstery detail in its own petrol colours with a cream wool yarn: four buttoned channel seams on the back
+    // front, three plain ones on the REAR of the back (so it looks finished from behind), a centre crease with a ladder stitch down the seat and a double stitch row along the seat's front edge.
     {
-      const seam = 0x0d2321, front = 0.026 + 0.275;
-      chairPart("loungeDetail", colorize(new THREE.BoxGeometry(0.0035, 0.0016, 0.5).translate(0, 0.4305, 0.026), seam));
-      for (let k = -5; k <= 5; k++) chairPart("loungeDetail", colorize(new THREE.BoxGeometry(0.012, 0.0014, 0.0032).translate(k * 0.052, 0.3935, front - 0.001), seam)); // the front top-stitching
-      for (const sx of [-0.19, -0.075, 0.075, 0.19]) {
-        const face = (g) => g.rotateX(-0.12).translate(0, 0.574, -0.264);
-        chairPart("loungeDetail", colorize(face(new THREE.BoxGeometry(0.0035, 0.3, 0.003).translate(sx, 0, 0.0595)), seam));
-        for (const by of [-0.075, 0.075]) chairPart("loungeDetail", colorize(face(new THREE.SphereGeometry(0.0085, 10, 6).scale(1, 1, 0.45).translate(sx, by, 0.0605)), 0x081716));
-      }
+      const groove = 0x0f2321, thread = 0xb9b49c, tilt = (g) => g.rotateX(-0.12).translate(0, 0.574, -0.264);
+      const place2 = (g) => { chairPart("loungeDetail", colorize(g, g.userData.hex)); };
+      const yarnC = (g, hex) => { g.userData.hex = hex; place2(g); };
+      const seamBack = (sx, z, dir, buttons) => { // a vertical seam in the back's own tilted frame; dir +1 front face, -1 rear face
+        const y0 = -0.15, y1 = 0.15;
+        yarnC(tilt(new THREE.CylinderGeometry(0.0022, 0.0022, y1 - y0, 6).translate(sx, 0, z + dir * 0.0004)), groove);
+        for (let y = y0 + 0.008; y < y1 - 0.012; y += 0.022) for (const side of [-1, 1]) yarnC(tilt(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0145, 5, 1, true).translate(sx + side * 0.0085, y + (side > 0 ? 0.011 : 0), z + dir * 0.0014)), thread);
+        for (const by of buttons) {
+          yarnC(tilt(new THREE.SphereGeometry(0.0095, 12, 8).scale(1, 1, 0.4).translate(sx, by, z + dir * 0.0022)), 0x24504b);
+          yarnC(tilt(new THREE.TorusGeometry(0.0105, 0.0014, 5, 14).translate(sx, by, z + dir * 0.0026)), 0x3a6862);
+        }
+      };
+      for (const sx of [-0.2, -0.1, 0, 0.1, 0.2]) seamBack(sx, 0.0595, 1, [-0.075, 0.075]);
+      for (const sx of [-0.15, 0, 0.15]) seamBack(sx, -0.0595, -1, []);
+      // padded channels, as on the bench: each panel bulges about 1 cm out of the back in the chair's own cloth
+      for (const cx of [-0.15, -0.05, 0.05, 0.15]) chairPart("loungeChair", tilt(new THREE.SphereGeometry(1, 20, 12).scale(0.046, 0.16, 0.0095).translate(cx, 0, 0.0595)));
+      for (const cx of [-0.075, 0.075]) chairPart("loungeChair", tilt(new THREE.SphereGeometry(1, 20, 12).scale(0.07, 0.16, 0.0095).translate(cx, 0, -0.0595)));
+      // seat: a sunken centre crease with a ladder stitch (bars across it), kept to the flat middle of the cushion
+      yarnC(new THREE.CylinderGeometry(0.0022, 0.0022, 0.36, 6).rotateX(Math.PI / 2).translate(0, 0.4283, 0.04), groove);
+      for (let z = -0.13; z < 0.21; z += 0.022) for (const side of [-1, 1]) yarnC(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0145, 5, 1, true).rotateX(Math.PI / 2).translate(side * 0.0085, 0.4292, z + 0.026 + (side > 0 ? 0.011 : 0)), thread);
+      // front edge: a double running stitch (two rows, offset by half a stitch), 2.6 mm yarn, following the front face of the cushion
+      for (const [row, yy] of [[0, 0.4], [1, 0.388]]) for (let x = -0.23; x < 0.23; x += 0.0145) yarnC(new THREE.CylinderGeometry(0.0013, 0.0013, 0.0085, 5, 1, true).rotateZ(Math.PI / 2).translate(x + row * 0.007, yy, 0.026 + 0.2755 + 0.0004), thread);
     }
     addContactShadow(bx + 0.02, bz, 0.72, 2.26, 0.0135);
     addContactShadow(ax, az, 0.74, 0.72, 0.0135);
