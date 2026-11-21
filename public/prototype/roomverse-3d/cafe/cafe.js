@@ -1800,20 +1800,21 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
   }
 
-  // Paul 2026-11-22: the small things the other rooms share also belong on this table, recoloured to Room 04's palette —
-  // a closed two-book stack and a small milk jug, so the window seat reads like a used café table and not a still life.
-  // Both use material buckets the room already batches (terracotta, cover, paper, ceramic), so no draw call is added.
+  // Paul 2026-11-22: the small things the other rooms share also belong here, recoloured to Room 04's palette. A closed
+  // two-book stack sits on the window sill (where a café leaves its magazines, and the sill stays clear of the table's
+  // still life), and a small milk jug stands beside the cup. Both ride in buckets the room already batches (terracotta,
+  // cover, paper, ceramic), so no draw call and no mesh is added.
   {
-    const sx = tx(0.14), sz = tz(0.13), yaw = -0.42;
+    const sillX = X0 - 0.02, sillZ = 0.95, sillTop = WINDOW.y0 + 0.005, sillYaw = Math.PI / 2 + 0.06;
     const closedBook = (key, w, h, d, y, turn) => {
-      const at = (geometry, k) => part(k, place(geometry, sx, sz, yaw + turn, y));
+      const at = (geometry, k) => part(k, place(geometry, sillX, sillZ, sillYaw + turn, y));
       at(new THREE.BoxGeometry(w, h, d).translate(0, h / 2, 0), key);
       // the page block stands 1 mm proud of the cover at the fore edge, so a closed book still reads as paper
       at(new THREE.BoxGeometry(w - 0.007, h - 0.004, d + 0.002).translate(0, h / 2 - 0.0005, 0.001), "paper");
     };
-    closedBook("terracotta", 0.19, 0.026, 0.13, tableTop, 0);
-    closedBook("cover", 0.17, 0.021, 0.12, tableTop + 0.026, 0.16);
-    registerSupport("window-table-books", "rest", { base: { x: sx, y: tableTop, z: sz, radius: 0.10 }, surface: { shape: "circle", x: SEAT.x, z: SEAT.z, radius: 0.3, y: tableTop } });
+    closedBook("terracotta", 0.19, 0.026, 0.13, sillTop, 0);
+    closedBook("cover", 0.17, 0.021, 0.12, sillTop + 0.026, 0.16);
+    registerSupport("window-sill-books", "rest", { base: { x: sillX, y: sillTop, z: sillZ, radius: 0.07 }, surface: { shape: "rect", x0: X0 - 0.11, x1: X0 + 0.07, z0: WINDOW.z0 - 0.06, z1: WINDOW.z1 + 0.06, y: sillTop } });
     // A 55 mm milk jug beside the cup: a turned ceramic body with a small loop handle.
     const jx = tx(0.19), jz = tz(-0.10);
     const jugProfile = [[0, 0.001], [0.024, 0.001], [0.027, 0.005], [0.023, 0.013], [0.020, 0.044], [0.024, 0.051], [0.021, 0.055], [0.017, 0.052], [0.016, 0.045], [0.018, 0.015], [0.021, 0.007], [0, 0.004]];
