@@ -24,9 +24,9 @@ test("the oven, mitts, and sink read as fitted kitchen fixtures with stable clea
     expect(info.wokOven.lowerClearanceMm).toBeGreaterThanOrEqual(20);
     expect(info.wokOven.upperClearanceMm).toBeGreaterThanOrEqual(50);
     expect(info.wokOven.rearClearanceMm).toBeGreaterThanOrEqual(0);
-    expect(info.wokOven.controls).toBe(2);
+    expect(info.wokOven.controls, "no knobs, only the touch timer panel").toBe(0);
     expect(info.wokOven.display).toContain("timer panel");
-    expect(info.wokOven.handle).toContain("centered horizontal brushed brass pull");
+    expect(info.wokOven.handle).toContain("centered horizontal brushed stainless bar pull");
     expect(info.wokOven.cabinetPulls).toContain("oven-facing inner door edges");
     expect(info.wokOven.cabinetPullOffsetFromOvenMm).toBeGreaterThanOrEqual(40);
     expect(info.wokOven.cabinetPullOffsetFromOvenMm).toBeLessThanOrEqual(65);
