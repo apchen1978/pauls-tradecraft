@@ -6505,6 +6505,7 @@ function buildRoom03CounterFresh(scene) {
     pan(new THREE.BoxGeometry(0.004, bread.height, bread.width), 0x4a4d50, s * (bread.length / 2 - 0.002), bread.height / 2, 0, [0, 0, -s * 0.06]);
     pan(new THREE.BoxGeometry(bread.length + 0.018, 0.003, 0.012), 0x686b6e, 0, bread.height, s * (bread.width / 2 + 0.001));
     pan(new THREE.BoxGeometry(0.012, 0.003, bread.width + 0.018), 0x686b6e, s * (bread.length / 2 + 0.002), bread.height, 0);
+    pan(new THREE.BoxGeometry(bread.length + 0.03, 0.0012, 0.028), 0xeadfc6, 0, bread.height + 0.0035, s * (bread.width / 2 + 0.009), [s * 0.95, 0, 0]); // baking parchment still hangs over the long edges
   }
   // the loaf: a flattened dome rising 3 cm over the rim, a long crack along its crest with raised lips and a pale crumb inside; the crust is golden with darker patches
   const dome = new THREE.SphereGeometry(1, 36, 16, 0, Math.PI * 2, 0, Math.PI / 2), dp = dome.attributes.position, domeColors = new Float32Array(dp.count * 3);
