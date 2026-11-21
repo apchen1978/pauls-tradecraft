@@ -24,9 +24,9 @@ test("a sourdough board and a bowl of fruit stand on the kitchen counter, inside
     expect(fresh.bounds.max[2], "inside the counter depth (front edge z -1.65)").toBeLessThanOrEqual(-1.7);
     expect(fresh.bounds.max[2], "the cut slice and the lemon half lie in front of the board").toBeGreaterThanOrEqual(-1.8);
     expect(fresh.vertices, "board, loaf, slice, crumbs, lemon half, bowl and fruit").toBeGreaterThan(2400);
-    expect(fresh.bread.dimensionsMm, "a low oval loaf rather than a spherical egg shape").toEqual([220, 120, 66]);
+    expect(fresh.bread.dimensionsMm, "a loaf pan with a domed quick bread").toEqual([253, 123, 98]);
     expect(fresh.bread.boardEmbedMm, "the loaf sits into the board").toBe(2);
-    expect(fresh.bread.style).toContain("country sourdough");
+    expect(fresh.bread.style).toContain("quick-bread loaf");
     expect(info.coffeeMaker.style).toBe("grind-and-brew drip");
     expect(info.coffeeMaker.hopperLid).toBe("closed");
     expect(info.coffeeMaker.beansVisible).toBeGreaterThanOrEqual(150);
