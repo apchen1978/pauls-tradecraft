@@ -1800,6 +1800,28 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
   }
 
+  // Paul 2026-11-22: the small things the other rooms share also belong on this table, recoloured to Room 04's palette —
+  // a closed two-book stack and a small milk jug, so the window seat reads like a used café table and not a still life.
+  // Both use material buckets the room already batches (terracotta, cover, paper, ceramic), so no draw call is added.
+  {
+    const sx = tx(0.14), sz = tz(0.13), yaw = -0.42;
+    const closedBook = (key, w, h, d, y, turn) => {
+      const at = (geometry, k) => part(k, place(geometry, sx, sz, yaw + turn, y));
+      at(new THREE.BoxGeometry(w, h, d).translate(0, h / 2, 0), key);
+      // the page block stands 1 mm proud of the cover at the fore edge, so a closed book still reads as paper
+      at(new THREE.BoxGeometry(w - 0.007, h - 0.004, d + 0.002).translate(0, h / 2 - 0.0005, 0.001), "paper");
+    };
+    closedBook("terracotta", 0.19, 0.026, 0.13, tableTop, 0);
+    closedBook("cover", 0.17, 0.021, 0.12, tableTop + 0.026, 0.16);
+    registerSupport("window-table-books", "rest", { base: { x: sx, y: tableTop, z: sz, radius: 0.10 }, surface: { shape: "circle", x: SEAT.x, z: SEAT.z, radius: 0.3, y: tableTop } });
+    // A 55 mm milk jug beside the cup: a turned ceramic body with a small loop handle.
+    const jx = tx(0.19), jz = tz(-0.10);
+    const jugProfile = [[0, 0.001], [0.024, 0.001], [0.027, 0.005], [0.023, 0.013], [0.020, 0.044], [0.024, 0.051], [0.021, 0.055], [0.017, 0.052], [0.016, 0.045], [0.018, 0.015], [0.021, 0.007], [0, 0.004]];
+    part("ceramic", new THREE.LatheGeometry(jugProfile.map(([r, h]) => new THREE.Vector2(r, h)), 20).translate(jx, tableTop, jz), { tile: 1 });
+    part("ceramic", new THREE.TorusGeometry(0.0105, 0.0021, 6, 12).rotateY(Math.PI / 2).translate(0.025, 0.031, 0).translate(jx, tableTop, jz), { tile: 1 });
+    registerSupport("window-table-milk-jug", "rest", { base: { x: jx, y: tableTop, z: jz, radius: 0.03 }, surface: { shape: "circle", x: SEAT.x, z: SEAT.z, radius: 0.3, y: tableTop } });
+  }
+
   // Floor plants: Room 01's image-to-3D plant (models/plant.glb, also in Room 02), big leaves on a pot, loaded once and cloned. One stands between the counter end and the
   // window, one in the lounge corner. (Paul, 2026-11-14: the old hand-built plant was not solid enough.) The shadow map is cached, so a loaded plant asks for a redraw.
   const plantSource = loadModel("plant", { height: 1 }).catch(() => null);
