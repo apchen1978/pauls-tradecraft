@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 229534, meshes: 129 }),
+  scene: Object.freeze({ vertices: 239544, meshes: 129 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 70, phone: 64 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -122,5 +122,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "pastry case (Paul): Room 03's golden quick-bread loaf with a split top lies in the back strip of the upper glass shelf with two cut slices in the front strip (the croissant batch; nothing moved, no new mesh)", vertices: 219064, meshes: 127, desktopCalls: 68, phoneCalls: 62 },
     { date: "2026-11-22", change: "lounge detail (Paul): channel stitching with buttons on the banquette back, a ten-by-seven smooth plant leaf with a creased midrib and veins in the colour (the 154 instances share it), a foot ring on the corner plant pot; and the curtains (Paul): the street window's flat pleated panels, which cut through the plant's leaves, become gathered tie-back bundles with jute ties clear of the plant, and the floor-to-ceiling window beside the door gets the same pair (two more meshes, +5.5k vertices)", vertices: 226802, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "lounge detail, second pass (Paul): the armchair gets a centre crease, front top-stitching and four buttoned channel seams on its back; each pouf gets a deep-set button with a pull ring; a bud vase with three ranunculus on the marble table and a stoneware sugar pot on the dark table. The vertex cap rises from 230,000 to 250,000 (Paul: vertex count no longer limits polish; the cap stays a smoothness guard)", vertices: 229534, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
+    { date: "2026-11-22", change: "window coverings (Paul): the curtain bundles, rods and cloth are gone (they hid the plaque and crowded the plant); both big windows get a linen roller blind rolled up near the head, with a head tube, oak hem bar, pull cord and brackets (two meshes each, replacing the curtain and rod meshes)", vertices: 221254, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
+    { date: "2026-11-22", change: "stitching redone (Paul: it looked drawn on): padded channels that really bulge 1 cm out of the bench back and the armchair back (front and rear), sunken tonal grooves with two rows of running yarn stitches, covered buttons with pleat rings, a centre crease and front stitch rows on the armchair seat (+18k vertices)", vertices: 239544, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
   ]),
 });
