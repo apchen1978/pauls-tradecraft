@@ -5,6 +5,7 @@
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
 import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 import { loadModel, loadGlb } from "./models.js?v=5";
+import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
 import { createRoomRecord } from "./sound.js?v=auto"; // the record by the window plays one piece (Brooklyn Windowsill)
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
@@ -533,7 +534,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const story = storyAt();
     if (story === "vinyl-corner") { // the record corner: a tap starts side A, the next tap flips to side B, the third stops it
       const now = recordMusic.next(); if (now >= 0) vinylFound = true; deckSync();
-      showPropStory(now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
+      showPropStory(now === 2 ? "vinyl-music-night" : now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
       return;
     }
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
@@ -546,6 +547,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
     "vinyl-music": { zh: "♪ A 面：布魯克林窗台。🎹 鋼琴和老派節拍。再點一下翻到 B 面。", en: "♪ Side A: Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to flip to side B." },
+    "vinyl-music-night": { zh: "♪ 追劇夜。🎻 低音鋼琴、顫音弦樂和銅管慢慢堆高，像一部電影的片頭。再點一下就停。", en: "♪ Series Night. 🎻 Low piano, tremolo strings and brass build like a film's opening titles. Tap again to stop." },
     "vinyl-music-b": { zh: "♪ B 面：防火梯的雨。🎹 慢一點的深夜鋼琴，窗外下著雨。再點一下就停。", en: "♪ Side B: Fire Escape Rain. 🎹 A slower late-night piano, rain at the window. Tap again to stop." },
     "hint-vinyl": { zh: "點一下發光圈裡的唱片機，有音樂喔 🎵", en: "Tap the record player in the glowing ring for some music 🎵" },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
@@ -559,7 +561,21 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   storyCaption.id = "propStory"; storyCaption.setAttribute("role", "status"); storyCaption.setAttribute("aria-live", "polite");
   Object.assign(storyCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(storyCaption);
-  const recordMusic = createRoomRecord(); // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped)
+  // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped). Paul 2026-11-22: in the series-night mood the tap plays the epic orchestral piece instead
+  // (shared with Room 01): stopped -> epic -> stopped (returns 2 while it plays); in every other mood the record walks side A, side B, stopped as before.
+  const recordMusic = (() => {
+    const base = createRoomRecord(), epic = createNightMusic(); let epicOn = false;
+    return {
+      start: (w) => base.start(w),
+      stop() { base.stop(); epic.stop(); epicOn = false; },
+      next() {
+        if (epicOn) { epic.stop(); epicOn = false; return -1; }
+        if (mood === "series" && !base.state().playing) { epicOn = epic.start(0, { playlist: true }); return epicOn ? 2 : -1; }
+        return base.next();
+      },
+      state() { if (epicOn) { const e = epic.state(); return { ...e, side: 2, title: "追劇夜", titleEn: "Series Night", epic: true }; } return base.state(); },
+    };
+  })();
   let storyTimer = 0, storyKey = null, vinylFound = false, vinylHintAt = -1e9, vinylRing = null; const vinylReadyAt = performance.now(); // vinylFound: the visitor has started the music, so the hints stop
   function showPropStory(key) {
     const story = PROP_STORIES[key]; if (!story) return;
