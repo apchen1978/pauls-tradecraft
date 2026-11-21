@@ -453,9 +453,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   // (so mipmaps do not bleed between them); its plane's UVs are mapped into that rectangle.
   const decorCanvas = document.createElement("canvas"); decorCanvas.width = decorCanvas.height = 1024;
   const decorContext = decorCanvas.getContext("2d"), decorPieces = [];
-  const DECOR_RECTS = Object.freeze({ poster: [0, 0, 480, 640], certificate: [512, 0, 504, 364], magazines: [0, 672, 768, 340] });
+  const DECOR_RECTS = Object.freeze({ poster: [0, 0, 480, 640], certificate: [512, 0, 504, 364], magazines: [0, 672, 768, 340], wifi: [520, 380, 480, 250] });
   const decorPlace = (key, source, geometry) => { // geometry's UVs run 0..1 over the whole picture (v up, as a plane's are)
     const [rx, ry, rw, rh] = DECOR_RECTS[key]; decorContext.drawImage(source, rx, ry, rw, rh);
+    const uv = geometry.attributes.uv;
+    for (let k = 0; k < uv.count; k++) uv.setXY(k, (rx + uv.getX(k) * rw) / 1024, 1 - (ry + (1 - uv.getY(k)) * rh) / 1024);
+    decorPieces.push(geometry);
+  };
+  // The same shared canvas, painted instead of copied: used by the counter card, which has no source image of its own.
+  const decorDraw = (key, draw, geometry) => {
+    const [rx, ry, rw, rh] = DECOR_RECTS[key];
+    decorContext.save(); decorContext.beginPath(); decorContext.rect(rx, ry, rw, rh); decorContext.clip();
+    draw(decorContext, rx, ry, rw, rh); decorContext.restore();
     const uv = geometry.attributes.uv;
     for (let k = 0; k < uv.count; k++) uv.setXY(k, (rx + uv.getX(k) * rw) / 1024, 1 - (ry + (1 - uv.getY(k)) * rh) / 1024);
     decorPieces.push(geometry);
@@ -2079,6 +2088,48 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     const STAND_Z = posZ - 0.03;
     // Paul 2026-11-18: the black dome-like base and the pole read like a plunger. The base is now a slim, flat 8 mm disc, and the base, pole, hinge ball and back plate
     // are a light brushed champagne metal, like a retail tablet stand. The tablet and the pad are unchanged.
+    // Paul 2026-11-22, bar-area pass: three things a working counter has. A glass water carafe with its tumbler, a small
+    // brass service bell, and a WiFi card leaning at the front edge (WIFI / SH-CAFE-5G / mima shanghai2026) painted into
+    // the shared decor canvas, so the card needs no texture of its own. Every piece rest on the stone with a registered
+    // support, and all of them ride in buckets the room already batches (glass, water, gold, paper).
+    {
+      const cfX = 0.63, cfZ = c.z1 - 0.15;
+      const carafe = [[0, 0.004], [0.030, 0.004], [0.033, 0.010], [0.030, 0.060], [0.024, 0.105], [0.019, 0.135], [0.021, 0.150], [0.019, 0.158], [0.016, 0.150], [0.014, 0.135], [0.019, 0.100], [0.023, 0.058], [0.026, 0.012], [0, 0.008]];
+      part("glass", new THREE.LatheGeometry(carafe.map(([r, h]) => new THREE.Vector2(r, h)), 22).translate(cfX, top, cfZ), { tile: 1 });
+      part("water", new THREE.CylinderGeometry(0.0245, 0.0225, 0.085, 18).translate(cfX, top + 0.052, cfZ), { tile: 1 });
+      registerSupport("bar-water-carafe", "rest", { base: { x: cfX, y: top, z: cfZ, radius: 0.034 },
+        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
+      const glX = 0.72, glZ = c.z1 - 0.09;
+      const tumbler = [[0, 0.001], [0.024, 0.001], [0.026, 0.004], [0.023, 0.052], [0.021, 0.058], [0.0195, 0.052], [0.0205, 0.006], [0, 0.005]];
+      part("glass", new THREE.LatheGeometry(tumbler.map(([r, h]) => new THREE.Vector2(r, h)), 20).translate(glX, top, glZ), { tile: 1 });
+      registerSupport("bar-water-tumbler", "rest", { base: { x: glX, y: top, z: glZ, radius: 0.027 },
+        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
+      const bX = 0.41, bZ = c.z1 - 0.13;
+      part("gold", new THREE.CylinderGeometry(0.030, 0.032, 0.004, 20).translate(bX, top + 0.002, bZ), { tile: 1 });
+      const bellDome = new THREE.SphereGeometry(0.026, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); bellDome.scale(1, 0.72, 1);
+      part("gold", bellDome.translate(bX, top + 0.004, bZ), { tile: 1 });
+      part("gold", new THREE.CylinderGeometry(0.004, 0.005, 0.009, 10).translate(bX, top + 0.026, bZ), { tile: 1 });
+      registerSupport("bar-service-bell", "rest", { base: { x: bX, y: top, z: bZ, radius: 0.032 },
+        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
+      const wx = 0.50, wz = c.z1 - 0.05, lean = 0.21, cardW = 0.09, cardH = 0.045;
+      const cardY = top + (cardH / 2) * Math.cos(lean) + 0.0016, cardZ = wz + (cardH / 2) * Math.sin(lean);
+      const face = new THREE.PlaneGeometry(cardW, cardH).rotateX(-lean).translate(wx, cardY, cardZ);
+      decorDraw("wifi", (g, rx, ry, rw, rh) => {
+        g.fillStyle = "#f7f1e6"; g.fillRect(rx, ry, rw, rh);
+        g.fillStyle = "#14284b"; g.fillRect(rx, ry, rw, rh * 0.30);
+        g.textBaseline = "middle";
+        g.fillStyle = "#d6ae5a"; g.font = `600 ${Math.round(rh * 0.19)}px ui-sans-serif, system-ui, sans-serif`;
+        g.fillText("WIFI", rx + rw * 0.06, ry + rh * 0.15);
+        g.fillStyle = "#363b44"; g.font = `600 ${Math.round(rh * 0.15)}px ui-sans-serif, system-ui, sans-serif`;
+        g.fillText("SH-CAFE-5G", rx + rw * 0.06, ry + rh * 0.49);
+        g.fillStyle = "#b3402f"; g.font = `500 ${Math.round(rh * 0.125)}px ui-sans-serif, system-ui, sans-serif`;
+        g.fillText("mima shanghai2026", rx + rw * 0.06, ry + rh * 0.75);
+      }, face);
+      part("paper", new THREE.BoxGeometry(cardW, cardH, 0.0016).rotateX(-lean).translate(wx, cardY, cardZ - 0.0012), { tile: 1 });
+      registerSupport("wifi-card-on-counter", "rest", { base: { x: wx, y: top, z: wz, radius: 0.05 },
+        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
+    }
+
     registerSupport("checkout-on-counter", "rest", { base: { x: POS_X, y: top, z: STAND_Z, radius: 0.076 },
       surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
     part("champagne", new THREE.CylinderGeometry(0.073, 0.076, 0.008, 40).translate(POS_X, top + 0.004, STAND_Z), { tile: 1 }); // on the stone at 0 mm, top at +8 mm
