@@ -4,6 +4,7 @@ import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { loadModel } from "../bedroom/models.js?v=auto";
 import { auditRoom04 } from "./physics-audit.js?v=auto";
+import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
 import { createRoomSound } from "./sound.js?v=auto";
 import { createTrackPlayer } from "../media-player.js?v=auto";
 
@@ -1545,7 +1546,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const ARM_REST = 0.28, ARM_PLAY = 3.45;
   const setArm = (value) => { armPivot.rotation.y = value; };
   const recordTrackListeners = [], recordStateListeners = [];
-  const roomSound = createRoomSound(), rainBed = createRoomSound();
+  const roomSound = createRoomSound(), rainBed = createRoomSound(), epicNight = createNightMusic();
+  let epicOn = false; // series night: the record plays the epic orchestral piece (its own synthesis, like the synth fallback) instead of the record files
   const titles = roomSound.tracks();
   let recordTrack = -1, usingSynth = false;
   function announceRecord(index) {
@@ -1619,13 +1621,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
   }
   const stopRecordPlayback = () => {
-    if (!recordPlaying && player.state().index < 0) return false;
-    roomSound.stop(); usingSynth = false; player.stop();
+    if (!recordPlaying && player.state().index < 0 && !epicOn) return false;
+    roomSound.stop(); epicNight.stop(); epicOn = false; usingSynth = false; player.stop();
     return true;
   };
   const playRecord = () => {
     const media = player.state();
     if (recordPlaying || media.pending) return false;
+    if (currentMood === "series") { player.stop(); roomSound.stop(); epicOn = epicNight.start(0, { playlist: true }); usingSynth = epicOn; if (epicOn) { recordTrack = 2; syncRecordPlayback(true); announceRecord(2); } return epicOn; } // series night: the epic piece (the Night on the Bund cover stands in for it)
     if (media.index >= 0) player.play();
     else {
       recordTrack = recordTrack < 0 && ["closing", "series"].includes(currentMood) ? 2 : (recordTrack + 1) % titles.length;
@@ -1634,6 +1637,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     return true;
   };
   function soundState() {
+    if (epicOn) return { ...epicNight.state(), title: "追劇夜", titleEn: "Series Night", track: 2, epic: true, backend: "synth" };
     if (usingSynth) return { ...roomSound.state(), backend: "synth" };
     const { index, playing, pending, currentTime } = player.state();
     const track = Math.max(0, index >= 0 ? index : recordTrack);

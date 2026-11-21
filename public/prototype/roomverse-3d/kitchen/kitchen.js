@@ -4,6 +4,7 @@ import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
 import { createRoomRecord } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
+import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: movie night plays the epic orchestral piece of Room 01
 import { createRoomSound } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
 import { createBayRecord, BAY_BARS } from "./sound.js?v=auto"; // Room 03's own piece "灣區午後", played first
 
@@ -7145,22 +7146,22 @@ export async function start({ stage, onReady = () => {} }) {
   // The record player (Paul, 2026-11-18): Room 03's own piece "灣區午後" plays first, then Room 02's "布魯克林窗台" and Room 04's "午後弄堂", each once through, round and round
   // like Room 04's playlist, until the next tap stops it. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before. After the first tap the
   // next piece starts from a timer, which browsers allow once the page has made sound.
-  const recordBay = createBayRecord(), recordA = createRoomRecord(), recordB = createRoomSound();
+  const recordBay = createBayRecord(), recordA = createRoomRecord(), recordB = createRoomSound(), recordEpic = createNightMusic();
   // [engine, bars to play once through, how to start it]. 午後弄堂 is about 5 dB softer than the others (measured), so it plays 1.4x louder here (+3 dB), as before.
-  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, 16, () => recordA.start(0)], [recordB, 12, () => recordB.start(1, false, { playlist: false, level: 1.4 })]];
-  let recordSide = -1; // -1 stopped, 0 灣區午後, 1 布魯克林窗台, 2 午後弄堂
+  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, 16, () => recordA.start(0)], [recordB, 12, () => recordB.start(1, false, { playlist: false, level: 1.4 })], [recordEpic, 16, () => recordEpic.start(0, { playlist: false })]];
+  let recordSide = -1; // -1 stopped, 0 灣區午後, 1 布魯克林窗台, 2 午後弄堂, 3 追劇夜 (the epic orchestral piece; it is the first piece when the mood is movie night)
   let syncRecordMotion = null; // Card I: set once the record player is built; turns the platter and drops the arm while a piece plays
   let recordTimer = 0;
   const stopRecords = () => { clearInterval(recordTimer); recordTimer = 0; for (const [engine] of RECORD_PIECES) engine.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); syncRecordMotion?.(); };
   const playRecordPiece = (side) => { RECORD_PIECES.forEach(([engine], i) => { if (i !== side) engine.stop(); }); recordSide = RECORD_PIECES[side][2]() ? side : -1; return recordSide; };
   const advanceRecord = () => { // the next piece, a moment before the last bar of this one ends (bars counts bars already scheduled, 0.6 s ahead)
-    const next = (recordSide + 1) % RECORD_PIECES.length;
+    let next = (recordSide + 1) % RECORD_PIECES.length; if (next === 3 && currentMood !== "movie") next = 0; // the epic piece only joins the round on movie night
     if (playRecordPiece(next) < 0) { stopRecords(); return; }
     showNookCaption(RECORD_CAPTIONS[next][nookLang], null, 3500); refreshMugSteam(); syncRecordMotion?.();
   };
   const watchRecord = () => { if (recordSide >= 0) { const [engine, bars] = RECORD_PIECES[recordSide]; if (engine.state().bars > bars) advanceRecord(); } };
   const nextRecord = () => { // one tap plays (from the first piece), the next tap stops
-    if (recordSide === -1) { if (playRecordPiece(0) >= 0) { clearInterval(recordTimer); recordTimer = setInterval(watchRecord, 400); } }
+    if (recordSide === -1) { if (playRecordPiece(currentMood === "movie" ? 3 : 0) >= 0) { clearInterval(recordTimer); recordTimer = setInterval(watchRecord, 400); } }
     else stopRecords();
     refreshMugSteam(); syncRecordMotion?.();
     return recordSide;
@@ -7169,6 +7170,7 @@ export async function start({ stage, onReady = () => {} }) {
     { zh: "♪ 灣區午後　再點停止", en: "♪ Bay Area Afternoon · tap to stop" },
     { zh: "♪ 布魯克林窗台　再點停止", en: "♪ Brooklyn Windowsill · tap to stop" },
     { zh: "♪ 午後弄堂　再點停止", en: "♪ Afternoon Lane · tap to stop" },
+    { zh: "♪ 追劇夜　再點停止", en: "♪ Series Night · tap to stop" },
     { zh: "唱片收起來了", en: "Record put away" },
     { zh: "這台裝置放不出聲音", en: "No sound on this device" },
   ];
@@ -7204,7 +7206,7 @@ export async function start({ stage, onReady = () => {} }) {
     const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
     if (Math.hypot(event.clientX - p.x, event.clientY - p.y) > Math.max(34, radiusPx * 1.1)) return;
     vinylFound = true; positionVinylRing();
-    const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 4 : 3];
+    const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 5 : 4];
     showNookCaption(caption[nookLang], null, now >= 0 ? 6500 : 3500);
   };
   canvas.addEventListener("pointerdown", vinylPointerDown);
@@ -8898,7 +8900,7 @@ export async function start({ stage, onReady = () => {} }) {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
     outletsInfo: () => outlets.info(),
     recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
-    cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, turkeySteamInfo: () => turkeySteam.info(), recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() }), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
+    cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, turkeySteamInfo: () => turkeySteam.info(), recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() , epic: recordEpic.state()}), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
