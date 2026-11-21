@@ -6470,7 +6470,8 @@ function buildRoom03WokTools(scene) {
 function buildRoom03CounterFresh(scene) {
   const TOP = 0.955;
   const parts = [];
-  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1], local = null, localRotation = [0, 0, 0]) => {
+    if (local) geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(...local), new THREE.Quaternion().setFromEuler(new THREE.Euler(...localRotation)), new THREE.Vector3(1, 1, 1))); // a part placed inside a rotated group
     geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale),
     ));
@@ -6489,32 +6490,45 @@ function buildRoom03CounterFresh(scene) {
   add(new THREE.CylinderGeometry(0.135, 0.135, BOARD_H, 28), 0xb88b5b, [BX, TOP + BOARD_H / 2, BZ]);
   add(new THREE.BoxGeometry(0.05, BOARD_H, 0.03), 0xb88b5b, [BX - 0.155, TOP + BOARD_H / 2, BZ]);
   add(new THREE.TorusGeometry(0.008, 0.0035, 5, 10), 0x8a6842, [BX - 0.185, TOP + BOARD_H / 2, BZ], [Math.PI / 2, 0, 0]);
-  // A hand-shaped sourdough batard: flat base, fuller shoulders and subtle uneven crust.
-  const bread = { length: 0.22, width: 0.12, height: 0.08 };
-  const loafY = TOP + BOARD_H + bread.height * 0.33 - 0.002;
-  const loaf = new THREE.SphereGeometry(0.5, 24, 16);
-  const loafPositions = loaf.attributes.position;
-  for (let i = 0; i < loafPositions.count; i++) {
-    let x = loafPositions.getX(i), y = loafPositions.getY(i), z = loafPositions.getZ(i);
-    const uneven = 1 + 0.025 * Math.sin(x * 19 + z * 13) * Math.cos(z * 17);
-    x = Math.sign(x) * Math.pow(Math.abs(x) * 2, 0.72) * 0.5 * uneven;
-    z = Math.sign(z) * Math.pow(Math.abs(z) * 2, 0.84) * 0.5 * uneven;
-    y = Math.max(-0.33, y) * uneven;
-    loafPositions.setXYZ(i, x, y, z);
+  // Paul 2026-11-22 (reference: a golden quick bread in a metal loaf pan, the top split by one long crack): the batard is now a banana-bread style loaf in a dark steel loaf pan, a domed golden crust with
+  // a lengthwise split showing the pale crumb; a rectangular slice has been cut and lies in front.
+  const bread = { length: 0.235, width: 0.105, height: 0.068 }, panY = TOP + BOARD_H - 0.002, YAW = 0.30;
+  const pan = (g, hex, x, y, z, rot = [0, 0, 0]) => add(g, hex, [BX, panY, BZ], [0, YAW, 0], [1, 1, 1], [x, y, z], rot);
+  // the pan: a bottom, four slightly flared walls, and a flat rolled rim
+  pan(new THREE.BoxGeometry(bread.length - 0.02, 0.004, bread.width - 0.014), 0x2e3032, 0, 0.002, 0);
+  for (const s of [-1, 1]) {
+    pan(new THREE.BoxGeometry(bread.length, bread.height, 0.004), 0x4a4d50, 0, bread.height / 2, s * (bread.width / 2 - 0.004), [s * 0.07, 0, 0]);
+    pan(new THREE.BoxGeometry(0.004, bread.height, bread.width), 0x4a4d50, s * (bread.length / 2 - 0.002), bread.height / 2, 0, [0, 0, -s * 0.06]);
+    pan(new THREE.BoxGeometry(bread.length + 0.018, 0.003, 0.012), 0x686b6e, 0, bread.height, s * (bread.width / 2 + 0.001));
+    pan(new THREE.BoxGeometry(0.012, 0.003, bread.width + 0.018), 0x686b6e, s * (bread.length / 2 + 0.002), bread.height, 0);
   }
-  loaf.computeVertexNormals();
-  add(loaf, 0xa96e38, [BX, loafY, BZ], [0, 0.30, 0], [bread.length, bread.height, bread.width]);
-  // Three irregular pale expansion cuts across the baked crown.
-  for (const [i, dx] of [-0.045, 0, 0.045].entries()) {
-    const surfaceY = loafY + 0.038 - Math.abs(dx) * 0.035;
-    add(new THREE.SphereGeometry(0.5, 12, 8), i === 1 ? 0xdac299 : 0xc9a775,
-      [BX + dx, surfaceY, BZ], [0, 0.65, 0], [0.042, 0.004, 0.010]);
+  // the loaf: a flattened dome rising 3 cm over the rim, a long crack along its crest with raised lips and a pale crumb inside; the crust is golden with darker patches
+  const dome = new THREE.SphereGeometry(1, 36, 16, 0, Math.PI * 2, 0, Math.PI / 2), dp = dome.attributes.position, domeColors = new Float32Array(dp.count * 3);
+  const RX = bread.length / 2 - 0.007, RZ = bread.width / 2 - 0.007, RY = 0.052;
+  for (let i = 0; i < dp.count; i++) {
+    let x = dp.getX(i), y = dp.getY(i), z = dp.getZ(i);
+    x = Math.sign(x) * Math.pow(Math.abs(x), 0.75); z = Math.sign(z) * Math.pow(Math.abs(z), 0.85);
+    const px = x * RX, pz = z * RZ;
+    let py = y * RY;
+    const az = Math.abs(pz), lip = Math.max(0, 1 - Math.abs(az - 0.014) / 0.012) * y; // raised lips either side of the crack
+    py += lip * 0.007 + 0.0035 * Math.sin(px * 46 + pz * 23) * y;
+    if (az < 0.0085) py -= (1 - az / 0.0085) * 0.014 * y; // the crack
+    dp.setXYZ(i, px, py, pz);
+    const patch = 0.5 + 0.5 * Math.sin(px * 31 + 1.7) * Math.cos(pz * 47);
+    const base = new THREE.Color(0xd49632).lerp(new THREE.Color(0xa9651f), 0.25 + 0.4 * patch * (0.3 + y));
+    if (y < 0.12) base.set(0xb67a2a); else if (az < 0.011) base.set(0x8f5a24);
+    base.toArray(domeColors, i * 3);
   }
+  dome.setAttribute("color", new THREE.Float32BufferAttribute(domeColors, 3)); dome.computeVertexNormals();
+  dome.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(BX, panY + bread.height - 0.022, BZ), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, YAW, 0)), new THREE.Vector3(1, 1, 1)));
+  dome.deleteAttribute("uv"); parts.push(dome);
+  add(new THREE.BoxGeometry(0.16, 0.0016, 0.007), 0xedc171, [BX, panY + bread.height + 0.0295, BZ], [0, YAW, 0]); // the pale crumb showing in the crack
   // A story on the counter (GrokBot 2026-10-31: tiny details people look for): one slice already cut from the loaf and lying in front of the board with its
   // crumbs, and a lemon half, cut side up, beside it (the lemons of the fruit bowl on the table).
   const SX = BX + 0.03, SZ = -1.86;
-  add(new THREE.CylinderGeometry(0.063, 0.063, 0.016, 22), 0xb9803f, [SX, TOP + 0.008, SZ], [0, 0.25, 0], [1, 1, 0.86]);
-  add(new THREE.CylinderGeometry(0.056, 0.056, 0.0165, 22), 0xe9d6a6, [SX, TOP + 0.00825, SZ], [0, 0.25, 0], [1, 1, 0.86]);
+  add(new THREE.BoxGeometry(0.1, 0.016, 0.082), 0xb87a2a, [SX, TOP + 0.008, SZ], [0, 0.25, 0]);
+  add(new THREE.BoxGeometry(0.092, 0.0165, 0.074), 0xf0d28c, [SX, TOP + 0.00825, SZ], [0, 0.25, 0]);
+  for (const [dx, dz] of [[-0.02, -0.012], [0.015, 0.016], [0.028, -0.02], [-0.03, 0.02]]) add(new THREE.SphereGeometry(0.006, 6, 4), 0xa8743a, [SX + dx, TOP + 0.0168, SZ + dz], [0, 0, 0], [1, 0.3, 1]); // flecks of walnut
   for (const [i, [dx, dz]] of [[-0.09, 0.03], [-0.075, -0.045], [0.085, 0.045], [0.1, -0.025], [-0.03, 0.075], [0.04, -0.07], [0.0, 0.1], [-0.11, -0.01]].entries()) {
     add(new THREE.SphereGeometry(0.0034 + (i % 3) * 0.0008, 5, 4), i % 2 ? 0xe2c58c : 0xc99a58, [SX + dx, TOP + 0.003, SZ + dz]);
   }
@@ -6554,7 +6568,7 @@ function buildRoom03CounterFresh(scene) {
   mesh.updateMatrixWorld(true);
   return {
     vertices: geometry.attributes.position.count, mesh,
-    bread: { dimensionsMm: [220, 120, 66], boardEmbedMm: 2, style: "oval scored country sourdough" },
+    bread: { dimensionsMm: [253, 123, 98], boardEmbedMm: 2, style: "golden quick-bread loaf in a metal pan" },
     bounds: () => { scene.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray() }; },
   };
 }
