@@ -3660,7 +3660,7 @@ function buildRoomDoor(scene, m) {
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     return geometry;
   };
-  const OLIVE = 0x8c9a70, GLASS = 0xe2dccb, BRASS = 0xb08d4e;
+  const OLIVE = 0xd2a24c /* Paul 2026-11-21: the room was green enough; a warm saffron-mustard leaf completes the slate blue and terracotta */, GLASS = 0xe2dccb, BRASS = 0xb08d4e;
   const top = LEAF_BOTTOM + LH, slotLow = 0.30, slotHigh = 1.80, stile = 0.15, slotW = 0.12;
   const leafBox = (z0, z1, y0, y1, hex) => colour(box(LEAF_T, y1 - y0, z1 - z0, 0, (y0 + y1) / 2, (z0 + z1) / 2), hex);
   const parts = [
