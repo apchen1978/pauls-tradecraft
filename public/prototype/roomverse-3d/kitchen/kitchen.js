@@ -4551,7 +4551,7 @@ function buildDishDryer(scene, m) {
   };
 }
 
-function buildHouseholdProps(scene, m) {
+function buildHouseholdProps(scene, m, onPropLoad) {
   const counterY = 0.955;
   // The counter top measures 0.958; the coffee maker, kettle and rice cooker were each 3 mm too low (4 mm embed) and are lifted 3 mm, as the crock was in #731.
   // A compact American grind-and-brew drip maker: sealed bean hopper, warm-white housing, brew outlet and glass carafe on a warming plate.
@@ -4905,26 +4905,22 @@ function buildHouseholdProps(scene, m) {
     medallion.name = "room03-red-mug-medallion"; medallion.position.set(MX, MY + 0.049, MZ); medallion.userData.category = "credenza";
     scene.add(medallion);
   }
-  // Paul 2026-11-17: the shallow dish with three pebbles leaves the credenza (the middle pebble hovered about 5 mm over the dish floor and two sat on the wall)
-  // and stands on the counter where the red mug was, beside the coffee maker. Each pebble is placed from the dish's own floor height so it rests on it
-  // (0.5 mm in), stays inside the wall, and is a smooth, slightly tilted, irregular stone rather than a flat sphere.
-  const stoneDish = buildPropGroup(scene, "counter-stone-dish", [-0.30, counterY + 0.002, -1.752], ({ shape }) => {
-    const SX = 1.25, SZ = 0.8; // the dish is an oval: scaled in x and z
-    const dish = new THREE.LatheGeometry([[0, 0], [0.05, 0], [0.07, 0.011], [0.078, 0.027], [0.072, 0.031], [0.062, 0.015], [0, 0.009]].map(([r, y]) => new THREE.Vector2(r, y)), 28);
-    dish.scale(SX, 1, SZ);
-    shape(weldSmooth(dish), m.porcelain);
-    const floorAt = (x, z) => 0.009 + (0.006 / 0.062) * Math.min(0.062, Math.hypot(x / SX, z / SZ)); // the inside floor of the dish
-    [[-0.040, -0.012, 0.024, 0.25, 1.15], [0.022, -0.022, 0.020, -0.6, 1.05], [0.008, 0.020, 0.022, 1.1, 1.2]].forEach(([x, z, r, yaw, flat], index) => {
-      const stone = new THREE.SphereGeometry(r, 16, 12);
-      const pos = stone.attributes.position;
-      for (let i = 0; i < pos.count; i++) { // a little unevenness, smooth enough to read as a river stone
-        const k = 1 + 0.07 * Math.sin(pos.getX(i) * 140 + index * 2.1) * Math.cos(pos.getZ(i) * 120 + index) + 0.04 * Math.sin(pos.getY(i) * 190 + index * 3);
-        pos.setXYZ(i, pos.getX(i) * k, pos.getY(i) * k, pos.getZ(i) * k);
-      }
-      const half = r * 0.62; // the stone is squashed to 62 percent of its width
-      shape(weldSmooth(stone), m.pebble, [x, floorAt(x, z) + half - 0.0005, z], [0.05 * (index - 1), yaw, 0.04 * (1 - index)], [1, 0.62, flat]);
-    });
-  });
+  // Paul 2026-11-22: the dish with three grey stones beside the bread is replaced by a bowl of popcorn, Room 01's bowl copied across (Codex's model, shared file) and re-glazed a soft blue.
+  // The bowl is loaded once and recoloured by material name; the group exists from the start so the prop list and the clearance checks find it, and its measured bounds update when the model arrives.
+  const stoneDish = new THREE.Group();
+  stoneDish.name = "prop-counter-popcorn-bowl"; stoneDish.position.set(-0.30, counterY + 0.0005, -1.752); stoneDish.scale.setScalar(0.7);
+  stoneDish.userData.category = "household-props"; stoneDish.userData.propKey = "counter-popcorn-bowl";
+  scene.add(stoneDish);
+  new GLTFLoader().loadAsync(new URL("../models/room01-popcorn-bowl-v2.glb", import.meta.url).href).then((asset) => {
+    const glaze = { bowl: "#5a84b4", rim: "#ece2cb", popcorn: "#f3e7c6", butter: "#efd9a0", husk: "#6b4a2b" };
+    asset.scene.traverse((o) => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; o.userData.category = "household-props"; const c = glaze[o.material.name]; if (c) { o.material = o.material.clone(); o.material.color.set(c); o.material.vertexColors = false; } });
+    stoneDish.add(asset.scene); stoneDish.userData.ready = true;
+    stoneDish.updateMatrixWorld(true);
+    { const first = new THREE.Box3().setFromObject(stoneDish); const k = stoneDish.scale.x; asset.scene.position.x -= ((first.min.x + first.max.x) / 2 - stoneDish.position.x) / k; asset.scene.position.z -= ((first.min.z + first.max.z) / 2 - stoneDish.position.z) / k; stoneDish.updateMatrixWorld(true); } // centre the heap and bowl on the spot (the popcorn leans to one side of the bowl)
+    const box = new THREE.Box3().setFromObject(stoneDish);
+    stoneDish.userData.qaBounds = { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
+    onPropLoad?.();
+  }).catch(() => {});
   // Empty turned wooden serving bowl, on the free end of the wok counter.
   // The 220 mm rim stays clear of the 480 mm cooktop and the counter edges.
   const wokServingBowl = buildPropGroup(scene, "wok-wood-serving-bowl", [2.64, 0.954, 2.14], ({ shape }) => {
@@ -5002,8 +4998,7 @@ function buildHouseholdProps(scene, m) {
     return combined;
   };
   mergeWorldMaterialMeshes([utensilCrock, pantryJar, wokServingBowl], m.oak, "prop-countertop-oak-shared");
-  mergeWorldMaterialMeshes([coffeeMaker, counterMugs, stoneDish], m.porcelain, "prop-countertop-ceramics-shared");
-  mergeWorldMaterialMeshes([stoneDish], m.pebble, "prop-counter-pebbles", 0);
+  mergeWorldMaterialMeshes([coffeeMaker, counterMugs], m.porcelain, "prop-countertop-ceramics-shared");
   const sharedCounterGlass = mergeWorldMaterialMeshes([coffeeMaker, pantryJar], m.glass, "prop-countertop-glass-shared", 2);
   sharedCounterGlass.castShadow = false;
   sharedCounterGlass.receiveShadow = false;
@@ -7397,7 +7392,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   buildTable(buckets, materials);
   const diningChairSeatGap = buildProceduralDiningChairs(scene, materials);
-  buildHouseholdProps(scene, materials);
+  buildHouseholdProps(scene, materials, () => render());
   const dishDryer = buildDishDryer(scene, materials);
   let credenza = null;
   const loungeChair = buildLoungeChair(scene, materials);
@@ -8410,7 +8405,7 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "counter-mugs", "counter-stone-dish", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "wok-olive-oil", "oak-utensil-crock", "glass-pantry-jar", "mineral-water-bottle-1", "mineral-water-bottle-2", "wok-wood-serving-bowl", "steel-saucepan", "tabletop-meyer-lemon-bowl", "tabletop-water-set", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
+    const propKeys = ["drip-coffee-maker", "counter-mugs", "counter-popcorn-bowl", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "wok-olive-oil", "oak-utensil-crock", "glass-pantry-jar", "mineral-water-bottle-1", "mineral-water-bottle-2", "wok-wood-serving-bowl", "steel-saucepan", "tabletop-meyer-lemon-bowl", "tabletop-water-set", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];
