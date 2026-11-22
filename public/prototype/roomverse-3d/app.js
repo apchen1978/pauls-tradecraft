@@ -724,7 +724,8 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
         lying.push(bookGeometry(thick, len, d, cover).rotateZ(Math.PI / 2).translate(len / 2, thick / 2, 0).rotateY(yaw).translate(dx, y, 0)); y += thick;
       }
       mesh(stack, mergeGeometries(lying, false), bookMat, 0, 0, 0); lying.forEach((g) => g.dispose()); }
-    place(stack, "right-lower", -.05, .286, .096);
+    place(stack, "right-lower", -.17, .286, .096); // Paul 2026-11-22: the pile moves 12 cm towards the middle so the wine bottle can stand on its other side, clear of the LED strip at the shelf edge
+    const WINE_DX = .205; // the wine bottle stands on the far side of the book pile from the LED strip (see below)
     // Paul 2026-11-19: the mini Tatung rice cooker (大同電鍋), in its classic look: a glossy red body with rounded (bevelled) foot and rim, a white logo band
     // with a small red mark, a domed chrome-ish lid with a black knob, two side handles, and a front switch lever with a little indicator light. Two meshes:
     // one vertex-coloured body and the metal lid. It stands in the bottom compartment of the shelf by the entrance door, beside the low ceramic dish.
@@ -762,7 +763,12 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
       });
       const bottle = new THREE.Mesh(mergeGeometries(parts, false), new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: .3, metalness: 0 }));
       bottle.castShadow = true; bottle.receiveShadow = true; wine.add(bottle);
-      place(wine, "left-lower", .235, .085, .085);
+      // Paul 2026-11-22: the label carries our own wordmark, "paul's", like the cola and the water bottles, and the bottle moves from the left shelf (where it stood in front of the LED strip) to the bottom of the
+      // right shelf, beside the three lying books on the coat-stand side (on the side away from that shelf's own LED strip, so the light stays clear). The label is a canvas wrapped on the cream band (1 mm outside the glass).
+      const label = canvasTex(256, 128, (ctx, w, h) => { ctx.fillStyle = "#ece3cf"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#6b3a2e"; ctx.fillRect(0, h * .1, w, h * .04); ctx.fillRect(0, h * .86, w, h * .04); ctx.fillStyle = "#4a2c1a"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "italic 700 34px Georgia, 'Times New Roman', serif"; ctx.fillText("paul's", w * .5, h * .5); });
+      const band = new THREE.Mesh(new THREE.CylinderGeometry(.0385, .0385, .078, 32, 1, true).rotateY(-.25).translate(0, .1, 0), new THREE.MeshStandardMaterial({ map: label, roughness: .6, metalness: 0 }));
+      band.castShadow = false; band.receiveShadow = true; wine.add(band);
+      place(wine, "right-lower", WINE_DX, .085, .085);
     }
     shelfDecorReady = true;
   }
