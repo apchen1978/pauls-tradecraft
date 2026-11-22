@@ -3189,7 +3189,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         texture.needsUpdate = true;
       };
       draw("golden");
-      const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.050, 0.106).rotateX(-Math.PI / 2), material);
+      // the plane's texture top ends up pointing at the room side, so it is spun 180 degrees to read from the counter
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.050, 0.106).rotateX(-Math.PI / 2).rotateY(Math.PI), material);
       screen.position.set(sx + 0.01, magTop + 0.0112, sz);
       screen.name = "lounge-phone-screen";
       scene.add(screen);
