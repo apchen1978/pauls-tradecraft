@@ -2120,14 +2120,18 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         registerSupport(`bar-shelf-water-cup-${cx}`, "rest", { base: { x: cx, y: juY, z: cz, radius: 0.026 },
           surface: { shape: "rect", x0: -2.5, x1: -1, z0: BACK, z1: BACK + 0.24, y: juY } });
       }
-      const bX = 0.41, bZ = c.z1 - 0.13;
+      const bX = 0.60, bZ = -0.50;
       part("gold", new THREE.CylinderGeometry(0.030, 0.032, 0.004, 20).translate(bX, top + 0.002, bZ), { tile: 1 });
       const bellDome = new THREE.SphereGeometry(0.026, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2); bellDome.scale(1, 0.72, 1);
       part("gold", bellDome.translate(bX, top + 0.004, bZ), { tile: 1 });
       part("gold", new THREE.CylinderGeometry(0.004, 0.005, 0.009, 10).translate(bX, top + 0.026, bZ), { tile: 1 });
       registerSupport("bar-service-bell", "rest", { base: { x: bX, y: top, z: bZ, radius: 0.032 },
         surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
-      const wx = 0.50, wz = c.z1 - 0.05, lean = 0.21, cardW = 0.09, cardH = 0.045;
+      // Paul 2026-11-23: the bar should read as ordered. The service pair (bell and WiFi card) used to sit at two
+      // different depths on the front edge, which is what made that stretch look loose; both now stand on the same line
+      // (z -0.50) and share a 120 mm spacing, so the eye reads one row. A trial oak tray under them read as a board
+      // under the deck and was dropped.
+      const wx = 0.73, wz = -0.50, lean = 0.21, cardW = 0.09, cardH = 0.045;
       const cardY = top + (cardH / 2) * Math.cos(lean) + 0.0016, cardZ = wz + (cardH / 2) * Math.sin(lean);
       const face = new THREE.PlaneGeometry(cardW, cardH).rotateX(-lean).translate(wx, cardY, cardZ);
       decorDraw("wifi", (g, rx, ry, rw, rh) => {
