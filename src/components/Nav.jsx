@@ -23,21 +23,30 @@ export default function Nav() {
     { href: "#showcase", label: t.nav.showcase, tier: "featured" },
     { href: "#works", label: t.nav.works, tier: "major" },
     { href: "#ai-lab", label: t.nav.aiLab, tier: "lab" }, // Paul 2026-11-20: the AI Lab is as important as the other two, so it is framed too, in its own colour (a soft sage-mint, kin to the paper green)
-    { href: "#garage", label: t.nav.garage },
-    { href: "#capabilities", label: t.nav.services },
-    { href: "#trade-notes", label: t.nav.notes },
-    { href: "#about", label: t.nav.about },
+    { href: "#garage", label: t.nav.garage, tier: "garage" },
+    { href: "#capabilities", label: t.nav.services, tier: "method" },
+    { href: "#trade-notes", label: t.nav.notes, tier: "notes" },
+    { href: "#about", label: t.nav.about, tier: "about" },
   ];
 
+  // Paul 2026-11-22: every tab is framed, each in its own colour; the Immersive Collection is a solid gold pill with dark text. A frame is a 1 px ring in the tab's colour with a faint tint of it inside.
   const TIER_DESKTOP = {
-    featured: "rounded-full border border-gold bg-gold/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-gold/20 hover:text-bone focus-visible:bg-gold/20 xl:px-3.5",
-    major: "rounded-full border border-bone/35 px-2.5 py-1.5 text-bone/95 decoration-transparent hover:border-bone/70 hover:text-bone focus-visible:border-bone/70 xl:px-3.5",
+    featured: "rounded-full border border-gold bg-gold px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
+    major: "rounded-full border border-[#e8dcc3]/70 bg-[#e8dcc3]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#e8dcc3]/20 focus-visible:bg-[#e8dcc3]/20 xl:px-3.5",
     lab: "rounded-full border border-[#8fbfa8]/80 bg-[#8fbfa8]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#8fbfa8]/20 hover:text-bone focus-visible:bg-[#8fbfa8]/20 xl:px-3.5",
+    garage: "rounded-full border border-[#e59a7a]/80 bg-[#e59a7a]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#e59a7a]/20 focus-visible:bg-[#e59a7a]/20 xl:px-3.5",
+    method: "rounded-full border border-[#8fb4dc]/80 bg-[#8fb4dc]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#8fb4dc]/20 focus-visible:bg-[#8fb4dc]/20 xl:px-3.5",
+    notes: "rounded-full border border-[#b9a6e0]/80 bg-[#b9a6e0]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#b9a6e0]/20 focus-visible:bg-[#b9a6e0]/20 xl:px-3.5",
+    about: "rounded-full border border-[#d9b3c4]/80 bg-[#d9b3c4]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#d9b3c4]/20 focus-visible:bg-[#d9b3c4]/20 xl:px-3.5",
   };
   const TIER_MENU = {
-    featured: "border border-gold bg-gold/10 text-bone hover:bg-gold/20",
-    major: "border border-bone/35 text-bone hover:border-bone/70",
+    featured: "border border-gold bg-gold font-semibold text-pine hover:brightness-110",
+    major: "border border-[#e8dcc3]/70 bg-[#e8dcc3]/10 text-bone hover:bg-[#e8dcc3]/20",
     lab: "border border-[#8fbfa8]/80 bg-[#8fbfa8]/10 text-bone hover:bg-[#8fbfa8]/20",
+    garage: "border border-[#e59a7a]/80 bg-[#e59a7a]/10 text-bone hover:bg-[#e59a7a]/20",
+    method: "border border-[#8fb4dc]/80 bg-[#8fb4dc]/10 text-bone hover:bg-[#8fb4dc]/20",
+    notes: "border border-[#b9a6e0]/80 bg-[#b9a6e0]/10 text-bone hover:bg-[#b9a6e0]/20",
+    about: "border border-[#d9b3c4]/80 bg-[#d9b3c4]/10 text-bone hover:bg-[#d9b3c4]/20",
   };
   const followSectionLink = (href) => {
     if (href === "#garage") openGarageThenScroll();
@@ -49,7 +58,7 @@ export default function Nav() {
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
           <span className="text-lg font-semibold tracking-[-0.02em] text-bone">{t.brand}</span>
-          <span className="hidden border-l border-bone/25 pl-2 text-xs font-medium text-ondark-meta sm:inline lg:hidden xl:inline">{t.brandNote}</span>
+          <span className="hidden border-l border-bone/25 pl-2 text-xs font-medium text-ondark-meta sm:inline lg:hidden 2xl:inline">{t.brandNote}</span>
         </a>
 
         <div className="hidden items-center gap-2.5 text-[13px] font-medium text-ondark lg:flex xl:gap-8 xl:text-sm">
