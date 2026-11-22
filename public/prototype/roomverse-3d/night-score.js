@@ -116,6 +116,10 @@ function createNightMusic() { // the cinematic engine, for series night
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.34);
     osc.connect(g); g.connect(bus); osc.start(time); osc.stop(time + 0.4); tick(time, gain * 0.12, 3200, 0.03); noteCount += 1;
   };
+  const clap = (time, gain) => { // a soft pop clap: two quick noise bursts through a band-pass, with a short tail
+    for (const [d, g] of [[0, 1], [0.012, 0.7]]) tick(time + d, gain * g, 1500, 0.11);
+    tick(time + 0.02, gain * 0.5, 2600, 0.2);
+  };
   const drum = (time, gain) => { // a soft timpani-like hit: a low sine that drops in pitch, with a little skin noise
     const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = "sine"; osc.frequency.setValueAtTime(118, time); osc.frequency.exponentialRampToValueAtTime(52, time + 0.35);
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, time + 1.6);
@@ -151,12 +155,16 @@ function createNightMusic() { // the cinematic engine, for series night
         [[bar.bass, -0.3, 0.04], [bar.bass + 7, -0.15, 0.034], [bar.chord[1] + 12, 0.15, 0.03], [bar.chord[3] + 12, 0.3, 0.024]].forEach(([midi, pan, g], k) => piano(t0 + 0.03 * k + jitter(10), midi, vary(g * loud), barLength * 2.1, pan));
         // the rhythm section (Paul 2026-11-23: "a little monotonous: add chords and a jazz bass drum, more arrangement"): a feathered kick on one and three with a soft ghost note before the next bar,
         // a walking upright bass on every beat under the held piano bass, off-beat piano chord stabs (the "and" of two, and four) in the middle register, and a brushed ride with a skip beat
-        [0, 2].forEach((b2, i) => kick(t0 + b2 * beat + jitter(6), (i === 0 ? 0.2 : 0.15) * loud));
-        if (barIndex % 2 === 1) kick(t0 + 3.5 * beat + jitter(6), 0.08 * loud);
+        // Paul 2026-11-23: borrow from dance-pop / EDM to add drive: a four-on-the-floor kick (all four beats, a little firmer than the jazz one), a clap on two and four, open off-beat hats, and from the build-up
+        // on (bar 5) an eighth-note pumping sub on the off-beats. The first four bars keep only the kick and hats, so the piece grows into it.
+        const dance = barIndex % 16 >= 4, full = barIndex % 16 >= 8;
+        [0, 1, 2, 3].forEach((b2) => kick(t0 + b2 * beat + jitter(4), (b2 === 0 ? 0.26 : 0.21) * loud));
+        if (dance) [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), 0.05 * loud));
+        for (let i = 0; i < 4; i++) tick(t0 + (i + 0.5) * beat + jitter(4), (full ? 0.03 : 0.02) * loud, 9500, 0.07); // open off-beat hats
+        if (dance) for (let i = 0; i < 4; i++) note(t0 + (i + 0.5) * beat + jitter(4), bar.bass, BASS_DRIVE, (full ? 0.15 : 0.1) * loud, beat * 0.4); // the pumping off-beat sub
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
         [[0, walkRoot, 0.15], [1, walkThird, 0.11], [2, walkFifth, 0.12], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.1]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
         for (const at of [1.5, 3]) bar.chord.slice(1).forEach((midi, k) => piano(t0 + at * beat + k * 0.014 + jitter(8), midi + 12, vary(0.034 * loud), beat * 0.5, -0.1 + k * 0.1));
-        [[0, 0.016, 7800], [1, 0.012, 7800], [1.66, 0.01, 7800], [2, 0.016, 7800], [3, 0.012, 7800], [3.66, 0.01, 7800]].forEach(([at, g, hz2]) => tick(t0 + at * beat + jitter(5), g, hz2, 0.12)); // a brushed ride, skipping on the triplets
         // the melody: long, singing notes on the piano with a second voice a chord tone below it; strings sing along from the second half
         const chordNow = (at) => (bar.chord2 && at >= 2 ? bar.chord2 : bar.chord);
         for (const [at, midi, length] of bar.tune) {
