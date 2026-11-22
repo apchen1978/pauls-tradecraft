@@ -3011,8 +3011,8 @@ let lanternMat = null;
     const colaLabel = canvasTex(512, 256, (ctx, w, h) => {
       ctx.fillStyle = "#f1e9d6"; ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#dc8532"; ctx.fillRect(0, h * .08, w, h * .07); ctx.fillStyle = "#4a2c1a"; ctx.fillRect(0, h * .17, w, h * .02); ctx.fillRect(0, h * .86, w, h * .06);
-      ctx.fillStyle = "#4a2c1a"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "italic 700 72px Georgia, 'Times New Roman', serif"; ctx.fillText("paul's", w * .25, h * .5);
-      ctx.fillStyle = "#dc8532"; ctx.fillRect(w * .25 - 72, h * .69, 144, 6);
+      ctx.fillStyle = "#4a2c1a"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.font = "italic 700 54px Georgia, 'Times New Roman', serif"; ctx.fillText("paul's", w * .25, h * .5);
+      ctx.fillStyle = "#dc8532"; ctx.fillRect(w * .25 - 54, h * .66, 108, 5);
       ctx.fillStyle = "#4a2c1a"; ctx.font = "italic 700 42px Georgia, serif"; ctx.fillText("paul's", w * .75, h * .5);
     });
     // Paul 2026-11-22: the tall water bottle gets our wordmark too, in a different hand from the cola's serif italic: a clean rounded sans in blue-green on a pale label with a thin wave line.
@@ -3022,6 +3022,7 @@ let lanternMat = null;
       ctx.font = "700 36px 'Trebuchet MS', 'Segoe UI', Arial, sans-serif"; ctx.fillText("Paul's", w * .75, h * .5);
       ctx.strokeStyle = "#3d8fa0"; ctx.lineWidth = 3; ctx.beginPath(); for (let x = w * .25 - 56; x <= w * .25 + 56; x += 4) { const y = h * .76 + Math.sin(x / 9) * 4; if (x === w * .25 - 56) ctx.moveTo(x, y); else ctx.lineTo(x, y); } ctx.stroke();
     });
+    colaLabel.offset.x = -.03; clearLabel.offset.x = -.02; // Paul 2026-11-23: the wordmark sits in the middle of each bottle as the record view sees it (the cola's was cut off at the right edge)
     const clear = makeWater({ at: waterAt, sR: .8, sV: .88, fillColor: 0x86c3cf, fillOpacity: .62, label: [{ y: .13, h: .034, color: CREAM }, { y: .215, h: .085, map: clearLabel }], capColor: 0xe1ddd2, tag: "" });
     const cola = makeWater({ at: water2At, sR: .88, sV: .78, fillColor: 0x3a1c10, fillOpacity: .9, label: [{ y: .125, h: .115, map: colaLabel }], capColor: 0x3a2418, tag: "-2" });
     const water = { glass: clear.glass, fill: clear.fill, labelCap: clear.labelCap, at: waterAt, y: clear.y, radius: clear.radius, labelMm: clear.labelMm, second: { glass: cola.glass, water: cola.fill, labelCap: cola.labelCap, label: cola.labelMesh, at: water2At, radius: cola.radius, labelMm: cola.labelMm } };
