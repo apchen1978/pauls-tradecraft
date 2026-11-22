@@ -649,42 +649,7 @@ function buildKitchen(b, m) {
     // tile keeps its cell of the shared azulejo texture as its face, so the pattern survives while the surface becomes relief.
     m.hobTile = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.34, map: makeAzulejoTexture() });
     m.hobTile.name = "main-hob-azulejo";
-    {
-      // 16 x 8 glazed bricks of 6.25 cm (zellige is small and hand-set, and small bricks are what make the relief read at
-      // arm's length). No mergeVertices: welding coincident corners across two tiles bled their texture cells together and
-      // drew dark seams, so every brick keeps its own vertices.
-      const COLS = 16, ROWS = 8, CELL = 0.0625, GAP = 0.0025, tileW = CELL - GAP, T = 0.016;
-      const tiles = [];
-      const jit = (i, k) => { const v = Math.sin((i * 12.9898 + k * 78.233) * 43758.5453); return v - Math.floor(v); };
-      // Zellige is a wall of hand-glazed single-colour bricks, not a printed picture, so each brick takes ONE flat colour
-      // out of the azulejo palette and a darker glaze lip on its edges: the relief does the work, the glaze does the rest.
-      const PALETTE = [[8, 8], [136, 8], [64, 24], [20, 264], [64, 64]]; // cream, pale, cobalt, terracotta, ochre
-      const WEIGHT = [0, 1, 0, 1, 0, 1, 1, 2, 1, 3, 0, 1, 4, 1, 0, 1];   // mostly cream and pale; colour is the accent, not the field
-      // a well-mixed hash: sin-based jitter clustered neighbours into blocks of one colour
-      const mix = (n) => { let x = Math.imul((n ^ 0x9e3779b9) >>> 0, 2654435761) >>> 0; x ^= x >>> 15; x = Math.imul(x, 2246822519) >>> 0; return ((x ^ (x >>> 13)) >>> 8) / 16777216; };
-      for (let j = 0; j < ROWS; j++) for (let i = 0; i < COLS; i++) {
-        const index = j * COLS + i;
-        const x = 0.82 + (i - (COLS - 1) / 2) * CELL, y = 1.21 + ((ROWS - 1) / 2 - j) * CELL;
-        const g = roundedBoxGeometry([tileW, tileW, T], 0.0018, 1);
-        const uv = g.attributes.uv, pos = g.attributes.position;
-        const pick = PALETTE[WEIGHT[Math.floor(mix(index) * WEIGHT.length)]];
-        const fu = (pick[0] + 2) / 1024, fv = 1 - (pick[1] + 2) / 512;
-        const lu = 4 / 1024, lv = 1 - 4 / 512; // the grout colour in the texture's corner: a light warm edge, not a black line
-        for (let n = 0; n < uv.count; n++) {
-          const front = pos.getZ(n) > T * 0.34;
-          uv.setXY(n, front ? fu : lu, front ? fv : lv);
-        }
-        const depth = 0.002 + jit(index, 1) * 0.006;
-        const tilt = (jit(index, 2) - 0.5) * 0.030;
-        const spin = (jit(index, 3) - 0.5) * 0.018;
-        g.applyMatrix4(new THREE.Matrix4().makeRotationZ(tilt));
-        g.applyMatrix4(new THREE.Matrix4().makeRotationY(spin));
-        g.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, -2.2665 + depth + T / 2));
-        tiles.push(g);
-      }
-      addGeometryToBucket(b, "backsplash", m.hobTile, mergeGeometries(tiles), [0, 0, 0]);
-      tiles.forEach((g) => g.dispose());
-    }
+    addGeometryToBucket(b, "backsplash", m.hobTile, new THREE.PlaneGeometry(1.0, 0.5).translate(0.82, 1.21, -2.2655), [0, 0, 0]);
     for (const sy of [-1, 1]) addBox(b, "kitchen", m.brass, [1.02, 0.01, 0.007], [0.82, 1.21 + sy * 0.255, -2.2635]); // a slim brass frame round the panel
     for (const sx of [-1, 1]) addBox(b, "kitchen", m.brass, [0.01, 0.5, 0.007], [0.82 + sx * 0.505, 1.21, -2.2635]);
   }
@@ -983,9 +948,52 @@ function buildSideKitchen(b, m, scene) {
     stampTileUvs(geometry);
     addGeometryToBucket(b, "wok-backsplash", wokTile, geometry, [0, 0, 0]);
   };
-  addTiledSplash([0.02, splashH, splashLen], [wallFaceX - 0.007, splashY, splashZ]);
-  addTiledSplash([0.13, splashH, 0.016], [wallFaceX - 0.062, splashY, counterMinZ + 0.008]);
-  addTiledSplash([0.13, splashH, 0.016], [wallFaceX - 0.062, splashY, counterMaxZ - 0.008]);
+  // Paul 2026-11-22: the small stove is the wall worth the tile work. The printed subway run and its two returns become
+  // REAL zellige: hand-set glazed bricks about 68 mm across, each 1.5-5 mm proud, leaning up to a degree, one flat glaze
+  // colour per brick from the azulejo palette plus a light glaze lip. Same bucket and material as the hob panel, so no
+  // draw call is added, and the oven mitts and the hanging tools stay exactly where they were.
+  {
+    const frontX = wallFaceX - 0.007 - 0.010;
+    const GAP = 0.002, T = 0.014, TARGET = 0.068;
+    const ROWS = Math.max(1, Math.round(splashH / TARGET)), COLS = Math.max(1, Math.round(splashLen / TARGET));
+    const faceH = splashH / ROWS - GAP, faceW = splashLen / COLS - GAP;
+    const PALETTE = [[8, 8], [136, 8], [64, 24], [20, 264], [64, 64]]; // cream, pale, cobalt, terracotta, ochre
+    const WEIGHT = [0, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 3, 1, 0, 4, 1, 0, 1, 0];
+    const mix = (n) => { let x = Math.imul((n ^ 0x9e3779b9) >>> 0, 2654435761) >>> 0; x ^= x >>> 15; x = Math.imul(x, 2246822519) >>> 0; return ((x ^ (x >>> 13)) >>> 8) / 16777216; };
+    const jit = (i, k) => { const v = Math.sin((i * 12.9898 + k * 78.233) * 43758.5453); return v - Math.floor(v); };
+    const bricks = [];
+    const glaze = (g, index, front, lip) => {          // front: predicate telling which vertices face the room
+      const uv = g.attributes.uv, pos = g.attributes.position;
+      const pick = PALETTE[WEIGHT[Math.floor(mix(index) * WEIGHT.length)]];
+      const fu = (pick[0] + 2) / 1024, fv = 1 - (pick[1] + 2) / 512;
+      for (let n = 0; n < uv.count; n++) uv.setXY(n, front(pos, n) ? fu : lip, front(pos, n) ? fv : 1 - 4 / 512);
+    };
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const index = r * COLS + c;
+      const y = splashBottom + (r + 0.5) * (splashH / ROWS), z = splashMinZ + (c + 0.5) * (splashLen / COLS);
+      const g = roundedBoxGeometry([T, faceH, faceW], 0.0012, 1);
+      glaze(g, index, (pos, n) => pos.getX(n) < -T * 0.34, 4 / 1024);
+      g.applyMatrix4(new THREE.Matrix4().makeRotationZ((jit(index, 2) - 0.5) * 0.030));
+      g.applyMatrix4(new THREE.Matrix4().makeRotationY((jit(index, 3) - 0.5) * 0.018));
+      g.applyMatrix4(new THREE.Matrix4().makeTranslation(frontX - (0.0015 + jit(index, 1) * 0.0035) - T / 2, y, z));
+      bricks.push(g);
+    }
+    for (const side of [-1, 1]) {                      // the two 13 cm returns, so the glaze does not stop at a plain strip
+      const returnZ = side < 0 ? counterMinZ + 0.008 : counterMaxZ - 0.008;
+      const faceZ = returnZ + side * 0.008, innerX0 = wallFaceX - 0.125, cols = 2, colW = 0.13 / cols;
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < cols; c++) {
+        const index = r * cols + c + (side < 0 ? 0 : 977);
+        const y = splashBottom + (r + 0.5) * (splashH / ROWS), x = innerX0 + (c + 0.5) * colW;
+        const g = roundedBoxGeometry([colW - GAP, faceH, T], 0.0012, 1);
+        glaze(g, index, (pos, n) => (side < 0 ? pos.getZ(n) < -T * 0.34 : pos.getZ(n) > T * 0.34), 4 / 1024);
+        g.applyMatrix4(new THREE.Matrix4().makeRotationY((jit(index, 3) - 0.5) * 0.018));
+        g.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, faceZ - side * ((0.0015 + jit(index, 1) * 0.0035) + T / 2)));
+        bricks.push(g);
+      }
+    }
+    addGeometryToBucket(b, "backsplash", m.hobTile, mergeGeometries(bricks), [0, 0, 0]);
+    bricks.forEach((g) => g.dispose());
+  }
   scene.userData.wokTile = { material: wokTile, repeatM: tileRepeatM, status: "pending", readyBeforeFirstPaint: false };
 
   const hoodShape = new THREE.Shape();
