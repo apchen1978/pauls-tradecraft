@@ -111,6 +111,11 @@ function createNightMusic() { // the cinematic engine, for series night
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(0.03, time + length * 0.85); g.gain.exponentialRampToValueAtTime(0.0001, time + length + 0.4);
     src.connect(band); band.connect(g); g.connect(bus); src.start(time); src.stop(time + length + 0.6);
   };
+  const kick = (time, gain) => { // a soft jazz kick (feathered bass drum): a round low thump that drops fast, with a faint beater click
+    const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = "sine"; osc.frequency.setValueAtTime(110, time); osc.frequency.exponentialRampToValueAtTime(46, time + 0.09);
+    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.34);
+    osc.connect(g); g.connect(bus); osc.start(time); osc.stop(time + 0.4); tick(time, gain * 0.12, 3200, 0.03); noteCount += 1;
+  };
   const drum = (time, gain) => { // a soft timpani-like hit: a low sine that drops in pitch, with a little skin noise
     const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = "sine"; osc.frequency.setValueAtTime(118, time); osc.frequency.exponentialRampToValueAtTime(52, time + 0.35);
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, time + 1.6);
@@ -139,13 +144,19 @@ function createNightMusic() { // the cinematic engine, for series night
           // a softer second roll, upward and slow, half-way through the longer chords
           if (span === 4) chord.forEach((midi, k) => piano(start + 2 * beat + 0.04 + k * (0.07 + rnd() * 0.05), midi + (k % 2 ? 12 : 0), vary(0.03 * loud), beat * 1.8, 0.15 - k * 0.07));
           // a bed of strings so faint it is felt rather than heard, and a cello on the root
-          chord.forEach((midi, k) => note(start, midi, STRINGS, 0.005, beat * span * 1.1, (k % 2 ? 1 : -1) * 0.4));
+          chord.forEach((midi, k) => note(start, midi, STRINGS, 0.008, beat * span * 1.1, (k % 2 ? 1 : -1) * 0.4));
           note(start, root + 12, CELLO, 0.02, beat * span * 1.05, -0.3);
         }
         // the long sustained layer (Paul 2026-11-22): open chord tones held on the real piano across the whole bar and into the next, very soft, so there is always a warm, ringing floor under the melody
         [[bar.bass, -0.3, 0.04], [bar.bass + 7, -0.15, 0.034], [bar.chord[1] + 12, 0.15, 0.03], [bar.chord[3] + 12, 0.3, 0.024]].forEach(([midi, pan, g], k) => piano(t0 + 0.03 * k + jitter(10), midi, vary(g * loud), barLength * 2.1, pan));
-        // the lightest brush on two and four, nothing more
-        tick(t0 + beat + jitter(8), 0.011, 2600, 0.14); tick(t0 + 3 * beat + jitter(8), 0.011, 2600, 0.14);
+        // the rhythm section (Paul 2026-11-23: "a little monotonous: add chords and a jazz bass drum, more arrangement"): a feathered kick on one and three with a soft ghost note before the next bar,
+        // a walking upright bass on every beat under the held piano bass, off-beat piano chord stabs (the "and" of two, and four) in the middle register, and a brushed ride with a skip beat
+        [0, 2].forEach((b2, i) => kick(t0 + b2 * beat + jitter(6), (i === 0 ? 0.2 : 0.15) * loud));
+        if (barIndex % 2 === 1) kick(t0 + 3.5 * beat + jitter(6), 0.08 * loud);
+        const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
+        [[0, walkRoot, 0.15], [1, walkThird, 0.11], [2, walkFifth, 0.12], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.1]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
+        for (const at of [1.5, 3]) bar.chord.slice(1).forEach((midi, k) => piano(t0 + at * beat + k * 0.014 + jitter(8), midi + 12, vary(0.034 * loud), beat * 0.5, -0.1 + k * 0.1));
+        [[0, 0.016, 7800], [1, 0.012, 7800], [1.66, 0.01, 7800], [2, 0.016, 7800], [3, 0.012, 7800], [3.66, 0.01, 7800]].forEach(([at, g, hz2]) => tick(t0 + at * beat + jitter(5), g, hz2, 0.12)); // a brushed ride, skipping on the triplets
         // the melody: long, singing notes on the piano with a second voice a chord tone below it; strings sing along from the second half
         const chordNow = (at) => (bar.chord2 && at >= 2 ? bar.chord2 : bar.chord);
         for (const [at, midi, length] of bar.tune) {
