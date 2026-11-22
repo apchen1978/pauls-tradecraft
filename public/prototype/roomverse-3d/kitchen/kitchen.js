@@ -7125,7 +7125,10 @@ export async function start({ stage, onReady = () => {} }) {
   }
   // A close, slow look at the credenza end where the record player stands (Paul 2026-11-17: the record player's own quality is the idea, and a tap on it
   // will start the music). Same pattern as the nook view: save the orbit, hold it to a small window, walk in over about a second, restore on leave.
-  const RECORD_VIEW = { target: [2.72, 0.89, 0.60], position: [1.76, 1.22, 0.99], minDistance: 0.55, maxDistance: 1.4, azimuthHalfRange: 0.55, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
+  // Paul 2026-11-22: the record view should also take in the small stove, now that its wall is real zellige. The camera
+  // steps back and turns a little toward +Z, so one frame holds the record player and the wok station together; the
+  // distance and the azimuth range grow with it.
+  const RECORD_VIEW = { target: [2.72, 1.00, 1.15], position: [1.28, 1.32, 1.92], minDistance: 0.55, maxDistance: 2.4, azimuthHalfRange: 0.6, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
   const recordFov = (aspect) => Math.min(RECORD_VIEW.maxFov, Math.max(RECORD_VIEW.minFov, 2 * Math.atan(Math.tan(RECORD_VIEW.halfHfovDeg * Math.PI / 180) / aspect) * 180 / Math.PI));
   let recordSaved = null;
   function setRecordView(on) {

@@ -110,7 +110,9 @@ test("Room 03 (Card I) the platter turns and the arm drops onto the vinyl only w
   expect(stopped.restIntoDeckMm).toBeGreaterThanOrEqual(0); expect(stopped.restIntoDeckMm).toBeLessThanOrEqual(2);
   expect(stopped.restTopToTubeMm).toBeGreaterThanOrEqual(-2); expect(stopped.restTopToTubeMm).toBeLessThanOrEqual(0);
   await page.locator("#recordView").click();
-  await expect.poll(async () => (await page.evaluate(() => window.__room03.recordViewInfo()))?.distance ?? 99, { timeout: 8000 }).toBeLessThan(1.4);
+  // Paul 2026-11-22: the record view was widened to take in the small stove (its wall is real zellige now), so the camera
+  // sits farther back. Old -> new: distance cap 1.4 -> 2.4 m (measured 1.68), the new RECORD_VIEW.maxDistance.
+  await expect.poll(async () => (await page.evaluate(() => window.__room03.recordViewInfo()))?.distance ?? 99, { timeout: 8000 }).toBeLessThan(2.4);
   await page.waitForTimeout(1200);
   const spot = await page.evaluate(() => { const v = window.__room03.camera; const rect = document.querySelector("canvas").getBoundingClientRect(); const q = new v.position.constructor(2.77, 0.87, 0.475).project(v); return { x: rect.left + (q.x + 1) * rect.width / 2, y: rect.top + (1 - q.y) * rect.height / 2 }; });
   await page.mouse.click(spot.x, spot.y);
