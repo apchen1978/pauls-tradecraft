@@ -1053,8 +1053,10 @@ function buildSideKitchen(b, m, scene) {
     shape.moveTo(0, -ry);
     shape.bezierCurveTo(rx * 0.95, -ry * 0.72, rx, ry * 0.45, 0, ry);
     shape.bezierCurveTo(-rx, ry * 0.45, -rx * 0.95, -ry * 0.72, 0, -ry);
-    const geometry = new THREE.ShapeGeometry(shape, 6);
-    geometry.rotateZ(angle); geometry.translate(cx, cy, 0.0295);
+    // Paul 2026-11-22: the print read as a sticker on a flat plane, so every motif is now a raised pad (an extruded
+    // shape with a soft bevel) instead of a flat sheet: 1.8 mm of embroidery over the cloth, catching the hood light.
+    const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.0018, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.0005, bevelSize: 0.0005, curveSegments: 4 });
+    geometry.rotateZ(angle); geometry.translate(cx, cy, 0.0288);
     return geometry;
   };
   for (const [index, mittZ] of [hookZ - 0.12, hookZ + 0.12].entries()) {
@@ -1104,12 +1106,13 @@ function buildSideKitchen(b, m, scene) {
         const shape = new THREE.Shape();
         shape.moveTo(0, -0.007); shape.bezierCurveTo(0.006, -0.006, 0.006, 0.004, 0, 0.010);
         shape.bezierCurveTo(-0.006, 0.004, -0.006, -0.006, 0, -0.007);
-        const petalGeometry = new THREE.ShapeGeometry(shape, 5);
-        petalGeometry.rotateZ(angle); petalGeometry.translate(px, py, 0.0305);
+        const petalGeometry = new THREE.ExtrudeGeometry(shape, { depth: 0.0012, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.0004, bevelSize: 0.0004, curveSegments: 4 });
+        petalGeometry.rotateZ(angle); petalGeometry.translate(px, py, 0.0298);
         addPrint(petalGeometry, petalColor);
       }
-      const center = new THREE.CircleGeometry(0.0045, 8); center.translate(cx, cy, 0.032);
-      addPrint(center, 0x8c683d);
+      // the flower's centre is a little domed bead, not a printed disc
+      const centre = new THREE.CylinderGeometry(0.0045, 0.0045, 0.0016, 10).rotateX(Math.PI / 2).translate(cx, cy, 0.0310);
+      addPrint(centre, 0x8c683d);
       mittPattern.flowers++;
     }
   }
