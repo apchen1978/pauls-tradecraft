@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 168164, meshes: 157 }),
+  scene: Object.freeze({ vertices: 168212, meshes: 157 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 103, phone: 100 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -26,7 +26,9 @@ export const LEDGER = Object.freeze({
   resizedPhoneCalls: 92,
   // Opening draw calls when the desktop window is resized (more of the room is in view at the wider sizes). Measured 2026-11-05 on main 4af7e5f;
   // 1440 px is the ledger's own number (openingDrawCalls.desktop). These were red against the 1440 cap of 80 before.
-  desktopCallsByWidth: Object.freeze({ 1280: 104, 1920: 104 }),
+  // Paul 2026-11-22: 104 -> 105 at 1280 and 1920. The hairline brass edge at the ends of the zellige field brings the
+// brass batch into the opening frame, so it is drawn there now (measured 105 at both widths).
+  desktopCallsByWidth: Object.freeze({ 1280: 105, 1920: 105 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -90,7 +92,8 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-19", change: "US Decora outlets (Paul): the record-player outlet becomes a Decora duplex; a GFCI with TEST and RESET on the backsplash beside the sink (empty); a Decora duplex on the entry wall behind the window-side floor lamp, with the lamp cord leaving its pole, lying on the floor and climbing the wall into a black plug. The two new outlets and the lamp cord are one vertex-coloured mesh (one more mesh, one more draw call)", vertices: 118919, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
     { date: "2026-11-19", change: "Floor lamp joint and cord (Paul): the stem now ends inside the tripod hub with a short collar and the legs start inside the hub; the lamp cord lies in a loose S across the floor (more tube segments). Same meshes and draw calls", vertices: 119207, meshes: 150, desktopCalls: 88, phoneCalls: 85 },
     { date: "2026-11-21", change: "the credenza and its surroundings (Paul): fluted walnut doors and a slate-blue shaker drawer-and-door front, the top now holds only tidy cooking things (a crock of spoons, a red casserole, a board with lemon and lime, a floral spice pot, a tray of four bottles with the Thanksgiving wine bottle copied, two stacks of plates), one cup and one bottle (the bottle moved to the floor by the window lounge chair beside a tall leafy plant), the three books on the entry-nook console; vertices 131,828, meshes 151, opening draw calls desktop 95 and phone 92, per-mood rows re-measured", vertices: 131828, meshes: 151, desktopCalls: 95, phoneCalls: 92 },
-    { date: "2026-11-21", change: "window floor plant (Paul): stems start inside the pot below the soil, three layers of cupped arching leaves with midribs, hand-painted vine band on the pot (same sage glaze)", vertices: 136654, meshes: 151, desktopCalls: 95, phoneCalls: 92 },    { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
+    { date: "2026-11-21", change: "window floor plant (Paul): stems start inside the pot below the soil, three layers of cupped arching leaves with midribs, hand-painted vine band on the pot (same sage glaze)", vertices: 136654, meshes: 151, desktopCalls: 95, phoneCalls: 92 },
+    { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
     { date: "2026-11-21", change: "oven hood (Paul): limewash plaster bell hood and duct instead of stainless, plus a slim brass rim (one mesh more)", vertices: 138574, meshes: 152, desktopCalls: 95, phoneCalls: 92 },
     { date: "2026-11-22", change: "stove wall (Paul, reference photos): flat induction hob with a touch strip and no knobs, patchwork azulejo panel with a brass frame behind it, oven without knobs and a stainless bar handle", vertices: 139358, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
     { date: "2026-11-22", change: "counter bread (Paul, reference photo): a golden quick-bread loaf with a split top in a dark steel loaf pan, a rectangular slice in front", vertices: 139367, meshes: 154, desktopCalls: 99, phoneCalls: 96 },
@@ -101,6 +104,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "small stove area (Paul): the SMALL STOVE wall (wok run and its two returns) becomes real zellige; the main hob panel stays the printed azulejo Paul liked (16 x 8 hand-set glazed bricks, each 2-8 mm proud, +-1 degree, own palette colour and glaze lip, on a grout bed), and the oven front is refined (bevelled door plate, picture-frame reveal, chrome bezel on the glass, joint lines, handle end caps)", vertices: 161768, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "oven mitts (Paul: the print read as a sticker): every leaf and petal is now an extruded pad about 1.8 mm proud with a soft bevel, and each flower centre is a domed bead; the mitts hang where they were", vertices: 169124, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "open kitchen (Paul): the two 13 cm stone returns that stood out from the wok wall like fins are gone, so the zellige field ends at the wall edge the way an open kitchen does", vertices: 168164, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
+    { date: "2026-11-22", change: "a hairline brass edge at both ends of the zellige field (5 mm wide, 24 mm deep): the cut brick edge meets a metal line instead of stopping against the wall", vertices: 168212, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
   ]),
 });
 
