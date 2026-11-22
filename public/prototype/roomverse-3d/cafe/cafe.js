@@ -3930,6 +3930,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = Math.max(0, live.tv - 0.4) * 4; // by day the screen plays dimly (a cafe television is never a black hole) and lights nothing; on series night it lights the lounge
     materials.paleOak.color.copy(live.stoolColor); // the stools' pale oak follows the mood
   materials.cane.color.copy(live.caneSeat); materials.leather.color.copy(live.leatherSeat); // and so do the seat surfaces
+  applyStoolTint(); // a tint chosen with 隨機搭一間 wins over the mood's own
   sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
     neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02; neonHalo.material.opacity = live.neon * 0.8; neonHalo.visible = neonSign.visible;
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
@@ -3970,6 +3971,22 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       altTextures[file] = t; loadedArt.add(file); then(t); render();
     });
   }
+  // Paul 2026-11-23: 隨機搭一間 must be able to change the stools' colour too, not only their design. Five tints, each a
+  // frame / cane seat / leather seat triple; null means "follow the mood", which is the default so a mood change still
+  // repaints them. A tint chosen by the random button (or by hand later) wins until the default look is restored.
+  const STOOL_TINTS = {
+    natural: [0xd8b886, 0xcaa66b, 0xb5583a],
+    oxblood: [0x8a4a3a, 0x7d4438, 0x7a2f2b],
+    ink: [0x2b2422, 0x241d1c, 0x1e1a19],
+    olive: [0x6f7444, 0x666c40, 0x5c5f3c],
+    ivory: [0xe8dcc0, 0xdcd0b4, 0xc7b79a],
+  };
+  let stoolTintKey = null;
+  const applyStoolTint = () => {
+    if (!stoolTintKey) return;
+    const [frame, cane, leather] = STOOL_TINTS[stoolTintKey];
+    materials.paleOak.color.setHex(frame); materials.cane.color.setHex(cane); materials.leather.color.setHex(leather);
+  };
   const OAK_BASE = new THREE.Color(0xe0bd90); // the recessed panel fields start a shade deeper than the frames
   function setLook(group, key, userPick = false) {
     const options = LOOK_GROUPS[group]; if (!options || !(key in options)) return false;
@@ -4046,6 +4063,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // (no clay above red or dusty brick, no slate above the dark grey brick).
     const ceilingKeys = Object.keys(LOOK_GROUPS.ceiling).filter((k) => !(k === "clay" && (brick === "red" || brick === "dusty")) && !(k === "slate" && brick === "grey"));
     picks.ceiling = rng() < 0.4 ? "white" : ceilingKeys[Math.floor(rng() * ceilingKeys.length)];
+    // two times in five the stools keep their material-natural colour; otherwise they take one of the shop tints
+    const tintKeys = Object.keys(STOOL_TINTS);
+    stoolTintKey = rng() < 0.4 ? "natural" : tintKeys[Math.floor(rng() * tintKeys.length)];
+    applyStoolTint();
     for (const [group, key] of Object.entries(picks)) setLook(group, key); // the rug is a random pick too, but only a rug chosen by hand in the panel stops the moods from changing it
     wainscotChosen = false; setLook("wainscot", "same");
     if (rng() < 0.4) { const paper = pick("wallpaper", ["none"]); setLook("wallpaper", paper); const options = WAINSCOT_FOR_PAPER[paper]; setLook("wainscot", options[Math.floor(rng() * options.length)]); } // two rooms in five get one of Room 01's wallpapers, with a wainscot that suits it
@@ -4069,7 +4090,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     }
     materials.wall.needsUpdate = true; materials.wallFeature.needsUpdate = true;
   }
-  const resetLook = () => { wainscotChosen = false; rugChosen = false; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); if (RUG_BY_MOOD[currentMood]) setLook("rug", RUG_BY_MOOD[currentMood]); return { ...currentLook }; };
+  const resetLook = () => { wainscotChosen = false; rugChosen = false; stoolTintKey = null; for (const [group, key] of Object.entries(DEFAULT_LOOK)) setLook(group, key); if (RUG_BY_MOOD[currentMood]) setLook("rug", RUG_BY_MOOD[currentMood]); return { ...currentLook }; };
 
   // Where the robot's head and the paper note are on screen, in client pixels, so the page can float tap targets and bubbles over them.
   const projectBounds = (box) => {
