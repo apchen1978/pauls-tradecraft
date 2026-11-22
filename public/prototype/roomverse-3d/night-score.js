@@ -189,7 +189,17 @@ function createNightMusic() { // the cinematic engine, for series night
         if (barIndex % 4 === 3) for (let i = 0; i < 2; i++) tick(t0 + (3 + i * 0.5) * beat + jitter(2), (0.014 + 0.008 * i) * loud, 3400, 0.05); // a small fill into the next phrase
         // Paul 2026-11-23: the continuous arpeggio is gone; four warm block chords a bar (one on every beat, the first full, the others softer, each ringing for a beat and a half) leave room for the melody and the 808 to
         // breathe. Three-note voicings in the middle register, rolled a hair from the bottom, below the melody.
-        [1, 0.6, 0.8, 0.6].forEach((w, i) => [bar.chord[0], bar.chord[1], bar.chord[2]].forEach((midi, k) => piano(t0 + i * beat + k * 0.011 + jitter(6), midi, vary(0.05 * w * loud), beat * 1.5, -0.12 + k * 0.1)));
+        // the block chords follow the bar's second chord from beat three when it has one
+        [1, 0.6, 0.8, 0.6].forEach((w, i) => {
+          const ch = bar.chord2 && i >= 2 ? bar.chord2 : bar.chord;
+          [ch[0], ch[1], ch[2]].forEach((midi, k) => piano(t0 + i * beat + k * 0.011 + jitter(6), midi, vary(0.05 * w * loud), beat * 1.5, -0.12 + k * 0.1));
+        });
+        // Paul 2026-11-23 (final): a piano left hand plays the chord's root in the low-middle register (C2 to E3 as heard, kept clear of the 808's sub band): a firm hit on beat one, a light touch on the
+        // "and" of two that pushes the bar on, and on every other bar a light touch on beat four; each with its own small velocity, shorter than the chords above so the groove stays springy.
+        const heard = (m) => m /* bar notes are already transposed at load */, lhRoot = (r) => { let m = r + 12; while (heard(m) > 52) m -= 12; while (heard(m) < 36) m += 12; return m; };
+        const lh = [[0, bar.bass, 0.1, 0.6], [2.5, bar.chord2 ? (bar.bass2 ?? bar.bass) : bar.bass, 0.05, 0.35]];
+        if (barIndex % 2 === 1) lh.push([3, bar.chord2 ? (bar.bass2 ?? bar.bass) : bar.bass, 0.045, 0.35]);
+        lh.forEach(([at, root, g, len]) => piano(t0 + at * beat + jitter(6), lhRoot(root), g * (0.85 + rnd() * 0.3) * loud, beat * len, -0.22));
         // the organ bed from the middle, holding the chord
         if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
