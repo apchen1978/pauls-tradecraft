@@ -11,7 +11,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 241040, meshes: 404 }),
+  scene: Object.freeze({ vertices: 246092, meshes: 404 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
   openingDrawCalls: Object.freeze({ desktop: 116, phone: 89 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
@@ -61,6 +61,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-21", change: "the pleated half-shade wall sconce (merged to four meshes), a corrugated moving box (kraft, contents, tape, label: four meshes) against the left wall, and no game pad: vertices 240,505, meshes 400, opening draw calls desktop 116 and phone 88", vertices: 240505, meshes: 400, desktopCalls: 116, phoneCalls: 88 },
     { date: "2026-11-22", change: "wine bottle (Paul): Room 03's Thanksgiving wine bottle stands in the bottom compartment of the TV wall's left shelf, beyond the little cooker (one mesh and its contact patch; the phone draw-call numbers are re-measured, one higher)", vertices: 241184, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
     { date: "2026-11-22", change: "Paul: the moving box loses its two black oval hand holes (they read as eyes), and the wall backpack turns cobalt blue with cream straps (-144 vertices)", vertices: 241040, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
+    { date: "2026-11-22", change: "record view and coffee stool (Paul): the record-player view reaches 50 cm along the wall to take in the stool and the backpack; the stool's canister and cup become a speckled sage stoneware jar with an oak lid and a terracotta mug with a gold rim (+5.1k vertices)", vertices: 246092, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
   ]),
 });
 

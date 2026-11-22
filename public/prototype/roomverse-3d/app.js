@@ -2159,12 +2159,17 @@ let lanternMat = null;
       const trayY = topY - .004; // the tray sinks 4 mm into the soft top
       parts.push([new THREE.CylinderGeometry(.135, .13, .014, 48).translate(CS.x, trayY + .007, CS.z), 0xb88f5e], [new THREE.TorusGeometry(.1335, .0055, 8, 48).rotateX(Math.PI / 2).translate(CS.x, trayY + .0145, CS.z), 0xa27a4c]);
       const ty = trayY + .014;
-      // the canister (graphite, steel lid, scoop), left on the tray
-      const cx = CS.x - .045, cz = CS.z + .03;
-      parts.push([new THREE.CylinderGeometry(.042, .042, .15, 28).translate(cx, ty + .075, cz), 0x3a3d42], [new THREE.CylinderGeometry(.044, .044, .016, 28).translate(cx, ty + .158, cz), 0x8d9096], [new THREE.BoxGeometry(.07, .005, .018).rotateY(.5).translate(cx, ty + .1685, cz), 0x8d9096]);
-      // the take-away cup (white body, kraft sleeve, black lid), right on the tray
+      // Paul 2026-11-22 ("beautify the two cups or jars"): a speckled sage stoneware canister with a cream glaze band, an oak lid and a brass knob (left on the tray), and a terracotta-glazed
+      // mug with a thin gold rim, a looped handle and black coffee (right). Same footprint and height as the graphite canister and paper cup they replace.
+      const cx = CS.x - .045, cz = CS.z + .03, lathe2 = (pts, seg = 28) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg);
+      parts.push([lathe2([[0, 0], [.038, 0], [.043, .008], [.043, .13], [.04, .142], [0, .142]]).translate(cx, ty, cz), 0x9fb79d]);
+      parts.push([new THREE.CylinderGeometry(.0436, .0436, .022, 28, 1, true).translate(cx, ty + .07, cz), 0xf0e6d2], [new THREE.CylinderGeometry(.0436, .0436, .004, 28, 1, true).translate(cx, ty + .084, cz), 0xc9a45a]);
+      parts.push([lathe2([[0, .14], [.044, .14], [.044, .148], [.036, .156], [0, .158]]).translate(cx, ty, cz), 0xb98a52], [new THREE.SphereGeometry(.0095, 10, 8).translate(cx, ty + .166, cz), 0xc9a45a]);
+      for (let i = 0; i < 18; i++) { const a = i * 2.4, yy = .02 + (i * 0.0063) % .11; parts.push([new THREE.SphereGeometry(.0017, 5, 4).translate(cx + Math.cos(a) * .0435, ty + yy, cz + Math.sin(a) * .0435), 0x6f8a70]); } // the speckle
       const ux = CS.x + .05, uz = CS.z - .035;
-      parts.push([new THREE.CylinderGeometry(.04, .03, .106, 24).translate(ux, ty + .053, uz), 0xf4f1e9], [new THREE.CylinderGeometry(.0375, .033, .04, 24).translate(ux, ty + .056, uz), 0xb38c65], [new THREE.CylinderGeometry(.043, .04, .01, 24).translate(ux, ty + .111, uz), 0x292b2d], [new THREE.CylinderGeometry(.0185, .0185, .006, 16).translate(ux, ty + .119, uz), 0x292b2d]);
+      parts.push([lathe2([[0, 0], [.03, 0], [.038, .01], [.04, .085], [.0385, .09], [.034, .088], [.034, .014], [0, .012]], 28).translate(ux, ty, uz), 0xd98a62]);
+      parts.push([new THREE.CylinderGeometry(.0335, .0335, .002, 28).translate(ux, ty + .079, uz), 0x2a1b12], [new THREE.TorusGeometry(.0392, .0013, 5, 28).rotateX(Math.PI / 2).translate(ux, ty + .0895, uz), 0xd7b15a]);
+      parts.push([new THREE.TorusGeometry(.021, .0052, 6, 16, Math.PI).rotateZ(-Math.PI / 2).translate(ux + .04, ty + .05, uz), 0xd98a62]);
       PROPS.coffeeStool = solid(parts, "coffee-stool"); PROPS.coffeeStoolInfo = { topY, trayTop: ty, x: CS.x, z: CS.z };
     }
     PROPS.night = solid(nightParts, "series-night-props"); PROPS.night.visible = false;
@@ -3156,7 +3161,9 @@ let lanternMat = null;
   const doorShot = () => ({ eye: DOOR_EYE.clone(), focus: camera.aspect < .8 ? new THREE.Vector3(.2, 1.05, -.3) : new THREE.Vector3(-.5, 1.08, .5) });
   const recordShot = () => {
     const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3());
-    const focus = new THREE.Vector3(c.x + .02, b.max.y - .02, c.z), dist = camera.aspect < .8 ? 1.0 : .7;
+    // Paul 2026-11-22: the view reaches further along the wall (towards the room's -z) so the coffee stool with its two jars and the backpack are in the picture too: the focus moves half a metre along the wall (towards -z, to the right on screen) and lower
+    // (between the deck and the stool top) and the eye pulls back.
+    const focus = new THREE.Vector3(c.x + .02, b.max.y - .1, c.z - .5), dist = camera.aspect < .8 ? 1.9 : 1.2;
     return { focus, eye: focus.clone().addScaledVector(new THREE.Vector3(.6, .75, -.28).normalize(), dist) }; // from the room side and above, a little toward the window end, so the hall stand stays out of frame
   };
   function moveRecordView(view) {
