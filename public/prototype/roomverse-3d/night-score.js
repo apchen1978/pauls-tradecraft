@@ -31,7 +31,7 @@ const TRACKS = [
   // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in G major (see `transpose`), sixteen bars.
-  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 104, swing: 0, send: 0.5, transpose: 2, // Paul 2026-11-22: faster (104 beats a minute) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 116, swing: 0, send: 0.5, transpose: 2, // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
       { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Fmaj9: C D E
