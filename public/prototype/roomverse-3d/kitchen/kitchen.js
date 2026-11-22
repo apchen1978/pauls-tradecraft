@@ -5176,14 +5176,12 @@ function buildHouseholdProps(scene, m, onPropLoad) {
     boardShape.holes.push(handleHole);
     const board = new THREE.ExtrudeGeometry(boardShape, { depth: thickness, bevelEnabled: false, curveSegments: 8 });
     board.translate(0, 0, -thickness / 2);
-    const lean = -0.16;
-    const x = 2.904, z = 1.28, topY = counterY;
-    // Compose the lean about world Z after turning the board to face the room;
-    // this keeps its 255 mm width along the backsplash instead of skewing its bounding box.
-    const orient = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
-    orient.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), lean));
+    // Paul 2026-11-22: the board leaned against the small stove's wall, and the new zellige bricks stand 1.5-5 mm proud of
+    // it, so the board cut into the tile and read as broken. It now lies flat on the sink run, clear of the hob and of the
+    // basin, drying after a wash, and the stove wall is left clean.
+    const orient = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
     board.applyQuaternion(orient);
-    const y = topY + height * Math.cos(Math.abs(lean)) / 2 + thickness * Math.sin(Math.abs(lean)) / 2;
+    const x = 2.12, z = -2.03, y = counterY + thickness / 2 + 0.0030; // lying flat; the 3 mm covers the counter's front bevel under the board
     shape(board, m.oak, [x, y, z]);
   });
   cuttingBoard.userData.nominalSizeM = [0.255, 0.315, 0.0195];
@@ -7128,10 +7126,10 @@ export async function start({ stage, onReady = () => {} }) {
   }
   // A close, slow look at the credenza end where the record player stands (Paul 2026-11-17: the record player's own quality is the idea, and a tap on it
   // will start the music). Same pattern as the nook view: save the orbit, hold it to a small window, walk in over about a second, restore on leave.
-  // Paul 2026-11-22: the record view should also take in the small stove, now that its wall is real zellige. The camera
-  // steps back and turns a little toward +Z, so one frame holds the record player and the wok station together; the
-  // distance and the azimuth range grow with it.
-  const RECORD_VIEW = { target: [2.72, 1.00, 1.15], position: [1.28, 1.32, 1.92], minDistance: 0.55, maxDistance: 2.4, azimuthHalfRange: 0.6, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
+  // Paul 2026-11-22: like Room 02, a look frames the whole object and lets you swing either side of it. The record view
+  // aims at the deck itself (not at a point beside it) and steps back far enough that the deck, its plinth, the cable-car
+  // art on the left and the small stove's zellige wall on the right are all inside one frame.
+  const RECORD_VIEW = { target: [2.72, 0.98, 0.62], position: [1.22, 1.60, 2.30], minDistance: 0.8, maxDistance: 3.4, azimuthHalfRange: 0.52, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
   const recordFov = (aspect) => Math.min(RECORD_VIEW.maxFov, Math.max(RECORD_VIEW.minFov, 2 * Math.atan(Math.tan(RECORD_VIEW.halfHfovDeg * Math.PI / 180) / aspect) * 180 / Math.PI));
   let recordSaved = null;
   function setRecordView(on) {
@@ -8516,12 +8514,17 @@ export async function start({ stage, onReady = () => {} }) {
     }));
     const cuttingBoardObject = scene.getObjectByName("prop-cutting-board");
     const cuttingBoardBox = cuttingBoardObject ? new THREE.Box3().setFromObject(cuttingBoardObject) : null;
-    const wokCounterSurface = scene.getObjectByName("merged-wok-counter");
+    // Paul 2026-11-22: the board stands on the sink run now, not the wok counter, so the support ray is cast against the
+    // sink counter and falls back to the wok counter (the board's old home) if it ever moves back.
+    const boardCounters = [];
+    scene.traverse((object) => { if (object.name === "merged-counter" || object.name === "merged-wok-counter") boardCounters.push(object); });
+    const wokCounterSurface = boardCounters;
     const boardSupportRay = cuttingBoardBox ? new THREE.Raycaster(
       new THREE.Vector3(cuttingBoardBox.min.x + 0.01, 1.3, (cuttingBoardBox.min.z + cuttingBoardBox.max.z) / 2),
       new THREE.Vector3(0, -1, 0), 0, 1,
     ) : null;
-    const boardSupportHit = boardSupportRay && wokCounterSurface ? boardSupportRay.intersectObject(wokCounterSurface, true)[0] : null;
+    const boardSupportHit = boardSupportRay && wokCounterSurface.length
+      ? boardSupportRay.intersectObjects(wokCounterSurface, true)[0] : null;
     const boardBurner = scene.getObjectByName("wok-kitchen-burners");
     const burnerBox = boardBurner ? new THREE.Box3().setFromObject(boardBurner) : null;
     const cuttingBoardFit = cuttingBoardBox && boardSupportHit ? {
