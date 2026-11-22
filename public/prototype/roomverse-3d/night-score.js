@@ -35,20 +35,20 @@ const TRACKS = [
 
     bars: [
       { bass: 41, chord: [57, 60, 64, 67], tune: [[1.5, 72, 1], [2.5, 74, 0.5], [3, 72, 2]] },                                          // Fmaj9: C D E
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1.5, 69, 0.5], [2, 67, 1], [3.5, 69, 0.5]] },      // Am7 | D7: F E D
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[2, 69, 1], [3, 67, 1]] },      // Am7 | D7: F E D
       { bass: 43, chord: [58, 62, 65, 69], tune: [[0.5, 72, 0.5], [1, 74, 1.5], [2.5, 72, 0.5], [3, 69, 1]] },                                          // Gm9: C Bb C
-      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 67, 0.5], [0.5, 69, 0.5], [1.5, 72, 1], [3, 74, 1.5]] },                                                      // C7: A G
+      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 67, 1], [1, 69, 0.5], [1.5, 72, 1.5], [3, 74, 1.5]] },                                                      // C7: A G
       { bass: 41, chord: [57, 60, 64, 67], tune: [[1, 77, 1.5], [2.5, 74, 0.5], [3, 72, 1]] },                                                      // Fmaj9: C up to F
       { bass: 46, chord: [57, 62, 65, 69], tune: [[1.5, 74, 0.5], [2, 72, 1], [3.5, 69, 0.5]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 67, 0.5], [0.5, 69, 1], [2, 72, 1], [3.5, 74, 2.5]] },                  // Am7 | Dm7
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 67, 1], [1, 69, 1], [2, 72, 1], [3.5, 74, 2.5]] },                  // Am7 | Dm7
       { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[2, 72, 0.5], [2.5, 69, 0.5], [3, 67, 1]] },     // Gm7 | C7
       { bass: 38, chord: [60, 65, 69, 72], tune: [[1, 69, 0.5], [1.5, 72, 1], [3, 74, 0.5], [3.5, 77, 1.5]] },                                          // Dm9: a step up
-      { bass: 43, chord: [59, 62, 65, 69], tune: [[1.5, 74, 0.5], [2, 72, 1], [3, 74, 1]] },                                          // G7
+      { bass: 43, chord: [59, 62, 65, 69], tune: [[1, 74, 1], [2, 72, 1], [3, 74, 1]] },                                          // G7
       { bass: 36, chord: [59, 64, 67, 71], tune: [[0.5, 79, 1.5], [2.5, 77, 0.5], [3, 74, 1]] },                                                      // Cmaj9
       { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 81, 1], [1, 79, 0.5], [1.5, 77, 0.5], [2.5, 74, 1.5]] },                                                      // Am7
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0.5, 77, 1], [2, 74, 0.5], [2.5, 72, 1], [3.5, 74, 0.5]] },                                                      // Bbmaj7
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0.5, 77, 1.5], [2.5, 72, 1], [3.5, 74, 0.5]] },                                                      // Bbmaj7
       { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 1], [1.5, 69, 0.5], [2, 67, 1.5]] },     // Gm7 | C7
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0.5, 69, 0.5], [1, 72, 1], [2.5, 74, 1.5]] },                  // Am7 | D7
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1, 72, 1], [2.5, 74, 1.5]] },                  // Am7 | D7
       { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 2.5], [3.5, 69, 0.5]] },                              // Gm7 | C7: a long C, home
     ] },
 ];
@@ -180,14 +180,12 @@ function createNightMusic() { // the cinematic engine, for series night
         // Paul 2026-11-23: a jazz kit under it: a snare on two and four, and an 808 sub on the downbeat of every bar (on the bar's root, an octave below the walking bass) that rings through the bar
         [1, 3].forEach((b2) => snare(t0 + b2 * beat + jitter(5), (dance ? 0.1 : 0.07) * loud));
         // Paul 2026-11-23: the 808 comes up an octave (the bar's root at its own pitch, 58 to 110 Hz) and plays a rhythm: the downbeat, beat three, and a soft pickup into the next bar on every other bar; the walking bass takes beats two and four
-        eight08(t0 + jitter(3), (dance ? 0.2 : 0.17) * loud, bar.bass); eight08(t0 + 2 * beat + jitter(3), 0.13 * loud, bar.bass + (barIndex % 4 === 1 ? 7 : 0)); if (barIndex % 2 === 1) eight08(t0 + 3.5 * beat + jitter(3), 0.08 * loud, bar.bass);
+        eight08(t0 + jitter(3), (dance ? 0.2 : 0.17) * loud, bar.bass); eight08(t0 + 2 * beat + jitter(3), 0.13 * loud, bar.bass + (barIndex % 4 === 1 ? 7 : 0));
         // a swung closed hat in alternating strong and soft strokes (a gentle jazz brush feel, not a metronome): eight strokes a bar, the off-eighths pushed late by a third of an eighth, gains 1.0 / 0.45 / 0.7 / 0.4 ...
-        for (let i = 0; i < 8; i++) tick(t0 + (i * 0.5 + (i % 2 ? 0.17 : 0)) * beat + jitter(4), [0.017, 0.007, 0.012, 0.0065, 0.015, 0.0075, 0.011, 0.007][i] * loud, 7600, 0.06);
-        if (barIndex % 2 === 0) for (let i = 0; i < 3; i++) tick(t0 + (3 + i / 3) * beat + jitter(2), (0.01 + 0.004 * i) * loud, 9000, 0.04); // a triplet hat roll into the next bar
-        for (let i = 0; i < 8; i++) tick(t0 + i * 0.5 * beat + jitter(3), (i % 2 ? 0.004 : 0.007) * loud, 5400, 0.05); // the shaker, straight eighths, quieter now the swung hat carries the pulse
+        [[0, 0.017], [1, 0.012], [1.67, 0.006], [2, 0.015], [3, 0.011], [3.67, 0.006]].forEach(([at, g]) => tick(t0 + at * beat + jitter(4), g * loud, 7600, 0.06)); // Paul 2026-11-23 (the syncopation was too dense): four on-beat strokes and just two soft swung ones, the shaker, the triplet roll and the 808 pickup are gone
         [1, 3].forEach((b2) => { tick(t0 + b2 * beat + 0.004, 0.028 * loud, 5200, 0.14); tick(t0 + b2 * beat + 0.012, 0.018 * loud, 7600, 0.1); }); // the tambourine
         if (barIndex % 2 === 1) tick(t0 + 3 * beat + jitter(4), 0.03 * loud, 2100, 0.06); // a woodblock tick
-        if (barIndex % 4 === 3) for (let i = 0; i < 4; i++) tick(t0 + (3 + i * 0.25) * beat + jitter(2), (0.012 + 0.006 * i) * loud, 3400, 0.05); // a quick fill into the next phrase
+        if (barIndex % 4 === 3) for (let i = 0; i < 2; i++) tick(t0 + (3 + i * 0.5) * beat + jitter(2), (0.014 + 0.008 * i) * loud, 3400, 0.05); // a small fill into the next phrase
         // the flowing piano arpeggio: eight notes a bar through the chord, up and back, quiet under the melody and a little fuller in the second half
         const arp = [0, 1, 2, 3, 2, 1, 2, 1].map((i) => bar.chord[i]);
         arp.forEach((midi, i) => piano(t0 + i * 0.5 * beat + jitter(5), midi, vary((full ? 0.036 : 0.03) * loud), beat * 1.3, -0.15 + (i % 4) * 0.1)); // kept below the melody's register so the tune stands clear
