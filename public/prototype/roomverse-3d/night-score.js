@@ -117,6 +117,17 @@ function createNightMusic() { // the cinematic engine, for series night
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.34);
     osc.connect(g); g.connect(bus); osc.start(time); osc.stop(time + 0.4); tick(time, gain * 0.12, 3200, 0.03); noteCount += 1;
   };
+  const snare = (time, gain) => { // a jazz-kit snare: a short skin tone (190 Hz) under a band-passed rattle of brushes
+    const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = "triangle"; osc.frequency.setValueAtTime(220, time); osc.frequency.exponentialRampToValueAtTime(165, time + 0.08);
+    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain * 0.5, time + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.16);
+    osc.connect(g); g.connect(bus); osc.start(time); osc.stop(time + 0.2); tick(time, gain * 0.8, 2400, 0.14); tick(time + 0.003, gain * 0.35, 5200, 0.1); noteCount += 1;
+  };
+  const eight08 = (time, gain, midi) => { // a long 808 sub: a pure low sine with a small pitch drop and a slow tail, a touch of soft-clip warmth from the second partial
+    const f = hz(midi), osc = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = "sine"; osc.frequency.setValueAtTime(f * 1.6, time); osc.frequency.exponentialRampToValueAtTime(f, time + 0.05); o2.type = "sine"; o2.frequency.value = f * 2; 
+    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, time + 1.1);
+    const g2 = ctx.createGain(); g2.gain.value = 0.12; o2.connect(g2); g2.connect(g); osc.connect(g); g.connect(bus); osc.start(time); o2.start(time); osc.stop(time + 1.2); o2.stop(time + 1.2); noteCount += 1;
+  };
   const clap = (time, gain) => { // a soft pop clap: two quick noise bursts through a band-pass, with a short tail
     for (const [d, g] of [[0, 1], [0.012, 0.7]]) tick(time + d, gain * g, 1500, 0.11);
     tick(time + 0.02, gain * 0.5, 2600, 0.2);
@@ -161,8 +172,18 @@ function createNightMusic() { // the cinematic engine, for series night
         // hat on the beat), a smooth walking bass and a drawbar organ bed. Everything lands on the beat or the straight eighth; nothing is stabbed off the beat.
         const dance = barIndex % 16 >= 8, full = barIndex % 16 >= 10;
         [0, 2].forEach((b2) => kick(t0 + b2 * beat + jitter(4), (b2 === 0 ? 0.22 : 0.17) * loud));
-        if (dance) [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), (full ? 0.16 : 0.12) * loud));
+        // Paul 2026-11-23: the rhythm instruments are there from the first bar (this key wants rhythmic decoration): the clap on two and four (softer in the first half, firmer after the middle), a shaker on the straight
+        // eighths (smooth, never off-beat stabs), a tambourine on two and four, a closed hat on the beat, a woodblock tick on the last beat of every second bar, and a small fill (a quick run of soft taps) into every fourth bar.
+        [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), (dance ? (full ? 0.16 : 0.12) : 0.09) * loud));
+        // Paul 2026-11-23: a jazz kit under it: a snare on two and four, and an 808 sub on the downbeat of every bar (on the bar's root, an octave below the walking bass) that rings through the bar
+        [1, 3].forEach((b2) => snare(t0 + b2 * beat + jitter(5), (dance ? 0.1 : 0.07) * loud));
+        eight08(t0 + jitter(3), (dance ? 0.2 : 0.16) * loud, Math.max(28, bar.bass - 12 < 28 ? bar.bass : bar.bass - 12));
         for (let i = 0; i < 4; i++) tick(t0 + i * beat + jitter(4), 0.012 * loud, 8500, 0.05); // a closed hat on the beat
+        if (barIndex % 2 === 0) for (let i = 0; i < 3; i++) tick(t0 + (3 + i / 3) * beat + jitter(2), (0.01 + 0.004 * i) * loud, 9000, 0.04); // a triplet hat roll into the next bar
+        for (let i = 0; i < 8; i++) tick(t0 + i * 0.5 * beat + jitter(3), (i % 2 ? 0.006 : 0.011) * loud, 6200, 0.05); // the shaker, straight eighths
+        [1, 3].forEach((b2) => { tick(t0 + b2 * beat + 0.004, 0.028 * loud, 5200, 0.14); tick(t0 + b2 * beat + 0.012, 0.018 * loud, 7600, 0.1); }); // the tambourine
+        if (barIndex % 2 === 1) tick(t0 + 3 * beat + jitter(4), 0.03 * loud, 2100, 0.06); // a woodblock tick
+        if (barIndex % 4 === 3) for (let i = 0; i < 4; i++) tick(t0 + (3 + i * 0.25) * beat + jitter(2), (0.012 + 0.006 * i) * loud, 3400, 0.05); // a quick fill into the next phrase
         // the flowing piano arpeggio: eight notes a bar through the chord, up and back, quiet under the melody and a little fuller in the second half
         const arp = [0, 1, 2, 3, 2, 1, 2, 1].map((i) => bar.chord[i]);
         arp.forEach((midi, i) => piano(t0 + i * 0.5 * beat + jitter(5), midi + (i % 4 === 3 ? 12 : 0), vary((full ? 0.042 : 0.034) * loud), beat * 1.3, -0.15 + (i % 4) * 0.1));
