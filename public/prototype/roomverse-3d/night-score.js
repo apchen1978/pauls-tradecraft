@@ -31,7 +31,7 @@ const TRACKS = [
   // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
-  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 116, swing: 0, send: 0.5, transpose: -2, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
       { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Fmaj9: C D E
@@ -69,6 +69,7 @@ const HORN = { partials: [[1, 0.55, "sawtooth", 1], [1.004, 0.4, "sawtooth", 1],
 const STR_TREM = { partials: [[1, 0.5, "sawtooth", 1], [1.006, 0.5, "sawtooth", 1]], lowpass: 1500, attack: 0.18, tremolo: 0.85, tremRate: 11 }; // strings played with a fast bow tremolo
 const BASS_DRIVE = { partials: [[1, 1, "sawtooth", 1], [2, 0.3, "triangle", 0.5]], lowpass: 520, attack: 0.01 };
 const FLUTE = { partials: [[1, 0.7, "sine", 1], [2, 0.12, "triangle", 0.6], [3, 0.03, "sine", 0.3]], lowpass: 3400, attack: 0.07, vibrato: 6 }; // a breathy flute: a soft sine with a touch of air
+const ORGAN = { partials: [[1, 0.6, "sine", 1], [2, 0.35, "sine", 1], [3, 0.18, "sine", 1], [4, 0.1, "sine", 1], [0.5, 0.3, "sine", 1]], lowpass: 2600, attack: 0.05, tremolo: 0.25, tremRate: 6.2 }; // a drawbar organ, the gospel bed
 const CELLO = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 650, attack: 0.3, vibrato: 8 };
 const STRING_LEAD = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 1300, attack: 0.25, vibrato: 9 };
 
@@ -157,11 +158,13 @@ function createNightMusic() { // the cinematic engine, for series night
         // a walking upright bass on every beat under the held piano bass, off-beat piano chord stabs (the "and" of two, and four) in the middle register, and a brushed ride with a skip beat
         // Paul 2026-11-23: borrow from dance-pop / EDM to add drive: a four-on-the-floor kick (all four beats, a little firmer than the jazz one), a clap on two and four, open off-beat hats, and from the build-up
         // on (bar 5) an eighth-note pumping sub on the off-beats. The first four bars keep only the kick and hats, so the piece grows into it.
-        const dance = barIndex % 16 >= 4, full = barIndex % 16 >= 8;
+        const dance = barIndex % 16 >= 8, full = barIndex % 16 >= 10; // Paul 2026-11-23: the clap and the pumping sub come in after the middle of the piece, the clap clearly louder (gospel hand claps); the first half keeps only kick and hats
         [0, 1, 2, 3].forEach((b2) => kick(t0 + b2 * beat + jitter(4), (b2 === 0 ? 0.26 : 0.21) * loud));
-        if (dance) [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), 0.05 * loud));
+        if (dance) { [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), (full ? 0.2 : 0.15) * loud)); if (full) [1.5, 3.5].forEach((b2) => clap(t0 + b2 * beat + jitter(6), 0.05 * loud)); } // gospel claps: loud on two and four, a soft ghost clap after each once it is full
         for (let i = 0; i < 4; i++) tick(t0 + (i + 0.5) * beat + jitter(4), (full ? 0.03 : 0.02) * loud, 9500, 0.07); // open off-beat hats
         if (dance) for (let i = 0; i < 4; i++) note(t0 + (i + 0.5) * beat + jitter(4), bar.bass, BASS_DRIVE, (full ? 0.15 : 0.1) * loud, beat * 0.4); // the pumping off-beat sub
+        // the gospel bed: a drawbar organ holding the chord across the bar from the middle, swelling a little into the end
+        if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
         [[0, walkRoot, 0.15], [1, walkThird, 0.11], [2, walkFifth, 0.12], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.1]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
         for (const at of [1.5, 3]) bar.chord.slice(1).forEach((midi, k) => piano(t0 + at * beat + k * 0.014 + jitter(8), midi + 12, vary(0.034 * loud), beat * 0.5, -0.1 + k * 0.1));
