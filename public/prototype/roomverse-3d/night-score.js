@@ -28,27 +28,27 @@ const TRACKS = [
       { bass: 40, chord: [52, 55, 58, 62], tune: [[0, 76, 2], [2, 79, 2]] },                          // Em7b5: suspended, unresolved
       { bass: 45, chord: [55, 57, 61, 65], tune: [[0, 73, 3], [3, 69, 1]] },                          // A7: back to the opening
     ] },
-  // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular and too "MIDI". This one is slower (88 beats a minute) and
+  // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major, sixteen bars.
-  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 88, swing: 0, send: 0.5,
+  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 92, swing: 0, send: 0.5,
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 2], [2, 74, 1], [3, 76, 1]] },                                          // Fmaj9: C D E
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 77, 2], [2, 76, 1], [3, 74, 1]] },      // Am7 | D7: F E D
-      { bass: 43, chord: [58, 62, 65, 69], tune: [[0, 72, 2], [2, 70, 1], [3, 72, 1]] },                                          // Gm9: C Bb C
-      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 69, 3], [3, 67, 1]] },                                                      // C7: A G
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 2], [2, 77, 2]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 76, 1], [1, 74, 1], [2, 72, 2]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 69, 2], [2, 72, 2]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 74, 2], [2, 70, 1], [3, 67, 1]] },     // Gm7 | C7
-      { bass: 38, chord: [60, 65, 69, 72], tune: [[0, 77, 2], [2, 76, 1], [3, 77, 1]] },                                          // Dm9: a step up
-      { bass: 43, chord: [59, 62, 65, 69], tune: [[0, 79, 2], [2, 77, 1], [3, 74, 1]] },                                          // G7
-      { bass: 36, chord: [59, 64, 67, 71], tune: [[0, 76, 3], [3, 74, 1]] },                                                      // Cmaj9
-      { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 72, 2], [2, 69, 2]] },                                                      // Am7
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 74, 2], [2, 77, 2]] },                                                      // Bbmaj7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 76, 2], [2, 74, 1], [3, 72, 1]] },     // Gm7 | C7
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 69, 2], [2, 74, 2]] },                  // Am7 | D7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 4]] },                              // Gm7 | C7: a long C, home
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Fmaj9: C D E
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 81, 2], [2, 79, 1], [3, 77, 1]] },      // Am7 | D7: F E D
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[0, 74, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Gm9: C Bb C
+      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 81, 2], [2, 79, 2]] },                                                      // C7: A G
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 84, 2], [2, 81, 1], [3, 79, 1]] },                                                      // Fmaj9: C up to F
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 77, 1.5], [1.5, 79, 1.5], [3, 81, 1]] },                                          // Bbmaj7: E D C
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 76, 1], [1, 81, 2], [3, 79, 1]] },                  // Am7 | Dm7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 77, 2], [2, 76, 1], [3, 79, 1]] },     // Gm7 | C7
+      { bass: 38, chord: [60, 65, 69, 72], tune: [[0, 81, 1.5], [1.5, 84, 1.5], [3, 81, 1]] },                                          // Dm9: a step up
+      { bass: 43, chord: [59, 62, 65, 69], tune: [[0, 86, 2], [2, 84, 1], [3, 81, 1]] },                                          // G7
+      { bass: 36, chord: [59, 64, 67, 71], tune: [[0, 84, 2], [2, 79, 1], [3, 81, 1]] },                                                      // Cmaj9
+      { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 81, 1.5], [3, 79, 1]] },                                                      // Am7
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 82, 2], [2, 86, 2]] },                                                      // Bbmaj7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 84, 2], [2, 81, 1], [3, 79, 1]] },     // Gm7 | C7
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 81, 1], [1, 84, 2], [3, 86, 1]] },                  // Am7 | D7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 84, 3], [3, 79, 1]] },                              // Gm7 | C7: a long C, home
     ] },
 ];
 const nextInGroup = (index) => { for (let k = 1; k <= TRACKS.length; k++) { const j = (index + k) % TRACKS.length; if (TRACKS[j].group === TRACKS[index].group) return j; } return index; };
@@ -136,13 +136,15 @@ function createNightMusic() { // the cinematic engine, for series night
           chord.forEach((midi, k) => note(start, midi, STRINGS, 0.005, beat * span * 1.1, (k % 2 ? 1 : -1) * 0.4));
           note(start, root + 12, CELLO, 0.02, beat * span * 1.05, -0.3);
         }
+        // the long sustained layer (Paul 2026-11-22): open chord tones held on the real piano across the whole bar and into the next, very soft, so there is always a warm, ringing floor under the melody
+        [[bar.bass, -0.3, 0.04], [bar.bass + 7, -0.15, 0.034], [bar.chord[1] + 12, 0.15, 0.03], [bar.chord[3] + 12, 0.3, 0.024]].forEach(([midi, pan, g], k) => piano(t0 + 0.03 * k + jitter(10), midi, vary(g * loud), barLength * 2.1, pan));
         // the lightest brush on two and four, nothing more
         tick(t0 + beat + jitter(8), 0.011, 2600, 0.14); tick(t0 + 3 * beat + jitter(8), 0.011, 2600, 0.14);
         // the melody: long, singing notes on the piano with a second voice a chord tone below it; strings sing along from the second half
         const chordNow = (at) => (bar.chord2 && at >= 2 ? bar.chord2 : bar.chord);
         for (const [at, midi, length] of bar.tune) {
           const when = t0 + at * beat + jitter(14);
-          piano(when, midi, vary(0.115 * loud), beat * (length + 0.9), 0.1);
+          piano(when, midi, vary(0.13 * loud), beat * (length + 0.9), 0.1);
           const pool = []; for (const c of chordNow(at)) for (const octave of [-24, -12, 0]) pool.push(c + octave);
           const below = pool.filter((m) => m <= midi - 3 && m >= midi - 9).sort((x, y) => y - x)[0];
           if (below !== undefined) piano(when + 0.012 + rnd() * 0.012, below, vary(0.055 * loud), beat * (length + 0.7), -0.05);
