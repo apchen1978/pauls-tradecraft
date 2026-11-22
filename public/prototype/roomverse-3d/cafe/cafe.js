@@ -1547,7 +1547,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const setArm = (value) => { armPivot.rotation.y = value; };
   const recordTrackListeners = [], recordStateListeners = [];
   const roomSound = createRoomSound(), rainBed = createRoomSound(), epicNight = createNightMusic();
-  let epicOn = false; // series night: the record plays the epic orchestral piece (its own synthesis, like the synth fallback) instead of the record files
+  let epicOn = false, synthKind = "epic"; // synthKind: which piece the shared night engine plays, "epic" (series night) or "day" (窗邊的午後, Paul 2026-11-22: Room 01's day piece joins this record's round as its fifth side). Series night: the record plays the epic orchestral piece (its own synthesis, like the synth fallback) instead of the record files
   const titles = roomSound.tracks();
   let recordTrack = -1, usingSynth = false;
   function announceRecord(index) {
@@ -1628,16 +1628,21 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const playRecord = () => {
     const media = player.state();
     if (recordPlaying || media.pending) return false;
-    if (currentMood === "series") { player.stop(); roomSound.stop(); epicOn = epicNight.start(0, { playlist: true }); usingSynth = epicOn; if (epicOn) { recordTrack = 2; syncRecordPlayback(true); announceRecord(2); } return epicOn; } // series night: the epic piece (the Night on the Bund cover stands in for it)
+    if (currentMood === "series") { player.stop(); roomSound.stop(); synthKind = "epic"; epicOn = epicNight.start(0, { playlist: true }); usingSynth = epicOn; if (epicOn) { recordTrack = 2; syncRecordPlayback(true); announceRecord(2); } return epicOn; } // series night: the epic piece (the Night on the Bund cover stands in for it)
     if (media.index >= 0) player.play();
     else {
-      recordTrack = recordTrack < 0 && ["closing", "series"].includes(currentMood) ? 2 : (recordTrack + 1) % titles.length;
+      recordTrack = recordTrack < 0 && ["closing", "series"].includes(currentMood) ? 2 : (recordTrack + 1) % (titles.length + 1);
+      if (recordTrack === titles.length) { // the fifth side: 窗邊的午後 from Room 01, played by the shared synthesis engine (the Lane in the Afternoon cover stands in)
+        player.stop(); roomSound.stop(); synthKind = "day"; epicOn = epicNight.start(1, { playlist: true }); usingSynth = epicOn;
+        if (epicOn) { syncRecordPlayback(true); announceRecord(recordTrack); }
+        return epicOn;
+      }
       player.play(recordTrack);
     }
     return true;
   };
   function soundState() {
-    if (epicOn) return { ...epicNight.state(), title: "追劇夜", titleEn: "Series Night", track: 2, epic: true, backend: "synth" };
+    if (epicOn) return synthKind === "day" ? { ...epicNight.state(), title: "窗邊的午後", titleEn: "Afternoon by the Window", track: 1, day: true, backend: "synth" } : { ...epicNight.state(), title: "追劇夜", titleEn: "Series Night", track: 2, epic: true, backend: "synth" };
     if (usingSynth) return { ...roomSound.state(), backend: "synth" };
     const { index, playing, pending, currentTime } = player.state();
     const track = Math.max(0, index >= 0 ? index : recordTrack);
