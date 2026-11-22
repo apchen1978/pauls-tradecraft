@@ -1671,12 +1671,12 @@ test("Room 01 the window-side robot is the DJ: a tap starts the music with a cov
   await tapRobot();
   await expect.poll(async () => (await state()).playing, { timeout: 8000, message: "a tap on the robot starts the music" }).toBe(true);
   expect((await state()).title).toBe("窗邊的午後");
-  await expect(page.locator("#robotBubble [data-cover]"), "the bubble shows the first cover").toHaveAttribute("src", /room04-record-cover-0-v1\.webp/);
+  await expect(page.locator("#robotBubble [data-cover]"), "the bubble shows the first cover").toHaveAttribute("src", /room04-record-cover-4-v1\.webp/);
   await expect(page.locator("#robotBubble [data-bubble-copy]")).toContainText("窗邊的午後");
   await page.waitForTimeout(1800); // the hop ends
   await tapRobot();
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the next tap changes the piece" }).toBe("追劇夜");
-  await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-2-v1\.webp/);
+  await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-5-v1\.webp/);
   await page.waitForTimeout(1800);
   await tapRobot();
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the third piece is Room 04's Bund swing" }).toBe("十里洋場");
@@ -1702,7 +1702,7 @@ test("Room 01 the record player shows its own card over the record player: the p
   await expect.poll(async () => (await page.evaluate(() => window.__room.recordCard())).shown, { timeout: 8000, message: "the card pops up over the record player" }).toBe(true);
   const card = await page.evaluate(() => window.__room.recordCard());
   expect(card.text).toContain("正在播放：窗邊的午後"); expect(card.text).toContain("下一首：追劇夜");
-  expect(card.cover).toMatch(/room04-record-cover-0-v1\.webp/);
+  expect(card.cover).toMatch(/room04-record-cover-4-v1\.webp/);
   await page.evaluate(() => window.__room.tapRecordPlayer()); // the next tap stops it, and the card goes
   await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
   expect((await page.evaluate(() => window.__room.recordCard())).shown).toBe(false);

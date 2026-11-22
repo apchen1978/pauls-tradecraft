@@ -3847,7 +3847,7 @@ let lanternMat = null;
     auto: { zh: "♪ 電視喇叭輕輕放著音樂。點喇叭可以關掉。", en: "♪ Music from the TV speakers. Tap a speaker to turn it off." },
     hint: { zh: "這邊有唱片機，點一下就能聽音樂 🎵", en: "There's a record player here — tap it for music 🎵" }, // Paul 2026-11-19: the music lives on the record player now
   };
-  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-0-v1.webp", "./cafe/art/room04-record-cover-2-v1.webp", "./cafe/art/room04-record-cover-3-v1.webp"]; // Room 04's covers: 慢板 (the day piece), 夜色外灘 (for series night) and 十里洋場 (the swing)
+  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-4-v1.webp", "./cafe/art/room04-record-cover-5-v1.webp", "./cafe/art/room04-record-cover-3-v1.webp"]; // Paul 2026-11-22: 窗邊的午後 and 追劇夜 now have covers of their own (a golden hillside and a violet night city, made from gallery pictures); // Room 04's covers: 慢板 (the day piece), 夜色外灘 (for series night) and 十里洋場 (the swing)
   // Paul 2026-11-18: started from the record player, the same card (cover and line) pops up over the record player instead, with the piece now playing and the next one.
   const RECORD_LINES = {
     zh: ["♪ 正在播放：窗邊的午後 🎹 明亮的鋼琴。下一首：追劇夜。再點唱片機就停。", "♪ 正在播放：追劇夜 🎬 電影感的配樂。下一首：十里洋場。再點唱片機就停。", "♪ 正在播放：十里洋場 🎺 開心的搖擺樂。下一首：窗邊的午後。再點唱片機就停。"],
