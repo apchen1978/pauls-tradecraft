@@ -980,6 +980,11 @@ function buildSideKitchen(b, m, scene) {
     }
     // Paul 2026-11-22: the two 13 cm stone returns stood out from the wall like fins (they read as a vertical slab
     // sticking into the room), so they are gone; the zellige field ends at the wall edge.
+    // Paul 2026-11-22: a hairline brass edge at each end of the tile field, 5 mm wide and 24 mm deep, so the cut brick
+    // edge meets a metal line instead of stopping abruptly against the wall. It wraps the tile thickness, nothing floats.
+    for (const end of [splashMinZ + 0.0025, splashMinZ + splashLen - 0.0025]) {
+      addBox(b, "kitchen", m.brass, [0.024, splashH - 0.002, 0.005], [frontX - 0.011, splashY, end]);
+    }
     addGeometryToBucket(b, "backsplash", m.hobTile, mergeGeometries(bricks), [0, 0, 0]);
     bricks.forEach((g) => g.dispose());
   }
