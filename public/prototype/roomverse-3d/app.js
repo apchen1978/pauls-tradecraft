@@ -3161,10 +3161,10 @@ let lanternMat = null;
   const doorShot = () => ({ eye: DOOR_EYE.clone(), focus: camera.aspect < .8 ? new THREE.Vector3(.2, 1.05, -.3) : new THREE.Vector3(-.5, 1.08, .5) });
   const recordShot = () => {
     const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3());
-    // Paul 2026-11-22: the view reaches further along the wall (towards the room's -z) so the coffee stool with its two jars and the backpack are in the picture too: the focus moves half a metre along the wall (towards -z, to the right on screen) and lower
-    // (between the deck and the stool top) and the eye pulls back.
-    const focus = new THREE.Vector3(c.x + .02, b.max.y - .1, c.z - .5), dist = camera.aspect < .8 ? 1.9 : 1.2;
-    return { focus, eye: focus.clone().addScaledVector(new THREE.Vector3(.6, .75, -.28).normalize(), dist) }; // from the room side and above, a little toward the window end, so the hall stand stays out of frame
+    // Paul 2026-11-22: the whole turntable comes first, and both sides of the sideboard stay in the picture (the way Room 02's record view is framed: straight on from the room side, about 20 degrees
+    // down, the deck in the middle with its neighbours either side): the eye stands in front of the deck, not above and to one side, and pulls back far enough to hold the whole sideboard.
+    const focus = new THREE.Vector3(c.x, b.max.y - .04, c.z - .12), dist = camera.aspect < .8 ? 2.0 : 1.45;
+    return { focus, eye: focus.clone().addScaledVector(new THREE.Vector3(.93, .36, -.04).normalize(), dist) };
   };
   function moveRecordView(view) {
     const SPECIAL_VIEWS = { record: recordShot, door: doorShot }, special = !!SPECIAL_VIEWS[view];    if (director) stopDirector(false);
