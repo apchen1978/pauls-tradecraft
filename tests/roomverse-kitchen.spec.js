@@ -741,8 +741,12 @@ test.describe("Room 03 Bay Area Kitchen", () => {
     }
     expect(info.propGeometry["drip-coffee-maker"].meshes).toBe(5); // 4 -> 5: a second bean colour makes the full hopper legible through the glass.
     expect(info.propGeometry["rice-cooker"].meshes).toBe(4); // Old -> new: same four material batches; curved shell, lid seam and side handles add no mesh.
-    // Old island board 340×420 mm -> new wall-side board 255×315 mm (75%); tall edge rests on the wok backsplash.
-    expect(propBounds["cutting-board"].size[1]).toBeGreaterThan(propBounds["cutting-board"].size[2]);
+    // Paul 2026-11-22: the board left the small stove's wall — the new zellige bricks stand 1.5-5 mm proud there and cut
+    // into it, so it read as broken. It now lies flat on the sink run.
+    // Old -> new: a leaning board whose height exceeded its depth (size[1] > size[2]) -> a flat board whose 255 mm width is
+    // the horizontal axis (size[2] > size[1]) and whose height is the 19.5 mm thickness.
+    expect(propBounds["cutting-board"].size[2]).toBeGreaterThan(propBounds["cutting-board"].size[1]);
+    expect(propBounds["cutting-board"].size[1]).toBeLessThan(0.03);
     expect(propBounds["tabletop-succulents"]).toBeUndefined(); // Old: three rosettes and a long trough; new: one Meyer lemon bowl.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[0]).toBeCloseTo(0.26, 2); // Old width 0.728 m -> bowl diameter 0.26 m.
     expect(propBounds["tabletop-meyer-lemon-bowl"].size[2]).toBeCloseTo(0.26, 2); // Old depth 0.247 m -> round bowl depth 0.26 m.
