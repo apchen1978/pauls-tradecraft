@@ -3169,7 +3169,7 @@ let lanternMat = null;
     const b = new THREE.Box3().setFromObject(sideboard.recordPlayer.group), c = b.getCenter(new THREE.Vector3());
     // Paul 2026-11-22: the whole turntable comes first, and both sides of the sideboard stay in the picture (the way Room 02's record view is framed: straight on from the room side, about 20 degrees
     // down, the deck in the middle with its neighbours either side): the eye stands in front of the deck, not above and to one side, and pulls back far enough to hold the whole sideboard.
-    const focus = new THREE.Vector3(c.x, b.max.y - .04, c.z - .22), dist = camera.aspect < .8 ? 2.0 : 1.2;
+    const phone = camera.aspect < .8, focus = new THREE.Vector3(c.x, b.max.y - .03, c.z - (phone ? .0 : .16)), dist = phone ? .72 : .95; // Paul 2026-11-23: closer, so the record is seen turning (the phone view was too far)
     return { focus, eye: focus.clone().addScaledVector(new THREE.Vector3(.93, .36, -.04).normalize(), dist) };
   };
   function moveRecordView(view) {
