@@ -3174,18 +3174,21 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       };
       const draw = (name) => {
         const [time, line, sub] = LINES[name] ?? LINES.golden;
-        g.fillStyle = "#101619"; g.fillRect(0, 0, 256, 512);
-        g.fillStyle = "#1b2428"; g.fillRect(0, 0, 256, 44);
-        g.fillStyle = "#8fa3ad"; g.font = "600 20px ui-sans-serif, system-ui, sans-serif";
-        g.fillText(time, 18, 29);
-        g.fillStyle = "#f3e6cc"; g.font = "600 26px ui-sans-serif, system-ui, sans-serif";
-        g.fillText(line, 18, 116, 220);
-        g.fillStyle = "#9fb0b8"; g.font = "18px ui-sans-serif, system-ui, sans-serif";
-        g.fillText(sub, 18, 152, 220);
-        g.fillStyle = "#d6ae5a"; g.fillRect(18, 186, 84, 4);
-        g.fillStyle = "#22303a"; g.fillRect(18, 214, 220, 74);
-        g.fillStyle = "#7f929c"; g.font = "14px ui-sans-serif, system-ui, sans-serif";
-        g.fillText("SLOW TEMPO · 上海 · 慢板", 30, 244);
+        // Paul 2026-11-23: read from a raised bar view, so the type is larger and the contrast higher than a phone
+        // actually needs; the screen only has to survive one glance across the room.
+        g.fillStyle = "#1d2a30"; g.fillRect(0, 0, 256, 512);
+        g.fillStyle = "#2b3a42"; g.fillRect(0, 0, 256, 52);
+        g.fillStyle = "#cfdde4"; g.font = "700 26px ui-sans-serif, system-ui, sans-serif";
+        g.fillText(time, 18, 35);
+        g.fillStyle = "#ffd98a"; g.beginPath(); g.arc(228, 26, 7, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "#fff6e2"; g.font = "700 34px 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', ui-sans-serif, sans-serif";
+        g.fillText(line, 18, 136, 224);
+        g.fillStyle = "#c9d8e0"; g.font = "22px ui-sans-serif, system-ui, sans-serif";
+        g.fillText(sub, 18, 176, 224);
+        g.fillStyle = "#f0c26a"; g.fillRect(18, 208, 96, 6);
+        g.fillStyle = "#33454f"; g.fillRect(18, 238, 220, 84);
+        g.fillStyle = "#b9c9d2"; g.font = "18px ui-sans-serif, system-ui, sans-serif";
+        g.fillText("SLOW TEMPO · 上海 · 慢板", 30, 288);
         texture.needsUpdate = true;
       };
       draw("golden");
