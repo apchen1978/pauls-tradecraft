@@ -1636,7 +1636,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     if (media.index >= 0) player.play();
     else {
       recordTrack = recordTrack < 0 && ["closing", "series"].includes(currentMood) ? 2 : (recordTrack + 1) % (titles.length + 1);
-      if (recordTrack === titles.length) { // the fifth side: 窗邊的午後 from Room 01, played by the shared synthesis engine (the Lane in the Afternoon cover stands in)
+      if (recordTrack === titles.length) { // the fifth side: 微光慢拍 (Room 01's ambient groove), played by the shared synthesis engine (the Lane in the Afternoon cover stands in)
         player.stop(); roomSound.stop(); synthKind = "day"; epicOn = epicNight.start(1, { playlist: true }); usingSynth = epicOn;
         if (epicOn) { syncRecordPlayback(true); announceRecord(recordTrack); }
         return epicOn;
@@ -1646,7 +1646,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     return true;
   };
   function soundState() {
-    if (epicOn) return synthKind === "day" ? { ...epicNight.state(), title: "窗邊的午後", titleEn: "Afternoon by the Window", track: 1, day: true, backend: "synth" } : { ...epicNight.state(), title: "追劇夜", titleEn: "Series Night", track: 2, epic: true, backend: "synth" };
+    if (epicOn) return synthKind === "day" ? { ...epicNight.state(), title: "微光慢拍", titleEn: "Low Light Groove", track: 1, day: true, backend: "synth" } : { ...epicNight.state(), title: "追劇夜", titleEn: "Series Night", track: 2, epic: true, backend: "synth" };
     if (usingSynth) return { ...roomSound.state(), backend: "synth" };
     const { index, playing, pending, currentTime } = player.state();
     const track = Math.max(0, index >= 0 ? index : recordTrack);

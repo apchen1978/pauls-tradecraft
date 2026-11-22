@@ -3863,16 +3863,16 @@ let lanternMat = null;
   let musicTrack = -1, musicTimer = 0, musicHinted = false, lastTouch = performance.now(), musicStopped = false, musicAuto = false;
   const musicOptions = { playlist: true, fade: 0.5, onTrack: (index) => { musicTrack = index; if (roomMusic.state().playing) announceMusic(index); } }; // the two pieces follow one another; each change shows its line
   const MUSIC_LINES = {
-    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴。再點我，就換下一首！", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。再點我，就換下一首！", "♪ 十里洋場。🎺 單簧管和小號的搖擺樂，好開心！再點我，就換下一首！"],
-    en: ["♪ Afternoon at the window. 🎹 Bright piano. Tap me again for the next one!", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap me again for the next one!", "♪ Bund Swing (十里洋場). 🎺 Clarinet and trumpet swing, so happy! Tap me again for the next one!"],
+    zh: ["♪ 窗邊的午後。🎹 明亮的鋼琴。再點我，就換下一首！", "♪ 追劇夜。🎬 電影感的配樂，低音沉穩。再點我，就換下一首！", "♪ 十里洋場。🎺 單簧管和小號的搖擺樂，好開心！再點我，就換下一首！", "♪ 微光慢拍。🎹 慵懶的鋼琴和弦、808 和爵士鼓，像午後在客廳打盹。再點我，就換下一首！"],
+    en: ["♪ Afternoon at the window. 🎹 Bright piano. Tap me again for the next one!", "♪ Series night. 🎬 A cinematic score with a deep bass. Tap me again for the next one!", "♪ Bund Swing (十里洋場). 🎺 Clarinet and trumpet swing, so happy! Tap me again for the next one!", "♪ Low Light Groove. 🎹 Lazy piano chords, an 808 and a jazz kit, like a nap in the living room. Tap me again for the next one!"],
     auto: { zh: "♪ 電視喇叭輕輕放著音樂。點喇叭可以關掉。", en: "♪ Music from the TV speakers. Tap a speaker to turn it off." },
     hint: { zh: "這邊有唱片機，點一下就能聽音樂 🎵", en: "There's a record player here — tap it for music 🎵" }, // Paul 2026-11-19: the music lives on the record player now
   };
-  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-4-v1.webp", "./cafe/art/room04-record-cover-5-v1.webp", "./cafe/art/room04-record-cover-3-v1.webp"]; // Paul 2026-11-22: 窗邊的午後 and 追劇夜 now have covers of their own (a golden hillside and a violet night city, made from gallery pictures); // Room 04's covers: 慢板 (the day piece), 夜色外灘 (for series night) and 十里洋場 (the swing)
+  const MUSIC_COVERS = ["./cafe/art/room04-record-cover-0-v1.webp", "./cafe/art/room04-record-cover-5-v1.webp", "./cafe/art/room04-record-cover-3-v1.webp", "./cafe/art/room04-record-cover-4-v1.webp"]; // Paul 2026-11-23: 窗邊的午後 (慢板 cover), 追劇夜, 十里洋場, 微光慢拍 (the golden hillside); // Paul 2026-11-22: 窗邊的午後 and 追劇夜 now have covers of their own (a golden hillside and a violet night city, made from gallery pictures); // Room 04's covers: 慢板 (the day piece), 夜色外灘 (for series night) and 十里洋場 (the swing)
   // Paul 2026-11-18: started from the record player, the same card (cover and line) pops up over the record player instead, with the piece now playing and the next one.
   const RECORD_LINES = {
-    zh: ["♪ 正在播放：窗邊的午後 🎹 明亮的鋼琴。下一首：追劇夜。再點唱片機就停。", "♪ 正在播放：追劇夜 🎬 電影感的配樂。下一首：十里洋場。再點唱片機就停。", "♪ 正在播放：十里洋場 🎺 開心的搖擺樂。下一首：窗邊的午後。再點唱片機就停。"],
-    en: ["♪ Now playing: Afternoon at the window 🎹 Bright piano. Next: Series night. Tap the record player again to stop.", "♪ Now playing: Series night 🎬 A cinematic score. Next: Bund Swing. Tap the record player again to stop.", "♪ Now playing: Bund Swing (十里洋場) 🎺 A happy swing. Next: Afternoon at the window. Tap the record player again to stop."],
+    zh: ["♪ 正在播放：窗邊的午後 🎹 明亮的鋼琴。下一首：追劇夜。再點唱片機就停。", "♪ 正在播放：追劇夜 🎬 電影感的配樂。下一首：十里洋場。再點唱片機就停。", "♪ 正在播放：十里洋場 🎺 開心的搖擺樂。下一首：微光慢拍。再點唱片機就停。", "♪ 正在播放：微光慢拍 🎹 慵懶的律動。下一首：窗邊的午後。再點唱片機就停。"],
+    en: ["♪ Now playing: Afternoon at the window 🎹 Bright piano. Next: Series night. Tap the record player again to stop.", "♪ Now playing: Series night 🎬 A cinematic score. Next: Bund Swing. Tap the record player again to stop.", "♪ Now playing: Bund Swing (十里洋場) 🎺 A happy swing. Next: Low Light Groove. Tap the record player again to stop.", "♪ Now playing: Low Light Groove 🎹 A lazy groove. Next: Afternoon at the window. Tap the record player again to stop."],
   };
   let musicFromRecord = false; // who started the music: the record player's card follows the pieces it started; everything else keeps the robot's
   function recordPlayerInView() {
@@ -3887,7 +3887,7 @@ let lanternMat = null;
   }
   function djTap() { // the window-side robot is the DJ (Paul, 2026-11-17): a tap starts the music, and each next tap changes the piece
     musicHinted = true; musicStopped = false; musicAuto = true; musicFromRecord = false;
-    musicTrack = roomMusic.state().playing ? (musicTrack + 1) % MUSIC_COVERS.length : (state.mood === "tv" ? 1 : 0); // the three pieces in turn
+    musicTrack = roomMusic.state().playing ? (musicTrack + 1) % MUSIC_COVERS.length : (state.mood === "tv" ? 1 : 0); // the four pieces in turn
     roomMusic.start(musicTrack, musicOptions); announceMusic(musicTrack);
   }
   const showCaption = (text, ms) => { noteCaption.textContent = text; noteCaption.style.opacity = "1"; clearTimeout(noteTimer); noteTimer = setTimeout(() => { noteCaption.style.opacity = "0"; }, ms); };
