@@ -8,9 +8,9 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 237797, meshes: 129 }),
+  scene: Object.freeze({ vertices: 237801, meshes: 130 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
-  openingDrawCalls: Object.freeze({ desktop: 71, phone: 66 }),
+  openingDrawCalls: Object.freeze({ desktop: 71, phone: 64 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
   // Paul, 2026-11-16: the room may grow to 200,000-230,000 vertices and 144-150 meshes; the caps take the top of that range. Phones are still checked by the draw-call caps.
   caps: Object.freeze({ vertices: 250000, meshes: 150, desktopCalls: 115, phoneCalls: 105 }),
@@ -132,5 +132,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "polish pass (Paul): night moods lifted (closing ambient 0.10->0.17, hemi 0.30->0.42, lamp 3.0->3.6; series ambient 0.10->0.17, hemi 0.34->0.44, lamp 1.6->2.4, pendant 0.7->1.1) so the window side reads at night; robot shell sharper (clearcoatRoughness 0.16->0.10, dark metal 0.30 roughness) plus a machined brass collar on the pedestal; Lounge tone unified (deeper olive wainscot, warmer plaster, warmer floor, the cold blue pouf becomes oxblood)", vertices: 236075, meshes: 129, desktopCalls: 71, phoneCalls: 64 },
     { date: "2026-11-23", change: "bar cupping row (Paul): the oak cup board carries three identical cups 140 mm apart instead of two; they take the board shift, not their own, because the board is one rigid box turned to follow the curved counter edge (the audit caught the 100 mm offsets the moment they were registered)", vertices: 237277, meshes: 129, desktopCalls: 71, phoneCalls: 64 },
     { date: "2026-11-23", change: "the bud vase moves to the bar beside the till (tried the lounge tables first; the window table already has its own planting) and its stems now leave through the neck; the arrival stools take a per-mood pale-oak colour (morning dcc09a, noon dec4a0, golden d8b886, rain cbb79a, closing bfa17a, series b29572), which brings the leaf/bloom/gold batches into the phone opening frame: phone calls 64 -> 66", vertices: 237797, meshes: 129, desktopCalls: 71, phoneCalls: 66 },
+    { date: "2026-11-23", change: "the phone on the side table gets a lit screen (one short line per mood, no tap: lighter than the tablet, +1 mesh, +1 material) and the bud vase moves off the robots name card at x 1.02 to x -1.38 by the barista robot, taking the counter shift at its own x", vertices: 237801, meshes: 130, desktopCalls: 71, phoneCalls: 64 },
   ]),
 });

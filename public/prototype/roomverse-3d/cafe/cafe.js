@@ -473,6 +473,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const afterFirstFrame = [];
   const catRef = { group: null }; // the cat, once it has loaded
   let tabletRig = null; // its lit screen and pulse, built with the lounge
+  let phoneScreen = null; // the phone on the side table: one lit line per mood, and nothing to tap (Paul: keep it lighter than the tablet)
   const atlasRef = { mesh: null, scan: null, half: null }; // the scan-code and latte atlas: its latte half is drawn on the marble Lounge cup (set when the Lounge is built)
   const tabletRef = { at: null }; // the tablet on the marble lounge table: where it lies (set where the table is built)
   const rugRef = {}, galleryRef = {}; // the window rug's top material and the wall-print atlases, set where those are built
@@ -2137,10 +2138,14 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       part("gold", new THREE.CylinderGeometry(0.004, 0.005, 0.009, 10).translate(bX, top + 0.026, bZ), { tile: 1 });
       registerSupport("bar-service-bell", "rest", { base: { x: bX, y: top, z: bZ, radius: 0.032 },
         surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
-      // Paul 2026-11-23: the little bud vase (fixed so its stems leave through the neck, not the glass) now stands on the bar
-    // at the service end, beside the checkout, where a cafe keeps a flower by the till. Fixed positions, nothing floats.
+    // Paul 2026-11-23: it stood beside the checkout and clipped the robots' name card (x 1.02), so it moves left of the cup
+    // board, on the barista robot's side of the bar. It takes the counter's own curve shift at its x (the lesson from the
+    // biscuit plate and the cup board: a fixed world z floats or sinks on this curved counter), and the spot was checked
+    // against every neighbour on that stretch: cup board ends at -1.14, so -1.38 with a 30 mm vase leaves 21 cm of clear stone.
     {
-      const vx = 1.05, vz = -0.50, base = top;
+      const vx = -1.38, base = top;
+      partShift = counterShift(vx);
+      const vz = c.z1 - 0.12;
       part("ceramic", new THREE.LatheGeometry([[0, 0], [0.022, 0], [0.028, 0.012], [0.03, 0.035], [0.018, 0.062], [0.011, 0.075], [0.013, 0.082], [0.0095, 0.082], [0.0095, 0.07], [0, 0.07]].map(([r, y]) => new THREE.Vector2(r, y)), 20).translate(vx, base, vz), { tile: 1 });
       for (const [dx, dz, h, tilt, bloom] of [[0.0, 0.0, 0.17, 0, 0xf2d9d0], [0.018, 0.006, 0.145, 0.32, 0xe9b9a8], [-0.016, -0.008, 0.15, -0.3, 0xf6e7c8]]) {
         const rootX = vx + dx * 0.4, rootZ = vz + dz * 0.4;
@@ -2153,8 +2158,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         part("bloom", new THREE.SphereGeometry(0.016, 12, 8).scale(1, 0.8, 1).translate(tip[0], tip[1] + 0.008, tip[2]), { tile: 1 });
         part("gold", new THREE.SphereGeometry(0.0055, 8, 6).translate(tip[0], tip[1] + 0.016, tip[2]), { tile: 1 });
       }
-      registerSupport("bar-bud-vase", "rest", { base: { x: vx, y: base, z: vz, radius: 0.03 },
-        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: base } });
+      // the counter is one curved band, so its world footprint is the local band plus the shift range; the rect says that
+      registerSupport("bar-bud-vase", "rest", { base: { x: vx, y: base, z: vz + partShift, radius: 0.03 },
+        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0 - 0.55, z1: c.z1 + 0.55, y: base } });
+      partShift = 0;
     }
 
     // Paul 2026-11-23: the bar should read as ordered. The service pair (bell and WiFi card) used to sit at two
@@ -3148,6 +3155,46 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       decorPlace("magazines", canvas, mergeGeometries(coverPlanes)); }
     boxPart("black", 0.062, 0.009, 0.128, sx + 0.01, magTop + 0.005, sz);
     detail(new THREE.BoxGeometry(0.053, 0.0015, 0.112).translate(sx + 0.01, magTop + 0.010, sz), 0x627b87);
+    // Paul 2026-11-23: the phone gets a lit screen like the tablet's, but lighter: one short line per mood and no tap
+    // behaviour. It is the smallest honest amount of "someone left their phone on the table".
+    {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256; canvas.height = 512;
+      const g = canvas.getContext("2d");
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      const material = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false });
+      const LINES = {
+        morning: ["09:12", "今日手沖 耶加雪菲", "Yirgacheffe, just brewed"],
+        noon: ["12:31", "一位，靠窗", "Table for one, by the window"],
+        golden: ["15:04", "光剛好", "Golden hour, do not move"],
+        rain: ["14:20", "雨停前 續杯半價", "Half price refill, till the rain stops"],
+        closing: ["22:41", "今天辛苦了", "You did enough today"],
+        series: ["23:58", "再看一集就好", "Just one more episode"],
+      };
+      const draw = (name) => {
+        const [time, line, sub] = LINES[name] ?? LINES.golden;
+        g.fillStyle = "#101619"; g.fillRect(0, 0, 256, 512);
+        g.fillStyle = "#1b2428"; g.fillRect(0, 0, 256, 44);
+        g.fillStyle = "#8fa3ad"; g.font = "600 20px ui-sans-serif, system-ui, sans-serif";
+        g.fillText(time, 18, 29);
+        g.fillStyle = "#f3e6cc"; g.font = "600 26px ui-sans-serif, system-ui, sans-serif";
+        g.fillText(line, 18, 116, 220);
+        g.fillStyle = "#9fb0b8"; g.font = "18px ui-sans-serif, system-ui, sans-serif";
+        g.fillText(sub, 18, 152, 220);
+        g.fillStyle = "#d6ae5a"; g.fillRect(18, 186, 84, 4);
+        g.fillStyle = "#22303a"; g.fillRect(18, 214, 220, 74);
+        g.fillStyle = "#7f929c"; g.font = "14px ui-sans-serif, system-ui, sans-serif";
+        g.fillText("SLOW TEMPO · 上海 · 慢板", 30, 244);
+        texture.needsUpdate = true;
+      };
+      draw("golden");
+      const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.050, 0.106).rotateX(-Math.PI / 2), material);
+      screen.position.set(sx + 0.01, magTop + 0.0112, sz);
+      screen.name = "lounge-phone-screen";
+      scene.add(screen);
+      phoneScreen = { apply: (name) => { draw(name); render(); }, mesh: screen };
+    }
     // The phone's warm-grey cord has the scale of a real charging lead. It drops over the table edge, rests above the rug, then reaches the wall plug in one continuous tube.
     detail(tubeGeometry([[sx + 0.01, magTop + 0.005, sz + 0.063], [sx + 0.03, magTop - 0.003, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
       [sx + 0.06, 0.25, sz + 0.205], [sx + 0.075, 0.03, sz + 0.25], [sx + 0.11, 0.0175, sz + 0.31], [2.45, 0.0175, 2.6], [2.7, 0.0175, 2.66], [2.9, 0.012, 2.72], [3.04, 0.0065, 2.74],
@@ -3851,7 +3898,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   }
   function setMood(name) {
     const look = MOODS[name]; if (!look) return false;
-    currentMood = name; posMood?.(name); robotFace.setMood(name); syncRecordRain(); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
+    currentMood = name; posMood?.(name); robotFace.setMood(name); syncRecordRain(); tabletRig?.apply(name); phoneScreen?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
     const from = { glow: live.glow, tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, stoolColor: live.stoolColor.clone(), exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
