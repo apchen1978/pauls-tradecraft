@@ -4282,6 +4282,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     onRecordPlayback: (listener) => { recordStateListeners.push(listener); },
     recordNext: () => usingSynth ? roomSound.next() : player.next(),
     pokeRobot: () => robotFace.poke(), robotFaceState: () => robotFace.state(),
+  // QA hook: the phone screen is 5 cm wide, so a click test cannot reliably land on it; this runs the same tap path.
+  tapPhone: () => { phoneScreen?.tap(); return phoneScreen ? "tapped" : "no phone"; },
     recordPlaying: () => recordPlaying,
     recordState: () => ({ playing: recordPlaying, platterAngle: platterPivot.rotation.y, armAngle: armPivot.rotation.y, robotTilt: greeter.local.rotation.x }),
     playDrip, stopDrip, dripPlaying: () => dripPlaying,
