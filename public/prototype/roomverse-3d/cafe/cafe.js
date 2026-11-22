@@ -47,12 +47,12 @@ const COLORS = Object.freeze({
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3, neon: 0 }),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 }),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 }),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75, glow: 0.5 }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x7a8fc4, hemiGround: 0x4b4450, ambient: 0.17, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.6, reflect: 0.45, pendant: 2.5, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 }),
-  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.44, hemiSky: 0x6f80b8, hemiGround: 0x413d4c, ambient: 0.17, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 2.4, reflect: 0.45, steam: 0.4, tv: 1, pendant: 1.1, shaft: 0, neon: 0.9, glow: 0.6 }),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3, neon: 0 , stoolColor: 0xdcc09a}),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 , stoolColor: 0xdec4a0}),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 , stoolColor: 0xd8b886}),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75, glow: 0.5 , stoolColor: 0xcbb79a}),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x7a8fc4, hemiGround: 0x4b4450, ambient: 0.17, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.6, reflect: 0.45, pendant: 2.5, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 , stoolColor: 0xbfa17a}),
+  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.44, hemiSky: 0x6f80b8, hemiGround: 0x413d4c, ambient: 0.17, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 2.4, reflect: 0.45, steam: 0.4, tv: 1, pendant: 1.1, shaft: 0, neon: 0.9, glow: 0.6 , stoolColor: 0xb29572}),
 });
 
 // PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
@@ -2137,7 +2137,27 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       part("gold", new THREE.CylinderGeometry(0.004, 0.005, 0.009, 10).translate(bX, top + 0.026, bZ), { tile: 1 });
       registerSupport("bar-service-bell", "rest", { base: { x: bX, y: top, z: bZ, radius: 0.032 },
         surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: top } });
-      // Paul 2026-11-23: the bar should read as ordered. The service pair (bell and WiFi card) used to sit at two
+      // Paul 2026-11-23: the little bud vase (fixed so its stems leave through the neck, not the glass) now stands on the bar
+    // at the service end, beside the checkout, where a cafe keeps a flower by the till. Fixed positions, nothing floats.
+    {
+      const vx = 1.05, vz = -0.50, base = top;
+      part("ceramic", new THREE.LatheGeometry([[0, 0], [0.022, 0], [0.028, 0.012], [0.03, 0.035], [0.018, 0.062], [0.011, 0.075], [0.013, 0.082], [0.0095, 0.082], [0.0095, 0.07], [0, 0.07]].map(([r, y]) => new THREE.Vector2(r, y)), 20).translate(vx, base, vz), { tile: 1 });
+      for (const [dx, dz, h, tilt, bloom] of [[0.0, 0.0, 0.17, 0, 0xf2d9d0], [0.018, 0.006, 0.145, 0.32, 0xe9b9a8], [-0.016, -0.008, 0.15, -0.3, 0xf6e7c8]]) {
+        const rootX = vx + dx * 0.4, rootZ = vz + dz * 0.4;
+        const mouthX = vx + dx * 0.16, mouthZ = vz + dz * 0.16;
+        const rimX = mouthX + Math.sin(tilt) * 0.012;
+        const tip = [vx + dx * 1.6 + Math.sin(tilt) * 0.03, base + h, vz + dz * 1.6];
+        part("leaf", rodGeometry([rootX, base + 0.012, rootZ], [mouthX, base + 0.078, mouthZ], 0.0022, 5), { tile: 1 });
+        part("leaf", rodGeometry([mouthX, base + 0.078, mouthZ], [rimX, base + 0.092, mouthZ], 0.0022, 5), { tile: 1 });
+        part("leaf", rodGeometry([rimX, base + 0.092, mouthZ], [tip[0], tip[1], tip[2]], 0.0022, 5), { tile: 1 });
+        part("bloom", new THREE.SphereGeometry(0.016, 12, 8).scale(1, 0.8, 1).translate(tip[0], tip[1] + 0.008, tip[2]), { tile: 1 });
+        part("gold", new THREE.SphereGeometry(0.0055, 8, 6).translate(tip[0], tip[1] + 0.016, tip[2]), { tile: 1 });
+      }
+      registerSupport("bar-bud-vase", "rest", { base: { x: vx, y: base, z: vz, radius: 0.03 },
+        surface: { shape: "rect", x0: c.x0, x1: c.x1, z0: c.z0, z1: c.z1, y: base } });
+    }
+
+    // Paul 2026-11-23: the bar should read as ordered. The service pair (bell and WiFi card) used to sit at two
       // different depths on the front edge, which is what made that stretch look loose; both now stand on the same line
       // (z -0.50) and share a 120 mm spacing, so the eye reads one row. A trial oak tray under them read as a board
       // under the deck and was dropped.
@@ -3016,17 +3036,34 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       // Different things on the two tables (Paul: two identical sets look fake). Marble table: a tablet turned a little and a card holder. Oak table: a closed notebook with a
       // pen across it, a smaller phone, and a latte on the other side.
       const yawBox = (key, w, h, d, x, y, zz, yaw, r = 0.012) => part(key, roundedBox(w, h, d, r, Math.min(r / 2, h / 4), 4).rotateY(yaw).translate(x, y, zz));
-      // Paul 2026-11-22: one more small thing on each table, each different: a cream bud vase with three ranunculus on the marble table, a stoneware sugar pot with an oak lid on the dark table.
-      if (surface === "stone") {
-        const vx = tx + 0.14, vz = z - 0.14;
-        detail(new THREE.LatheGeometry([[0, 0], [0.022, 0], [0.028, 0.012], [0.03, 0.035], [0.018, 0.062], [0.011, 0.075], [0.013, 0.082], [0.0095, 0.082], [0.0095, 0.07], [0, 0.07]].map(([r, y]) => new THREE.Vector2(r, y)), 20).translate(vx, 0.45, vz), 0xeae0cc);
+      // Paul 2026-11-22: one more small thing on each table, each different: a cream bud vase with three ranunculus on the
+      // marble table, a stoneware sugar pot with an oak lid on the dark table.
+      // Paul 2026-11-23: the bud vase's three stems left through the neck's glass (a straight rod from the body to a bloom
+      // 17 cm up crosses the 9.5 mm neck). It is fixed, not hidden: each stem now rises inside the neck, clears the rim, and
+      // only then leans to its bloom — and it moved to the dark table against the main wall, where the light is warmer and
+      // the vase reads best. Its old place on the marble table takes a Room 03 stoneware canister instead.
+      const budVase = (vx, vz) => {
+        const base = 0.45;
+        detail(new THREE.LatheGeometry([[0, 0], [0.022, 0], [0.028, 0.012], [0.03, 0.035], [0.018, 0.062], [0.011, 0.075], [0.013, 0.082], [0.0095, 0.082], [0.0095, 0.07], [0, 0.07]].map(([r, y]) => new THREE.Vector2(r, y)), 20).translate(vx, base, vz), 0xeae0cc);
         for (const [dx, dz, h, tilt, bloom] of [[0.0, 0.0, 0.17, 0, 0xf2d9d0], [0.018, 0.006, 0.145, 0.32, 0xe9b9a8], [-0.016, -0.008, 0.15, -0.3, 0xf6e7c8]]) {
-          const tip = [dx * 1.6 + Math.sin(tilt) * 0.03, 0.45 + h, dz * 1.6];
-          detail(rodGeometry([vx + dx * 0.4, 0.45 + 0.06, vz + dz * 0.4], [vx + tip[0], tip[1], vz + tip[2]], 0.0022, 5), 0x5f7d3f);
-          detail(new THREE.SphereGeometry(0.016, 12, 8).scale(1, 0.8, 1).translate(vx + tip[0], tip[1] + 0.008, vz + tip[2]), bloom);
-          detail(new THREE.SphereGeometry(0.0055, 8, 6).translate(vx + tip[0], tip[1] + 0.016, vz + tip[2]), 0xd8a35a);
+          const rootX = vx + dx * 0.4, rootZ = vz + dz * 0.4;            // inside the bulging body
+          const mouthX = vx + dx * 0.16, mouthZ = vz + dz * 0.16;        // inside the 9.5 mm neck
+          const rimX = mouthX + Math.sin(tilt) * 0.012, rimZ = mouthZ;   // just over the 82 mm rim
+          const tip = [vx + dx * 1.6 + Math.sin(tilt) * 0.03, base + h, vz + dz * 1.6];
+          detail(rodGeometry([rootX, base + 0.012, rootZ], [mouthX, base + 0.078, mouthZ], 0.0022, 5), 0x5f7d3f);
+          detail(rodGeometry([mouthX, base + 0.078, mouthZ], [rimX, base + 0.092, rimZ], 0.0022, 5), 0x5f7d3f);
+          detail(rodGeometry([rimX, base + 0.092, rimZ], [tip[0], tip[1], tip[2]], 0.0022, 5), 0x5f7d3f);
+          detail(new THREE.SphereGeometry(0.016, 12, 8).scale(1, 0.8, 1).translate(tip[0], tip[1] + 0.008, tip[2]), bloom);
+          detail(new THREE.SphereGeometry(0.0055, 8, 6).translate(tip[0], tip[1] + 0.016, tip[2]), 0xd8a35a);
         }
-        registerSupport("lounge-stone-table-bud-vase", "rest", { base: { x: vx, y: 0.45, z: vz, radius: 0.03 }, surface: { shape: "circle", x: tx, y: 0.45, z, radius: 0.31 } });
+      };
+      if (surface === "stone") {
+        // Room 03's stoneware canister, standing where the bud vase used to be: a glazed cylinder, a lid and a knob.
+        const cx = tx + 0.14, cz = z - 0.14;
+        detail(new THREE.LatheGeometry([[0, 0], [0.036, 0], [0.042, 0.008], [0.044, 0.052], [0.041, 0.06], [0, 0.056]].map(([r, y]) => new THREE.Vector2(r, y)), 22).translate(cx, 0.45, cz), 0x8f9d86);
+        detail(new THREE.LatheGeometry([[0, 0.056], [0.03, 0.056], [0.026, 0.064], [0.011, 0.07], [0, 0.072]].map(([r, y]) => new THREE.Vector2(r, y)), 22).translate(cx, 0.45, cz), 0xc9a45a);
+        detail(new THREE.SphereGeometry(0.0068, 8, 6).translate(cx, 0.45 + 0.078, cz), 0xb98a52);
+        registerSupport("lounge-stone-table-canister", "rest", { base: { x: cx, y: 0.45, z: cz, radius: 0.044 }, surface: { shape: "circle", x: tx, y: 0.45, z, radius: 0.31 } });
       } else {
         const sx = tx + 0.19, sz = z - 0.17;
         detail(new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.036, 0.008], [0.036, 0.045], [0.032, 0.05], [0, 0.05]].map(([r, y]) => new THREE.Vector2(r, y)), 22).translate(sx, 0.45, sz), 0xd9c9a8);
@@ -3793,7 +3830,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let currentMood = "golden", moodTween = 0; // the room opens at golden hour (Paul, 2026-11-15): warm raking light on the brick and the honey oak is the best first impression
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { glow: 0, tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { glow: 0, tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, stoolColor: new THREE.Color(0xd8b886), sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     dirtyShadows();
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
@@ -3805,7 +3842,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = Math.max(0, live.tv - 0.4) * 4; // by day the screen plays dimly (a cafe television is never a black hole) and lights nothing; on series night it lights the lounge
-    sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
+    materials.paleOak.color.copy(live.stoolColor); // the arrival stools' pale oak follows the mood
+  sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
     neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02; neonHalo.material.opacity = live.neon * 0.8; neonHalo.visible = neonSign.visible;
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
     sunShafts.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), SUN_TARGET.clone().sub(live.sunPosition).normalize());
@@ -3816,14 +3854,15 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     currentMood = name; posMood?.(name); robotFace.setMood(name); syncRecordRain(); tabletRig?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
-    const from = { glow: live.glow, tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
-    const to = { sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
+    const from = { glow: live.glow, tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, stoolColor: live.stoolColor.clone(), exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const to = { stoolColor: new THREE.Color(look.stoolColor ?? 0xd8b886), sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
       for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft", "tv", "neon"]) live[key] = blend(from[key], look[key], k);
       live.glow = blend(from.glow, look.glow ?? 0, k);
       live.sunColor.copy(from.sunColor).lerp(to.sunColor, k); live.sunPosition.copy(from.sunPosition).lerp(to.sunPosition, k);
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
+    live.stoolColor.copy(from.stoolColor).lerp(to.stoolColor, k);
       applyLive(); render();
     };
     cancelAnimationFrame(moodTween);
