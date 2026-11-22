@@ -36,7 +36,7 @@ const COPY = {
     },
     views: { counter: "吧台", window: "窗邊座位", lounge: "Lounge", record: "看唱片機", entry: "初體驗", middle: "站到房間中間" },
     center: "站到房間中間", orbit: "回到環繞視角", centerHint: "拖曳或用方向鍵，轉一整圈看看。",
-    noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", close: "關閉",
+    noteTitle: "便條", noteLine: "窗邊的位子留給你，慢慢來。", phoneTitle: "手機", close: "關閉",
     moods: {
       morning: ["早晨開店", "偏白的早晨光從臨街的窗進來，窗格影子落在吧台和地板上。"],
       noon: ["午後", "太陽升高，光變得平而亮，咖啡機上的杯子不再有長影子。"],
@@ -83,7 +83,7 @@ const COPY = {
     },
     views: { counter: "The counter", window: "Window seat", lounge: "Lounge", record: "Record player", entry: "First step in", middle: "Stand in the middle" },
     center: "Stand in the middle", orbit: "Back to orbit view", centerHint: "Drag, or use the arrow keys, to turn all the way round.",
-    noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", close: "Close",
+    noteTitle: "Note", noteLine: "The window seat is yours. Take your time.", phoneTitle: "Phone", close: "Close",
     moods: {
       morning: ["Morning", "Pale early light comes through the street window and draws the panes across the counter and the floor."],
       noon: ["Midday", "The sun is high and the light turns flat and bright; the cups on the machine lose their long shadows."],
@@ -136,7 +136,7 @@ function renderSwaps() {
 }
 function lookIsDefault() { return LOOK_KEYS.every((g) => look[g] === room?.lookDefaults?.[g]); }
 let catLine = -1, baristaLine = -1, tabletLine = -1, recordTrackShown = 0, recordHintDone = false, recordHintTimer = 0;
-let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, dripTimer = 0, moodLineKey = "golden";
+let room = null, mood = "golden", bubbleOwner = "robot", bubbleTimer = 0, dripTimer = 0, moodLineKey = "golden", phoneLineShown = null;
 
 function renderMoods() {
   const copy = COPY[lang], group = $("moods");
@@ -222,8 +222,9 @@ function placeUi() {
   const robotRect = room.robotScreen(), catRect = room.catScreen ? room.catScreen() : null, baristaRect = room.baristaScreen ? room.baristaScreen() : null, tabletRect = room.tabletScreen ? room.tabletScreen() : null, menuBox = room.menuScreen(), noteRect = room.noteScreen(), recordRect = room.recordScreen(), dripRect = room.dripScreen();
   const menuRect = menuBox && { left: (menuBox.left + menuBox.right) / 2, right: (menuBox.left + menuBox.right) / 2, top: (menuBox.top + menuBox.bottom) / 2, bottom: (menuBox.top + menuBox.bottom) / 2 };
   // the small keyboard / screen-reader button sits between the two boards; the boards themselves take taps on the canvas
-  placeTarget($("catHit"), catRect); placeTarget($("baristaHit"), baristaRect); placeTarget($("tabletHit"), tabletRect); placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
-  const bubble = $("bubble"), anchor = bubbleOwner === "recordHint" ? recordRect : bubbleOwner === "tablet" ? tabletRect : bubbleOwner === "barista" ? baristaRect : bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
+  const phoneRect = room.phoneScreen ? room.phoneScreen() : null;
+  placeTarget($("catHit"), catRect); placeTarget($("baristaHit"), baristaRect); placeTarget($("tabletHit"), tabletRect); placeTarget($("phoneHit"), phoneRect); placeTarget($("menuHit"), menuRect); placeTarget($("robotHit"), robotRect); placeTarget($("noteHit"), noteRect); placeTarget($("recordHit"), recordRect); placeTarget($("dripHit"), dripRect);
+  const bubble = $("bubble"), anchor = bubbleOwner === "recordHint" ? recordRect : bubbleOwner === "tablet" ? tabletRect : bubbleOwner === "phone" ? ($("phoneHit").hidden ? phoneRect : $("phoneHit").getBoundingClientRect()) : bubbleOwner === "barista" ? baristaRect : bubbleOwner === "cat" ? catRect : bubbleOwner === "menu" ? menuRect : bubbleOwner === "note" ? noteRect : bubbleOwner === "record" ? recordRect : bubbleOwner === "drip" ? dripRect : robotRect;
   watchRecordHint(); placeRecordRing(recordRect);
   bubble.style.pointerEvents = bubbleOwner === "recordHint" ? "none" : "";
   const closeButton = bubble.querySelector("[data-close]"); if (closeButton) closeButton.hidden = bubbleOwner === "recordHint"; // the hint lets taps through and goes away by itself
@@ -243,10 +244,10 @@ function placeUi() {
 }
 function renderBubble() {
   const copy = COPY[lang], bubble = $("bubble");
-  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? (room.soundState?.().epic ? copy.epicLine : room.soundState?.().day ? copy.dayLine : copy.recordLines[recordTrackShown]) : bubbleOwner === "recordHint" ? copy.recordHint : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "tablet" ? (mood === "closing" || mood === "series" ? copy.tabletNight[tabletLine % copy.tabletNight.length] : copy.tabletDay[tabletLine % copy.tabletDay.length]) : bubbleOwner === "barista" ? copy.baristaLines[baristaLine % copy.baristaLines.length] : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
+  bubble.querySelector("[data-line]").textContent = bubbleOwner === "note" ? copy.noteLine : bubbleOwner === "record" ? (room.soundState?.().epic ? copy.epicLine : room.soundState?.().day ? copy.dayLine : copy.recordLines[recordTrackShown]) : bubbleOwner === "recordHint" ? copy.recordHint : bubbleOwner === "drip" ? copy.dripLine : bubbleOwner === "phone" ? (phoneLineShown ?? copy.tabletDay[0]) : bubbleOwner === "tablet" ? (mood === "closing" || mood === "series" ? copy.tabletNight[tabletLine % copy.tabletNight.length] : copy.tabletDay[tabletLine % copy.tabletDay.length]) : bubbleOwner === "barista" ? copy.baristaLines[baristaLine % copy.baristaLines.length] : bubbleOwner === "cat" ? copy.catLines[catLine % copy.catLines.length] : bubbleOwner === "menu" ? copy.menuPick[mood] : bubbleOwner === "mood" ? copy.robotMood[moodLineKey] : copy.robotLine;
   const cover = bubble.querySelector("[data-cover]"); // the record's cover (Codex card 69, C1 to C3) shows while a record plays
   cover.hidden = bubbleOwner !== "record"; if (!cover.hidden) { { const live = room.soundState?.(); cover.src = new URL(`./art/room04-record-cover-${live?.epic ? 5 : live?.day ? 4 : Math.min(recordTrackShown, 3)}-v1.webp`, import.meta.url).href; } cover.alt = (room.soundState?.().epic ? copy.epicLine : room.soundState?.().day ? copy.dayLine : copy.recordLines[recordTrackShown]).replace(/^♪ /, "").split("。")[0]; }
-  const title = bubble.querySelector("[data-title]"); title.textContent = copy.noteTitle; title.hidden = bubbleOwner !== "note";
+  const title = bubble.querySelector("[data-title]"); title.textContent = bubbleOwner === "phone" ? copy.phoneTitle : copy.noteTitle; title.hidden = bubbleOwner !== "note" && bubbleOwner !== "phone";
   const link = bubble.querySelector("[data-travel]"); link.textContent = copy.robotChoose; link.href = `/prototype/roomverse-3d/?lang=${lang}`; link.hidden = bubbleOwner !== "robot";
   bubble.querySelector("[data-close]").setAttribute("aria-label", copy.close);
 }
@@ -275,7 +276,8 @@ $("robotHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble(
 $("menuHit").addEventListener("click", () => { room?.pokeRobot?.(); openBubble("menu", 7000); }); // tap the menu boards: the robot picks a drink for the mood
 $("catHit").addEventListener("click", () => { catLine += 1; openBubble("cat", 5000); }); // the cat answers a tap, a different line each time
 $("baristaHit").addEventListener("click", () => { baristaLine += 1; room?.pokeRobot?.(); openBubble("barista", 6000); }); // the robot at the machine answers too, a different line each time
-$("tabletHit").addEventListener("click", () => { tabletLine += 1; room?.pokeTablet?.(); openBubble("tablet", 6500); }); // the lounge tablet: day lines, and notifications at night
+$("tabletHit").addEventListener("click", () => { tabletLine += 1; room?.pokeTablet?.(); openBubble("tablet", 6500); });
+  $("phoneHit").addEventListener("click", () => { const said = room?.pokePhone?.(); phoneLineShown = said?.line ?? null; openBubble("phone", 6000); }); // Paul 2026-11-23: the phone answers a tap with the same bubble the tablet uses // the lounge tablet: day lines, and notifications at night
 $("recordHit").addEventListener("click", () => {
   if (!room) return;
   if (room.recordPlaying() || room.soundState().pending) {

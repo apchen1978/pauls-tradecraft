@@ -3175,8 +3175,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         series: ["23:58", "再看一集就好", "Just one more episode"],
       };
       const DAY = new Set(["morning", "noon", "golden", "rain"]);
+      let lastLine = null;
       const draw = (name, override) => {
         const [time, line, sub] = override ?? LINES[name] ?? LINES.golden;
+        lastLine = [line, sub];
         // Paul 2026-11-23: read from a raised bar view, so the type is larger and the contrast higher than a phone
         // actually needs; the screen only has to survive one glance across the room.
         g.fillStyle = "#1d2a30"; g.fillRect(0, 0, 256, 512);
@@ -3231,8 +3233,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         clearTimeout(messageTimer);
         setTimeout(() => { draw(mood, line); render(); }, 110);
         messageTimer = setTimeout(() => { draw(mood); render(); }, 2900);
+        return { line: line[1], sub: line[2], time: line[0] }; // the page floats the same words in its bubble
       };
-      phoneScreen = { apply: (name) => { mood = name; clearTimeout(messageTimer); draw(name); render(); }, tap, mesh: screen };
+      phoneScreen = { apply: (name) => { mood = name; clearTimeout(messageTimer); draw(name); render(); }, tap, mesh: screen,
+        state: () => ({ mood, line: lastLine }) };
     }
     // The phone's warm-grey cord has the scale of a real charging lead. It drops over the table edge, rests above the rug, then reaches the wall plug in one continuous tube.
     detail(tubeGeometry([[sx + 0.01, magTop + 0.005, sz + 0.063], [sx + 0.03, magTop - 0.003, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
@@ -4292,6 +4296,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     dripScreen: () => projectBounds(dripBounds),
     dustState: () => ({ visible: dust.visible, opacity: dust.material.opacity, count: DUST_COUNT, sample: [dustPositions[0], dustPositions[1], dustPositions[2]] }),
     tabletScreen: () => (tabletRig ? projectBox(tabletRig.screen) : null), tabletState: () => tabletRig?.state() ?? null, pokeTablet: () => tabletRig?.poke(),
+  // Paul 2026-11-23: the phone answers a tap the way the tablet does. The screen rect lets the page float a 44 px tap
+  // target over it on a phone, where the screen itself is only 5 cm of 3D.
+  phoneScreen: () => (phoneScreen ? projectBox(phoneScreen.mesh) : null), pokePhone: () => phoneScreen?.tap(), phoneState: () => phoneScreen?.state() ?? null,
     catScreen: () => (catRef.group ? projectBox(catRef.group) : null),
     catState: () => ({ loaded: Boolean(catRef.group), x: catRef.group?.position.x ?? null, y: catRef.group?.position.y ?? null, z: catRef.group?.position.z ?? null, yaw: catRef.group?.rotation.y ?? null, nook: [-2.70, 3.12], cushionTop: catRef.cushionTop ?? null, scale: catRef.scale ?? null, widthM: 0.40 * (catRef.scale ?? 1), heightM: 0.166 * (catRef.scale ?? 1) }),
     rugState: () => ({ vertices: rugRef.mesh.geometry.attributes.position.count, roundVertices: rugRef.roundGeometry.attributes.position.count, look: currentLook.rug, shape: rugRef.shape, geometry: rugRef.mesh.geometry.type, chosen: rugChosen, x: rugRef.mesh.position.x, z: rugRef.mesh.position.z, yaw: rugRef.mesh.rotation.y, rect: WINDOW_RUG_RECTS[currentLook.rug] ?? null }),
