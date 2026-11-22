@@ -3023,7 +3023,7 @@ let lanternMat = null;
       ctx.strokeStyle = "#3d8fa0"; ctx.lineWidth = 3; ctx.beginPath(); for (let x = w * .25 - 56; x <= w * .25 + 56; x += 4) { const y = h * .76 + Math.sin(x / 9) * 4; if (x === w * .25 - 56) ctx.moveTo(x, y); else ctx.lineTo(x, y); } ctx.stroke();
     });
     colaLabel.offset.x = -.03; clearLabel.offset.x = -.02; // Paul 2026-11-23: the wordmark sits in the middle of each bottle as the record view sees it (the cola's was cut off at the right edge)
-    const clear = makeWater({ at: waterAt, sR: .8, sV: .88, fillColor: 0x86c3cf, fillOpacity: .62, label: [{ y: .13, h: .034, color: CREAM }, { y: .215, h: .085, map: clearLabel }], capColor: 0xe1ddd2, tag: "" });
+    const clear = makeWater({ at: waterAt, sR: .8, sV: .88, fillColor: 0x86c3cf, fillOpacity: .62, label: [{ y: .13, h: .034, color: CREAM, grow: -.0007 }, { y: .13, h: .075, map: clearLabel }], capColor: 0xe1ddd2, tag: "" });
     const cola = makeWater({ at: water2At, sR: .88, sV: .78, fillColor: 0x3a1c10, fillOpacity: .9, label: [{ y: .125, h: .115, map: colaLabel }], capColor: 0x3a2418, tag: "-2" });
     const water = { glass: clear.glass, fill: clear.fill, labelCap: clear.labelCap, at: waterAt, y: clear.y, radius: clear.radius, labelMm: clear.labelMm, second: { glass: cola.glass, water: cola.fill, labelCap: cola.labelCap, label: cola.labelMesh, at: water2At, radius: cola.radius, labelMm: cola.labelMm } };
     return { oak, pulls, props, bottle, bottleAt, mugAt, mugY, pack, packAt, packY, packSpot, coffeeObj, recordPlayer, recordAt, mugRadius: MUG.radius, cord, cordCurve, cordRadius: CORD_R, outlet, water, topY: top };
