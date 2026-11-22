@@ -39,7 +39,7 @@ function counterShift(x) {
 const BACK_BAR = Object.freeze({ x0: -2.6, x1: 3.0, depth: 0.5, height: 0.9, top: 0.03 });
 
 const COLORS = Object.freeze({
-  wall: 0xf1e3cd, ceiling: 0xf4f1ea, floor: 0xa89a8e, oak: 0xb98a55, olive: 0x4d5d3c, black: 0x2b2e2e,
+  wall: 0xf4e7d1, ceiling: 0xf6f3ec, floor: 0xac9d90, oak: 0xbd8d57, olive: 0x46552f, black: 0x2b2e2e,
   steel: 0xd9dddf, stone: 0xeeeae4, plant: 0x5f8a45, terracotta: 0xc4623a, robot: 0xf2f0ea, chalk: 0x2f3334,
 });
 
@@ -51,8 +51,8 @@ const MOODS = Object.freeze({
   noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 }),
   golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 }),
   rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75, glow: 0.5 }),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.3, hemiSky: 0x6f84b8, hemiGround: 0x453f4a, ambient: 0.1, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.0, reflect: 0.45, pendant: 2.3, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 }),
-  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.34, hemiSky: 0x6273a8, hemiGround: 0x3a3646, ambient: 0.1, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 1.6, reflect: 0.45, steam: 0.4, tv: 1, pendant: 0.7, shaft: 0, neon: 0.9, glow: 0.6 }),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x7a8fc4, hemiGround: 0x4b4450, ambient: 0.17, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.6, reflect: 0.45, pendant: 2.5, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 }),
+  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.44, hemiSky: 0x6f80b8, hemiGround: 0x413d4c, ambient: 0.17, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 2.4, reflect: 0.45, steam: 0.4, tv: 1, pendant: 1.1, shaft: 0, neon: 0.9, glow: 0.6 }),
 });
 
 // PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
@@ -532,8 +532,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     chip: new THREE.MeshStandardMaterial({ color: 0x3a2418, roughness: 0.6 }),
     visor: new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.22, metalness: 0.15 }),
     // The Room 04 robots are a barista edition of the family: same egg, but a glossy clear-coated shell, dark metal joints and seams, a lit visor and ear modules.
-    robotBody: new THREE.MeshPhysicalMaterial({ color: 0xf6f4ee, roughness: 0.34, clearcoat: 1, clearcoatRoughness: 0.16 }),
-    robotDark: new THREE.MeshStandardMaterial({ color: 0x2c2f34, roughness: 0.38, metalness: 0.65 }),
+    robotBody: new THREE.MeshPhysicalMaterial({ color: 0xf7f5ef, roughness: 0.30, clearcoat: 1, clearcoatRoughness: 0.10 }),
+    robotDark: new THREE.MeshStandardMaterial({ color: 0x24272c, roughness: 0.30, metalness: 0.70 }),
     robotGlow: new THREE.MeshBasicMaterial({ vertexColors: true }),
     scarf: new THREE.MeshStandardMaterial({ color: 0x66763f, roughness: 0.92 }),
     coffee: new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: 0.35 }),
@@ -1416,6 +1416,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     part("terracotta", new THREE.TorusGeometry(0.265, 0.006, 8, 48).rotateX(Math.PI / 2).translate(x, 0.043, z), { tile: 1 });
     part("black", new THREE.LatheGeometry([[0.0005, 0.04], [0.17, 0.04], [0.12, 0.14], [0.11, 0.72], [0.14, 0.84], [0.0005, 0.84]].map((p) => new THREE.Vector2(p[0], p[1])), 40).translate(x, 0, z), { tile: 1 });
     part("steel", new THREE.TorusGeometry(0.142, 0.012, 8, 40).rotateX(Math.PI / 2).translate(x, 0.84, z), { tile: 1 });
+    // Paul 2026-11-22: a machined brass collar right under the egg, so the pedestal reads as a turned part and not a moulded
+    // column; it belongs to the static pedestal, not to the hopping robot.
+    part("gold", new THREE.TorusGeometry(0.126, 0.0045, 6, 44).rotateX(Math.PI / 2).translate(x, 0.812, z), { tile: 1 });
     part("steel", new THREE.TorusGeometry(0.118, 0.004, 6, 36).rotateX(Math.PI / 2).translate(x, 0.5, z), { tile: 1 }); // a thin steel band round the column
     addContactShadow(x, z, 1.24, 1.24);
   };
@@ -2910,7 +2913,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       [0.187, 0.351, 0, 1.06], [0.126, 0.357, 0, 1.04], [0, 0.360, 0, 1.02],
     ];
     const poufSegments = 72;
-    for (const [pz, tag, color] of [[1.52, "", 0xc4963f], [0.80, "-2", 0x607c9b]]) {
+    // Paul 2026-11-22: the cold blue-grey pouf fought the walnut and oxblood around it, so it takes a warm oxblood that
+    // ties to the banquette; the mustard one stays as the accent.
+    for (const [pz, tag, color] of [[1.52, "", 0xc4963f], [0.80, "-2", 0x8e5344]]) {
       const px = 1.61;
       const footstoolBase = disc("oakDeep", px, 0.035, pz, 0.177, 0.046);
       footstoolBase.computeBoundingBox();

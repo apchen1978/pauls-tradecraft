@@ -8,7 +8,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 235445, meshes: 129 }),
+  scene: Object.freeze({ vertices: 236075, meshes: 129 }),
   // Draw calls in the opening view (entry, golden hour), with the deferred gallery loaded.
   openingDrawCalls: Object.freeze({ desktop: 71, phone: 64 }),
   // Card 54 opening draw-call caps; keep a separate regression guard for scene size.
@@ -129,5 +129,6 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "counter edge (Paul): the biscuit plate and the oak cup board hung over the curved counter edge because they were built with the shift of a different x; each now follows the counter at its own x (the board is turned to the edge slope); the little succulent leaves the board and becomes a livelier echeveria with a flower stalk (+1.2k vertices)", vertices: 234289, meshes: 129, desktopCalls: 70, phoneCalls: 64 },
     { date: "2026-11-22", change: "bar-area pass (Paul: keep polishing the counter): a glass water carafe with its tumbler, a brass service bell, and a WiFi card at the front edge (painted into the shared decor canvas, so no texture of its own); each with a registered rest support", vertices: 235316, meshes: 129, desktopCalls: 71, phoneCalls: 64 },
     { date: "2026-11-22", change: "the water moves off the counter (Paul: the glass carafe read as fake and blocked the record player): a stoneware jug with two small cups now stands on the upper back-bar shelf, glazed opaque instead of clear glass", vertices: 235445, meshes: 129, desktopCalls: 71, phoneCalls: 64 },
+    { date: "2026-11-22", change: "polish pass (Paul): night moods lifted (closing ambient 0.10->0.17, hemi 0.30->0.42, lamp 3.0->3.6; series ambient 0.10->0.17, hemi 0.34->0.44, lamp 1.6->2.4, pendant 0.7->1.1) so the window side reads at night; robot shell sharper (clearcoatRoughness 0.16->0.10, dark metal 0.30 roughness) plus a machined brass collar on the pedestal; Lounge tone unified (deeper olive wainscot, warmer plaster, warmer floor, the cold blue pouf becomes oxblood)", vertices: 236075, meshes: 129, desktopCalls: 71, phoneCalls: 64 },
   ]),
 });
