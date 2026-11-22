@@ -28,28 +28,28 @@ const TRACKS = [
       { bass: 40, chord: [52, 55, 58, 62], tune: [[0, 76, 2], [2, 79, 2]] },                          // Em7b5: suspended, unresolved
       { bass: 45, chord: [55, 57, 61, 65], tune: [[0, 73, 3], [3, 69, 1]] },                          // A7: back to the opening
     ] },
-  // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (2026-11-23, third melody: a Ghibli-like, singable theme in four-bar phrases, built on chord tones and ninths so it never clashes with the harmony: a motif of a rising fourth and a step down, answered, lifted in bars 5 to 6, a high point on A in bar 12, an open ending that leads back to the start) (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
+  // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (2026-11-23, fourth melody: an urban R&B / neo-soul hum instead of a square tune: F-major pentatonic only, neighbour-note slides and little up-then-down turns, no leaps of a fourth; syncopated, with key notes pushed half a beat early and tied across the bar line, and rests between phrases so the 808 and the piano breathe; carried by a soft Rhodes in the upper register with a breath of flute, velocity shaped note by note) (2026-11-23, third melody: a Ghibli-like, singable theme in four-bar phrases, built on chord tones and ninths so it never clashes with the harmony: a motif of a rising fourth and a step down, answered, lifted in bars 5 to 6, a high point on A in bar 12, an open ending that leads back to the start) (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
   { title: "窗邊的午後", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1], [1, 77, 2], [3, 76, 1]] },                                          // Fmaj9: C D E
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 74, 1.5], [1.5, 72, 0.5], [2, 69, 2]] },      // Am7 | D7: F E D
-      { bass: 43, chord: [58, 62, 65, 69], tune: [[0, 70, 1], [1, 74, 2], [3, 72, 1]] },                                          // Gm9: C Bb C
-      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 67, 2], [2, 70, 1], [3, 72, 1]] },                                                      // C7: A G
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 77, 1], [1, 81, 2], [3, 79, 1]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 77, 2], [2, 74, 1], [3, 77, 1]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 76, 1.5], [1.5, 74, 0.5], [2, 72, 2]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 70, 1.5], [1.5, 67, 0.5], [2, 72, 2]] },     // Gm7 | C7
-      { bass: 38, chord: [60, 65, 69, 72], tune: [[0, 74, 1], [1, 77, 2], [3, 76, 1]] },                                          // Dm9: a step up
-      { bass: 43, chord: [59, 62, 65, 69], tune: [[0, 74, 2], [2, 71, 1], [3, 74, 1]] },                                          // G7
-      { bass: 36, chord: [59, 64, 67, 71], tune: [[0, 76, 2], [2, 79, 2]] },                                                      // Cmaj9
-      { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 81, 1.5], [1.5, 79, 0.5], [2, 76, 2]] },                                                      // Am7
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 77, 1], [1, 74, 2], [3, 77, 1]] },                                                      // Bbmaj7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 74, 1.5], [1.5, 72, 0.5], [2, 70, 2]] },     // Gm7 | C7
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 72, 1], [1, 69, 1], [2, 74, 2]] },                  // Am7 | D7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 3], [3, 69, 1]] },                              // Gm7 | C7: a long C, home
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[1.5, 72, 1], [2.5, 74, 0.5], [3, 72, 2]] },                                          // Fmaj9: C D E
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1.5, 69, 0.5], [2, 67, 1], [3.5, 69, 0.5]] },      // Am7 | D7: F E D
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[0.5, 72, 0.5], [1, 74, 1.5], [2.5, 72, 0.5], [3, 69, 1]] },                                          // Gm9: C Bb C
+      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 67, 0.5], [0.5, 69, 0.5], [1.5, 72, 1], [3, 74, 1.5]] },                                                      // C7: A G
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[1, 77, 1.5], [2.5, 74, 0.5], [3, 72, 1]] },                                                      // Fmaj9: C up to F
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[1.5, 74, 0.5], [2, 72, 1], [3.5, 69, 0.5]] },                                          // Bbmaj7: E D C
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 67, 0.5], [0.5, 69, 1], [2, 72, 1], [3.5, 74, 2.5]] },                  // Am7 | Dm7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[2, 72, 0.5], [2.5, 69, 0.5], [3, 67, 1]] },     // Gm7 | C7
+      { bass: 38, chord: [60, 65, 69, 72], tune: [[1, 69, 0.5], [1.5, 72, 1], [3, 74, 0.5], [3.5, 77, 1.5]] },                                          // Dm9: a step up
+      { bass: 43, chord: [59, 62, 65, 69], tune: [[1.5, 74, 0.5], [2, 72, 1], [3, 74, 1]] },                                          // G7
+      { bass: 36, chord: [59, 64, 67, 71], tune: [[0.5, 79, 1.5], [2.5, 77, 0.5], [3, 74, 1]] },                                                      // Cmaj9
+      { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 81, 1], [1, 79, 0.5], [1.5, 77, 0.5], [2.5, 74, 1.5]] },                                                      // Am7
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0.5, 77, 1], [2, 74, 0.5], [2.5, 72, 1], [3.5, 74, 0.5]] },                                                      // Bbmaj7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 1], [1.5, 69, 0.5], [2, 67, 1.5]] },     // Gm7 | C7
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0.5, 69, 0.5], [1, 72, 1], [2.5, 74, 1.5]] },                  // Am7 | D7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 2.5], [3.5, 69, 0.5]] },                              // Gm7 | C7: a long C, home
     ] },
 ];
 for (const t of TRACKS) if (t.transpose) for (const b of t.bars) { // a track may be written in one key and played in another: shift every note by `transpose` semitones
@@ -70,6 +70,7 @@ const STR_TREM = { partials: [[1, 0.5, "sawtooth", 1], [1.006, 0.5, "sawtooth", 
 const BASS_DRIVE = { partials: [[1, 1, "sawtooth", 1], [2, 0.3, "triangle", 0.5]], lowpass: 520, attack: 0.01 };
 const FLUTE = { partials: [[1, 0.7, "sine", 1], [2, 0.12, "triangle", 0.6], [3, 0.03, "sine", 0.3]], lowpass: 3400, attack: 0.07, vibrato: 6 }; // a breathy flute: a soft sine with a touch of air
 const ORGAN = { partials: [[1, 0.6, "sine", 1], [2, 0.35, "sine", 1], [3, 0.18, "sine", 1], [4, 0.1, "sine", 1], [0.5, 0.3, "sine", 1]], lowpass: 2600, attack: 0.05, tremolo: 0.25, tremRate: 6.2 }; // a drawbar organ, the gospel bed
+const RHODES = { partials: [[1, 0.6, "sine", 1], [2, 0.26, "sine", 0.55], [3, 0.07, "sine", 0.2], [6, 0.035, "sine", 0.08]], attack: 0.012, lowpass: 3300, tremolo: 0.32, tremRate: 4.6 }; // a Rhodes-like electric piano: a round tone with a quickly fading bell partial and a slow tremolo
 const CELLO = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 650, attack: 0.3, vibrato: 8 };
 const STRING_LEAD = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 1300, attack: 0.25, vibrato: 9 };
 
@@ -194,16 +195,16 @@ function createNightMusic() { // the cinematic engine, for series night
         if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
         [[1, walkThird, 0.13], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.11]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
-        // the melody: long, singing notes on the piano with a second voice a chord tone below it; strings sing along from the second half
+        // the melody (Paul 2026-11-23: an urban R&B / neo-soul hum): a soft Rhodes carries it in the upper register with a breath of flute, the real piano only whispers a double for body, and every note gets
+        // its own small velocity (accents on the pushed notes, softer on the neighbour slides). Notes may be tied across the bar line (a length past the bar) and rests separate the phrases.
         const chordNow = (at) => (bar.chord2 && at >= 2 ? bar.chord2 : bar.chord);
-        for (const [at, midi, length] of bar.tune) {
-          const when = t0 + at * beat + jitter(14);
-          piano(when, midi, vary(0.15 * loud), beat * (length + 0.9), 0.1);
-          const pool = []; for (const c of chordNow(at)) for (const octave of [-24, -12, 0]) pool.push(c + octave);
-          const below = pool.filter((m) => m <= midi - 3 && m >= midi - 9).sort((x, y) => y - x)[0];
-          if (below !== undefined) piano(when + 0.012 + rnd() * 0.012, below, vary(0.055 * loud), beat * (length + 0.7), -0.05);
-          if (second) note(when + 0.03, midi, STRING_LEAD, 0.012, beat * (length + 0.6), 0.2);
-        }
+        bar.tune.forEach(([at, midi, length], idx) => {
+          const when = t0 + at * beat + jitter(12), accent = (at % 1 === 0.5 ? 1.18 : 1) * (idx % 2 ? 0.88 : 1) * (0.86 + rnd() * 0.3);
+          note(when, midi, RHODES, 0.075 * accent * loud, beat * (length + 0.7), 0.12);
+          note(when + 0.01, midi + 12, RHODES, 0.012 * accent * loud, beat * (length + 0.4), 0.2); // a faint octave bell, which is what lifts it into the upper register
+          if (second || barIndex % 16 >= 4) note(when + 0.02, midi, FLUTE, 0.02 * accent, beat * (length + 0.5), -0.15); // a breath of flute from the fifth bar on
+          piano(when + 0.008, midi, vary(0.03 * accent * loud), beat * (length + 0.6), 0.1);
+        });
       } else {
       const lv = (track.level || [])[barIndex % track.bars.length] ?? 1, section = barIndex % 16 < 4 ? 0 : barIndex % 16 < 8 ? 1 : barIndex % 16 < 12 ? 2 : 3; // 0 hush, 1 build, 2 climax, 3 fall
       // the lone piano, deep: a low octave on the first beat, then single low notes (the thriller shade), thickening to pounding octaves in the climax
