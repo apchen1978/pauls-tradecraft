@@ -28,28 +28,28 @@ const TRACKS = [
       { bass: 40, chord: [52, 55, 58, 62], tune: [[0, 76, 2], [2, 79, 2]] },                          // Em7b5: suspended, unresolved
       { bass: 45, chord: [55, 57, 61, 65], tune: [[0, 73, 3], [3, 69, 1]] },                          // A7: back to the opening
     ] },
-  // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
+  // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
   { title: "窗邊的午後", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Fmaj9: C D E
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 81, 2], [2, 79, 1], [3, 77, 1]] },      // Am7 | D7: F E D
-      { bass: 43, chord: [58, 62, 65, 69], tune: [[0, 74, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Gm9: C Bb C
-      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 81, 2], [2, 79, 2]] },                                                      // C7: A G
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 84, 2], [2, 81, 1], [3, 79, 1]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 77, 1.5], [1.5, 79, 1.5], [3, 81, 1]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 76, 1], [1, 81, 2], [3, 79, 1]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 77, 2], [2, 76, 1], [3, 79, 1]] },     // Gm7 | C7
-      { bass: 38, chord: [60, 65, 69, 72], tune: [[0, 81, 1.5], [1.5, 84, 1.5], [3, 81, 1]] },                                          // Dm9: a step up
-      { bass: 43, chord: [59, 62, 65, 69], tune: [[0, 86, 2], [2, 84, 1], [3, 81, 1]] },                                          // G7
-      { bass: 36, chord: [59, 64, 67, 71], tune: [[0, 84, 2], [2, 79, 1], [3, 81, 1]] },                                                      // Cmaj9
-      { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 84, 1.5], [1.5, 81, 1.5], [3, 79, 1]] },                                                      // Am7
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 82, 2], [2, 86, 2]] },                                                      // Bbmaj7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 84, 2], [2, 81, 1], [3, 79, 1]] },     // Gm7 | C7
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 81, 1], [1, 84, 2], [3, 86, 1]] },                  // Am7 | D7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 84, 3], [3, 79, 1]] },                              // Gm7 | C7: a long C, home
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 74, 0.5], [2, 72, 1], [3, 69, 1]] },                                          // Fmaj9: C D E
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 69, 2], [2, 72, 1], [3, 70, 1]] },      // Am7 | D7: F E D
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[0, 67, 1.5], [1.5, 70, 0.5], [2, 69, 1], [3, 67, 1]] },                                          // Gm9: C Bb C
+      { bass: 36, chord: [58, 64, 67, 70], tune: [[0, 65, 2], [2, 67, 1], [3, 64, 1]] },                                                      // C7: A G
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 74, 0.5], [2, 76, 1], [3, 74, 1]] },                                                      // Fmaj9: C up to F
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 74, 2], [2, 72, 1], [3, 70, 1]] },                                          // Bbmaj7: E D C
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 69, 2], [2, 72, 1], [3, 74, 1]] },                  // Am7 | Dm7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 70, 1.5], [1.5, 67, 0.5], [2, 64, 2]] },     // Gm7 | C7
+      { bass: 38, chord: [60, 65, 69, 72], tune: [[0, 69, 2], [2, 72, 1], [3, 74, 1]] },                                          // Dm9: a step up
+      { bass: 43, chord: [59, 62, 65, 69], tune: [[0, 71, 2], [2, 69, 1], [3, 67, 1]] },                                          // G7
+      { bass: 36, chord: [59, 64, 67, 71], tune: [[0, 72, 3], [3, 71, 1]] },                                                      // Cmaj9
+      { bass: 45, chord: [55, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 69, 0.5], [2, 67, 2]] },                                                      // Am7
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 74, 2], [2, 77, 1], [3, 74, 1]] },                                                      // Bbmaj7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 2], [2, 70, 1], [3, 69, 1]] },     // Gm7 | C7
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 69, 1.5], [1.5, 72, 0.5], [2, 74, 1], [3, 72, 1]] },                  // Am7 | D7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 72, 3], [3, 69, 1]] },                              // Gm7 | C7: a long C, home
     ] },
 ];
 for (const t of TRACKS) if (t.transpose) for (const b of t.bars) { // a track may be written in one key and played in another: shift every note by `transpose` semitones
@@ -156,18 +156,20 @@ function createNightMusic() { // the cinematic engine, for series night
         [[bar.bass, -0.3, 0.04], [bar.bass + 7, -0.15, 0.034], [bar.chord[1] + 12, 0.15, 0.03], [bar.chord[3] + 12, 0.3, 0.024]].forEach(([midi, pan, g], k) => piano(t0 + 0.03 * k + jitter(10), midi, vary(g * loud), barLength * 2.1, pan));
         // the rhythm section (Paul 2026-11-23: "a little monotonous: add chords and a jazz bass drum, more arrangement"): a feathered kick on one and three with a soft ghost note before the next bar,
         // a walking upright bass on every beat under the held piano bass, off-beat piano chord stabs (the "and" of two, and four) in the middle register, and a brushed ride with a skip beat
-        // Paul 2026-11-23: borrow from dance-pop / EDM to add drive: a four-on-the-floor kick (all four beats, a little firmer than the jazz one), a clap on two and four, open off-beat hats, and from the build-up
-        // on (bar 5) an eighth-note pumping sub on the off-beats. The first four bars keep only the kick and hats, so the piece grows into it.
-        const dance = barIndex % 16 >= 8, full = barIndex % 16 >= 10; // Paul 2026-11-23: the clap and the pumping sub come in after the middle of the piece, the clap clearly louder (gospel hand claps); the first half keeps only kick and hats
-        [0, 1, 2, 3].forEach((b2) => kick(t0 + b2 * beat + jitter(4), (b2 === 0 ? 0.26 : 0.21) * loud));
-        if (dance) { [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), (full ? 0.2 : 0.15) * loud)); if (full) [1.5, 3.5].forEach((b2) => clap(t0 + b2 * beat + jitter(6), 0.05 * loud)); } // gospel claps: loud on two and four, a soft ghost clap after each once it is full
-        for (let i = 0; i < 4; i++) tick(t0 + (i + 0.5) * beat + jitter(4), (full ? 0.03 : 0.02) * loud, 9500, 0.07); // open off-beat hats
-        if (dance) for (let i = 0; i < 4; i++) note(t0 + (i + 0.5) * beat + jitter(4), bar.bass, BASS_DRIVE, (full ? 0.15 : 0.1) * loud, beat * 0.4); // the pumping off-beat sub
-        // the gospel bed: a drawbar organ holding the chord across the bar from the middle, swelling a little into the end
+        // Paul 2026-11-23 ("fast in energy but not noisy or messy, smooth, like a Jay Chou ballad-pop piano track"): the syncopation is gone. What drives the piece now is a steady, flowing eighth-note piano
+        // arpeggio (broken chords up and down, each note ringing into the next like a pedalled piano), a clean pulse (kick on one and three, a soft clap on two and four only after the middle, a closed
+        // hat on the beat), a smooth walking bass and a drawbar organ bed. Everything lands on the beat or the straight eighth; nothing is stabbed off the beat.
+        const dance = barIndex % 16 >= 8, full = barIndex % 16 >= 10;
+        [0, 2].forEach((b2) => kick(t0 + b2 * beat + jitter(4), (b2 === 0 ? 0.22 : 0.17) * loud));
+        if (dance) [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), (full ? 0.16 : 0.12) * loud));
+        for (let i = 0; i < 4; i++) tick(t0 + i * beat + jitter(4), 0.012 * loud, 8500, 0.05); // a closed hat on the beat
+        // the flowing piano arpeggio: eight notes a bar through the chord, up and back, quiet under the melody and a little fuller in the second half
+        const arp = [0, 1, 2, 3, 2, 1, 2, 1].map((i) => bar.chord[i]);
+        arp.forEach((midi, i) => piano(t0 + i * 0.5 * beat + jitter(5), midi + (i % 4 === 3 ? 12 : 0), vary((full ? 0.042 : 0.034) * loud), beat * 1.3, -0.15 + (i % 4) * 0.1));
+        // the organ bed from the middle, holding the chord
         if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
         [[0, walkRoot, 0.15], [1, walkThird, 0.11], [2, walkFifth, 0.12], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.1]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
-        for (const at of [1.5, 3]) bar.chord.slice(1).forEach((midi, k) => piano(t0 + at * beat + k * 0.014 + jitter(8), midi + 12, vary(0.034 * loud), beat * 0.5, -0.1 + k * 0.1));
         // the melody: long, singing notes on the piano with a second voice a chord tone below it; strings sing along from the second half
         const chordNow = (at) => (bar.chord2 && at >= 2 ? bar.chord2 : bar.chord);
         for (const [at, midi, length] of bar.tune) {
