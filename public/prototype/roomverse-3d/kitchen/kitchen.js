@@ -7123,7 +7123,10 @@ export async function start({ stage, onReady = () => {} }) {
   // Paul 2026-11-22: like Room 02, a look frames the whole object and lets you swing either side of it. The record view
   // aims at the deck itself (not at a point beside it) and steps back far enough that the deck, its plinth, the cable-car
   // art on the left and the small stove's zellige wall on the right are all inside one frame.
-  const RECORD_VIEW = { target: [2.72, 0.98, 0.62], position: [1.22, 1.60, 2.30], minDistance: 0.8, maxDistance: 3.4, azimuthHalfRange: 0.52, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
+  // Paul 2026-11-23: the swing is asymmetric now. Turning right past about 0.12 rad puts the camera against the wall
+  // behind the counter, and the frame filled with flat grey (measured: contrast collapses from std 59 to 20). The right
+  // side is clamped to 0.14 rad; the left keeps the full 0.52 because it stays on the kitchen.
+  const RECORD_VIEW = { target: [2.72, 0.98, 0.62], position: [1.22, 1.60, 2.30], minDistance: 0.8, maxDistance: 3.4, azimuthLeft: 0.52, azimuthRight: 0.06, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
   const recordFov = (aspect) => Math.min(RECORD_VIEW.maxFov, Math.max(RECORD_VIEW.minFov, 2 * Math.atan(Math.tan(RECORD_VIEW.halfHfovDeg * Math.PI / 180) / aspect) * 180 / Math.PI));
   let recordSaved = null;
   function setRecordView(on) {
@@ -7133,7 +7136,7 @@ export async function start({ stage, onReady = () => {} }) {
       if (nookSaved) setNookView(false);
       recordSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance, rotateSpeed: controls.rotateSpeed, zoomSpeed: controls.zoomSpeed };
       const theta = Math.atan2(RECORD_VIEW.position[0] - RECORD_VIEW.target[0], RECORD_VIEW.position[2] - RECORD_VIEW.target[2]);
-      controls.minAzimuthAngle = theta - RECORD_VIEW.azimuthHalfRange; controls.maxAzimuthAngle = theta + RECORD_VIEW.azimuthHalfRange;
+      controls.minAzimuthAngle = theta - RECORD_VIEW.azimuthLeft; controls.maxAzimuthAngle = theta + RECORD_VIEW.azimuthRight;
       controls.minDistance = RECORD_VIEW.minDistance; controls.maxDistance = RECORD_VIEW.maxDistance;
       controls.rotateSpeed = RECORD_VIEW.rotateSpeed; controls.zoomSpeed = RECORD_VIEW.zoomSpeed;
       tweenNook(camera.position, controls.target, camera.fov, new THREE.Vector3(...RECORD_VIEW.position), new THREE.Vector3(...RECORD_VIEW.target), recordFov(camera.aspect));

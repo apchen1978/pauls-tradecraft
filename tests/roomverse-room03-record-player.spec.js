@@ -51,7 +51,9 @@ test("Room 03 a glowing ring points at the record player; one tap plays Bay Area
   const state = () => page.evaluate(() => window.__room03.recordMusicState());
   // The "Record player" button walks the camera in to a close look at the credenza end.
   await page.locator("#recordView").click();
-  await expect.poll(async () => (await page.evaluate(() => window.__room03.recordViewInfo()))?.distance ?? 99, { timeout: 8000, message: "the camera walks in to the record view" }).toBeLessThan(1.4);
+  // Paul 2026-11-22: the record view was widened to frame the whole deck (and then the stereo swing was clamped on the wall
+  // side), so the walk-in settles at 2.34 m. Old -> new: 1.4 -> 3.4 m, the current RECORD_VIEW.maxDistance.
+  await expect.poll(async () => (await page.evaluate(() => window.__room03.recordViewInfo()))?.distance ?? 99, { timeout: 8000, message: "the camera walks in to the record view" }).toBeLessThan(3.4);
   const view = await page.evaluate(() => window.__room03.recordViewInfo());
   expect(view.distance, "close enough to see the grooves, not inside the furniture").toBeGreaterThan(0.55);
   await expect(page.locator("#vinylRing"), "the ring appears a few seconds after the room opens").toBeVisible({ timeout: 20000 });
