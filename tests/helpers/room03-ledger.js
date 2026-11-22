@@ -10,7 +10,7 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 169124, meshes: 157 }),
+  scene: Object.freeze({ vertices: 168164, meshes: 157 }),
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
   openingDrawCalls: Object.freeze({ desktop: 103, phone: 100 }),
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
@@ -100,6 +100,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "counter bread (Paul): baking parchment hangs over the loaf pan's long edges (+48 vertices)", vertices: 155992, meshes: 158, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "small stove area (Paul): the SMALL STOVE wall (wok run and its two returns) becomes real zellige; the main hob panel stays the printed azulejo Paul liked (16 x 8 hand-set glazed bricks, each 2-8 mm proud, +-1 degree, own palette colour and glaze lip, on a grout bed), and the oven front is refined (bevelled door plate, picture-frame reveal, chrome bezel on the glass, joint lines, handle end caps)", vertices: 161768, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "oven mitts (Paul: the print read as a sticker): every leaf and petal is now an extruded pad about 1.8 mm proud with a soft bevel, and each flower centre is a domed bead; the mitts hang where they were", vertices: 169124, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
+    { date: "2026-11-22", change: "open kitchen (Paul): the two 13 cm stone returns that stood out from the wok wall like fins are gone, so the zellige field ends at the wall edge the way an open kitchen does", vertices: 168164, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
   ]),
 });
 
