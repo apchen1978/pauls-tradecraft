@@ -2079,7 +2079,17 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const bx0 = -1.14, bx1 = -0.69, bxm = (bx0 + bx1) / 2, slope = (counterShift(bx1) - counterShift(bx0)) / (bx1 - bx0);
       partShift = counterShift(bxm);
       part("oak", new THREE.BoxGeometry(bx1 - bx0, 0.018, 0.21).rotateY(-Math.atan(slope)).translate(bxm, top + 0.009, c.z1 - 0.175), { tile: 1 });
-      for (const x of [-1.03, -0.81]) { partShift = counterShift(x); ceramicCup({ x, y: top + 0.018, z: c.z1 - 0.175, coffee: true }); }
+      // Paul 2026-11-23: three identical cups in an even row along this board, like a cupping set: repetition reads as
+      // order and the row carries the rhythm. Old -> new: two cups at -1.03 / -0.81 -> three at -1.06 / -0.92 / -0.78,
+      // 140 mm apart. They take the BOARD's shift (its middle), not each cup's own: the board is one rigid box turned to
+      // follow the curved edge, so a per-cup shift left two of them up to 100 mm off the board, which the construction
+      // audit caught the moment they were registered.
+      const boardTop = top + 0.018, boardZ = c.z1 - 0.175 + counterShift(bxm);
+      const boardSurface = { shape: "rect", x0: bx0, x1: bx1, z0: boardZ - 0.105, z1: boardZ + 0.105, y: boardTop };
+      for (const [index, x] of [-1.06, -0.92, -0.78].entries()) {
+        ceramicCup({ x, y: boardTop, z: c.z1 - 0.175, coffee: true });
+        registerSupport(`bar-cupping-cup-${index}`, "rest", { base: { x, y: boardTop, z: boardZ, radius: 0.062 }, surface: boardSurface });
+      }
     }
     partShift = counterShift(-0.57); // Paul 2026-11-22: the biscuit plate was built with the shift of the board beside it (x -0.92, 19 cm towards the guests) but stands at x -0.57, where the counter edge has swung 12 cm the other way: it hung over the front edge. It now follows the counter at its own x.
     part("ceramic", new THREE.CylinderGeometry(0.06, 0.06, 0.008, 18).translate(-0.57, top + 0.004, c.z1 - 0.2), { tile: 1 });
