@@ -30,8 +30,9 @@ const TRACKS = [
     ] },
   // Paul 2026-11-22: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
-  // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major, sixteen bars.
-  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 92, swing: 0, send: 0.5,
+  // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in G major (see `transpose`), sixteen bars.
+  { title: "窗邊的午後", group: "day", style: "sunny", bpm: 104, swing: 0, send: 0.5, transpose: 2, // Paul 2026-11-22: faster (104 beats a minute) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+
     bars: [
       { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 1.5], [1.5, 77, 1.5], [3, 79, 1]] },                                          // Fmaj9: C D E
       { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 81, 2], [2, 79, 1], [3, 77, 1]] },      // Am7 | D7: F E D
@@ -51,6 +52,11 @@ const TRACKS = [
       { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[0, 84, 3], [3, 79, 1]] },                              // Gm7 | C7: a long C, home
     ] },
 ];
+for (const t of TRACKS) if (t.transpose) for (const b of t.bars) { // a track may be written in one key and played in another: shift every note by `transpose` semitones
+  b.bass += t.transpose; b.chord = b.chord.map((m) => m + t.transpose);
+  if (b.bass2 !== undefined) b.bass2 += t.transpose; if (b.chord2) b.chord2 = b.chord2.map((m) => m + t.transpose);
+  b.tune = b.tune.map(([at, m, len]) => [at, m + t.transpose, len]);
+}
 const nextInGroup = (index) => { for (let k = 1; k <= TRACKS.length; k++) { const j = (index + k) % TRACKS.length; if (TRACKS[j].group === TRACKS[index].group) return j; } return index; };
 
 // synthesised voices: [frequency ratio, level, wave, how much of the note's length the partial lasts (1 = all of it)]
