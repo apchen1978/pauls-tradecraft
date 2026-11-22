@@ -103,7 +103,8 @@ function createNightMusic() { // the cinematic engine, for series night
     const src = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), g = ctx.createGain();
     src.buffer = noiseBuffer(); filter.type = "bandpass"; filter.frequency.value = centre; filter.Q.value = 0.7;
     g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, time + decay);
-    src.connect(filter); filter.connect(g); g.connect(bus); src.start(time); src.stop(time + decay + 0.1);
+    const warm = ctx.createBiquadFilter(); warm.type = "lowpass"; warm.frequency.value = 5600; warm.Q.value = 0.4; // Paul 2026-11-23: a low-pass on every percussion noise burst takes the sharp edge off (a warm, lo-fi top end)
+    src.connect(filter); filter.connect(warm); warm.connect(g); g.connect(bus); src.start(time); src.stop(time + decay + 0.1);
   };
   const swell = (time, length) => { // a filtered-noise rise, the film-score breath before a turn
     if (!swellNoise) { const n = Math.floor(ctx.sampleRate * 4); swellNoise = ctx.createBuffer(1, n, ctx.sampleRate); const data = swellNoise.getChannelData(0); let last = 0; for (let i = 0; i < n; i++) { last = last * 0.7 + (rnd() * 2 - 1) * 0.3; data[i] = last; } }
@@ -125,8 +126,8 @@ function createNightMusic() { // the cinematic engine, for series night
   const eight08 = (time, gain, midi) => { // a long 808 sub: a pure low sine with a small pitch drop and a slow tail, a touch of soft-clip warmth from the second partial
     const f = hz(midi), osc = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
     osc.type = "sine"; osc.frequency.setValueAtTime(f * 1.6, time); osc.frequency.exponentialRampToValueAtTime(f, time + 0.05); o2.type = "sine"; o2.frequency.value = f * 2; 
-    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, time + 1.1);
-    const g2 = ctx.createGain(); g2.gain.value = 0.12; o2.connect(g2); g2.connect(g); osc.connect(g); g.connect(bus); osc.start(time); o2.start(time); osc.stop(time + 1.2); o2.stop(time + 1.2); noteCount += 1;
+    g.gain.setValueAtTime(0.0001, time); g.gain.exponentialRampToValueAtTime(gain, time + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, time + 0.42);
+    const g2 = ctx.createGain(); g2.gain.value = 0.05; o2.connect(g2); g2.connect(g); osc.connect(g); g.connect(bus); osc.start(time); o2.start(time); osc.stop(time + 0.5); o2.stop(time + 0.5); noteCount += 1;
   };
   const clap = (time, gain) => { // a soft pop clap: two quick noise bursts through a band-pass, with a short tail
     for (const [d, g] of [[0, 1], [0.012, 0.7]]) tick(time + d, gain * g, 1500, 0.11);
@@ -177,10 +178,11 @@ function createNightMusic() { // the cinematic engine, for series night
         [1, 3].forEach((b2) => clap(t0 + b2 * beat + jitter(5), (dance ? (full ? 0.16 : 0.12) : 0.09) * loud));
         // Paul 2026-11-23: a jazz kit under it: a snare on two and four, and an 808 sub on the downbeat of every bar (on the bar's root, an octave below the walking bass) that rings through the bar
         [1, 3].forEach((b2) => snare(t0 + b2 * beat + jitter(5), (dance ? 0.1 : 0.07) * loud));
-        eight08(t0 + jitter(3), (dance ? 0.2 : 0.16) * loud, Math.max(28, bar.bass - 12 < 28 ? bar.bass : bar.bass - 12));
-        for (let i = 0; i < 4; i++) tick(t0 + i * beat + jitter(4), 0.012 * loud, 8500, 0.05); // a closed hat on the beat
+        eight08(t0 + jitter(3), (dance ? 0.17 : 0.14) * loud, bar.bass - 12 < 26 ? bar.bass : bar.bass - 12); // a sub-bass beat support only (E1 to A#1 range), a short 0.4 s tail, and the walking bass leaves the downbeat to it (below): no boomy overlap
+        // a swung closed hat in alternating strong and soft strokes (a gentle jazz brush feel, not a metronome): eight strokes a bar, the off-eighths pushed late by a third of an eighth, gains 1.0 / 0.45 / 0.7 / 0.4 ...
+        for (let i = 0; i < 8; i++) tick(t0 + (i * 0.5 + (i % 2 ? 0.17 : 0)) * beat + jitter(4), [0.017, 0.007, 0.012, 0.0065, 0.015, 0.0075, 0.011, 0.007][i] * loud, 7600, 0.06);
         if (barIndex % 2 === 0) for (let i = 0; i < 3; i++) tick(t0 + (3 + i / 3) * beat + jitter(2), (0.01 + 0.004 * i) * loud, 9000, 0.04); // a triplet hat roll into the next bar
-        for (let i = 0; i < 8; i++) tick(t0 + i * 0.5 * beat + jitter(3), (i % 2 ? 0.006 : 0.011) * loud, 6200, 0.05); // the shaker, straight eighths
+        for (let i = 0; i < 8; i++) tick(t0 + i * 0.5 * beat + jitter(3), (i % 2 ? 0.004 : 0.007) * loud, 5400, 0.05); // the shaker, straight eighths, quieter now the swung hat carries the pulse
         [1, 3].forEach((b2) => { tick(t0 + b2 * beat + 0.004, 0.028 * loud, 5200, 0.14); tick(t0 + b2 * beat + 0.012, 0.018 * loud, 7600, 0.1); }); // the tambourine
         if (barIndex % 2 === 1) tick(t0 + 3 * beat + jitter(4), 0.03 * loud, 2100, 0.06); // a woodblock tick
         if (barIndex % 4 === 3) for (let i = 0; i < 4; i++) tick(t0 + (3 + i * 0.25) * beat + jitter(2), (0.012 + 0.006 * i) * loud, 3400, 0.05); // a quick fill into the next phrase
@@ -190,7 +192,7 @@ function createNightMusic() { // the cinematic engine, for series night
         // the organ bed from the middle, holding the chord
         if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
-        [[0, walkRoot, 0.15], [1, walkThird, 0.11], [2, walkFifth, 0.12], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.1]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
+        [[1, walkThird, 0.12], [2, walkFifth, 0.12], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.1]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
         // the melody: long, singing notes on the piano with a second voice a chord tone below it; strings sing along from the second half
         const chordNow = (at) => (bar.chord2 && at >= 2 ? bar.chord2 : bar.chord);
         for (const [at, midi, length] of bar.tune) {
