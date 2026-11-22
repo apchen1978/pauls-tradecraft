@@ -47,12 +47,12 @@ const COLORS = Object.freeze({
 // Each mood sets the sun, the sky fill, the track lights, a tint on the street painting (until Codex paints one street per mood) and how strongly the steel and glass reflect.
 // sunPosition: x negative is the street side. street: a multiplier colour for the painted street. lamp: a warm point light over the counter.
 const MOODS = Object.freeze({
-  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3, neon: 0 , stoolColor: 0xdcc09a}),
-  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 , stoolColor: 0xdec4a0}),
-  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 , stoolColor: 0xd8b886}),
-  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75, glow: 0.5 , stoolColor: 0xcbb79a}),
-  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x7a8fc4, hemiGround: 0x4b4450, ambient: 0.17, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.6, reflect: 0.45, pendant: 2.5, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 , stoolColor: 0xbfa17a}),
-  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.44, hemiSky: 0x6f80b8, hemiGround: 0x413d4c, ambient: 0.17, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 2.4, reflect: 0.45, steam: 0.4, tv: 1, pendant: 1.1, shaft: 0, neon: 0.9, glow: 0.6 , stoolColor: 0xb29572}),
+  morning: Object.freeze({ sun: 3.0, sunColor: 0xfff3e6, sunPosition: [-7.0, 3.2, 1.8], hemi: 1.3, hemiSky: 0xf3f5f8, hemiGround: 0xd9d0c4, ambient: 0.34, track: 5.0, trackColor: 0xffd9a8, exposure: 1.0, sky: 0xdfe7ee, street: 0xffffff, lamp: 0, reflect: 1, pendant: 0.12, shaft: 0.1, tv: 0.34, steam: 0.3, neon: 0 , stoolColor: 0xdcc09a, caneSeat: 0xcaa66b, leatherSeat: 0xb5583a}),
+  noon: Object.freeze({ sun: 3.6, sunColor: 0xffffff, sunPosition: [-5.0, 6.6, 1.0], hemi: 1.5, hemiSky: 0xf7f9fc, hemiGround: 0xe0d8cc, ambient: 0.38, track: 2.5, trackColor: 0xfff0dc, exposure: 1.0, sky: 0xe6eef5, street: 0xfff8ec, lamp: 0, reflect: 1.1, pendant: 0.05, shaft: 0.05, tv: 0.34, steam: 0.18, neon: 0 , stoolColor: 0xdec4a0, caneSeat: 0xcdab73, leatherSeat: 0xb65b3d}),
+  golden: Object.freeze({ sun: 3.6, sunColor: 0xffc890, sunPosition: [-7.0, 1.5, 1.2], hemi: 1.0, hemiSky: 0xf6eadc, hemiGround: 0xc8b49a, ambient: 0.28, track: 5.2, trackColor: 0xffd4a0, exposure: 1.02, sky: 0xe8d5c0, street: 0xfff0e0, lamp: 0.6, reflect: 0.85, pendant: 0.45, shaft: 0.18, tv: 0.34, steam: 0.36, neon: 0 , stoolColor: 0xd8b886, caneSeat: 0xcaa66b, leatherSeat: 0xb5583a}),
+  rain: Object.freeze({ sun: 0, sunColor: 0xdbe6f2, sunPosition: [-6.0, 4.0, 1.5], hemi: 1.05, hemiSky: 0xcfd9e4, hemiGround: 0x9a958d, ambient: 0.3, track: 8.0, trackColor: 0xffd7a0, exposure: 1.0, sky: 0xb9c4ce, street: 0xffffff, lamp: 0.9, reflect: 0.7, pendant: 0.85, shaft: 0, tv: 0.34, steam: 0.4, rain: true, neon: 0.75, glow: 0.5 , stoolColor: 0xcbb79a, caneSeat: 0x9a5a44, leatherSeat: 0x8f3a34}),
+  closing: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.42, hemiSky: 0x7a8fc4, hemiGround: 0x4b4450, ambient: 0.17, track: 7.0, trackColor: 0xffc27a, exposure: 1.1, sky: 0x2c3550, street: 0x93a3d8, lamp: 3.6, reflect: 0.45, pendant: 2.5, shaft: 0, tv: 0.34, steam: 0.42, neon: 1.0, glow: 1 , stoolColor: 0xbfa17a, caneSeat: 0x7d4438, leatherSeat: 0x7a2f2b}),
+  series: Object.freeze({ sun: 0, sunColor: 0x8fa4d6, sunPosition: [-6.0, 3.0, 1.5], hemi: 0.44, hemiSky: 0x6f80b8, hemiGround: 0x413d4c, ambient: 0.17, track: 2.4, trackColor: 0xffc27a, exposure: 1.1, sky: 0x232b44, street: 0x8696cc, lamp: 2.4, reflect: 0.45, steam: 0.4, tv: 1, pendant: 1.1, shaft: 0, neon: 0.9, glow: 0.6 , stoolColor: 0xb29572, caneSeat: 0x2a2422, leatherSeat: 0x241d1c}),
 });
 
 // PROVISIONAL menu wording. Paul can revise this data without changing the lettering function.
@@ -3164,16 +3164,19 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
       const material = new THREE.MeshBasicMaterial({ map: texture, toneMapped: false });
+      // Paul 2026-11-23: by day the phone carries the errand a colleague asked for at the counter; at night it stops working
+      // and turns into the person's own thoughts. Day = the order, night = the quiet.
       const LINES = {
-        morning: ["09:12", "今日手沖 耶加雪菲", "Yirgacheffe, just brewed"],
-        noon: ["12:31", "一位，靠窗", "Table for one, by the window"],
-        golden: ["15:04", "光剛好", "Golden hour, do not move"],
-        rain: ["14:20", "雨停前 續杯半價", "Half price refill, till the rain stops"],
+        morning: ["09:12", "同事：幫我帶一杯卡布", "A cappuccino to go, please"],
+        noon: ["12:40", "同事：我的卡布呢", "Still waiting on that cappuccino"],
+        golden: ["15:20", "同事：卡布 外帶 少奶泡", "Cappuccino, to go, light foam"],
+        rain: ["14:05", "同事：下雨也要卡布", "Rain or not, the cappuccino stands"],
         closing: ["22:41", "今天辛苦了", "You did enough today"],
         series: ["23:58", "再看一集就好", "Just one more episode"],
       };
-      const draw = (name) => {
-        const [time, line, sub] = LINES[name] ?? LINES.golden;
+      const DAY = new Set(["morning", "noon", "golden", "rain"]);
+      const draw = (name, override) => {
+        const [time, line, sub] = override ?? LINES[name] ?? LINES.golden;
         // Paul 2026-11-23: read from a raised bar view, so the type is larger and the contrast higher than a phone
         // actually needs; the screen only has to survive one glance across the room.
         g.fillStyle = "#1d2a30"; g.fillRect(0, 0, 256, 512);
@@ -3191,13 +3194,45 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
         g.fillText("SLOW TEMPO · 上海 · 慢板", 30, 288);
         texture.needsUpdate = true;
       };
-      draw("golden");
+      // Paul 2026-11-23: tapping the phone should flash once and pop a message. Five lines, cycled, so it stays an egg
+      // rather than a menu; the screen returns to the mood's own line after 2.9 s. Only the canvas is repainted — no new
+      // mesh, no new material, no extra draw call.
+      const TAP_LINES = {
+        day: [
+          ["09:13", "好啊 馬上做", "Sure. On it now."],
+          ["09:14", "少奶泡 記得", "Light foam. Noted."],
+          ["09:15", "要不要加肉桂", "Cinnamon on top?"],
+          ["09:16", "這杯我請", "This one is on me."],
+          ["09:17", "小心燙", "Careful, it is hot."],
+        ],
+        night: [
+          ["23:59", "第三杯了", "Third cup. Bold choice."],
+          ["00:00", "慢慢來 沒有人在等", "Take your time. Nobody is waiting."],
+          ["00:01", "手機剩 9%", "9% left. Go find the lead."],
+          ["00:02", "有人在想你", "Someone is thinking about you."],
+          ["00:03", "抬頭看看窗外", "Look up. The street is still awake."],
+        ],
+      };
+      let mood = "golden", taps = 0, messageTimer = 0;
+      draw(mood);
       // the plane's texture top ends up pointing at the room side, so it is spun 180 degrees to read from the counter
       const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.050, 0.106).rotateX(-Math.PI / 2).rotateY(Math.PI), material);
       screen.position.set(sx + 0.01, magTop + 0.0112, sz);
       screen.name = "lounge-phone-screen";
       scene.add(screen);
-      phoneScreen = { apply: (name) => { draw(name); render(); }, mesh: screen };
+      const flash = () => {
+        g.fillStyle = "#fdf3dd"; g.fillRect(0, 0, 256, 512);
+        texture.needsUpdate = true; render();
+      };
+      const tap = () => {
+        const pool = DAY.has(mood) ? TAP_LINES.day : TAP_LINES.night;
+        const line = pool[taps++ % pool.length];
+        flash();
+        clearTimeout(messageTimer);
+        setTimeout(() => { draw(mood, line); render(); }, 110);
+        messageTimer = setTimeout(() => { draw(mood); render(); }, 2900);
+      };
+      phoneScreen = { apply: (name) => { mood = name; clearTimeout(messageTimer); draw(name); render(); }, tap, mesh: screen };
     }
     // The phone's warm-grey cord has the scale of a real charging lead. It drops over the table edge, rests above the rug, then reaches the wall plug in one continuous tube.
     detail(tubeGeometry([[sx + 0.01, magTop + 0.005, sz + 0.063], [sx + 0.03, magTop - 0.003, sz + 0.14], [sx + 0.05, 0.50, sz + 0.185],
@@ -3881,7 +3916,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   let currentMood = "golden", moodTween = 0; // the room opens at golden hour (Paul, 2026-11-15): warm raking light on the brick and the honey oak is the best first impression
   const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   const blend = (a, b, k) => a + (b - a) * k;
-  const live = { glow: 0, tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, stoolColor: new THREE.Color(0xd8b886), sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
+  const live = { glow: 0, tv: 0, shaft: 0, neon: 0, pendant: 0, sun: 0, hemi: 0, ambient: 0, track: 0, lamp: 0, exposure: 1, reflect: 1, steam: 0.3, stoolColor: new THREE.Color(0xd8b886), caneSeat: new THREE.Color(0xcaa66b), leatherSeat: new THREE.Color(0xb5583a), sunColor: new THREE.Color(), sunPosition: new THREE.Vector3(), hemiSky: new THREE.Color(), hemiGround: new THREE.Color(), trackColor: new THREE.Color(), street: new THREE.Color() };
   function applyLive() {
     dirtyShadows();
     sun.intensity = live.sun; sun.color.copy(live.sunColor); sun.position.copy(live.sunPosition);
@@ -3893,7 +3928,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     for (const [key, base] of Object.entries(reflectiveBase)) materials[key].envMapIntensity = base * live.reflect;
     steam.material.opacity = live.steam;
     materials.tvScreen.emissiveIntensity = live.tv; tvLight.intensity = Math.max(0, live.tv - 0.4) * 4; // by day the screen plays dimly (a cafe television is never a black hole) and lights nothing; on series night it lights the lounge
-    materials.paleOak.color.copy(live.stoolColor); // the arrival stools' pale oak follows the mood
+    materials.paleOak.color.copy(live.stoolColor); // the stools' pale oak follows the mood
+  materials.cane.color.copy(live.caneSeat); materials.leather.color.copy(live.leatherSeat); // and so do the seat surfaces
   sunShafts.material.opacity = live.shaft; sunShafts.material.color.copy(live.sunColor);
     neonSign.material.opacity = live.neon; neonSign.visible = live.neon > 0.02; neonHalo.material.opacity = live.neon * 0.8; neonHalo.visible = neonSign.visible;
     dust.material.opacity = Math.min(1, live.shaft * 6); dust.material.color.copy(live.sunColor); dust.visible = dust.material.opacity > 0.03;
@@ -3905,8 +3941,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     currentMood = name; posMood?.(name); robotFace.setMood(name); syncRecordRain(); tabletRig?.apply(name); phoneScreen?.apply(name); if (!rugChosen && RUG_BY_MOOD[name] && RUG_BY_MOOD[name] !== currentLook.rug) setLook("rug", RUG_BY_MOOD[name]);
     const targetSky = new THREE.Color(look.sky); scene.background = targetSky;
     applyStreet(name); if (name === "series") applyTvStill();
-    const from = { glow: live.glow, tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, stoolColor: live.stoolColor.clone(), exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
-    const to = { stoolColor: new THREE.Color(look.stoolColor ?? 0xd8b886), sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
+    const from = { glow: live.glow, tv: live.tv, shaft: live.shaft, neon: live.neon, pendant: live.pendant, sun: live.sun, hemi: live.hemi, ambient: live.ambient, track: live.track, lamp: live.lamp, stoolColor: live.stoolColor.clone(), caneSeat: live.caneSeat.clone(), leatherSeat: live.leatherSeat.clone(), exposure: live.exposure, reflect: live.reflect, steam: live.steam, sunColor: live.sunColor.clone(), sunPosition: live.sunPosition.clone(), hemiSky: live.hemiSky.clone(), hemiGround: live.hemiGround.clone(), trackColor: live.trackColor.clone(), street: live.street.clone() };
+    const to = { caneSeat: new THREE.Color(look.caneSeat ?? 0xcaa66b), leatherSeat: new THREE.Color(look.leatherSeat ?? 0xb5583a), stoolColor: new THREE.Color(look.stoolColor ?? 0xd8b886), sunColor: new THREE.Color(look.sunColor), sunPosition: new THREE.Vector3(...look.sunPosition), hemiSky: new THREE.Color(look.hemiSky), hemiGround: new THREE.Color(look.hemiGround), trackColor: new THREE.Color(look.trackColor), street: new THREE.Color(look.street) };
     const step = (k) => {
       for (const key of ["sun", "hemi", "ambient", "track", "lamp", "exposure", "reflect", "steam", "pendant", "shaft", "tv", "neon"]) live[key] = blend(from[key], look[key], k);
       live.glow = blend(from.glow, look.glow ?? 0, k);
@@ -3914,6 +3950,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       live.hemiSky.copy(from.hemiSky).lerp(to.hemiSky, k); live.hemiGround.copy(from.hemiGround).lerp(to.hemiGround, k);
       live.trackColor.copy(from.trackColor).lerp(to.trackColor, k); live.street.copy(from.street).lerp(to.street, k);
     live.stoolColor.copy(from.stoolColor).lerp(to.stoolColor, k);
+    live.caneSeat.copy(from.caneSeat).lerp(to.caneSeat, k); live.leatherSeat.copy(from.leatherSeat).lerp(to.leatherSeat, k);
       applyLive(); render();
     };
     cancelAnimationFrame(moodTween);
@@ -4163,7 +4200,9 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const rect = canvas.getBoundingClientRect(); pickRay.setFromCamera(new THREE.Vector2(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1)), camera);
       const candidates = []; scene.traverse((o) => { if (o.isMesh && o.visible && o.name !== "sun-shafts") candidates.push(o); });
       const hit = pickRay.intersectObjects(candidates, false)[0];
-      if (hit && menuBoardMeshes.includes(hit.object)) onMenuTap();
+      if (!hit) return;
+      if (menuBoardMeshes.includes(hit.object)) onMenuTap();
+      else if (hit.object === phoneScreen?.mesh) phoneScreen.tap();
     };
     // Turning the head (Paul, 2026-11-16: it turned too slowly and too little, above all on a phone). A swipe across the whole canvas turns about 125 degrees whatever the screen
     // width (before, the turn was tied to the canvas height, so a phone swipe turned only about 80 degrees). After the finger lifts, the turn glides on and slows down, like the
