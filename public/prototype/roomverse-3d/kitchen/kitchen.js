@@ -978,19 +978,8 @@ function buildSideKitchen(b, m, scene) {
       g.applyMatrix4(new THREE.Matrix4().makeTranslation(frontX - (0.0015 + jit(index, 1) * 0.0035) - T / 2, y, z));
       bricks.push(g);
     }
-    for (const side of [-1, 1]) {                      // the two 13 cm returns, so the glaze does not stop at a plain strip
-      const returnZ = side < 0 ? counterMinZ + 0.008 : counterMaxZ - 0.008;
-      const faceZ = returnZ + side * 0.008, innerX0 = wallFaceX - 0.125, cols = 2, colW = 0.13 / cols;
-      for (let r = 0; r < ROWS; r++) for (let c = 0; c < cols; c++) {
-        const index = r * cols + c + (side < 0 ? 0 : 977);
-        const y = splashBottom + (r + 0.5) * (splashH / ROWS), x = innerX0 + (c + 0.5) * colW;
-        const g = roundedBoxGeometry([colW - GAP, faceH, T], 0.0012, 1);
-        glaze(g, index, (pos, n) => (side < 0 ? pos.getZ(n) < -T * 0.34 : pos.getZ(n) > T * 0.34), 4 / 1024);
-        g.applyMatrix4(new THREE.Matrix4().makeRotationY((jit(index, 3) - 0.5) * 0.018));
-        g.applyMatrix4(new THREE.Matrix4().makeTranslation(x, y, faceZ - side * ((0.0015 + jit(index, 1) * 0.0035) + T / 2)));
-        bricks.push(g);
-      }
-    }
+    // Paul 2026-11-22: the two 13 cm stone returns stood out from the wall like fins (they read as a vertical slab
+    // sticking into the room), so they are gone; the zellige field ends at the wall edge.
     addGeometryToBucket(b, "backsplash", m.hobTile, mergeGeometries(bricks), [0, 0, 0]);
     bricks.forEach((g) => g.dispose());
   }
