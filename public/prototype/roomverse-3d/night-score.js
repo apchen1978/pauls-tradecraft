@@ -43,10 +43,10 @@ const TRACKS = [
       { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0.5, 84, 1.5], [2.5, 81, 1]] },      // Am7 | D7: F E D
       { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 79, 1], [2.5, 77, 1.5]] },                                          // Gm9: C Bb C
       { bass: 36, chord: [58, 64, 67, 70], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 76, 1], [2, 74, 2]] },  // C7 | Fmaj9: the first phrase lands on the tonic
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[1.5, 72, 2], [3.5, 74, 0.5]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0.5, 77, 1.5], [2.5, 79, 1]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1, 81, 1], [2.5, 84, 1]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 82, 1.5], [2.5, 79, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
+      { bass: 41, chord: [57, 60, 64, 67], tune: [[1, 77, 1.5], [3.5, 79, 0.5]] },                                                      // Fmaj9: C up to F
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0.5, 82, 1], [2, 79, 1.5]] },                                          // Bbmaj7: E D C
+      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1.5, 84, 1], [3, 86, 1]] },                  // Am7 | Dm7
+      { bass: 43, chord: [58, 62, 65, 69], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 84, 1.5], [2.5, 81, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
       { bass: 38, chord: [60, 65, 69, 72], tune: [] },                                          // Dm9: a step up
       { bass: 43, chord: [59, 62, 65, 69], tune: [] },                                          // G7
       { bass: 36, chord: [59, 64, 67, 71], tune: [] },                                                      // Cmaj9
@@ -59,10 +59,10 @@ const TRACKS = [
       { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0.5, 84, 1], [2, 81, 1.5]] },      // Am7 | D7: F E D
       { bass: 43, chord: [58, 62, 65, 81], tune: [[1.5, 79, 1], [3, 77, 0.5]] },                                          // Gm9: C Bb C
       { bass: 36, chord: [58, 64, 67, 82], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 76, 1.5], [2.5, 74, 1.5]] },  // C7 | Fmaj9: the first phrase lands on the tonic
-      { bass: 41, chord: [57, 60, 64, 79], tune: [[1, 72, 2], [3.5, 74, 0.5]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 81], tune: [[0.5, 77, 1], [2, 79, 1.5]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1.5, 81, 1], [3, 84, 1]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 81], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 82, 1.5], [2.5, 79, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
+      { bass: 41, chord: [57, 60, 64, 79], tune: [[1, 77, 1.5], [3.5, 79, 0.5]] },                                                      // Fmaj9: C up to F
+      { bass: 46, chord: [57, 62, 65, 81], tune: [[0.5, 82, 1], [2, 79, 1.5]] },                                          // Bbmaj7: E D C
+      { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1.5, 84, 1], [3, 86, 1]] },                  // Am7 | Dm7
+      { bass: 43, chord: [58, 62, 65, 81], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 84, 1.5], [2.5, 81, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
       { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 88, 2.5]] },                                        // Fmaj9: the top of the piece
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[1, 86, 2]] },                                            // Bbmaj7#11
       { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[1, 84, 1.5]] },                                            // Gm9
