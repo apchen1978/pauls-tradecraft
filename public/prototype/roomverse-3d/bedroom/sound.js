@@ -92,6 +92,7 @@ export function createRoomRecord() {
     return buffer;
   };
   const scheduleBarA = () => {
+    if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
     const section = barIndex % FORM_BARS, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
     // the beat: a dusty boom-bap, the kick drops out in the breakdown
     if (section !== 12 && section !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
@@ -109,6 +110,7 @@ export function createRoomRecord() {
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
   const scheduleBarB = () => { // side B: slower, softer, more space
+    if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
     const STEPB = 60 / BPM_B / 4, section = barIndex % FORM_BARS, chord = CHORDS_B[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEPB + (i % 2 ? SWING_B * STEPB : 0);
     // a brushed backbeat from bar 2: a soft kick on the one (and the "and" of three on odd bars), a light snare on two and four, quiet eighth-note hats; bars 12 and 13 thin out to hats
     if (section >= 2 && section !== 12 && section !== 13) { kick(at(0) + jitter(6), 0.5); if (barIndex % 2) kick(at(10) + jitter(6), 0.3); snare(at(4) + jitter(6), 0.2); snare(at(12) + jitter(6), 0.22); }
@@ -145,6 +147,7 @@ export function createRoomRecord() {
         return true;
       } catch { playing = false; return false; }
     },
+    resume() { try { if (playing && ctx && ctx.state !== "running") ctx.resume(); } catch { /* ignore */ } },
     stop() {
       if (!playing) return;
       playing = false; clearTimeout(timer); timer = 0;

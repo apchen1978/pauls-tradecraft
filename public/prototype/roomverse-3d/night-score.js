@@ -146,6 +146,7 @@ function createNightMusic() { // the cinematic engine, for series night
     return buffer;
   };
   const scheduleBar = () => {
+    if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
     if (playlist && barIndex >= BARS_PER_TRACK) { const before = trackIndex; trackIndex = nextInGroup(trackIndex); seed = 5 + trackIndex * 17; barIndex = 0; const changed = trackIndex; sendNode?.gain.setTargetAtTime(TRACKS[trackIndex].send, ctx.currentTime, 0.6); if (changed !== before) setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // a piece goes round again; a different piece of the group would be announced when its first note sounds
     const track = TRACKS[trackIndex], beat = 60 / track.bpm, barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime, second = barIndex >= track.bars.length || (track.style === "bright" && barIndex >= 8);
 
@@ -259,6 +260,7 @@ function createNightMusic() { // the cinematic engine, for series night
         return true;
       } catch { playing = false; return false; }
     },
+    resume() { try { if (playing && ctx && ctx.state !== "running") ctx.resume(); } catch { /* ignore */ } }, // Paul 2026-11-23: the music keeps playing in the background; a phone that suspended the context gets it back
     stop() {
       if (!playing) return;
       playing = false; clearTimeout(timer); timer = 0;
