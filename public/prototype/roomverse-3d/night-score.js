@@ -35,12 +35,12 @@ const TRACKS = [
   { title: "午後上行", group: "day", style: "sunny", bpm: 100, swing: 0, transpose: -2, formBars: 42, send: 0.58, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 72, 2], [3, 74, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 76, 2]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 2], [2.5, 74, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5], [2.5, 79, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 2.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 0.5], [0.5, 79, 0.5], [1, 81, 0.5], [1.5, 84, 0.5], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 0.5], [3.5, 76, 0.5]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 77, 0.5], [0.5, 79, 0.5], [1, 82, 0.5], [1.5, 84, 0.5], [2, 82, 1], [3, 79, 0.5], [3.5, 77, 0.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 1], [1, 84, 0.5], [1.5, 83, 0.5], [2, 81, 1], [3, 79, 0.5], [3.5, 77, 0.5]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 79, 0.5], [0.5, 81, 0.5], [1, 84, 1], [2, 83, 0.5], [2.5, 81, 0.5], [3, 79, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 82, 1], [1, 84, 0.5], [1.5, 86, 0.5], [2, 84, 0.5], [2.5, 82, 0.5], [3, 81, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 0.5], [0.5, 77, 0.5], [1, 76, 0.5], [1.5, 74, 0.5], [2, 72, 2]] },
       { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[0, 81, 1.5], [2, 79, 1]] },
       { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[1, 84, 1.5], [3, 81, 1]] },
       { bass: 48, chord: [55, 60, 64, 67, 70], tune: [[0, 86, 2]] },
@@ -316,8 +316,10 @@ function createNightMusic() { // the cinematic engine, for series night
         // afternoon quiet around it: phrases land on the 3rd, the 5th and the 9th, sit a hair behind the beat, and stop
         // for the climb (bars 13 to 20) so the two lines never fight.
         if (bar.tune && bar.tune.length) {
+          // v30: the off-eighths sit a little late, which is what makes a written line sound played rather than typed
+          const swingOff = (at) => (Math.abs(at * 2 - Math.round(at * 2)) < 0.01 && Math.round(at * 2) % 2 === 1 ? 0.022 : 0);
           bar.tune.forEach(([at, midi, len]) =>
-            piano(t0 + at * beat + 0.018 + jitter(9), midi, vary(0.047 * loud), beat * (len + 0.4), 0.12));
+            piano(t0 + at * beat + 0.018 + swingOff(at) + jitter(9), midi, vary(0.047 * loud), beat * (len + 0.4), 0.12));
           // Paul 2026-11-24: the opening felt plain. In the intro the motif is doubled a sixth below and in A a fourth above,
           // soft enough to be felt as body rather than heard as a second tune.
           const double = part === "intro" ? -9 : part === "body" ? 5 : 0;
