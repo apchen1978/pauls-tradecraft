@@ -36,13 +36,7 @@ const TRACKS = [
 
     bars: [
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 72, 2], [3, 74, 1]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
-      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[1.5, 76, 2]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 1.5], [2.5, 74, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 1.5], [2, 74, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 2.5]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 76, 2]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 2], [2.5, 74, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5], [2.5, 79, 1]] },
@@ -61,21 +55,27 @@ const TRACKS = [
       { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[0, 84, 1], [2, 86, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 86, 1], [2, 88, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 88, 2]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 88, 2.5]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 88, 1], [2, 86, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 84, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 88, 2.5]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
       { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [[0, 76, 2], [2.5, 74, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0.5, 76, 1.5], [2.5, 79, 1]] },
       { bass: 48, chord: [55, 60, 65, 70, 74, 79], tune: [[0, 79, 2.5]] },
       { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 84, 2], [2.5, 81, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0, 79, 3]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [[0, 83, 2], [2.5, 79, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0, 81, 2], [2.5, 79, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74, 79], tune: [[0, 79, 2.5]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 2], [2.5, 74, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5]] },
       { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 1.5]] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 76, 2]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 2]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[1, 74, 2]] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 76, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 3]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 4]] },
     ] },
 ];
@@ -123,7 +123,7 @@ function createNightMusic() { // the cinematic engine, for series night
     last.connect(filter); panned(filter, position).connect(bus); noteCount += 1;
   };
   // v23: a slow tape drift, ±4 cents at about 0.27 Hz, applied per note so the whole piano breathes with the surface
-  const wobble = (time) => 8 * Math.sin(time * 1.7) + 3.2 * Math.sin(time * 0.61 + 1.3); // v24: the drift is twice as deep
+  const wobble = (time) => 5 * Math.sin(time * 1.7) + 2 * Math.sin(time * 0.61 + 1.3); // v27: a gentler drift
   const piano = (time, midi, gain, length, position = 0) => { if (realPiano.play(ctx, bus, time, midi, gain * PIANO_K, length, position, wobble(time))) { noteCount += 1; return; } note(time, midi, EPIANO, gain, length, position); }; // a real piano note, or the synth fallback
   const noiseBuffer = () => { // soft noise for the brushes and the ride
     if (!noise) { const length = Math.floor(ctx.sampleRate * 0.4); noise = ctx.createBuffer(1, length, ctx.sampleRate); const data = noise.getChannelData(0); let last = 0; for (let i = 0; i < length; i++) { last = last * 0.6 + (rnd() * 2 - 1) * 0.4; data[i] = last; } }
@@ -184,12 +184,12 @@ function createNightMusic() { // the cinematic engine, for series night
         const form = track.formBars ?? BARS_PER_TRACK, pos = barIndex % form;
         // Form borrowed from the pieces Paul already likes (Room 02's two records: a bar or two of beat and comp before
         // the melody arrives, then A, B, a break, and A again). Here: fragment 4, growth 4+4, B 8, break 2, theme 4, outro 6.
-        const part = pos < 4 ? "intro" : pos < 8 ? "frag" : pos < 12 ? "grow" : pos < 20 ? "climb" : pos < 26 ? "build" : pos < 28 ? "break" : pos < 34 ? "peak" : "out";
+        const part = pos < 2 ? "intro" : pos < 6 ? "body" : pos < 14 ? "climb" : pos < 22 ? "build" : pos < 24 ? "break" : pos < 32 ? "peak" : "out";
         // Paul 2026-11-24 (v17): a measured arc rather than one level. The intro is the quietest, B (the climb and the variation)
         // is the fullest, and the outro falls away bar by bar, so the ending fades instead of stopping.
         ritNext = pos >= form - 2 ? 1 + (pos - (form - 2) + 1) * 0.09 : 1; // the written ritardando over the last two bars
-        const falling = part === "out" ? 1 - (pos - (form - 4)) * 0.22 : 1; // 1.0, 0.78, 0.56, 0.34 across the outro
-        const loud = (part === "intro" ? 0.6 : part === "frag" ? 0.82 : part === "grow" ? 0.95 : part === "climb" ? 1.08 : part === "build" ? 1.2 : part === "break" ? 0.72 : part === "peak" ? 1.45 : 0.7) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
+        const falling = part === "out" ? 1 - (pos - (form - 10)) * 0.085 : 1; // a smooth ten-bar descent, from 1.0 to about 0.24
+        const loud = (part === "intro" ? 0.95 : part === "body" ? 1.0 : part === "climb" ? 1.1 : part === "build" ? 1.22 : part === "break" ? 0.74 : part === "peak" ? 1.45 : 1.0) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
         const breath = part === "break"; // the two-bar break lets go entirely // the second half lifts a little, the last four bars a little more
         const halves = bar.chord2 ? [[0, bar.chord, bar.bass], [2, bar.chord2, bar.bass2 ?? bar.bass]] : [[0, bar.chord, bar.bass]];
         for (const [from, chord, root] of halves) {
@@ -226,22 +226,25 @@ function createNightMusic() { // the cinematic engine, for series night
         const clave = part === "intro" || part === "break" ? [] : barPair === 0 ? [0, 1.5, 3] : [1, 2.5]; // in beats: 1, and-of-2, 4 | 2, and-of-3
         // the surdo
         if (part !== "intro" && part !== "break") {
-          kick(t0 + jitter(4), 0.26 * loud);
-          kick(t0 + 2 * beat + jitter(5), 0.17 * loud);
-          if (barPair === 0) kick(t0 + 1.5 * beat + jitter(5), 0.075 * loud); // the soft pick-up that gives the lilt
-        } else if (pos % 2 === 0) kick(t0 + jitter(4), 0.22 * loud); // one soft pulse every second bar, nothing else
+          kick(t0 + jitter(4), 0.28 * loud);
+          kick(t0 + 2 * beat + jitter(5), 0.18 * loud);
+          if (barPair === 0) kick(t0 + 1.5 * beat + jitter(5), 0.1 * loud); // the soft pick-up that gives the lilt
+        } else kick(t0 + jitter(4), 0.25 * loud); // the opening keeps a pulse on every bar, so the piece arrives at once
         // the cross-stick: a dry wooden click, the spine of the groove
-        clave.forEach((at) => tick(t0 + at * beat + jitter(5), (dance ? 0.05 : 0.032) * loud, 1850, 0.05));
+        clave.forEach((at) => tick(t0 + at * beat + jitter(5), (dance ? 0.085 : 0.05) * loud, 2400, 0.05));
         // the shaker: sixteenths, with the accent on two and four
-        const shakerDiv = part === "intro" ? 0 : part === "break" ? 4 : part === "frag" || part === "grow" ? 8 : 16;
+        const shakerDiv = part === "intro" ? 8 : part === "break" ? 4 : part === "body" ? 8 : 16;
         for (let i = 0; i < shakerDiv; i++) {
           const accent = i % 4 === 0 ? (i === 4 || i === 12 ? 1.5 : 1) : 0.6;
-          tick(t0 + (i / shakerDiv) * 4 * beat + jitter(3), 0.0072 * accent * loud, 9600, 0.03);
+          tick(t0 + (i / shakerDiv) * 4 * beat + jitter(3), 0.0105 * accent * loud, 9600, 0.03);
         }
+        // v28: a brushed backbeat on two and four, soft enough to stay a bossa but present enough to feel. Room 02's
+        // records make their groove obvious this way; without it the kit was only a texture.
+        if (part !== "intro" && part !== "break") [1, 3].forEach((b2) => snare(t0 + b2 * beat + jitter(6), 0.045 * loud));
         // the 808 keeps the floor under it, softer than before and only on the downbeat plus a light beat three
         // v17: the 808 waits for B. Before it the kick and the bass carry the floor; from the climb to the peak it joins them.
-        if (pos >= 12 && pos < 34) {
-          eight08(t0 + jitter(3), 0.2 * loud, bar.bass);
+        if (pos >= 6 && pos < 32) {
+          eight08(t0 + jitter(3), 0.17 * loud, bar.bass);
           eight08(t0 + 2 * beat + jitter(4), 0.1 * loud, bar.bass);
         }
         // a brushed cymbal each bar, and a quieter fill every fourth bar, still inside the bossa
@@ -260,9 +263,9 @@ function createNightMusic() { // the cinematic engine, for series night
         // Density by section: halves in the intro, eighths in A, quarters under the climb (so the climb line is heard),
         // sixteenths at the peak, halves again in the outro. Register climbs across the piece and comes home at the end.
         const shape = [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3] ?? bar.chord[2] + 5, bar.chord[2], bar.chord[1]];
-        const figureStep = part === "peak" ? beat / 2 : part === "build" ? beat / 2 : part === "climb" ? beat : part === "break" ? beat * 4 : part === "grow" ? beat / 2 : beat * 2;
+        const figureStep = part === "peak" ? beat / 2 : part === "build" ? beat / 2 : part === "climb" ? beat : part === "break" ? beat * 4 : part === "body" ? beat / 2 : beat * 2;
         const figureLift = part === "peak" ? 24 : part === "var" ? 12 : 0;
-        const figureGain = part === "peak" ? 0.036 : part === "climb" ? 0.03 : part === "intro" ? 0.019 : 0.026;
+        const figureGain = part === "peak" ? 0.039 : part === "climb" ? 0.033 : part === "intro" ? 0.021 : 0.029;
         // v24: sidechain breathing without a compressor - the harmony steps back for a moment when the kick lands, then
         // returns. The figure and the pad are the two things that make room; the kick and the bass are untouched.
         const duck = (at) => (Math.abs(at) < 0.18 || Math.abs(at - 2) < 0.18 ? 0.78 : Math.abs(at - 0.5) < 0.2 || Math.abs(at - 2.5) < 0.2 ? 0.9 : 1);
@@ -282,15 +285,15 @@ function createNightMusic() { // the cinematic engine, for series night
         // after the theme has been stated at full width for six bars.
         if (part === "build") {
           // the brass enters quietly and grows bar by bar; the strings tremble under it
-          note(t0, bar.chord[0] - 12, HORN, vary((0.012 + (pos - 20) * 0.004) * loud), barLength * 1.1, -0.22);
-          note(t0 + 0.02, bar.chord[2], STR_TREM, vary((0.008 + (pos - 20) * 0.003) * loud), barLength * 1.1, 0.25);
+          note(t0, bar.chord[0] - 12, HORN, vary((0.012 + (pos - 14) * 0.003) * loud), barLength * 1.1, -0.22);
+          note(t0 + 0.02, bar.chord[2], STR_TREM, vary((0.008 + (pos - 14) * 0.0025) * loud), barLength * 1.1, 0.25);
         }
         if (part === "peak") {
           // the full weight: brass on the chord, strings on the chord, a low octave, and the kick doubled by the 808
           [bar.chord[0] - 12, bar.chord[1], bar.chord[2]].forEach((midi, k) => note(t0 + k * 0.01, midi, HORN, vary(0.026 * loud), barLength * 1.05, (k % 2 ? 1 : -1) * 0.3));
           bar.chord.slice(0, 4).forEach((midi, k) => note(t0 + k * 0.014, midi, STRINGS, 0.02 * loud, barLength * 1.1, (k % 2 ? 1 : -1) * 0.4));
           piano(t0, bar.bass, vary(0.06 * loud), beat * 3.4, -0.34);
-          if (pos === 28) tick(t0, 0.11 * loud, 3200, 2.6); // the crash that opens the peak
+          if (pos === 24) tick(t0, 0.11 * loud, 3200, 2.6); // the crash that opens the peak
         }
         // Paul 2026-11-24 (v21): one ornament only, and only when the theme appears complete: a celesta-like bell on the
         // first note of each full statement. Everything else is gone.
@@ -314,7 +317,7 @@ function createNightMusic() { // the cinematic engine, for series night
         // for the climb (bars 13 to 20) so the two lines never fight.
         if (bar.tune && bar.tune.length) {
           bar.tune.forEach(([at, midi, len]) =>
-            piano(t0 + at * beat + 0.018 + jitter(9), midi, vary(0.042 * loud), beat * (len + 0.4), 0.12));
+            piano(t0 + at * beat + 0.018 + jitter(9), midi, vary(0.047 * loud), beat * (len + 0.4), 0.12));
           // Paul 2026-11-24: the opening felt plain. In the intro the motif is doubled a sixth below and in A a fourth above,
           // soft enough to be felt as body rather than heard as a second tune.
           const double = part === "intro" ? -9 : part === "body" ? 5 : 0;
@@ -327,7 +330,7 @@ function createNightMusic() { // the cinematic engine, for series night
         }
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
         const bassLift = part === "climb" ? 1.6 : part === "var" ? 1.5 : part === "out" ? 1.2 : 1.4; // Paul 2026-11-23: the bass is stronger, most of all in the climb
-        [[0, walkRoot, 0.145], [2, walkFifth, 0.12], [3.5, walkThird, 0.065]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * bassLift * loud, beat * 0.92));
+        [[0, walkRoot, 0.15], [2, walkFifth, 0.128], [3.5, walkThird, 0.07]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * bassLift * loud, beat * 0.92));
         // Paul 2026-11-23: a climax. From the middle (bar 9) a piano line climbs the scale bar by bar (quarter notes, then an eighth-note run in bar 12), peaks on a high F at the downbeat of bar 13,
         // then walks back down to a long C in bar 16. Written in F like the rest (chord tones and passing notes chosen against each bar), played transposed; it grows louder up to the peak.
         const CLIMB = { 12: [[0, 69], [1, 70], [2, 72], [3, 74]], 13: [[0, 74], [1, 76], [2, 77], [3, 79]], 14: [[0, 79], [1, 81], [2, 83], [3, 84]], 15: [[0, 76], [0.5, 77], [1, 79], [1.5, 81], [2, 84], [2.5, 86], [3, 88, 1]],
@@ -390,8 +393,8 @@ function createNightMusic() { // the cinematic engine, for series night
         const room = ctx.createConvolver(), wet = ctx.createGain(); sendNode = ctx.createGain(); reverbBuffer ??= reverb(); room.buffer = reverbBuffer; sendNode.gain.value = TRACKS[trackIndex].send; wet.gain.value = 0.9;
         bus.connect(sendNode); sendNode.connect(room); room.connect(wet); wet.connect(master);
         hiss = ctx.createBufferSource(); const hissBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate), hissData = hissBuffer.getChannelData(0);
-        for (let i = 0; i < hissData.length; i++) hissData[i] = (rnd() < 0.0013 ? (rnd() * 2 - 1) * 0.95 : 0) + (rnd() * 2 - 1) * 0.012; // v24: more pops, the record is played a lot
-        hiss.buffer = hissBuffer; hiss.loop = true; const hissFilter = ctx.createBiquadFilter(), hissGain = ctx.createGain(); hissFilter.type = "highpass"; hissFilter.frequency.value = 1200; hissGain.gain.value = 0.22; // v23: the record surface is part of the sound, not a rumour
+        for (let i = 0; i < hissData.length; i++) hissData[i] = (rnd() < 0.00045 ? (rnd() * 2 - 1) * 0.9 : 0) + (rnd() * 2 - 1) * 0.012; // v24: more pops, the record is played a lot
+        hiss.buffer = hissBuffer; hiss.loop = true; const hissFilter = ctx.createBiquadFilter(), hissGain = ctx.createGain(); hissFilter.type = "highpass"; hissFilter.frequency.value = 1200; hissGain.gain.value = 0.09; // v27: Paul said the surface was too loud; back it off // v23: the record surface is part of the sound, not a rumour
         hiss.connect(hissFilter); hissFilter.connect(hissGain); hissGain.connect(master); hiss.start();
         playing = true; barIndex = 0; noteCount = 0; const run = ++runId;
         realPiano.load(ctx).then(() => { if (!playing || run !== runId) return; nextTime = ctx.currentTime + 0.25; scheduleBar(); }); // the piano samples load on the first tap (about 1 MB, once); the first bar waits for them
