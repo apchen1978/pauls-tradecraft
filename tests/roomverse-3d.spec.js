@@ -1149,6 +1149,11 @@ test("rug rotation and table mug stay grounded and clear in three moods", async 
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room?.rugMugDetails(), null, { timeout: 60000 });
   const details = await page.evaluate(() => window.__room.rugMugDetails());
+  const steamBefore = await page.evaluate(() => window.__room.coffeeMugSteamSample());
+  await page.waitForTimeout(350);
+  const steamAfter = await page.evaluate(() => window.__room.coffeeMugSteamSample());
+  expect(steamBefore.visible).toBe(true);
+  expect(steamAfter.position).not.toEqual(steamBefore.position);
   expect(details.rug.rotationY).toBeCloseTo(.0873, 4);
   expect(details.mug.vertices).toBe(862);
   expect(details.mug.triangles).toBe(1712);

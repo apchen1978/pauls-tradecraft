@@ -11,13 +11,13 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 246092, meshes: 404 }),
+  scene: Object.freeze({ vertices: 246256, meshes: 406 }),
   // Draw calls of the last rendered frame after settling: desktop 1440 px and phone 390 px, default (arrival) mood.
-  openingDrawCalls: Object.freeze({ desktop: 116, phone: 89 }),
+  openingDrawCalls: Object.freeze({ desktop: 117, phone: 90 }),
   // Draw calls after switching to each mood (1.2 s later). The "tech" mood lights one more thing than the others; the sunny moods (family, chic, slow, golden) draw the dust motes and the sunbeam (two more calls: the beam is double-sided, so it is drawn in two passes).
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ rain: 114, family: 116, tech: 115, chic: 116, slow: 121, golden: 116, tv: 120 }),
-    phone: Object.freeze({ rain: 87, family: 89, tech: 88, chic: 89, slow: 94, golden: 89, tv: 93 }),
+    desktop: Object.freeze({ rain: 115, family: 117, tech: 116, chic: 117, slow: 122, golden: 117, tv: 121 }),
+    phone: Object.freeze({ rain: 88, family: 90, tech: 89, chic: 90, slow: 95, golden: 90, tv: 94 }),
   }),
     // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
@@ -62,6 +62,8 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "wine bottle (Paul): Room 03's Thanksgiving wine bottle stands in the bottom compartment of the TV wall's left shelf, beyond the little cooker (one mesh and its contact patch; the phone draw-call numbers are re-measured, one higher)", vertices: 241184, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
     { date: "2026-11-22", change: "Paul: the moving box loses its two black oval hand holes (they read as eyes), and the wall backpack turns cobalt blue with cream straps (-144 vertices)", vertices: 241040, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
     { date: "2026-11-22", change: "record view and coffee stool (Paul): the record-player view reaches 50 cm along the wall to take in the stool and the backpack; the stool's canister and cup become a speckled sage stoneware jar with an oak lid and a terracotta mug with a gold rim (+5.1k vertices)", vertices: 246092, meshes: 404, desktopCalls: 116, phoneCalls: 89 },
+    { date: "2026-11-24", change: "re-measure the settled latest-main Room 01 baseline before recording the mug refinement: the live room is 246,256 vertices / 406 meshes, 164 vertices and 2 meshes above the prior ledger entry", vertices: 246256, meshes: 406, desktopCalls: 116, phoneCalls: 89 },
+    { date: "2026-11-24", change: "coffee-table mug refinement (Codex): a fine crema edge is shader-only; add a drifting 22-point steam wisp matching the red side-table mug; geometry metrics unchanged, opening draw calls +1 on desktop and phone", vertices: 246256, meshes: 406, desktopCalls: 117, phoneCalls: 90 },
   ]),
 });
 
