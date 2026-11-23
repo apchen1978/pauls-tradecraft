@@ -35,42 +35,42 @@ const TRACKS = [
   { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 36, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 72, 2], [3.5, 76, 0.5]] },                                            // Fmaj9: the room before the first chord
-      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[1.5, 79, 1.5]] },                                            // Gm9: the floor settles
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[1, 77, 1], [2.5, 76, 1]] },                                            // Bbmaj7#11: a little light from above
-      { bass: 36, chord: [55, 62, 65, 70, 76], tune: [[0.5, 74, 2.5]] },                                            // C7sus4: leaning in, not resolving yet
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[1, 76, 1.5], [3, 77, 0.5]] },                                          // Fmaj9: C D E
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0.5, 84, 1.5], [2.5, 81, 1]] },      // Am7 | D7: F E D
-      { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 79, 1], [2.5, 77, 1.5]] },                                          // Gm9: C Bb C
-      { bass: 36, chord: [58, 64, 67, 70], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 76, 1], [2, 74, 2]] },  // C7 | Fmaj9: the first phrase lands on the tonic
-      { bass: 41, chord: [57, 60, 64, 67], tune: [[0.5, 79, 1], [2, 84, 1.5]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0.5, 81, 1.5], [2.5, 79, 1]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1, 86, 1.5], [3, 84, 1]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 86, 2], [3, 81, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
-      { bass: 38, chord: [60, 65, 69, 72], tune: [] },                                          // Dm9: a step up
-      { bass: 43, chord: [59, 62, 65, 69], tune: [] },                                          // G7
-      { bass: 36, chord: [59, 64, 67, 71], tune: [] },                                                      // Cmaj9
-      { bass: 45, chord: [55, 60, 64, 67], bass2: 41, chord2: [57, 60, 64, 67], tune: [] }, // Am7 | Fmaj9: the third phrase lands on the tonic
-      { bass: 46, chord: [57, 62, 65, 69], tune: [] },                                                      // Bbmaj7
-      { bass: 38, chord: [60, 65, 69, 72], tune: [] },                                                 // Dm7: down by steps
-      { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [] },                          // Gm7 | C7: the ii-V that pulls home
-      { bass: 41, chord: [57, 60, 64, 67], tune: [] },                                                              // Fmaj9: home, a long C
-      { bass: 41, chord: [57, 60, 64, 79], tune: [[1, 76, 1.5], [3.5, 77, 0.5]] },                                          // Fmaj9: C D E
-      { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0.5, 84, 1], [2, 81, 1.5]] },      // Am7 | D7: F E D
-      { bass: 43, chord: [58, 62, 65, 81], tune: [[1.5, 79, 1], [3, 77, 0.5]] },                                          // Gm9: C Bb C
-      { bass: 36, chord: [58, 64, 67, 82], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 76, 1.5], [2.5, 74, 1.5]] },  // C7 | Fmaj9: the first phrase lands on the tonic
-      { bass: 41, chord: [57, 60, 64, 79], tune: [[0.5, 79, 1], [2, 84, 1.5]] },                                                      // Fmaj9: C up to F
-      { bass: 46, chord: [57, 62, 65, 81], tune: [[0.5, 81, 1.5], [2.5, 79, 1]] },                                          // Bbmaj7: E D C
-      { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[1, 86, 1.5], [3, 84, 1]] },                  // Am7 | Dm7
-      { bass: 43, chord: [58, 62, 65, 81], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0.5, 86, 2], [3, 81, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
-      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 88, 2.5]] },                                        // Fmaj9: the top of the piece
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[1, 86, 2]] },                                            // Bbmaj7#11
-      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[1, 84, 1.5]] },                                            // Gm9
-      { bass: 36, chord: [55, 60, 65, 70, 74], tune: [[0.5, 82, 2.5]] },                                            // C7sus4: the last breath before home
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 81, 3]] },                                            // Fmaj9: home, held
-      { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 79, 2]] },                                                // Gm9
-      { bass: 36, chord: [55, 60, 64, 67], tune: [[0.5, 77, 2]] },                                                // C7
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 4]] },                                            // Fmaj9: the long last chord
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
+      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
+      { bass: 34, chord: [57, 60, 62, 65, 70], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[3, 76, 1]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
+      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69], tune: [] },
+      { bass: 48, chord: [55, 60, 65, 70], tune: [[2.5, 74, 1.5]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
+      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },
+      { bass: 48, chord: [55, 60, 64, 67, 70], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65], tune: [] },
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[3, 77, 1]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [] },
+      { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [] },
+      { bass: 43, chord: [58, 62, 65, 69, 72, 77], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[2.5, 76, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [] },
+      { bass: 48, chord: [55, 60, 65, 70, 74, 79], tune: [[1, 84, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
+      { bass: 43, chord: [58, 62, 65, 69], tune: [] },
+      { bass: 48, chord: [55, 60, 64, 67], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 77, 3]] },
     ] },
 ];
 for (const t of TRACKS) if (t.transpose) for (const b of t.bars) { // a track may be written in one key and played in another: shift every note by `transpose` semitones
@@ -231,18 +231,25 @@ function createNightMusic() { // the cinematic engine, for series night
         const laidBack = part === "var" || part === "peak" ? 0.012 : 0; // the back half sits a hair behind the beat
         // Paul 2026-11-23 (DSH): the last variation bar breathes before the peak. Its chord hits stop after beat two, so
         // beats three and four carry only the drums, the walking bass and what is already ringing, and the peak lands harder.
-        // the comping is a bossa pattern now: the chord answers the clave instead of marking every beat. The accents fall
-        // on 1, the and-of-2 and 4 in one bar and on 2 and the and-of-3 in the next, so the harmony breathes with the shaker.
-        const comp = barPair === 0 ? [[0, 1], [1.5, 0.55], [3, 0.6]] : [[1, 0.7], [2.5, 0.5]];
-        comp.forEach(([at, w], i) => {
-          if (breath && i >= 2) return;
-          const ch = bar.chord2 && at >= 3 ? bar.chord2 : bar.chord;
-          [ch[0], ch[1], ch[2]].forEach((midi, k) => piano(t0 + at * beat + laidBack + k * 0.011 + jitter(6), midi, vary(0.05 * w * loud), beat * 1.4, -0.12 + k * 0.1));
-          // Paul 2026-11-23 (DSH, momentum pass 1): in the climb (bars 9 to 12) the top of each block chord is doubled an
-          // octave above, at about half the weight of the notes below it, so the harmony thickens upward without adding
-          // anything to the crowded middle. It rolls in after the lower notes, the way the hand would reach for it.
-          if (part === "body" && pos >= 12) piano(t0 + at * beat + laidBack + 0.03 + jitter(6), ch[3] + 12, vary(0.028 * w * loud), beat * 1.3, 0.2);
-        });
+        // Paul 2026-11-23 (DSH): the harmony is carried by a fixed piano figure, the way the Interstellar score works:
+        // the same six-note shape repeats through the bar while the chords change underneath it, and what makes it grow is
+        // register and density, not a new tune every bar. The shape is the chord's own tones: root, 3rd, 5th, 7th, then back
+        // down through the 5th and the 3rd, so every repetition spells the harmony out loud.
+        // Density by section: halves in the intro, eighths in A, quarters under the climb (so the climb line is heard),
+        // sixteenths at the peak, halves again in the outro. Register climbs across the piece and comes home at the end.
+        const shape = [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3] ?? bar.chord[2] + 5, bar.chord[2], bar.chord[1]];
+        const figureStep = part === "peak" ? beat / 4 : part === "body" && pos >= 12 ? beat : (part === "intro" || part === "out") ? beat * 2 : beat / 2;
+        const figureLift = part === "peak" ? 24 : part === "var" ? 12 : 0;
+        const figureGain = part === "peak" ? 0.036 : part === "var" ? 0.03 : part === "intro" || part === "out" ? 0.022 : 0.026;
+        for (let at = 0, step = 0; at < 4 - 1e-6; at += figureStep / beat, step++) {
+          if (breath && at >= 2) break; // the breath bar lets go for its second half
+          const midi = shape[step % shape.length];
+          piano(t0 + at * beat + laidBack + jitter(5), midi + figureLift, vary(figureGain * loud), beat * 0.5, step % 2 ? 0.2 : -0.2);
+          // the shape is doubled an octave down once per bar, which is what gives the figure its weight instead of its brightness
+          if (step % shape.length === 0) piano(t0 + at * beat + laidBack + 0.012, midi - 12, vary(figureGain * 0.6 * loud), beat * 1.1, -0.3);
+        }
+        // a soft bed holds the chord under the figure, so the harmony is never only implied
+        bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.006 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35));
         // Paul 2026-11-23 (final): a piano left hand plays the chord's root in the low-middle register (C2 to E3 as heard, kept clear of the 808's sub band): a firm hit on beat one, a light touch on the
         // "and" of two that pushes the bar on, and on every other bar a light touch on beat four; each with its own small velocity, shorter than the chords above so the groove stays springy.
         const heard = (m) => m /* bar notes are already transposed at load */, lhRoot = (r) => { let m = r + 12; while (heard(m) > 52) m -= 12; while (heard(m) < 36) m += 12; return m; };
