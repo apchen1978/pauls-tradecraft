@@ -113,7 +113,7 @@ function createNightMusic() { // the cinematic engine, for series night
     last.connect(filter); panned(filter, position).connect(bus); noteCount += 1;
   };
   // v23: a slow tape drift, ±4 cents at about 0.27 Hz, applied per note so the whole piano breathes with the surface
-  const wobble = (time) => 4 * Math.sin(time * 1.7) + 1.6 * Math.sin(time * 0.61 + 1.3);
+  const wobble = (time) => 8 * Math.sin(time * 1.7) + 3.2 * Math.sin(time * 0.61 + 1.3); // v24: the drift is twice as deep
   const piano = (time, midi, gain, length, position = 0) => { if (realPiano.play(ctx, bus, time, midi, gain * PIANO_K, length, position, wobble(time))) { noteCount += 1; return; } note(time, midi, EPIANO, gain, length, position); }; // a real piano note, or the synth fallback
   const noiseBuffer = () => { // soft noise for the brushes and the ride
     if (!noise) { const length = Math.floor(ctx.sampleRate * 0.4); noise = ctx.createBuffer(1, length, ctx.sampleRate); const data = noise.getChannelData(0); let last = 0; for (let i = 0; i < length; i++) { last = last * 0.6 + (rnd() * 2 - 1) * 0.4; data[i] = last; } }
@@ -226,7 +226,7 @@ function createNightMusic() { // the cinematic engine, for series night
         const shakerDiv = part === "intro" ? 0 : part === "break" ? 4 : part === "frag" || part === "grow" ? 8 : 16;
         for (let i = 0; i < shakerDiv; i++) {
           const accent = i % 4 === 0 ? (i === 4 || i === 12 ? 1.5 : 1) : 0.6;
-          tick(t0 + (i / shakerDiv) * 4 * beat + jitter(3), 0.0085 * accent * loud, 9200, 0.035);
+          tick(t0 + (i / shakerDiv) * 4 * beat + jitter(3), 0.0072 * accent * loud, 9600, 0.03);
         }
         // the 808 keeps the floor under it, softer than before and only on the downbeat plus a light beat three
         // v17: the 808 waits for B. Before it the kick and the bass carry the floor; from the climb to the peak it joins them.
@@ -252,16 +252,19 @@ function createNightMusic() { // the cinematic engine, for series night
         const shape = [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3] ?? bar.chord[2] + 5, bar.chord[2], bar.chord[1]];
         const figureStep = part === "peak" ? beat / 2 : part === "climb" ? beat : part === "break" ? beat * 4 : part === "grow" ? beat / 2 : beat * 2;
         const figureLift = part === "peak" ? 24 : part === "var" ? 12 : 0;
-        const figureGain = part === "peak" ? 0.033 : part === "climb" ? 0.028 : part === "intro" ? 0.018 : 0.024;
+        const figureGain = part === "peak" ? 0.036 : part === "climb" ? 0.03 : part === "intro" ? 0.019 : 0.026;
+        // v24: sidechain breathing without a compressor - the harmony steps back for a moment when the kick lands, then
+        // returns. The figure and the pad are the two things that make room; the kick and the bass are untouched.
+        const duck = (at) => (Math.abs(at) < 0.18 || Math.abs(at - 2) < 0.18 ? 0.78 : Math.abs(at - 0.5) < 0.2 || Math.abs(at - 2.5) < 0.2 ? 0.9 : 1);
         for (let at = 0, step = 0; at < 4 - 1e-6; at += figureStep / beat, step++) {
           if (breath && at >= 2) break; // the breath bar lets go for its second half
           const midi = shape[step % shape.length];
-          piano(t0 + at * beat + laidBack + jitter(5), midi + figureLift, vary(figureGain * loud), beat * 0.5, step % 2 ? 0.2 : -0.2);
+          piano(t0 + at * beat + laidBack + jitter(5), midi + figureLift, vary(figureGain * duck(at) * loud), beat * 0.42, step % 2 ? 0.3 : -0.3); // v25: shorter notes, wider spread
           // the shape is doubled an octave down once per bar, which is what gives the figure its weight instead of its brightness
-          if (step % shape.length === 0) piano(t0 + at * beat + laidBack + 0.012, midi - 12, vary(figureGain * 0.6 * loud), beat * 1.1, -0.3);
+          if (step % shape.length === 0) piano(t0 + at * beat + laidBack + 0.012, midi - 12, vary(figureGain * 0.28 * loud), beat * 0.7, -0.34); // v25: much less of it, and shorter
         }
         // a soft bed holds the chord under the figure, so the harmony is never only implied
-        bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.015 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v17: the bed is audible now, not implied
+        bar.chord.slice(1, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.011 * duck(0) * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v25: no root, quieter: the low mids were mud // v17: the bed is audible now, not implied
         // v22: the theme is mirrored upward (C-D / E-D / E-G / G). Everything else - chords, figure, groove, form, ornaments -
         // is the v21 material, so the two versions differ only in the shape of the melody.
         // Paul 2026-11-24 (v21): one ornament only, and only when the theme appears complete: a celesta-like bell on the
@@ -354,12 +357,16 @@ function createNightMusic() { // the cinematic engine, for series night
         trackIndex = ((track % TRACKS.length) + TRACKS.length) % TRACKS.length; seed = 5 + trackIndex * 17; playlist = Boolean(options.playlist); onTrack = options.onTrack ?? null;
         master = ctx.createGain(); master.gain.setValueAtTime(0.0001, ctx.currentTime); master.gain.exponentialRampToValueAtTime(0.8, ctx.currentTime + (options.fade ?? 1.5)); master.connect(ctx.destination);
         const compressor = ctx.createDynamicsCompressor(); compressor.threshold.value = -20; compressor.knee.value = 12; compressor.ratio.value = 3; compressor.attack.value = 0.012; compressor.release.value = 0.28;
-        bus = ctx.createGain(); bus.connect(compressor); compressor.connect(master);
+        bus = ctx.createGain();
+        // v24: a gentle top-end roll-off on the whole record (about 9 kHz), the way an old master sounds. It is what
+        // makes the surface and the piano sit together instead of the piano sounding modern on top of an old hiss.
+        const tone = ctx.createBiquadFilter(); tone.type = "lowpass"; tone.frequency.value = 9200; tone.Q.value = 0.45;
+        bus.connect(compressor); compressor.connect(tone); tone.connect(master);
         const room = ctx.createConvolver(), wet = ctx.createGain(); sendNode = ctx.createGain(); reverbBuffer ??= reverb(); room.buffer = reverbBuffer; sendNode.gain.value = TRACKS[trackIndex].send; wet.gain.value = 0.9;
         bus.connect(sendNode); sendNode.connect(room); room.connect(wet); wet.connect(master);
         hiss = ctx.createBufferSource(); const hissBuffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate), hissData = hissBuffer.getChannelData(0);
-        for (let i = 0; i < hissData.length; i++) hissData[i] = (rnd() < 0.0004 ? (rnd() * 2 - 1) * 0.9 : 0) + (rnd() * 2 - 1) * 0.012; // a faint hiss and a few pops, like a record
-        hiss.buffer = hissBuffer; hiss.loop = true; const hissFilter = ctx.createBiquadFilter(), hissGain = ctx.createGain(); hissFilter.type = "highpass"; hissFilter.frequency.value = 1200; hissGain.gain.value = 0.18; // v23: the record surface is part of the sound, not a rumour
+        for (let i = 0; i < hissData.length; i++) hissData[i] = (rnd() < 0.0013 ? (rnd() * 2 - 1) * 0.95 : 0) + (rnd() * 2 - 1) * 0.012; // v24: more pops, the record is played a lot
+        hiss.buffer = hissBuffer; hiss.loop = true; const hissFilter = ctx.createBiquadFilter(), hissGain = ctx.createGain(); hissFilter.type = "highpass"; hissFilter.frequency.value = 1200; hissGain.gain.value = 0.22; // v23: the record surface is part of the sound, not a rumour
         hiss.connect(hissFilter); hissFilter.connect(hissGain); hissGain.connect(master); hiss.start();
         playing = true; barIndex = 0; noteCount = 0; const run = ++runId;
         realPiano.load(ctx).then(() => { if (!playing || run !== runId) return; nextTime = ctx.currentTime + 0.25; scheduleBar(); }); // the piano samples load on the first tap (about 1 MB, once); the first bar waits for them
