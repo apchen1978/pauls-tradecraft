@@ -32,45 +32,43 @@ const TRACKS = [
   // History: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (2026-11-23, tonal centre: the phrase endings now land on the tonic chord, bars 4, 8, 12 and 16, with a ii-V in bars 14 and 15 that pulls home; the dominant no longer hangs) (2026-11-23, fourth melody: an urban R&B / neo-soul hum instead of a square tune: F-major pentatonic only, neighbour-note slides and little up-then-down turns, no leaps of a fourth; syncopated, with key notes pushed half a beat early and tied across the bar line, and rests between phrases so the 808 and the piano breathe; carried by a soft Rhodes in the upper register with a breath of flute, velocity shaped note by note) (2026-11-23, third melody: a Ghibli-like, singable theme in four-bar phrases, built on chord tones and ninths so it never clashes with the harmony: a motif of a rising fourth and a step down, answered, lifted in bars 5 to 6, a high point on A in bar 12, an open ending that leads back to the start) (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
-  { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 36, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+  { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 34, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 84, 2], [3, 81, 1]] },
-      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[0.5, 79, 1.5]] },
-      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[1, 81, 2], [3.5, 79, 0.5]] },
-      { bass: 34, chord: [57, 60, 62, 65, 70], tune: [[0.5, 76, 2.5]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 1], [2, 72, 1.5], [5, 74, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 79, 1], [2, 76, 1.5], [5, 72, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[3, 76, 1]] },
-      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[0, 77, 1], [2, 74, 1.5], [5, 72, 1]] },
-      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 76, 2], [3.5, 72, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70], tune: [[2.5, 74, 1.5]] },
-      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
-      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },
-      { bass: 48, chord: [55, 60, 64, 67, 70], tune: [] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
-      { bass: 38, chord: [57, 60, 62, 65], tune: [] },
-      { bass: 43, chord: [58, 62, 65, 69], tune: [[3, 77, 1]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 88, 1], [2, 84, 1.5], [5, 86, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0, 91, 1], [2, 88, 1.5], [5, 84, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
-      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [[0, 89, 1], [2, 86, 1.5], [5, 84, 1]] },
-      { bass: 43, chord: [58, 62, 65, 69, 72, 77], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 88, 2], [3.5, 84, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[2.5, 76, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 84, 3]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[2, 81, 2]] },
+      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[1, 79, 3]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[2, 76, 2]] },
+      { bass: 34, chord: [57, 60, 62, 65, 70], tune: [[1, 74, 3]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[2.5, 72, 1.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 1.5], [2, 72, 1.5]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[1, 79, 1.5], [3, 76, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 77, 1.5], [2, 74, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 76, 2]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[0, 81, 1.5], [2, 79, 1]] },
+      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[1, 84, 1.5], [3, 81, 1]] },
+      { bass: 48, chord: [55, 60, 64, 67, 70], tune: [[0, 86, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 88, 2]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 86, 1.5], [2, 84, 1]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[1, 84, 1.5], [3, 81, 1]] },
+      { bass: 38, chord: [57, 60, 62, 65], tune: [[0, 79, 2]] },
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[2, 77, 1.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 88, 1.5], [2, 84, 1.5]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [[1, 91, 1.5], [3, 88, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0, 89, 1.5], [2, 86, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 88, 2]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [[0, 88, 1.5], [2, 84, 1]] },
+      { bass: 43, chord: [58, 62, 65, 69, 72, 77], tune: [[1, 86, 1.5], [3, 83, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 84, 1.5], [2, 81, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 83, 2]] },
       { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 91, 2.5]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [] },
-      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [[0, 89, 2]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[1, 89, 2]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [[0, 86, 2]] },
       { bass: 48, chord: [55, 60, 65, 70, 74, 79], tune: [[1, 84, 2]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 84, 2], [3, 81, 1]] },
-      { bass: 43, chord: [58, 62, 65, 69], tune: [] },
-      { bass: 48, chord: [55, 60, 64, 67], tune: [[0, 79, 3]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 77, 3]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 79, 2.5]] },
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 76, 2]] },
+      { bass: 48, chord: [55, 60, 64, 67], tune: [[2, 74, 1.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 4]] },
     ] },
 ];
 for (const t of TRACKS) if (t.transpose) for (const b of t.bars) { // a track may be written in one key and played in another: shift every note by `transpose` semitones
@@ -174,12 +172,12 @@ function createNightMusic() { // the cinematic engine, for series night
         // Paul 2026-11-23 (DSH): a 36-bar form (about 86 s at 100 bpm), so the arrangement follows a section map
         // instead of a modulo: 4-bar intro, the approved 16-bar body, an 8-bar variation, a 4-bar peak, a 4-bar outro.
         const form = track.formBars ?? BARS_PER_TRACK, pos = barIndex % form;
-        const part = pos < 4 ? "intro" : pos < 20 ? "body" : pos < 28 ? "var" : pos < 32 ? "peak" : "out";
+        const part = pos < 6 ? "intro" : pos < 10 ? "body" : pos < 18 ? "climb" : pos < 26 ? "var" : pos < 30 ? "peak" : "out";
         // Paul 2026-11-24 (v17): a measured arc rather than one level. The intro is the quietest, B (the climb and the variation)
         // is the fullest, and the outro falls away bar by bar, so the ending fades instead of stopping.
         ritNext = pos >= form - 2 ? 1 + (pos - (form - 2) + 1) * 0.09 : 1; // the written ritardando over the last two bars
         const falling = part === "out" ? 1 - (pos - (form - 4)) * 0.22 : 1; // 1.0, 0.78, 0.56, 0.34 across the outro
-        const loud = (part === "intro" ? 0.62 : part === "body" ? (pos < 12 ? 0.92 : 1.06) : part === "var" ? 1.18 : part === "peak" ? 1.32 : 0.72) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
+        const loud = (part === "intro" ? 0.7 : part === "body" ? 0.92 : part === "climb" ? 1.06 : part === "var" ? 1.18 : part === "peak" ? 1.32 : 0.72) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
         const breath = part === "var" && pos === 27; // the bar before the peak lets go for its second half // the second half lifts a little, the last four bars a little more
         const halves = bar.chord2 ? [[0, bar.chord, bar.bass], [2, bar.chord2, bar.bass2 ?? bar.bass]] : [[0, bar.chord, bar.bass]];
         for (const [from, chord, root] of halves) {
@@ -211,21 +209,26 @@ function createNightMusic() { // the cinematic engine, for series night
         //   shaker  - sixteenths all the way through, accented on 2 and 4, which is what makes it float.
         // The clap and the snare backbeat are gone: a bossa has no backbeat to push against, only the clave to lean on.
         const barPair = Math.floor(pos / 2) % 2; // 0 = first bar of the clave pair, 1 = second
-        const clave = barPair === 0 ? [0, 1.5, 3] : [1, 2.5]; // in beats: 1, and-of-2, 4 | 2, and-of-3
+        // v19: nothing is chopped in the front. The first six bars carry one soft kick every second bar and no clave at
+        // all; the clave arrives with A, and the sixteenth shaker only from the climb.
+        const clave = part === "intro" ? [] : barPair === 0 ? [0, 1.5, 3] : [1, 2.5]; // in beats: 1, and-of-2, 4 | 2, and-of-3
         // the surdo
-        kick(t0 + jitter(4), (dance ? 0.26 : 0.18) * loud);
-        kick(t0 + 2 * beat + jitter(5), 0.17 * loud);
-        if (barPair === 0) kick(t0 + 1.5 * beat + jitter(5), 0.075 * loud); // the soft pick-up that gives the lilt
+        if (part !== "intro") {
+          kick(t0 + jitter(4), 0.26 * loud);
+          kick(t0 + 2 * beat + jitter(5), 0.17 * loud);
+          if (barPair === 0) kick(t0 + 1.5 * beat + jitter(5), 0.075 * loud); // the soft pick-up that gives the lilt
+        } else if (pos % 2 === 0) kick(t0 + jitter(4), 0.22 * loud); // one soft pulse every second bar, nothing else
         // the cross-stick: a dry wooden click, the spine of the groove
         clave.forEach((at) => tick(t0 + at * beat + jitter(5), (dance ? 0.05 : 0.032) * loud, 1850, 0.05));
         // the shaker: sixteenths, with the accent on two and four
-        for (let i = 0; i < 16; i++) {
+        const shakerDiv = part === "intro" ? (pos >= 4 ? 8 : 0) : part === "body" ? 8 : 16;
+        for (let i = 0; i < shakerDiv; i++) {
           const accent = i % 4 === 0 ? (i === 4 || i === 12 ? 1.5 : 1) : 0.6;
-          tick(t0 + (i / 4) * beat + jitter(3), 0.0085 * accent * loud, 9200, 0.035);
+          tick(t0 + (i / shakerDiv) * 4 * beat + jitter(3), 0.0085 * accent * loud, 9200, 0.035);
         }
         // the 808 keeps the floor under it, softer than before and only on the downbeat plus a light beat three
         // v17: the 808 waits for B. Before it the kick and the bass carry the floor; from the climb to the peak it joins them.
-        if (pos >= 12 && pos < 32) {
+        if (pos >= 10 && pos < 30) {
           eight08(t0 + jitter(3), 0.2 * loud, bar.bass);
           eight08(t0 + 2 * beat + jitter(4), 0.1 * loud, bar.bass);
         }
@@ -245,9 +248,9 @@ function createNightMusic() { // the cinematic engine, for series night
         // Density by section: halves in the intro, eighths in A, quarters under the climb (so the climb line is heard),
         // sixteenths at the peak, halves again in the outro. Register climbs across the piece and comes home at the end.
         const shape = [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3] ?? bar.chord[2] + 5, bar.chord[2], bar.chord[1]];
-        const figureStep = part === "peak" ? beat / 4 : part === "body" && pos >= 12 ? beat : (part === "intro" || part === "out") ? beat * 2 : beat / 2;
+        const figureStep = part === "peak" ? beat / 4 : part === "var" ? beat / 2 : part === "climb" ? beat : (part === "intro" || part === "out") ? beat * 4 : beat / 2;
         const figureLift = part === "peak" ? 24 : part === "var" ? 12 : 0;
-        const figureGain = part === "peak" ? 0.036 : part === "var" ? 0.03 : part === "intro" || part === "out" ? 0.022 : 0.026;
+        const figureGain = part === "peak" ? 0.036 : part === "var" ? 0.03 : part === "intro" ? 0.02 : part === "out" ? 0.022 : 0.026;
         for (let at = 0, step = 0; at < 4 - 1e-6; at += figureStep / beat, step++) {
           if (breath && at >= 2) break; // the breath bar lets go for its second half
           const midi = shape[step % shape.length];
@@ -278,7 +281,7 @@ function createNightMusic() { // the cinematic engine, for series night
             piano(t0 + at * beat + 0.018 + jitter(9), midi, vary(0.042 * loud), beat * (len + 0.4), 0.12));
           // Paul 2026-11-24: the opening felt plain. In the intro the motif is doubled a sixth below and in A a fourth above,
           // soft enough to be felt as body rather than heard as a second tune.
-          const double = part === "intro" ? -9 : part === "body" && pos < 12 ? 5 : 0;
+          const double = part === "intro" ? -9 : part === "body" ? 5 : 0;
           if (double) bar.tune.forEach(([at, midi, len]) =>
             piano(t0 + at * beat + 0.05 + jitter(9), midi + double, vary(0.026 * loud), beat * (len + 0.35), part === "intro" ? -0.12 : 0.24));
           // the last note of a phrase is left with a soft octave below it, the way a hand holds the key a moment longer
@@ -287,7 +290,7 @@ function createNightMusic() { // the cinematic engine, for series night
             piano(t0 + (tail[0] + 0.06) * beat + 0.03, tail[1] - 12, vary(0.016 * loud), beat * (tail[2] + 1.2), 0.02);
         }
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
-        const bassLift = part === "body" && pos >= 12 ? 1.6 : part === "out" ? 1.2 : 1.4; // Paul 2026-11-23: the bass is stronger, most of all in the climb
+        const bassLift = part === "climb" ? 1.6 : part === "var" ? 1.5 : part === "out" ? 1.2 : 1.4; // Paul 2026-11-23: the bass is stronger, most of all in the climb
         [[0, walkRoot, 0.145], [2, walkFifth, 0.12], [3.5, walkThird, 0.065]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * bassLift * loud, beat * 0.92));
         // Paul 2026-11-23: a climax. From the middle (bar 9) a piano line climbs the scale bar by bar (quarter notes, then an eighth-note run in bar 12), peaks on a high F at the downbeat of bar 13,
         // then walks back down to a long C in bar 16. Written in F like the rest (chord tones and passing notes chosen against each bar), played transposed; it grows louder up to the peak.
