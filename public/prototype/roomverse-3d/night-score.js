@@ -204,7 +204,17 @@ function createNightMusic() { // the cinematic engine, for series night
         // the organ bed from the middle, holding the chord
         if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
-        [[1, walkThird, 0.13], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.11]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * loud, beat * 0.92));
+        const bassLift = barIndex % 16 >= 8 && barIndex % 16 < 12 ? 1.6 : 1.35; // Paul 2026-11-23: the bass is stronger, most of all in the climb
+        [[1, walkThird, 0.13], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.11]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * bassLift * loud, beat * 0.92));
+        // Paul 2026-11-23: a climax. From the middle (bar 9) a piano line climbs the scale bar by bar (quarter notes, then an eighth-note run in bar 12), peaks on a high F at the downbeat of bar 13,
+        // then walks back down to a long C in bar 16. Written in F like the rest (chord tones and passing notes chosen against each bar), played transposed; it grows louder up to the peak.
+        const CLIMB = { 8: [[0, 69], [1, 70], [2, 72], [3, 74]], 9: [[0, 74], [1, 76], [2, 77], [3, 79]], 10: [[0, 79], [1, 81], [2, 83], [3, 84]], 11: [[0, 76], [0.5, 77], [1, 79], [1.5, 81], [2, 84], [2.5, 86], [3, 88, 1]],
+          12: [[0, 89, 2.5]], 13: [[0, 86], [1, 84], [2, 81], [3, 77]], 14: [[0, 79], [1, 77], [2, 76], [3, 74]], 15: [[0, 72, 3]] };
+        const climbBar = CLIMB[barIndex % 16];
+        if (climbBar) climbBar.forEach(([at, midi, len = 0.9], k) => {
+          const step = barIndex % 16, rise = step <= 12 ? 0.085 + (step - 8) * 0.016 + k * 0.003 : 0.12 - (step - 12) * 0.016;
+          piano(t0 + at * beat + jitter(6), midi + (track.transpose || 0), vary(rise * loud), beat * (len + 0.3), 0.15);
+        });
         // Paul 2026-11-23 (final): no lead melody. A single synthesised line always sounded electronic, so the piece is settled as an ambient lo-fi groove: the block chords, the 808, the walking bass and the kit carry it,
         // which is also what sits best under a 3D room without pulling attention. The tunes stay in TRACKS as a record of the piece but are not played.
       } else {
