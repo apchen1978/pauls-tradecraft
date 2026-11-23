@@ -32,7 +32,7 @@ const TRACKS = [
   // History: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (2026-11-23, tonal centre: the phrase endings now land on the tonic chord, bars 4, 8, 12 and 16, with a ii-V in bars 14 and 15 that pulls home; the dominant no longer hangs) (2026-11-23, fourth melody: an urban R&B / neo-soul hum instead of a square tune: F-major pentatonic only, neighbour-note slides and little up-then-down turns, no leaps of a fourth; syncopated, with key notes pushed half a beat early and tied across the bar line, and rests between phrases so the 808 and the piano breathe; carried by a soft Rhodes in the upper register with a breath of flute, velocity shaped note by note) (2026-11-23, third melody: a Ghibli-like, singable theme in four-bar phrases, built on chord tones and ninths so it never clashes with the harmony: a motif of a rising fourth and a step down, answered, lifted in bars 5 to 6, a high point on A in bar 12, an open ending that leads back to the start) (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
-  { title: "午後上行", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 32, send: 0.58, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+  { title: "午後上行", group: "day", style: "sunny", bpm: 100, swing: 0, transpose: -2, formBars: 42, send: 0.58, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 72, 2], [3, 74, 1]] },
@@ -55,16 +55,26 @@ const TRACKS = [
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[1, 84, 1.5], [3, 81, 1]] },
       { bass: 38, chord: [57, 60, 62, 65], tune: [[0, 79, 2]] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [[2, 77, 1.5]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 88, 2.5]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[0, 79, 1], [2, 81, 1]] },
+      { bass: 40, chord: [55, 59, 62, 65, 69], tune: [[0, 81, 1], [2, 83, 1]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 83, 1], [2, 84, 1]] },
+      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[0, 84, 1], [2, 86, 1]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 86, 1], [2, 88, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 88, 2]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[1, 88, 2.5]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
       { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [[0, 76, 2], [2.5, 74, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0.5, 76, 1.5], [2.5, 79, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 2.5]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74, 79], tune: [[0, 79, 2.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 84, 2], [2.5, 81, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0, 79, 3]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 2], [2.5, 74, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5]] },
       { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 1.5]] },
+      { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 76, 2]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 2]] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 76, 2]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 4]] },
     ] },
@@ -174,12 +184,12 @@ function createNightMusic() { // the cinematic engine, for series night
         const form = track.formBars ?? BARS_PER_TRACK, pos = barIndex % form;
         // Form borrowed from the pieces Paul already likes (Room 02's two records: a bar or two of beat and comp before
         // the melody arrives, then A, B, a break, and A again). Here: fragment 4, growth 4+4, B 8, break 2, theme 4, outro 6.
-        const part = pos < 4 ? "intro" : pos < 8 ? "frag" : pos < 12 ? "grow" : pos < 20 ? "climb" : pos < 22 ? "break" : pos < 26 ? "peak" : "out";
+        const part = pos < 4 ? "intro" : pos < 8 ? "frag" : pos < 12 ? "grow" : pos < 20 ? "climb" : pos < 26 ? "build" : pos < 28 ? "break" : pos < 34 ? "peak" : "out";
         // Paul 2026-11-24 (v17): a measured arc rather than one level. The intro is the quietest, B (the climb and the variation)
         // is the fullest, and the outro falls away bar by bar, so the ending fades instead of stopping.
         ritNext = pos >= form - 2 ? 1 + (pos - (form - 2) + 1) * 0.09 : 1; // the written ritardando over the last two bars
         const falling = part === "out" ? 1 - (pos - (form - 4)) * 0.22 : 1; // 1.0, 0.78, 0.56, 0.34 across the outro
-        const loud = (part === "intro" ? 0.6 : part === "frag" ? 0.82 : part === "grow" ? 0.95 : part === "climb" ? 1.08 : part === "break" ? 0.7 : part === "peak" ? 1.3 : 0.72) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
+        const loud = (part === "intro" ? 0.6 : part === "frag" ? 0.82 : part === "grow" ? 0.95 : part === "climb" ? 1.08 : part === "build" ? 1.2 : part === "break" ? 0.72 : part === "peak" ? 1.45 : 0.7) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
         const breath = part === "break"; // the two-bar break lets go entirely // the second half lifts a little, the last four bars a little more
         const halves = bar.chord2 ? [[0, bar.chord, bar.bass], [2, bar.chord2, bar.bass2 ?? bar.bass]] : [[0, bar.chord, bar.bass]];
         for (const [from, chord, root] of halves) {
@@ -230,7 +240,7 @@ function createNightMusic() { // the cinematic engine, for series night
         }
         // the 808 keeps the floor under it, softer than before and only on the downbeat plus a light beat three
         // v17: the 808 waits for B. Before it the kick and the bass carry the floor; from the climb to the peak it joins them.
-        if (pos >= 12 && pos < 26) {
+        if (pos >= 12 && pos < 34) {
           eight08(t0 + jitter(3), 0.2 * loud, bar.bass);
           eight08(t0 + 2 * beat + jitter(4), 0.1 * loud, bar.bass);
         }
@@ -250,7 +260,7 @@ function createNightMusic() { // the cinematic engine, for series night
         // Density by section: halves in the intro, eighths in A, quarters under the climb (so the climb line is heard),
         // sixteenths at the peak, halves again in the outro. Register climbs across the piece and comes home at the end.
         const shape = [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3] ?? bar.chord[2] + 5, bar.chord[2], bar.chord[1]];
-        const figureStep = part === "peak" ? beat / 2 : part === "climb" ? beat : part === "break" ? beat * 4 : part === "grow" ? beat / 2 : beat * 2;
+        const figureStep = part === "peak" ? beat / 2 : part === "build" ? beat / 2 : part === "climb" ? beat : part === "break" ? beat * 4 : part === "grow" ? beat / 2 : beat * 2;
         const figureLift = part === "peak" ? 24 : part === "var" ? 12 : 0;
         const figureGain = part === "peak" ? 0.036 : part === "climb" ? 0.03 : part === "intro" ? 0.019 : 0.026;
         // v24: sidechain breathing without a compressor - the harmony steps back for a moment when the kick lands, then
@@ -267,6 +277,21 @@ function createNightMusic() { // the cinematic engine, for series night
         bar.chord.slice(1, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.011 * duck(0) * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v25: no root, quieter: the low mids were mud // v17: the bed is audible now, not implied
         // v22: the theme is mirrored upward (C-D / E-D / E-G / G). Everything else - chords, figure, groove, form, ornaments -
         // is the v21 material, so the two versions differ only in the shape of the melody.
+        // Paul 2026-11-24 (v26): the last third is a film-score climax. From the build on, the piece adds forces the way a
+        // score does - brass, a full string chord, low piano octaves and the 808 on every beat - and the release comes only
+        // after the theme has been stated at full width for six bars.
+        if (part === "build") {
+          // the brass enters quietly and grows bar by bar; the strings tremble under it
+          note(t0, bar.chord[0] - 12, HORN, vary((0.012 + (pos - 20) * 0.004) * loud), barLength * 1.1, -0.22);
+          note(t0 + 0.02, bar.chord[2], STR_TREM, vary((0.008 + (pos - 20) * 0.003) * loud), barLength * 1.1, 0.25);
+        }
+        if (part === "peak") {
+          // the full weight: brass on the chord, strings on the chord, a low octave, and the kick doubled by the 808
+          [bar.chord[0] - 12, bar.chord[1], bar.chord[2]].forEach((midi, k) => note(t0 + k * 0.01, midi, HORN, vary(0.026 * loud), barLength * 1.05, (k % 2 ? 1 : -1) * 0.3));
+          bar.chord.slice(0, 4).forEach((midi, k) => note(t0 + k * 0.014, midi, STRINGS, 0.02 * loud, barLength * 1.1, (k % 2 ? 1 : -1) * 0.4));
+          piano(t0, bar.bass, vary(0.06 * loud), beat * 3.4, -0.34);
+          if (pos === 28) tick(t0, 0.11 * loud, 3200, 2.6); // the crash that opens the peak
+        }
         // Paul 2026-11-24 (v21): one ornament only, and only when the theme appears complete: a celesta-like bell on the
         // first note of each full statement. Everything else is gone.
         if (part === "peak" && pos === 22) note(t0 + 0.5 * beat, bar.chord[2] + 24, VIBES, vary(0.022 * loud), beat * 2.6, 0.35);
