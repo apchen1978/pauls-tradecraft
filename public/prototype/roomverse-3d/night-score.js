@@ -39,13 +39,13 @@ const TRACKS = [
       { bass: 40, chord: [52, 56, 59, 64, 67], tune: [] },
       { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
       { bass: 34, chord: [57, 60, 62, 65, 70], tune: [] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 1], [2, 72, 1.5], [5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 79, 1], [2, 76, 1.5], [5, 72, 1]] },
       { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[3, 76, 1]] },
-      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[0, 77, 1], [2, 74, 1.5], [5, 72, 1]] },
       { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69], tune: [[0, 76, 2], [3.5, 72, 1]] },
       { bass: 48, chord: [55, 60, 65, 70], tune: [[2.5, 74, 1.5]] },
       { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
       { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },
@@ -55,21 +55,21 @@ const TRACKS = [
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
       { bass: 38, chord: [57, 60, 62, 65], tune: [] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [[3, 77, 1]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 88, 1], [2, 84, 1.5], [5, 86, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0, 91, 1], [2, 88, 1.5], [5, 84, 1]] },
       { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
-      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [[0, 89, 1], [2, 86, 1.5], [5, 84, 1]] },
       { bass: 43, chord: [58, 62, 65, 69, 72, 77], tune: [] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 88, 2], [3.5, 84, 1]] },
       { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[2.5, 76, 2]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0, 91, 2.5]] },
       { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [] },
-      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [] },
+      { bass: 38, chord: [57, 60, 62, 65, 69, 72], tune: [[0, 89, 2]] },
       { bass: 48, chord: [55, 60, 65, 70, 74, 79], tune: [[1, 84, 2]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 84, 2], [3, 81, 1]] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [] },
-      { bass: 48, chord: [55, 60, 64, 67], tune: [] },
+      { bass: 48, chord: [55, 60, 64, 67], tune: [[0, 79, 3]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 77, 3]] },
     ] },
 ];
@@ -96,7 +96,7 @@ const CELLO = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]]
 const STRING_LEAD = { partials: [[1, 0.6, "sawtooth", 1], [1.005, 0.4, "sawtooth", 1]], lowpass: 1300, attack: 0.25, vibrato: 9 };
 
 function createNightMusic() { // the cinematic engine, for series night
-  let ctx = null, bus = null, master = null, hiss = null, sendNode = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, trackIndex = 0, seed = 5, noise = null, swellNoise = null, reverbBuffer = null, playlist = false, onTrack = null, runId = 0;
+  let ritNext = 1, ctx = null, bus = null, master = null, hiss = null, sendNode = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, trackIndex = 0, seed = 5, noise = null, swellNoise = null, reverbBuffer = null, playlist = false, onTrack = null, runId = 0;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // fixed seed: the same small variations every time
   const jitter = (ms) => (rnd() - 0.5) * 2 * ms / 1000; // a human's small timing differences
   const vary = (gain) => gain * (0.88 + rnd() * 0.24); // and small loudness differences
@@ -175,7 +175,11 @@ function createNightMusic() { // the cinematic engine, for series night
         // instead of a modulo: 4-bar intro, the approved 16-bar body, an 8-bar variation, a 4-bar peak, a 4-bar outro.
         const form = track.formBars ?? BARS_PER_TRACK, pos = barIndex % form;
         const part = pos < 4 ? "intro" : pos < 20 ? "body" : pos < 28 ? "var" : pos < 32 ? "peak" : "out";
-        const loud = part === "intro" ? 0.92 : part === "out" ? 0.98 : part === "peak" ? 1.25 : part === "var" ? 1.18 : 1.12; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
+        // Paul 2026-11-24 (v17): a measured arc rather than one level. The intro is the quietest, B (the climb and the variation)
+        // is the fullest, and the outro falls away bar by bar, so the ending fades instead of stopping.
+        ritNext = pos >= form - 2 ? 1 + (pos - (form - 2) + 1) * 0.09 : 1; // the written ritardando over the last two bars
+        const falling = part === "out" ? 1 - (pos - (form - 4)) * 0.22 : 1; // 1.0, 0.78, 0.56, 0.34 across the outro
+        const loud = (part === "intro" ? 0.62 : part === "body" ? (pos < 12 ? 0.92 : 1.06) : part === "var" ? 1.18 : part === "peak" ? 1.32 : 0.72) * falling; // the bossa kit is lighter than the old backbeat, so the whole mix comes up to match the other records
         const breath = part === "var" && pos === 27; // the bar before the peak lets go for its second half // the second half lifts a little, the last four bars a little more
         const halves = bar.chord2 ? [[0, bar.chord, bar.bass], [2, bar.chord2, bar.bass2 ?? bar.bass]] : [[0, bar.chord, bar.bass]];
         for (const [from, chord, root] of halves) {
@@ -220,8 +224,11 @@ function createNightMusic() { // the cinematic engine, for series night
           tick(t0 + (i / 4) * beat + jitter(3), 0.0085 * accent * loud, 9200, 0.035);
         }
         // the 808 keeps the floor under it, softer than before and only on the downbeat plus a light beat three
-        eight08(t0 + jitter(3), (dance ? 0.2 : 0.16) * loud, bar.bass);
-        eight08(t0 + 2 * beat + jitter(4), 0.1 * loud, bar.bass);
+        // v17: the 808 waits for B. Before it the kick and the bass carry the floor; from the climb to the peak it joins them.
+        if (pos >= 12 && pos < 32) {
+          eight08(t0 + jitter(3), 0.2 * loud, bar.bass);
+          eight08(t0 + 2 * beat + jitter(4), 0.1 * loud, bar.bass);
+        }
         // a brushed cymbal each bar, and a quieter fill every fourth bar, still inside the bossa
         if (barIndex % 2 === 0) tick(t0 + 1.5 * beat, 0.014 * loud, 6200, 0.5);
         if (barIndex % 4 === 3) for (let i = 0; i < 3; i++) tick(t0 + (3 + i * 0.25) * beat + jitter(3), (0.012 + 0.006 * i) * loud, 5400, 0.05);
@@ -249,7 +256,7 @@ function createNightMusic() { // the cinematic engine, for series night
           if (step % shape.length === 0) piano(t0 + at * beat + laidBack + 0.012, midi - 12, vary(figureGain * 0.6 * loud), beat * 1.1, -0.3);
         }
         // a soft bed holds the chord under the figure, so the harmony is never only implied
-        bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.006 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35));
+        bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.015 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v17: the bed is audible now, not implied
         // Paul 2026-11-23 (final): a piano left hand plays the chord's root in the low-middle register (C2 to E3 as heard, kept clear of the 808's sub band): a firm hit on beat one, a light touch on the
         // "and" of two that pushes the bar on, and on every other bar a light touch on beat four; each with its own small velocity, shorter than the chords above so the groove stays springy.
         const heard = (m) => m /* bar notes are already transposed at load */, lhRoot = (r) => { let m = r + 12; while (heard(m) > 52) m -= 12; while (heard(m) < 36) m += 12; return m; };
@@ -315,7 +322,9 @@ function createNightMusic() { // the cinematic engine, for series night
         if (section === 2) note(when, midi - 12, HORN, vary(0.038 * lv), beat * (length + 0.5), 0.2);
       }
       }
-    nextTime += barLength * (track.style === "sunny" ? 1 + 0.014 * Math.sin(barIndex * 1.3) : 1); barIndex += 1; // the day piece breathes a little
+        // v17: the last two bars slow down (a written ritardando) while the arc fades them, so the piece ends rather than stops
+    ritNext = track.style === "sunny" ? (barIndex % (track.formBars ?? BARS_PER_TRACK) >= (track.formBars ?? BARS_PER_TRACK) - 2 ? 1 + ((barIndex % (track.formBars ?? BARS_PER_TRACK)) - ((track.formBars ?? BARS_PER_TRACK) - 2) + 1) * 0.09 : 1) : 1;
+    nextTime += barLength * ritNext * (track.style === "sunny" ? 1 + 0.014 * Math.sin(barIndex * 1.3) : 1); barIndex += 1;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
   return {
