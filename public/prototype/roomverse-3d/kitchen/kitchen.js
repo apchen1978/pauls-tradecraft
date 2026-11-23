@@ -7241,7 +7241,7 @@ export async function start({ stage, onReady = () => {} }) {
     { zh: "♪ 布魯克林窗台　再點停止", en: "♪ Brooklyn Windowsill · tap to stop" },
     { zh: "♪ 午後弄堂　再點停止", en: "♪ Afternoon Lane · tap to stop" },
     { zh: "♪ 追劇夜　再點停止", en: "♪ Series Night · tap to stop" },
-    { zh: "♪ 微光慢拍　再點停止", en: "♪ Low Light Groove · tap to stop" },
+    { zh: "♪ 午後上行　再點停止", en: "♪ Afternoon Ascending · tap to stop" },
     { zh: "唱片收起來了", en: "Record put away" },
     { zh: "這台裝置放不出聲音", en: "No sound on this device" },
   ];

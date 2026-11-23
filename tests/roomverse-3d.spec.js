@@ -1682,10 +1682,10 @@ test("Room 01 the window-side robot is the DJ: a tap starts the music with a cov
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the third piece is Room 04's Bund swing" }).toBe("十里洋場");
   await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-3-v1\.webp/);
   await expect.poll(async () => (await state()).notes, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(20);
-  expect(await page.evaluate(() => window.__room.musicTracks?.() ?? null)).toEqual(["窗邊的午後", "追劇夜", "十里洋場", "微光慢拍"]);
+  expect(await page.evaluate(() => window.__room.musicTracks?.() ?? null)).toEqual(["窗邊的午後", "追劇夜", "十里洋場", "午後上行"]);
   await page.waitForTimeout(1800);
   await tapRobot();
-  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the fourth piece is the ambient groove" }).toBe("微光慢拍");
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the fourth piece is the ambient groove" }).toBe("午後上行"); // old -> new: 微光慢拍 -> 午後上行 (renamed 2026-11-24)
   await page.waitForTimeout(1800);
   await tapRobot();
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back" }).toBe("窗邊的午後");

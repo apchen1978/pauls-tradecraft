@@ -22,11 +22,12 @@ export function createPiano() {
     },
     ready: () => Boolean(buffers),
     // Play one note into `destination` at `time`; `gain` is the loudness, `length` how long the key is held (seconds), `position` the stereo placement (-1 left, 1 right). Returns false if the samples are not loaded.
-    play(ctx, destination, time, midi, gain, length, position = 0) {
+    play(ctx, destination, time, midi, gain, length, position = 0, detuneCents = 0) {
       if (!buffers) return false;
       let best = buffers[0]; for (const item of buffers) if (Math.abs(item[0] - midi) < Math.abs(best[0] - midi)) best = item;
       const source = ctx.createBufferSource(), tone = ctx.createBiquadFilter(), out = ctx.createGain();
       source.buffer = best[1]; source.playbackRate.value = Math.pow(2, (midi - best[0]) / 12);
+      if (detuneCents && source.detune) source.detune.value = detuneCents; // a few cents of tape drift
       tone.type = "lowpass"; tone.frequency.value = 2600 + Math.min(gain, 0.3) * 30000; tone.Q.value = 0.4; // softer notes are a little darker, as on a real piano
       out.gain.setValueAtTime(gain, time); out.gain.setValueAtTime(gain, time + length); out.gain.exponentialRampToValueAtTime(0.0001, time + length + 0.4); // the damper falls
       source.connect(tone); tone.connect(out);
