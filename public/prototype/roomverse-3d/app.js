@@ -1861,9 +1861,46 @@ let lanternMat = null;
   prepare(mugObj, (part) => {
     const coffee = /coffee/i.test(part.material.name);
     const key = coffee ? "coffee" : "ceramic";
-    if (!mugMaterials.has(key)) mugMaterials.set(key, new THREE.MeshStandardMaterial({ color: coffee ? "#5b3826" : "#f1e5d1", roughness: .42 }));
+    if (!mugMaterials.has(key)) {
+      const material = new THREE.MeshStandardMaterial({ color: coffee ? "#5b3826" : "#f1e5d1", roughness: .42 });
+      if (coffee) material.onBeforeCompile = (shader) => {
+        shader.vertexShader = `varying vec3 vCoffeeLocalPosition;\nvarying vec3 vCoffeeLocalNormal;\n` + shader.vertexShader.replace("#include <begin_vertex>", `#include <begin_vertex>\nvCoffeeLocalPosition = position;\nvCoffeeLocalNormal = objectNormal;`);
+        shader.fragmentShader = `varying vec3 vCoffeeLocalPosition;\nvarying vec3 vCoffeeLocalNormal;\n` + shader.fragmentShader.replace("#include <color_fragment>", `#include <color_fragment>
+          // A fine, irregular crema edge catches light without adding geometry.
+          float cremaAngle = atan(vCoffeeLocalPosition.z, vCoffeeLocalPosition.x);
+          float cremaRadius = length(vCoffeeLocalPosition.xz);
+          float cremaWobble = .00028 * sin(cremaAngle * 5.0 + .4) + .00013 * sin(cremaAngle * 9.0 - .7);
+          float cremaTop = smoothstep(.07735, .07785, vCoffeeLocalPosition.y) * smoothstep(.75, .95, abs(vCoffeeLocalNormal.y));
+          float cremaInner = smoothstep(.0305 + cremaWobble, .0312 + cremaWobble, cremaRadius);
+          float cremaOuter = 1.0 - smoothstep(.0330 + cremaWobble, .0338 + cremaWobble, cremaRadius);
+          float cremaBand = cremaTop * cremaInner * cremaOuter;
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.39, .19, .08), cremaBand * .58);`);
+      };
+      mugMaterials.set(key, material);
+    }
     return mugMaterials.get(key);
   });
+  let coffeeMugSteam = null;
+  // The coffee is hot: let a quiet wisp drift from its open surface using the same particle motion as the red side-table mug.
+  {
+    const COUNT = 22, bounds = new THREE.Box3().setFromObject(mugObj), center = bounds.getCenter(new THREE.Vector3());
+    const data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+    for (let i = 0; i < COUNT; i++) data.seed[i] = (i * .618034 + .07 * Math.sin(i * 5.3)) % 1;
+    const geometry = new THREE.BufferGeometry(); geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+    const puff = canvasTex(64, 64, (ctx, w, h) => { const gr = ctx.createRadialGradient(32, 32, 2, 32, 32, 30); gr.addColorStop(0, "rgba(255,255,255,.85)"); gr.addColorStop(.5, "rgba(255,255,255,.3)"); gr.addColorStop(1, "rgba(255,255,255,0)"); ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h); });
+    const points = new THREE.Points(geometry, new THREE.PointsMaterial({ map: puff, size: .058, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: .2, blending: THREE.AdditiveBlending, depthWrite: false }));
+    points.name = "coffee-table-mug-steam"; points.frustumCulled = false; points.raycast = () => {}; scene.add(points);
+    const rim = { x: center.x, y: bounds.max.y + .003, z: center.z };
+    const update = (t) => {
+      for (let i = 0; i < COUNT; i++) {
+        const life = (t * .26 + data.seed[i]) % 1, widen = .25 + life * 1.6, sway = Math.sin(t * .9 + life * 5.2 + data.seed[i] * 6) * .012 * widen, spread = Math.sin(data.seed[i] * 40) * .008 * widen;
+        data.pos[i * 3] = rim.x + sway + spread + life * .014; data.pos[i * 3 + 1] = rim.y + life * .16; data.pos[i * 3 + 2] = rim.z + Math.cos(t * .7 + life * 4.1 + data.seed[i] * 7) * .009 * widen + Math.cos(data.seed[i] * 31) * .006 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * .5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * .97;
+      }
+      geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+    };
+    update(7.3); coffeeMugSteam = { points, update };
+  }
   // Reuse the existing laptop model as the third quiet console prop, alongside the book and vase.
   // No extra download, plant or light; the original coffee-table laptop stays in place.
   const tvLaptopObj = laptopObj.clone(true); tvLaptopObj.rotation.y = Math.PI;
@@ -3940,7 +3977,7 @@ let lanternMat = null;
       if (ambientFrozen || document.hidden || still || now - lastTouch > 30000) dustLast = 0;
       else {
         const dt = dustLast ? Math.min(.25, (now - dustLast) / 1000) : .1; dustLast = now;
-        if (dustPoints.visible) { stepDust(dt); if (shown) windowLight.intensity = shown.win * (1 + .04 * Math.sin(dustTime * .5)); } PROPS.mugSteam.update(now / 1000); /* the red mug's steam drifts while the visitor is in the room */ render(); cost = performance.now() - now;
+        if (dustPoints.visible) { stepDust(dt); if (shown) windowLight.intensity = shown.win * (1 + .04 * Math.sin(dustTime * .5)); } PROPS.mugSteam.update(now / 1000); coffeeMugSteam.update(now / 1000); /* both mugs' steam drifts while the visitor is in the room */ render(); cost = performance.now() - now;
       }
     } catch { /* the room is still starting up */ }
     setTimeout(ambientTick, Math.max(100, cost * 3)); // a slow device draws less often (at most a third of the time spent drawing), so the ambient motion never starves the rest of the page
@@ -4920,6 +4957,7 @@ let lanternMat = null;
       });
       return { meshes, vertices, triangles, drawCalls: renderer.info.render.calls, robotLoaded: robotObj.children.length > 0 }; // drawCalls: the last rendered frame (QA, for the Room 01 ledger)
     },
+    coffeeMugSteamSample() { const points = coffeeMugSteam.points; return { visible: points.visible, position: Array.from(points.geometry.attributes.position.array.slice(0, 3)) }; }, // local QA: confirm the hot coffee's steam is present and drifting
     setLang(l) { state.lang = l; showBoardLanguage(l); renderer.domElement.setAttribute("aria-label", TEXT[l].canvas); if (!robotBubble.hidden) robotBubble.querySelector("[data-bubble-copy]").textContent = bubbleTarget === guidePivot ? GUIDE_LINE[l] : robotCustomLine ? (robotCustomLine[l] || robotCustomLine.zh) : ROBOT_MOOD_LINES[state.mood][l]; showDirectorStop(); drawPanel(); },
     set(k, v) { choose(k, v); }, // used by tests
     musicState: () => roomMusic.state(), musicNext: () => roomMusic.next(), playMusicTrack: (n) => roomMusic.start(n, musicOptions), /* QA: start a given record */ musicTracks: () => roomMusic.tracks(), tapRecordPlayer: () => { recordFound = true; recordRing.hidden = true; return toggleMusic(true); }, recordRingInfo: () => { placeRecordRing(); return { visible: !recordRing.hidden, found: recordFound, w: recordRing.offsetWidth }; }, recordCard: () => ({ shown: !robotBubble.hidden && bubbleTarget === sideboard.recordPlayer.group, text: robotBubble.querySelector("[data-bubble-copy]").textContent, cover: robotBubble.querySelector("[data-cover]")?.hidden === false ? robotBubble.querySelector("[data-cover]").src : null }), playMusic: () => toggleMusic(), stopMusic: () => { roomMusic.stop(); clearTimeout(musicTimer); },
