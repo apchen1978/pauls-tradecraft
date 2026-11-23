@@ -32,9 +32,13 @@ const TRACKS = [
   // History: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (2026-11-23, tonal centre: the phrase endings now land on the tonic chord, bars 4, 8, 12 and 16, with a ii-V in bars 14 and 15 that pulls home; the dominant no longer hangs) (2026-11-23, fourth melody: an urban R&B / neo-soul hum instead of a square tune: F-major pentatonic only, neighbour-note slides and little up-then-down turns, no leaps of a fourth; syncopated, with key notes pushed half a beat early and tied across the bar line, and rests between phrases so the 808 and the piano breathe; carried by a soft Rhodes in the upper register with a breath of flute, velocity shaped note by note) (2026-11-23, third melody: a Ghibli-like, singable theme in four-bar phrases, built on chord tones and ninths so it never clashes with the harmony: a motif of a rising fourth and a step down, answered, lifted in bars 5 to 6, a high point on A in bar 12, an open ending that leads back to the start) (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
-  { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+  { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 36, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },                                            // Fmaj9: the room before the first chord
+      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },                                            // Gm9: the floor settles
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },                                            // Bbmaj7#11: a little light from above
+      { bass: 36, chord: [55, 62, 65, 70, 76], tune: [] },                                            // C7sus4: leaning in, not resolving yet
       { bass: 41, chord: [57, 60, 64, 67], tune: [[1.5, 72, 1], [2.5, 74, 0.5], [3, 72, 2]] },                                          // Fmaj9: C D E
       { bass: 45, chord: [55, 60, 64, 67], bass2: 50, chord2: [57, 60, 65, 69], tune: [[2, 69, 1], [3, 67, 1]] },      // Am7 | D7: F E D
       { bass: 43, chord: [58, 62, 65, 69], tune: [[0.5, 72, 0.5], [1, 74, 1.5], [2.5, 72, 0.5], [3, 69, 1]] },                                          // Gm9: C Bb C
@@ -51,6 +55,22 @@ const TRACKS = [
       { bass: 38, chord: [60, 65, 69, 72], tune: [[0, 72, 1], [1.5, 69, 0.5], [2, 67, 1.5]] },                                                 // Dm7: down by steps
       { bass: 43, chord: [58, 62, 65, 69], bass2: 36, chord2: [58, 64, 67, 70], tune: [[1, 72, 1], [2.5, 74, 1.5]] },                          // Gm7 | C7: the ii-V that pulls home
       { bass: 41, chord: [57, 60, 64, 67], tune: [[0, 72, 3], [3.5, 69, 0.5]] },                                                              // Fmaj9: home, a long C
+      { bass: 41, chord: [57, 60, 64, 79], tune: [[1.5, 72, 1], [2.5, 74, 0.5], [3, 72, 2]] },                                          // Fmaj9: C D E
+      { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[2, 69, 1], [3, 67, 1]] },      // Am7 | D7: F E D
+      { bass: 43, chord: [58, 62, 65, 81], tune: [[0.5, 72, 0.5], [1, 74, 1.5], [2.5, 72, 0.5], [3, 69, 1]] },                                          // Gm9: C Bb C
+      { bass: 36, chord: [58, 64, 67, 82], bass2: 41, chord2: [57, 60, 64, 67], tune: [[0, 67, 1], [1, 69, 0.5], [1.5, 72, 1.5], [3, 74, 1.5]] },  // C7 | Fmaj9: the first phrase lands on the tonic
+      { bass: 41, chord: [57, 60, 64, 79], tune: [[1, 77, 1.5], [2.5, 74, 0.5], [3, 72, 1]] },                                                      // Fmaj9: C up to F
+      { bass: 46, chord: [57, 62, 65, 81], tune: [[1.5, 74, 0.5], [2, 72, 1], [3.5, 69, 0.5]] },                                          // Bbmaj7: E D C
+      { bass: 45, chord: [55, 60, 64, 79], bass2: 50, chord2: [57, 60, 65, 69], tune: [[0, 67, 1], [1, 69, 1], [2, 72, 1], [3.5, 74, 2.5]] },                  // Am7 | Dm7
+      { bass: 43, chord: [58, 62, 65, 81], bass2: 41, chord2: [57, 60, 64, 67], tune: [[2, 72, 0.5], [2.5, 69, 0.5], [3, 67, 1]] },              // Gm7 | Fmaj9: the second phrase lands on the tonic
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [] },                                        // Fmaj9: the top of the piece
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },                                            // Bbmaj7#11
+      { bass: 43, chord: [58, 62, 65, 69, 72], tune: [] },                                            // Gm9
+      { bass: 36, chord: [55, 60, 65, 70, 74], tune: [] },                                            // C7sus4: the last breath before home
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },                                            // Fmaj9: home, held
+      { bass: 43, chord: [58, 62, 65, 69], tune: [] },                                                // Gm9
+      { bass: 36, chord: [55, 60, 64, 67], tune: [] },                                                // C7
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },                                            // Fmaj9: the long last chord
     ] },
 ];
 for (const t of TRACKS) if (t.transpose) for (const b of t.bars) { // a track may be written in one key and played in another: shift every note by `transpose` semitones
@@ -147,11 +167,15 @@ function createNightMusic() { // the cinematic engine, for series night
   };
   const scheduleBar = () => {
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
-    if (playlist && barIndex >= BARS_PER_TRACK) { const before = trackIndex; trackIndex = nextInGroup(trackIndex); seed = 5 + trackIndex * 17; barIndex = 0; const changed = trackIndex; sendNode?.gain.setTargetAtTime(TRACKS[trackIndex].send, ctx.currentTime, 0.6); if (changed !== before) setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // a piece goes round again; a different piece of the group would be announced when its first note sounds
+    if (playlist && barIndex >= (TRACKS[trackIndex].formBars ?? BARS_PER_TRACK)) { const before = trackIndex; trackIndex = nextInGroup(trackIndex); seed = 5 + trackIndex * 17; barIndex = 0; const changed = trackIndex; sendNode?.gain.setTargetAtTime(TRACKS[trackIndex].send, ctx.currentTime, 0.6); if (changed !== before) setTimeout(() => { if (playing) onTrack?.(changed); }, Math.max(0, (nextTime - ctx.currentTime) * 1000)); } // a piece goes round again; a different piece of the group would be announced when its first note sounds
     const track = TRACKS[trackIndex], beat = 60 / track.bpm, barLength = beat * 4, bar = track.bars[barIndex % track.bars.length], t0 = nextTime, second = barIndex >= track.bars.length || (track.style === "bright" && barIndex >= 8);
 
       if (track.style === "sunny") {
-        const second = barIndex % 16 >= 8, loud = barIndex % 16 >= 12 ? 1.1 : 1; // the second half lifts a little, the last four bars a little more
+        // Paul 2026-11-23 (DSH): a 36-bar form (about 86 s at 100 bpm), so the arrangement follows a section map
+        // instead of a modulo: 4-bar intro, the approved 16-bar body, an 8-bar variation, a 4-bar peak, a 4-bar outro.
+        const form = track.formBars ?? BARS_PER_TRACK, pos = barIndex % form;
+        const part = pos < 4 ? "intro" : pos < 20 ? "body" : pos < 28 ? "var" : pos < 32 ? "peak" : "out";
+        const loud = part === "intro" ? 0.82 : part === "out" ? 0.88 : part === "peak" ? 1.12 : part === "var" ? 1.05 : 1; // the second half lifts a little, the last four bars a little more
         const halves = bar.chord2 ? [[0, bar.chord, bar.bass], [2, bar.chord2, bar.bass2 ?? bar.bass]] : [[0, bar.chord, bar.bass]];
         for (const [from, chord, root] of halves) {
           const span = bar.chord2 ? 2 : 4, start = t0 + from * beat;
@@ -174,7 +198,7 @@ function createNightMusic() { // the cinematic engine, for series night
         // Paul 2026-11-23 ("fast in energy but not noisy or messy, smooth, like a Jay Chou ballad-pop piano track"): the syncopation is gone. What drives the piece now is a steady, flowing eighth-note piano
         // arpeggio (broken chords up and down, each note ringing into the next like a pedalled piano), a clean pulse (kick on one and three, a soft clap on two and four only after the middle, a closed
         // hat on the beat), a smooth walking bass and a drawbar organ bed. Everything lands on the beat or the straight eighth; nothing is stabbed off the beat.
-        const dance = barIndex % 16 >= 8, full = barIndex % 16 >= 10;
+        const dance = part !== "intro", full = part === "var" || part === "peak";
         [0, 2].forEach((b2) => kick(t0 + b2 * beat + jitter(4), (b2 === 0 ? 0.22 : 0.17) * loud));
         // Paul 2026-11-23: the rhythm instruments are there from the first bar (this key wants rhythmic decoration): the clap on two and four (softer in the first half, firmer after the middle), a shaker on the straight
         // eighths (smooth, never off-beat stabs), a tambourine on two and four, a closed hat on the beat, a woodblock tick on the last beat of every second bar, and a small fill (a quick run of soft taps) into every fourth bar.
@@ -191,9 +215,14 @@ function createNightMusic() { // the cinematic engine, for series night
         // Paul 2026-11-23: the continuous arpeggio is gone; four warm block chords a bar (one on every beat, the first full, the others softer, each ringing for a beat and a half) leave room for the melody and the 808 to
         // breathe. Three-note voicings in the middle register, rolled a hair from the bottom, below the melody.
         // the block chords follow the bar's second chord from beat three when it has one
+        const laidBack = part === "var" || part === "peak" ? 0.012 : 0; // the back half sits a hair behind the beat
         [1, 0.6, 0.8, 0.6].forEach((w, i) => {
           const ch = bar.chord2 && i >= 2 ? bar.chord2 : bar.chord;
-          [ch[0], ch[1], ch[2]].forEach((midi, k) => piano(t0 + i * beat + k * 0.011 + jitter(6), midi, vary(0.05 * w * loud), beat * 1.5, -0.12 + k * 0.1));
+          [ch[0], ch[1], ch[2]].forEach((midi, k) => piano(t0 + i * beat + laidBack + k * 0.011 + jitter(6), midi, vary(0.05 * w * loud), beat * 1.5, -0.12 + k * 0.1));
+          // Paul 2026-11-23 (DSH, momentum pass 1): in the climb (bars 9 to 12) the top of each block chord is doubled an
+          // octave above, at about half the weight of the notes below it, so the harmony thickens upward without adding
+          // anything to the crowded middle. It rolls in after the lower notes, the way the hand would reach for it.
+          if (part === "body" && pos >= 12) piano(t0 + i * beat + laidBack + 0.03 + jitter(6), ch[3] + 12, vary(0.028 * w * loud), beat * 1.4, 0.2);
         });
         // Paul 2026-11-23 (final): a piano left hand plays the chord's root in the low-middle register (C2 to E3 as heard, kept clear of the 808's sub band): a firm hit on beat one, a light touch on the
         // "and" of two that pushes the bar on, and on every other bar a light touch on beat four; each with its own small velocity, shorter than the chords above so the groove stays springy.
@@ -201,18 +230,21 @@ function createNightMusic() { // the cinematic engine, for series night
         const lh = [[0, bar.bass, 0.1, 0.6], [2.5, bar.chord2 ? (bar.bass2 ?? bar.bass) : bar.bass, 0.05, 0.35]];
         if (barIndex % 2 === 1) lh.push([3, bar.chord2 ? (bar.bass2 ?? bar.bass) : bar.bass, 0.045, 0.35]);
         lh.forEach(([at, root, g, len]) => piano(t0 + at * beat + jitter(6), lhRoot(root), g * (0.85 + rnd() * 0.3) * loud, beat * len, -0.22));
+        // the last chord is left to ring, so the piece ends on a held breath rather than a stop
+        if (part === "out" && pos === form - 1) [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3], bar.chord[4] ?? bar.chord[3] + 5]
+          .forEach((midi, k) => piano(t0 + 0.02 * k + jitter(6), midi, vary(0.045 * loud), beat * 6, -0.18 + k * 0.09));
         // the organ bed from the middle, holding the chord
         if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
-        const bassLift = barIndex % 16 >= 8 && barIndex % 16 < 12 ? 1.6 : 1.35; // Paul 2026-11-23: the bass is stronger, most of all in the climb
+        const bassLift = part === "body" && pos >= 12 ? 1.6 : part === "out" ? 1.2 : 1.4; // Paul 2026-11-23: the bass is stronger, most of all in the climb
         [[1, walkThird, 0.13], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.11]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * bassLift * loud, beat * 0.92));
         // Paul 2026-11-23: a climax. From the middle (bar 9) a piano line climbs the scale bar by bar (quarter notes, then an eighth-note run in bar 12), peaks on a high F at the downbeat of bar 13,
         // then walks back down to a long C in bar 16. Written in F like the rest (chord tones and passing notes chosen against each bar), played transposed; it grows louder up to the peak.
-        const CLIMB = { 8: [[0, 69], [1, 70], [2, 72], [3, 74]], 9: [[0, 74], [1, 76], [2, 77], [3, 79]], 10: [[0, 79], [1, 81], [2, 83], [3, 84]], 11: [[0, 76], [0.5, 77], [1, 79], [1.5, 81], [2, 84], [2.5, 86], [3, 88, 1]],
-          12: [[0, 89, 2.5]], 13: [[0, 86], [1, 84], [2, 81], [3, 77]], 14: [[0, 79], [1, 77], [2, 76], [3, 74]], 15: [[0, 72, 3]] };
-        const climbBar = CLIMB[barIndex % 16];
+        const CLIMB = { 12: [[0, 69], [1, 70], [2, 72], [3, 74]], 13: [[0, 74], [1, 76], [2, 77], [3, 79]], 14: [[0, 79], [1, 81], [2, 83], [3, 84]], 15: [[0, 76], [0.5, 77], [1, 79], [1.5, 81], [2, 84], [2.5, 86], [3, 88, 1]],
+          16: [[0, 89, 2.5]], 17: [[0, 86], [1, 84], [2, 81], [3, 77]], 18: [[0, 79], [1, 77], [2, 76], [3, 74]], 19: [[0, 72, 3]] };
+        const climbBar = CLIMB[pos];
         if (climbBar) climbBar.forEach(([at, midi, len = 0.9], k) => {
-          const step = barIndex % 16, rise = step <= 12 ? 0.085 + (step - 8) * 0.016 + k * 0.003 : 0.12 - (step - 12) * 0.016;
+          const step = pos, rise = step <= 12 ? 0.085 + (step - 8) * 0.016 + k * 0.003 : 0.12 - (step - 12) * 0.016;
           piano(t0 + at * beat + jitter(6), midi + (track.transpose || 0), vary(rise * loud), beat * (len + 0.3), 0.15);
         });
         // Paul 2026-11-23 (final): no lead melody. A single synthesised line always sounded electronic, so the piece is settled as an ambient lo-fi groove: the block chords, the 808, the walking bass and the kit carry it,
