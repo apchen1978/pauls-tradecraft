@@ -192,7 +192,8 @@ function createNightMusic() { // the cinematic engine, for series night
           note(start, root + 12, CELLO, 0.02, beat * span * 1.05, -0.3);
         }
         // the long sustained layer (Paul 2026-11-22): open chord tones held on the real piano across the whole bar and into the next, very soft, so there is always a warm, ringing floor under the melody
-        [[bar.bass, -0.3, 0.04], [bar.bass + 7, -0.15, 0.034], [bar.chord[1] + 12, 0.15, 0.03], [bar.chord[3] + 12, 0.3, 0.024]].forEach(([midi, pan, g], k) => piano(t0 + 0.03 * k + jitter(10), midi, vary(g * loud), barLength * 2.1, pan));
+        const ring = part === "var" && pos === 27 ? 0.55 : 1; // the breath bar lets the floor thin out too
+        [[bar.bass, -0.3, 0.04], [bar.bass + 7, -0.15, 0.034], [bar.chord[1] + 12, 0.15, 0.03], [bar.chord[3] + 12, 0.3, 0.024]].forEach(([midi, pan, g], k) => piano(t0 + 0.03 * k + jitter(10), midi, vary(g * ring * loud), barLength * 2.1, pan));
         // the rhythm section (Paul 2026-11-23: "a little monotonous: add chords and a jazz bass drum, more arrangement"): a feathered kick on one and three with a soft ghost note before the next bar,
         // a walking upright bass on every beat under the held piano bass, off-beat piano chord stabs (the "and" of two, and four) in the middle register, and a brushed ride with a skip beat
         // Paul 2026-11-23 ("fast in energy but not noisy or messy, smooth, like a Jay Chou ballad-pop piano track"): the syncopation is gone. What drives the piece now is a steady, flowing eighth-note piano
@@ -216,7 +217,11 @@ function createNightMusic() { // the cinematic engine, for series night
         // breathe. Three-note voicings in the middle register, rolled a hair from the bottom, below the melody.
         // the block chords follow the bar's second chord from beat three when it has one
         const laidBack = part === "var" || part === "peak" ? 0.012 : 0; // the back half sits a hair behind the beat
+        // Paul 2026-11-23 (DSH): the last variation bar breathes before the peak. Its chord hits stop after beat two, so
+        // beats three and four carry only the drums, the walking bass and what is already ringing, and the peak lands harder.
+        const breath = part === "var" && pos === 27;
         [1, 0.6, 0.8, 0.6].forEach((w, i) => {
+          if (breath && i >= 2) return;
           const ch = bar.chord2 && i >= 2 ? bar.chord2 : bar.chord;
           [ch[0], ch[1], ch[2]].forEach((midi, k) => piano(t0 + i * beat + laidBack + k * 0.011 + jitter(6), midi, vary(0.05 * w * loud), beat * 1.5, -0.12 + k * 0.1));
           // Paul 2026-11-23 (DSH, momentum pass 1): in the climb (bars 9 to 12) the top of each block chord is doubled an
@@ -234,7 +239,8 @@ function createNightMusic() { // the cinematic engine, for series night
         if (part === "out" && pos === form - 1) [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3], bar.chord[4] ?? bar.chord[3] + 5]
           .forEach((midi, k) => piano(t0 + 0.02 * k + jitter(6), midi, vary(0.045 * loud), beat * 6, -0.18 + k * 0.09));
         // the organ bed from the middle, holding the chord
-        if (dance) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
+        if (dance && !(part === "var" && pos === 27)) bar.chord.forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.011 * loud * (full ? 1.25 : 1), barLength * 1.05, (k % 2 ? 1 : -1) * 0.25));
+        else if (part === "var" && pos === 27) bar.chord.slice(0, 2).forEach((midi, k) => note(t0 + k * 0.01, midi, ORGAN, 0.006 * loud, beat * 1.6, (k % 2 ? 1 : -1) * 0.25)); // the first half still blooms
         const walkRoot = bar.bass, walkFifth = bar.bass + 7, walkThird = bar.bass + ((bar.chord[1] - bar.chord[0]) >= 4 ? 4 : 3);
         const bassLift = part === "body" && pos >= 12 ? 1.6 : part === "out" ? 1.2 : 1.4; // Paul 2026-11-23: the bass is stronger, most of all in the climb
         [[1, walkThird, 0.13], [3, walkRoot + 2 - (barIndex % 3 === 0 ? 3 : 0), 0.11]].forEach(([at, midi, g]) => note(t0 + at * beat + jitter(7), midi, BASS, g * bassLift * loud, beat * 0.92));
