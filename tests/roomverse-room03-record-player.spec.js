@@ -85,7 +85,7 @@ test("Room 03 a glowing ring points at the record player; one tap plays Bay Area
   // Paul 2026-11-22: after 午後弄堂 comes Room 01's 窗邊的午後 (the epic 追劇夜 joins only on movie night), then back to the first piece.
   expect(await page.evaluate(() => window.__room03.nextRecordPiece()), "the day piece follows 午後弄堂").toBe(4);
   expect((await state()).lane.playing).toBe(false);
-  await expect.poll(async () => (await state()).epic.title, { timeout: 8000 }).toBe("微光慢拍");
+  await expect.poll(async () => (await state()).epic.title, { timeout: 8000 }).toBe("午後上行"); // old -> new: 微光慢拍 -> 午後上行, renamed 2026-11-24 because the piece is now an ascending theme
   expect(await page.evaluate(() => window.__room03.nextRecordPiece()), "it loops back to the first piece").toBe(0);
   await expect.poll(async () => (await state()).bay.playing, { timeout: 8000 }).toBe(true);
   // The next tap stops it.
