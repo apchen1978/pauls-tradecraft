@@ -256,26 +256,26 @@ function createNightMusic() { // the cinematic engine, for series night
         const laidBack = part === "var" || part === "peak" ? 0.012 : 0; // the back half sits a hair behind the beat
         // Paul 2026-11-23 (DSH): the last variation bar breathes before the peak. Its chord hits stop after beat two, so
         // beats three and four carry only the drums, the walking bass and what is already ringing, and the peak lands harder.
-        // Paul 2026-11-23 (DSH): the harmony is carried by a fixed piano figure, the way the Interstellar score works:
-        // the same six-note shape repeats through the bar while the chords change underneath it, and what makes it grow is
-        // register and density, not a new tune every bar. The shape is the chord's own tones: root, 3rd, 5th, 7th, then back
-        // down through the 5th and the 3rd, so every repetition spells the harmony out loud.
-        // Density by section: halves in the intro, eighths in A, quarters under the climb (so the climb line is heard),
-        // sixteenths at the peak, halves again in the outro. Register climbs across the piece and comes home at the end.
-        const shape = [bar.chord[0], bar.chord[1], bar.chord[2], bar.chord[3] ?? bar.chord[2] + 5, bar.chord[2], bar.chord[1]];
-        const figureStep = part === "peak" ? beat / 2 : part === "build" ? beat / 2 : part === "climb" ? beat : part === "break" ? beat * 4 : part === "body" ? beat / 2 : beat * 2;
-        const figureLift = part === "peak" ? 24 : part === "var" ? 12 : 0;
-        const figureGain = part === "peak" ? 0.039 : part === "climb" ? 0.033 : part === "intro" ? 0.021 : 0.029;
-        // v24: sidechain breathing without a compressor - the harmony steps back for a moment when the kick lands, then
-        // returns. The figure and the pad are the two things that make room; the kick and the bass are untouched.
-        const duck = (at) => (Math.abs(at) < 0.18 || Math.abs(at - 2) < 0.18 ? 0.78 : Math.abs(at - 0.5) < 0.2 || Math.abs(at - 2.5) < 0.2 ? 0.9 : 1);
-        for (let at = 0, step = 0; at < 4 - 1e-6; at += figureStep / beat, step++) {
-          if (breath && at >= 2) break; // the breath bar lets go for its second half
-          const midi = shape[step % shape.length];
-          piano(t0 + at * beat + laidBack + jitter(5), midi + figureLift, vary(figureGain * duck(at) * loud), beat * 0.42, step % 2 ? 0.3 : -0.3); // v25: shorter notes, wider spread
-          // the shape is doubled an octave down once per bar, which is what gives the figure its weight instead of its brightness
-          if (step % shape.length === 0) piano(t0 + at * beat + laidBack + 0.012, midi - 12, vary(figureGain * 0.28 * loud), beat * 0.7, -0.34); // v25: much less of it, and shorter
+        // Paul 2026-11-24 (v29): the fast broken-chord sweep is gone - it read as a flourish, not a groove, and Paul heard it
+        // as the weak spot in the opening bars. The piano comps the way Room 02's records do, which is where their energy comes
+        // from: one rolled chord on the one, held; two short upper-voice stabs on the and-of-one and the and-of-two; space after.
+        const comp = bar.chord.slice(0, 4);
+        const stabGain = part === "peak" ? 0.062 : part === "build" ? 0.055 : part === "climb" ? 0.05 : 0.046;
+        comp.forEach((midi, k) => piano(t0 + k * 0.026 + jitter(5), midi, vary(stabGain * 1.5 * loud), beat * (part === "peak" ? 2.6 : 2.2), -0.14 + k * 0.09));
+        [[1.5, 0.6, 0.55], [2.5, 0.75, 0.7]].forEach(([at, w, len]) => comp.slice(1).forEach((midi, k) =>
+          piano(t0 + at * beat + 0.012 + k * 0.018 + jitter(5), midi, vary(stabGain * w * loud), beat * len, 0.08 - k * 0.08)));
+        // in the build and the peak the chord answers a third time, on the and-of-three, so the last third drives
+        if (part === "build" || part === "peak") comp.slice(2).forEach((midi, k) =>
+          piano(t0 + 3.5 * beat + 0.012 + k * 0.018 + jitter(5), midi, vary(stabGain * 0.62 * loud), beat * 0.5, 0.14 - k * 0.08));
+        // hats carry the energy: eighths everywhere, sixteenths once the piece is moving
+        const hatStep = part === "build" || part === "peak" ? 0.25 : 0.5;
+        for (let at = 0; at < 4 - 1e-6; at += hatStep) {
+          if (breath && at >= 2) break;
+          const accent = Math.abs(at % 1) < 1e-6 ? 1.25 : 0.85;
+          tick(t0 + at * beat + jitter(4), 0.009 * accent * loud, part === "build" || part === "peak" ? 8400 : 8000, 0.04);
         }
+        // the duck stays: the comp makes room when the kick lands
+        const duck = (at) => (Math.abs(at) < 0.18 || Math.abs(at - 2) < 0.18 ? 0.82 : Math.abs(at - 0.5) < 0.2 || Math.abs(at - 2.5) < 0.2 ? 0.92 : 1);
         // a soft bed holds the chord under the figure, so the harmony is never only implied
         bar.chord.slice(1, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.011 * duck(0) * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v25: no root, quieter: the low mids were mud // v17: the bed is audible now, not implied
         // v22: the theme is mirrored upward (C-D / E-D / E-G / G). Everything else - chords, figure, groove, form, ornaments -
