@@ -32,15 +32,13 @@ const TRACKS = [
   // History: Room 01's day piece used to be Room 04's slow record played faster; then a first version of this piece was too angular (2026-11-23, tonal centre: the phrase endings now land on the tonic chord, bars 4, 8, 12 and 16, with a ii-V in bars 14 and 15 that pulls home; the dominant no longer hangs) (2026-11-23, fourth melody: an urban R&B / neo-soul hum instead of a square tune: F-major pentatonic only, neighbour-note slides and little up-then-down turns, no leaps of a fourth; syncopated, with key notes pushed half a beat early and tied across the bar line, and rests between phrases so the 808 and the piano breathe; carried by a soft Rhodes in the upper register with a breath of flute, velocity shaped note by note) (2026-11-23, third melody: a Ghibli-like, singable theme in four-bar phrases, built on chord tones and ninths so it never clashes with the harmony: a motif of a rising fourth and a step down, answered, lifted in bars 5 to 6, a high point on A in bar 12, an open ending that leads back to the start) (Paul 2026-11-23: the melody is replaced by a relaxed, singable "family coffee day" tune in the middle of the voice, mostly stepwise with repeated little turns, no high climbs; harmony and orchestration unchanged) (and the second too sombre: Paul asked for a long sustained piano layer and a bright, cheering melody, so the phrases now climb towards high notes and end open) and too "MIDI". This one is slower (88 beats a minute) and
   // sings: long, mostly stepwise phrases, a second voice a chord tone below the melody, thick rolled chords that are left to ring, a low piano bass, a very faint warm string bed, and as little
   // synthetic sound as possible (the real piano does nearly everything; the beat has a little rubato and every note its own small timing and loudness). F major as written, played in E-flat major (see `transpose`), sixteen bars.
-  { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 34, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
+  { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 32, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 84, 3]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[2, 81, 2]] },
-      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[1, 79, 3]] },
-      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[2, 76, 2]] },
-      { bass: 34, chord: [57, 60, 62, 65, 70], tune: [[1, 74, 3]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[2.5, 72, 1.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 84, 2.5]] },
+      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[1.5, 81, 2]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[2, 79, 2]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[2.5, 76, 1.5]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 1.5], [2, 72, 1.5]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[1, 79, 1.5], [3, 76, 1]] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 77, 1.5], [2, 74, 1]] },
@@ -172,7 +170,7 @@ function createNightMusic() { // the cinematic engine, for series night
         // Paul 2026-11-23 (DSH): a 36-bar form (about 86 s at 100 bpm), so the arrangement follows a section map
         // instead of a modulo: 4-bar intro, the approved 16-bar body, an 8-bar variation, a 4-bar peak, a 4-bar outro.
         const form = track.formBars ?? BARS_PER_TRACK, pos = barIndex % form;
-        const part = pos < 6 ? "intro" : pos < 10 ? "body" : pos < 18 ? "climb" : pos < 26 ? "var" : pos < 30 ? "peak" : "out";
+        const part = pos < 4 ? "intro" : pos < 8 ? "body" : pos < 16 ? "climb" : pos < 24 ? "var" : pos < 28 ? "peak" : "out";
         // Paul 2026-11-24 (v17): a measured arc rather than one level. The intro is the quietest, B (the climb and the variation)
         // is the fullest, and the outro falls away bar by bar, so the ending fades instead of stopping.
         ritNext = pos >= form - 2 ? 1 + (pos - (form - 2) + 1) * 0.09 : 1; // the written ritardando over the last two bars
@@ -221,14 +219,14 @@ function createNightMusic() { // the cinematic engine, for series night
         // the cross-stick: a dry wooden click, the spine of the groove
         clave.forEach((at) => tick(t0 + at * beat + jitter(5), (dance ? 0.05 : 0.032) * loud, 1850, 0.05));
         // the shaker: sixteenths, with the accent on two and four
-        const shakerDiv = part === "intro" ? (pos >= 4 ? 8 : 0) : part === "body" ? 8 : 16;
+        const shakerDiv = part === "intro" ? 0 : part === "body" ? 8 : 16;
         for (let i = 0; i < shakerDiv; i++) {
           const accent = i % 4 === 0 ? (i === 4 || i === 12 ? 1.5 : 1) : 0.6;
           tick(t0 + (i / shakerDiv) * 4 * beat + jitter(3), 0.0085 * accent * loud, 9200, 0.035);
         }
         // the 808 keeps the floor under it, softer than before and only on the downbeat plus a light beat three
         // v17: the 808 waits for B. Before it the kick and the bass carry the floor; from the climb to the peak it joins them.
-        if (pos >= 10 && pos < 30) {
+        if (pos >= 8 && pos < 28) {
           eight08(t0 + jitter(3), 0.2 * loud, bar.bass);
           eight08(t0 + 2 * beat + jitter(4), 0.1 * loud, bar.bass);
         }
@@ -260,6 +258,21 @@ function createNightMusic() { // the cinematic engine, for series night
         }
         // a soft bed holds the chord under the figure, so the harmony is never only implied
         bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.015 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v17: the bed is audible now, not implied
+        // Paul 2026-11-24 (v20): film-score ornaments. Sparse, high and short - the colours a score uses to make a long cue
+        // feel scored rather than looped. Each one is tied to a section, never to every bar.
+        // a celesta-like bell at the close of each phrase (vibes recipe, two octaves up)
+        if (part === "body" || part === "var") {
+          const phraseEnd = pos === 7 || pos === 15 || pos === 23;
+          if (phraseEnd) note(t0 + 3.5 * beat, bar.chord[2] + 24, VIBES, vary(0.02 * loud), beat * 2.4, 0.35);
+        }
+        // a flute answering the climb in its second half, a third above the chord
+        if (part === "climb" && pos >= 12 && pos % 2 === 0) note(t0 + 2 * beat, bar.chord[2] + 12 + 4, FLUTE, vary(0.018 * loud), beat * 2.2, -0.25);
+        // a harp-like flourish into the peak: a quick rising piano run over the last half of bar 24
+        if (pos === 23) for (let i = 0; i < 6; i++) piano(t0 + (2 + i * 0.28) * beat, bar.chord[i % 3] + 12 + i * 2, vary(0.014 * loud), beat * 0.5, -0.3 + i * 0.11);
+        // a horn swell under the peak, the widest colour in the piece
+        if (part === "peak" && pos === 26) note(t0, bar.chord[0] + 12, HORN, vary(0.03 * loud), barLength * 2.2, -0.2);
+        // a low piano octave on the downbeat of the outro, so the ending has weight before it fades
+        if (part === "out" && pos === 30) piano(t0, bar.bass + 12, vary(0.05 * loud), beat * 3, -0.25);
         if (part === "intro" && pos === 1) note(t0, bar.bass, CELLO, 0.05 * loud, barLength * 1.9, -0.28); // one long cello note widens the second bar
         // Paul 2026-11-23 (final): a piano left hand plays the chord's root in the low-middle register (C2 to E3 as heard, kept clear of the 808's sub band): a firm hit on beat one, a light touch on the
         // "and" of two that pushes the bar on, and on every other bar a light touch on beat four; each with its own small velocity, shorter than the chords above so the groove stays springy.
