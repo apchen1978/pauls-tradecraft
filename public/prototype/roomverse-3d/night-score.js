@@ -35,18 +35,18 @@ const TRACKS = [
   { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 32, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 79, 2], [3, 76, 1]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 72, 2], [3, 74, 1]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
-      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[1.5, 74, 2]] },
+      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[1.5, 76, 2]] },
       { bass: 48, chord: [55, 60, 65, 70, 74], tune: [] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 79, 1.5], [2.5, 76, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 74, 1.5], [2, 76, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 74, 1.5]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 72, 2.5]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 79, 1.5], [2.5, 76, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 74, 2], [2.5, 76, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 74, 1.5], [2.5, 72, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 72, 2.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 1.5], [2.5, 74, 1]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 1.5], [2, 74, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 2.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 2], [2.5, 74, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5], [2.5, 79, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 2.5]] },
       { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[0, 81, 1.5], [2, 79, 1]] },
       { bass: 43, chord: [58, 62, 65, 69, 72], tune: [[1, 84, 1.5], [3, 81, 1]] },
       { bass: 48, chord: [55, 60, 64, 67, 70], tune: [[0, 86, 2]] },
@@ -57,14 +57,14 @@ const TRACKS = [
       { bass: 43, chord: [58, 62, 65, 69], tune: [[2, 77, 1.5]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 88, 2.5]] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [] },
-      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0.5, 79, 1.5], [2.5, 76, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [[0, 74, 2], [2.5, 76, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0.5, 74, 1.5], [2.5, 72, 1]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 72, 2.5]] },
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 79, 1.5], [2.5, 76, 1]] },
-      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 74, 2], [2.5, 76, 1]] },
-      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 74, 1.5]] },
-      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 72, 1.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71, 76], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72, 76], tune: [[0, 76, 2], [2.5, 74, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74, 77], tune: [[0.5, 76, 1.5], [2.5, 79, 1]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 2.5]] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0.5, 72, 1.5], [2.5, 74, 1]] },
+      { bass: 45, chord: [55, 60, 64, 69, 72], tune: [[0, 76, 2], [2.5, 74, 1]] },
+      { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0.5, 76, 1.5]] },
+      { bass: 48, chord: [55, 60, 65, 70, 74], tune: [[0, 79, 1.5]] },
       { bass: 43, chord: [58, 62, 65, 69], tune: [[1, 76, 2]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 72, 4]] },
     ] },
@@ -260,6 +260,8 @@ function createNightMusic() { // the cinematic engine, for series night
         }
         // a soft bed holds the chord under the figure, so the harmony is never only implied
         bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.015 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v17: the bed is audible now, not implied
+        // v22: the theme is mirrored upward (C-D / E-D / E-G / G). Everything else - chords, figure, groove, form, ornaments -
+        // is the v21 material, so the two versions differ only in the shape of the melody.
         // Paul 2026-11-24 (v21): one ornament only, and only when the theme appears complete: a celesta-like bell on the
         // first note of each full statement. Everything else is gone.
         if (part === "peak" && pos === 22) note(t0 + 0.5 * beat, bar.chord[2] + 24, VIBES, vary(0.022 * loud), beat * 2.6, 0.35);
