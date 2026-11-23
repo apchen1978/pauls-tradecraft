@@ -568,6 +568,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     return {
       start: (w) => base.start(w),
       stop() { base.stop(); epic.stop(); epicOn = false; },
+      resume() { base.resume?.(); epic.resume?.(); },
       next() {
         if (epicOn) { epic.stop(); epicOn = false; return -1; }
         if (mood === "series" && !base.state().playing) { epicOn = epic.start(0, { playlist: true }); return epicOn ? 2 : -1; }
@@ -2439,7 +2440,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   };
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
-  document.addEventListener("visibilitychange", () => { if (document.hidden) { recordMusic.stop(); deckSync(); } }); // the music stops when the page is hidden
+  // Paul 2026-11-23: the record keeps playing while the visitor switches to another tab or app, as long as the portfolio page stays open (it stops only when they leave the room or close the page).
+  // When the page comes back, a context the browser suspended in the background (phones do this) is resumed.
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { recordMusic.resume(); deckSync(); } });
   // The record corner hint (Paul, 2026-11-17: the music is good; make sure visitors find the record player): while the visitor has not started it, a soft pulsing ring marks the turntable whenever it is on
   // screen (after a few seconds), and the hint line comes back every half minute. Both stop for good once the music has been started.
   vinylRing = document.createElement("div"); vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
