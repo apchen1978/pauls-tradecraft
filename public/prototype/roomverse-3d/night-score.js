@@ -35,10 +35,10 @@ const TRACKS = [
   { title: "微光慢拍", group: "day", style: "sunny", bpm: 100, swing: 0, send: 0.5, transpose: -2, formBars: 36, // Paul 2026-11-23: E-flat major (written in F, a whole tone down): rounder and warmer, the 'at home in the living room' key; G major (+2) was brighter but felt too sharp. Earlier: 92, 104 then 116 bpm; // Paul 2026-11-22: faster still (116 beats a minute; it was 92, then 104) and in G major, a whole tone up from the F major it is written in, which is brighter; `transpose` shifts every note below
 
     bars: [
-      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [] },
-      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [] },
-      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [] },
-      { bass: 34, chord: [57, 60, 62, 65, 70], tune: [] },
+      { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[1, 84, 2], [3, 81, 1]] },
+      { bass: 40, chord: [52, 56, 59, 64, 67], tune: [[0.5, 79, 1.5]] },
+      { bass: 38, chord: [57, 60, 62, 65, 69], tune: [[1, 81, 2], [3.5, 79, 0.5]] },
+      { bass: 34, chord: [57, 60, 62, 65, 70], tune: [[0.5, 76, 2.5]] },
       { bass: 41, chord: [57, 60, 64, 67, 71], tune: [[0, 76, 1], [2, 72, 1.5], [5, 74, 1]] },
       { bass: 45, chord: [55, 60, 64, 69, 72], tune: [] },
       { bass: 46, chord: [57, 62, 65, 69, 74], tune: [[0, 79, 1], [2, 76, 1.5], [5, 72, 1]] },
@@ -257,6 +257,7 @@ function createNightMusic() { // the cinematic engine, for series night
         }
         // a soft bed holds the chord under the figure, so the harmony is never only implied
         bar.chord.slice(0, 3).forEach((midi, k) => note(t0 + k * 0.012, midi, STRINGS, 0.015 * loud, barLength * 1.02, (k % 2 ? 1 : -1) * 0.35)); // v17: the bed is audible now, not implied
+        if (part === "intro" && pos === 1) note(t0, bar.bass, CELLO, 0.05 * loud, barLength * 1.9, -0.28); // one long cello note widens the second bar
         // Paul 2026-11-23 (final): a piano left hand plays the chord's root in the low-middle register (C2 to E3 as heard, kept clear of the 808's sub band): a firm hit on beat one, a light touch on the
         // "and" of two that pushes the bar on, and on every other bar a light touch on beat four; each with its own small velocity, shorter than the chords above so the groove stays springy.
         const heard = (m) => m /* bar notes are already transposed at load */, lhRoot = (r) => { let m = r + 12; while (heard(m) > 52) m -= 12; while (heard(m) < 36) m += 12; return m; };
@@ -275,6 +276,11 @@ function createNightMusic() { // the cinematic engine, for series night
         if (bar.tune && bar.tune.length) {
           bar.tune.forEach(([at, midi, len]) =>
             piano(t0 + at * beat + 0.018 + jitter(9), midi, vary(0.042 * loud), beat * (len + 0.4), 0.12));
+          // Paul 2026-11-24: the opening felt plain. In the intro the motif is doubled a sixth below and in A a fourth above,
+          // soft enough to be felt as body rather than heard as a second tune.
+          const double = part === "intro" ? -9 : part === "body" && pos < 12 ? 5 : 0;
+          if (double) bar.tune.forEach(([at, midi, len]) =>
+            piano(t0 + at * beat + 0.05 + jitter(9), midi + double, vary(0.026 * loud), beat * (len + 0.35), part === "intro" ? -0.12 : 0.24));
           // the last note of a phrase is left with a soft octave below it, the way a hand holds the key a moment longer
           const tail = bar.tune[bar.tune.length - 1];
           if (tail[0] + tail[2] >= 3.4 && (part === "body" || part === "var" || part === "peak" || part === "out"))
