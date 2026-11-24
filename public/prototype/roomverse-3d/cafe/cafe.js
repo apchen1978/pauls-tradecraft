@@ -4184,7 +4184,10 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
     // A close look at the turntable and the cup beside it (Paul 2026-11-17, like Room 03's "Record player" view): the camera comes round to the visitor side of the counter.
     record: compact ? station([0.92, 1.42, 0.12], [0.52, 1.12, -0.68], 50) : station([0.88, 1.40, 0.06], [0.52, 1.12, -0.68], 34),
     window: compact ? station([0.3, 1.35, 2.1], [-2.5, 1.0, 0.5], 66) : station([-0.1, 1.4, 2.0], [-2.5, 1.0, 0.5], 54),
-    lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.78, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 0.66, 1.44], 58),
+    // Paul 2026-11-25: the lounge view cut the wall clock in half at the top of the canvas (measured: the clock's rim sits
+    // 17.2 degrees above the eye line, the frame's top edge only 12.1). The target lifts from 0.66 to 1.00 m, which puts the
+    // top edge near 19.6 degrees and leaves the clock about two degrees of air without losing the sofa and the rug.
+    lounge: compact ? station([-0.55, 1.57, 2.55], [2.32, 0.86, 1.32], 66) : station([0.15, 1.52, 2.85], [2.42, 1.00, 1.44], 58),
     // On a phone it faces the counter so both robots and both menu boards are whole (Paul, 2026-11-16: the greeter was cut in half; the room now opens in the middle, which shows the windows).
     // Just inside the door (Paul, 2026-11-15: a standing view like Rooms 01 and 03, turning smoothly all the way round): the classic first look, the whole counter ahead,
     // the street window on the left, the lounge on the right and the door behind. It stands 0.6 m clear of the front wall so turning to the door never puts the camera in the glass.
