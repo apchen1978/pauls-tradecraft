@@ -86,6 +86,10 @@ test("Room 03 a glowing ring points at the record player; one tap plays Bay Area
   expect(await page.evaluate(() => window.__room03.nextRecordPiece()), "the day piece follows 午後弄堂").toBe(4);
   expect((await state()).lane.playing).toBe(false);
   await expect.poll(async () => (await state()).epic.title, { timeout: 8000 }).toBe("午後上行"); // old -> new: 微光慢拍 -> 午後上行, renamed 2026-11-24 because the piece is now an ascending theme
+  // It is a 42-bar piece: it must not be handed on after sixteen bars (about 38 s), but play on past that.
+  await expect.poll(async () => (await state()).epic.bars, { timeout: 70000, intervals: [1000], message: "午後上行 plays beyond bar 20" }).toBeGreaterThan(20);
+  expect((await state()).side, "午後上行 is still the piece that plays").toBe(4);
+  expect((await state()).epic.playing).toBe(true);
   expect(await page.evaluate(() => window.__room03.nextRecordPiece()), "it loops back to the first piece").toBe(0);
   await expect.poll(async () => (await state()).bay.playing, { timeout: 8000 }).toBe(true);
   // The next tap stops it.

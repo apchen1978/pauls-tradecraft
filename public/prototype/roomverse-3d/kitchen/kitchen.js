@@ -7218,7 +7218,8 @@ export async function start({ stage, onReady = () => {} }) {
   // next piece starts from a timer, which browsers allow once the page has made sound.
   const recordBay = createBayRecord(), recordA = createRoomRecord(), recordB = createRoomSound(), recordEpic = createNightMusic();
   // [engine, bars to play once through, how to start it]. 午後弄堂 is about 5 dB softer than the others (measured), so it plays 1.4x louder here (+3 dB), as before.
-  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, 16, () => recordA.start(0)], [recordB, 12, () => recordB.start(1, false, { playlist: false, level: 1.4 })], [recordEpic, 16, () => recordEpic.start(0, { playlist: false })], [recordEpic, 16, () => recordEpic.start(1, { playlist: false })]];
+  // 午後上行 (side 4) is a 42-bar piece (TRACKS[1].formBars in night-score.js); a count of 16 cut it off after about 38 s of its 101 s.
+  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, 16, () => recordA.start(0)], [recordB, 12, () => recordB.start(1, false, { playlist: false, level: 1.4 })], [recordEpic, 16, () => recordEpic.start(0, { playlist: false })], [recordEpic, 42, () => recordEpic.start(1, { playlist: false })]];
   let recordSide = -1; // -1 stopped, 0 灣區午後, 1 布魯克林窗台, 2 午後弄堂, 3 追劇夜 (the epic orchestral piece; it is the first piece when the mood is movie night), 4 窗邊的午後 (Room 01's day piece, Paul 2026-11-22; the same night engine, its second piece)
   let syncRecordMotion = null; // Card I: set once the record player is built; turns the platter and drops the arm while a piece plays
   let recordTimer = 0;
