@@ -562,3 +562,66 @@ body { overflow-x: clip; }
   .package-desk { padding: 24px; }
   .package-layout { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: start; }
 }
+
+/* Entry cards only: colors matched to the Music Lounge. Sizes stay as set above. */
+.feature-portals #gallery-front .gallery-entry {
+  position: relative;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(155deg, rgba(48, 36, 18, .97), rgba(16, 28, 26, .96)) padding-box,
+    linear-gradient(135deg, #f2c56e, #ff8d62 42%, #7dccb0) border-box;
+  box-shadow: 0 0 0 1px rgba(242, 197, 110, .12), 0 18px 40px rgba(0, 0, 0, .32), inset 0 1px 0 rgba(255, 236, 200, .16);
+}
+.feature-portals #gallery-front .gallery-entry::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .1), transparent 34%);
+}
+.feature-portals #gallery-front .gallery-entry:hover {
+  border-color: transparent;
+  transform: translateY(-3px);
+  box-shadow: 0 0 0 1px rgba(255, 214, 140, .3), 0 22px 48px rgba(0, 0, 0, .4), 0 0 32px rgba(255, 170, 80, .24);
+}
+.feature-portals #gallery-front #gallery-link .gallery-entry-kicker { color: #f0c36a; }
+.feature-portals #gallery-front .gallery-entry-cover {
+  border-color: rgba(242, 197, 110, .6);
+  background: radial-gradient(ellipse at 70% 0%, rgba(255, 196, 110, .22), transparent 55%), rgba(12, 16, 18, .72);
+  box-shadow: inset 0 0 0 1px rgba(255, 220, 160, .22);
+}
+.feature-portals #gallery-front .gallery-entry-cta {
+  border-color: rgba(240, 195, 106, .8);
+  background: linear-gradient(180deg, rgba(255, 214, 140, .24), rgba(184, 122, 48, .16));
+}
+.feature-portals #gallery-front .music-lounge-entry {
+  background:
+    linear-gradient(155deg, rgba(22, 26, 64, .97), rgba(46, 18, 48, .96)) padding-box,
+    linear-gradient(135deg, #9ec0ff, #e59adf 46%, #f0c36a) border-box;
+  box-shadow: 0 0 0 1px rgba(150, 180, 255, .14), 0 18px 40px rgba(0, 0, 0, .34), 0 0 28px rgba(80, 110, 220, .18);
+}
+.feature-portals #gallery-front .music-lounge-entry:hover {
+  box-shadow: 0 0 0 1px rgba(170, 200, 255, .34), 0 22px 48px rgba(0, 0, 0, .42), 0 0 36px rgba(120, 140, 255, .3);
+}
+.feature-portals #gallery-front .music-lounge-entry .gallery-entry-kicker { color: #e4d4ff; }
+.feature-portals #gallery-front .music-lounge-mark { position: relative; border-color: rgba(240, 195, 106, .75); box-shadow: 0 10px 26px rgba(0, 0, 0, .35), 0 0 0 1px rgba(255, 214, 150, .28); }
+.feature-portals #gallery-front .music-lounge-mark::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, #f0c36a 0 16%, #1a120c 17% 30%, #3a2a18 31% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 236, 200, .7), 0 0 0 2px rgba(255, 214, 150, .45), 0 6px 12px rgba(0, 0, 0, .4);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .feature-portals #gallery-front .music-lounge-mark::after { transition: transform .45s ease; }
+  .feature-portals #gallery-front .music-lounge-entry:hover .music-lounge-mark::after { transform: rotate(48deg); }
+}
+@media (max-width: 700px) {
+  .feature-portals #gallery-front .music-lounge-mark::after { width: 22px; height: 22px; right: 6px; bottom: 6px; }
+}
