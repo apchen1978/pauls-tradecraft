@@ -862,10 +862,21 @@ function buildSideKitchen(b, m, scene) {
   // These are emissive pixels only, not another light source.
   const ovenPanelY = ovenBay.top - 0.044;
   addBox(b, "side-kitchen", m.ovenGlass, [0.008, 0.060, 0.24], [oven.frontX - 0.013, ovenPanelY, counterZ]);
-  addBox(b, "side-kitchen", m.wokGlow, [0.003, 0.006, 0.046], [oven.frontX - 0.018, ovenPanelY + 0.007, counterZ - 0.030]);
-  addBox(b, "side-kitchen", m.wokGlow, [0.003, 0.005, 0.032], [oven.frontX - 0.018, ovenPanelY + 0.007, counterZ - 0.002]);
-  addBox(b, "side-kitchen", m.wokGlow, [0.003, 0.004, 0.014], [oven.frontX - 0.018, ovenPanelY + 0.007, counterZ + 0.024]);
-  addBox(b, "side-kitchen", m.steel, [0.003, 0.004, 0.016], [oven.frontX - 0.018, ovenPanelY - 0.014, counterZ + 0.036]);
+  // Paul 2026-11-24: three bare glowing rectangles read as stickers. Each key now has a recessed body on a common baseline, the
+  // glow sits inside its body, the indicator has a base instead of floating, and a hairline divides keys from status.
+  // Every flat, flush face is a single quad rather than a box: the panel gains five elements and still costs no more
+  // vertices than the four boxes it replaced (the scene budget test holds at 168212).
+  const quad = (material, width, height, position) => {
+    const face = new THREE.PlaneGeometry(width, height).rotateY(-Math.PI / 2);
+    addGeometryToBucket(b, "side-kitchen", material, face, position);
+  };
+  for (const [dz, width] of [[-0.045, 0.024], [-0.008, 0.024], [0.030, 0.016]]) {
+    addBox(b, "side-kitchen", m.black, [0.004, 0.015, width], [oven.frontX - 0.0145, ovenPanelY, counterZ + dz]);
+    quad(m.wokGlow, width - 0.006, 0.007, [oven.frontX - 0.0168, ovenPanelY + 0.001, counterZ + dz]);
+  }
+  quad(m.steel, 0.196, 0.0015, [oven.frontX - 0.0168, ovenPanelY + 0.024, counterZ]); // the hairline
+  quad(m.black, 0.011, 0.007, [oven.frontX - 0.0160, ovenPanelY - 0.020, counterZ + 0.052]); // indicator base
+  quad(m.wokGlow, 0.004, 0.003, [oven.frontX - 0.0168, ovenPanelY - 0.020, counterZ + 0.052]); // its amber dot
   scene.userData.wokOven = { ...oven, bay: ovenBay, cooktopY: counterY + 0.055 + 0.014, cabinetFrontX: doorX - 0.006, backX: oven.frontX + oven.depth, counterBottomY: bodyTop, display: "240 x 60 mm dark-glass timer panel with amber indicators", handle: "centered horizontal brushed stainless bar pull on two standoffs", cabinetPulls: "two brass pulls on oven-facing inner door edges", cabinetPullOffsetFromOvenMm };
 
   addGeometryToBucket(b, "wok-counter", m.stone, roundedBoxGeometry([counterDepth, counterH, counterLen], 0.025), [counterX, counterY, counterZ]);
@@ -889,8 +900,11 @@ function buildSideKitchen(b, m, scene) {
   ];
   addSideMesh(new THREE.LatheGeometry(wokProfile, 24), m.wokIron, "wok-kitchen-wok", [cookX, counterY + 0.07, cookZ]);
   // Long wooden handle tapering toward the grip and rising 8 degrees (it was a short level rod); the pan also gets a helper loop opposite it.
-  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.017, 0.30, 10), m.oak);
-  wokHandle.rotation.z = Math.PI / 2 - 0.15; wokHandle.position.set(cookX - 0.323, counterY + 0.182, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
+  // Paul 2026-11-24: the handle read as a short orange stick lying inside the wok. It was 30 cm long with its centre only 0.323 m
+  // from the pan axis, so its inner end sat 7.5 mm INSIDE the 0.182 m rim. It is now 24 cm with its centre 0.289 m out, and the
+  // inner end stops 12 mm inside the outer wall: the handle enters the pan it carries, not the food.
+  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.017, 0.24, 10), m.oak);
+  wokHandle.rotation.z = Math.PI / 2 - 0.14; wokHandle.position.set(cookX - 0.2888, counterY + 0.1966, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
   b.get(`shapes:${m.oak.uuid}`) ?? b.set(`shapes:${m.oak.uuid}`, { category: "side-kitchen", material: m.oak, geometries: [], meshes: [] }); b.get(`shapes:${m.oak.uuid}`).meshes.push(wokHandle);
 
   // Past the hood's +Z edge so the shelf, bottle and rail read from the room, not inside the canopy.
@@ -6404,7 +6418,9 @@ function buildWokOliveOil(scene, paperNapkinPack) {
 
 // One brass rail, four useful US-style everyday tools, and four small seasoning jars. Geometry stays batched into one vertex-colour mesh.
 function buildRoom03WokTools(scene) {
-  const WALL_X = 2.94, X = WALL_X - 0.034, RAIL_Y = 1.36, Z0 = 2.18, SHELF_TOP = 1.4325, SHELF_X = WALL_X - 0.085;
+  // Paul 2026-11-24: the tools read as pressed into the tiles. The rail axis moves from 34 mm to 60 mm off the wall, which
+  // is what a real utensil rail looks like, and it gives the widest body (the whisk) 31 mm and the ladle 22 mm of air.
+  const WALL_X = 2.94, X = WALL_X - 0.060, RAIL_Y = 1.36, Z0 = 2.18, SHELF_TOP = 1.4325, SHELF_X = WALL_X - 0.085;
   const parts = [];
   const toolRecords = [];
   let activeBounds = null;
@@ -6437,12 +6453,14 @@ function buildRoom03WokTools(scene) {
     add(new THREE.CylinderGeometry(0.011, 0.011, 0.004, 14), STEEL, [WALL_X - 0.002, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
     add(new THREE.CylinderGeometry(0.0045, 0.0045, WALL_X - X - 0.003, 8), STEEL, [(WALL_X + X) / 2 - 0.0015, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
   }
+  // Paul 2026-11-24: the row read as a set of equal toys. Real sets are unequal: the gaps are now 75, 65, 90 and 90 mm and
+  // the tools run 33, 31, 28, 34 and 30 cm - a ladle longer than a whisk, which is how a real rail looks.
   const TOOLS = [
-    { name: "wood-spoon", dz: -0.16 },
-    { name: "slotted-turner", dz: -0.09 },
-    { name: "balloon-whisk", dz: -0.02 },
-    { name: "stainless-ladle", dz: 0.05 },
-    { name: "locking-tongs", dz: 0.12 },
+    { name: "wood-spoon", dz: -0.180 },
+    { name: "slotted-turner", dz: -0.105 },
+    { name: "balloon-whisk", dz: -0.040 },
+    { name: "stainless-ladle", dz: 0.050 },
+    { name: "locking-tongs", dz: 0.140 },
   ];
   const includeInRecord = (record) => ({ min: [...record.min], max: [...record.max] });
   // Handle with a rounded end and a hang hole near its top; profile runs from y=0 (bottom) up to `len`.
@@ -6458,30 +6476,30 @@ function buildRoom03WokTools(scene) {
     add(new THREE.TorusGeometry(0.006, 0.0013, 5, 12, Math.PI), STEEL, [X, RAIL_Y - 0.0145, z], [0, Math.PI / 2, Math.PI]);
     const top = RAIL_Y - 0.012;
     if (name === "wood-spoon") {
-      handle(z, top, 0.22, 0.0055, 0.0085, WALNUT);
-      const neckY = top - 0.22;
+      handle(z, top, 0.24, 0.0055, 0.0085, WALNUT);
+      const neckY = top - 0.24;
       add(new THREE.CylinderGeometry(0.0055, 0.009, 0.03, 10), WALNUT, [X, neckY - 0.012, z]);
       const bowl = new THREE.SphereGeometry(0.5, 16, 10);
       const pos = bowl.attributes.position;
       for (let i = 0; i < pos.count; i++) if (pos.getX(i) < 0) pos.setX(i, pos.getX(i) * 0.35); // shallow scooped front
       add(bowl, WALNUT, [X, neckY - 0.058, z], [0, 0, 0], [0.018, 0.075, 0.05]);
     } else if (name === "slotted-turner") {
-      handle(z, top, 0.165, 0.0065, 0.0085, NYLON);
+      handle(z, top, 0.135, 0.0065, 0.0085, NYLON);
       add(new THREE.CylinderGeometry(0.0035, 0.0035, 0.004, 10), STEEL, [X, top - 0.05, z], [0, 0, Math.PI / 2]); // rivet
-      add(new THREE.CylinderGeometry(0.0045, 0.006, 0.045, 8), NYLON, [X, top - 0.187, z], [0, 0, 0.12]);
-      const bladeY = top - 0.255;
+      add(new THREE.CylinderGeometry(0.0045, 0.006, 0.045, 8), NYLON, [X, top - 0.157, z], [0, 0, 0.12]);
+      const bladeY = top - 0.225;
       add(new THREE.BoxGeometry(0.0035, 0.10, 0.068), NYLON, [X - 0.003, bladeY, z], [0, 0, 0.12]);
       add(new THREE.CylinderGeometry(0.034, 0.034, 0.0035, 20, 1, false, Math.PI / 2, Math.PI), NYLON, [X - 0.009, bladeY - 0.05, z], [0, 0, Math.PI / 2 + 0.12]);
       for (const sz of [-0.02, -0.0067, 0.0067, 0.02]) add(new THREE.BoxGeometry(0.0045, 0.064, 0.0045), 0x0b0b0c, [X - 0.0062, bladeY - 0.005, z + sz], [0, 0, 0.12]);
     } else if (name === "balloon-whisk") {
-      handle(z, top, 0.13, 0.009, 0.0095, STEEL);
-      add(new THREE.CylinderGeometry(0.0095, 0.0075, 0.012, 12), DARK_STEEL, [X, top - 0.136, z]); // wire collar
-      const cy = top - 0.142 - 0.085;
+      handle(z, top, 0.095, 0.009, 0.0095, STEEL);
+      add(new THREE.CylinderGeometry(0.0095, 0.0075, 0.012, 12), DARK_STEEL, [X, top - 0.101, z]); // wire collar
+      const cy = top - 0.107 - 0.085;
       for (let k = 0; k < 6; k++) add(new THREE.TorusGeometry(0.085, 0.0011, 4, 28), STEEL, [X, cy, z], [0, (k * Math.PI) / 6, 0], [0.34, 1, 0.34]);
     } else if (name === "stainless-ladle") {
       handle(z, top, 0.07, 0.0085, 0.009, STEEL);
-      add(new THREE.CylinderGeometry(0.003, 0.0035, 0.20, 8), STEEL, [X, top - 0.07 - 0.10, z]);
-      const cupY = top - 0.27 - 0.03;
+      add(new THREE.CylinderGeometry(0.003, 0.0035, 0.225, 8), STEEL, [X, top - 0.07 - 0.1125, z]);
+      const cupY = top - 0.295 - 0.03;
       add(new THREE.SphereGeometry(0.038, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), STEEL, [X - 0.012, cupY + 0.03, z], [0, 0, -0.5]);
       add(new THREE.TorusGeometry(0.038, 0.0018, 5, 24), DARK_STEEL, [X - 0.012, cupY + 0.03, z], [Math.PI / 2, 0, -0.5]);
     } else {
