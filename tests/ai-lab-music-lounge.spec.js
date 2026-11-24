@@ -66,7 +66,7 @@ test("lists ten tracks and defers all music modules and piano samples until play
   await expect(page.locator(".track-card")).toHaveCount(10);
   await expect(page.locator(".track-cover")).toHaveCount(10);
   await expect(page.locator(".track-cover img")).toHaveCount(10);
-  await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("窗邊的午後");
+  await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("晨曦");
   await expect(page.locator(".track-card").nth(9).locator("h3")).toHaveText("追劇夜");
   const coverImages = page.locator(".track-cover img");
   for (let index = 0; index < 10; index += 1) {
@@ -89,7 +89,7 @@ test("lists ten tracks and defers all music modules and piano samples until play
   await page.goto("/music-lounge/?lang=en");
   await expect(page.locator(".track-card")).toHaveCount(10);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("The Human–AI Music Lounge");
-  await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("Afternoon by the Window");
+  await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("Morning Light");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: path.join(evidence, "mobile-en.png"), fullPage: true });
   await page.setViewportSize({ width: 1440, height: 1000 });

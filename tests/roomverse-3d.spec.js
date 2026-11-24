@@ -1541,8 +1541,8 @@ test("Room 01 light and music: dust motes drift in strong sun only, a tap on a s
   await page.mouse.click(spot.x, spot.y); // a real tap on the speaker
   await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing, { timeout: 5000 }).toBe(true);
   await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).notes, { timeout: 8000 }).toBeGreaterThan(8);
-  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("窗邊的午後");
-  await expect(page.locator("#plantNote")).toContainText("窗邊的午後");
+  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("晨曦");
+  await expect(page.locator("#plantNote")).toContainText("晨曦");
   await page.mouse.click(spot.x, spot.y); // the second tap stops it
   await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
   await page.evaluate(() => window.__room.set("mood", "tv")); // series night plays its own cinematic piece
@@ -1606,10 +1606,10 @@ test("Room 01 the music plays on: one tap keeps the piece going on the real pian
   const spot = await page.evaluate(() => window.__room.speakerScreen());
   await page.mouse.click(spot.x, spot.y); // one tap on a speaker
   await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
-  expect((await state()).title).toBe("窗邊的午後");
+  expect((await state()).title).toBe("晨曦");
   await expect.poll(async () => (await state()).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
   await expect.poll(async () => (await state()).bars, { timeout: 12000, message: "the music is scheduled" }).toBeGreaterThan(1);
-  expect((await state()).title).toBe("窗邊的午後"); expect((await state()).group).toBe("day");
+  expect((await state()).title).toBe("晨曦"); expect((await state()).group).toBe("day");
   await page.waitForTimeout(62000); // longer than the old 60 s limit
   expect((await state()).playing, "no time limit").toBe(true);
   await page.mouse.click(spot.x, spot.y); // the next tap stops it
@@ -1646,12 +1646,12 @@ test("Room 01 the music follows the mood, the little robot hints at the record p
   await page.evaluate(() => window.__room.playMusic());
   const state = () => page.evaluate(() => window.__room.musicState());
   await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
-  expect((await state()).title).toBe("窗邊的午後");
+  expect((await state()).title).toBe("晨曦");
   await page.evaluate(() => window.__room.set("mood", "tv")); // series night while the music plays: it becomes the cinematic piece
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "series night plays the cinematic piece" }).toBe("追劇夜");
   expect((await state()).playing).toBe(true);
   await page.evaluate(() => window.__room.set("mood", "golden"));
-  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back to the bright piece" }).toBe("窗邊的午後");
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back to the bright piece" }).toBe("晨曦");
   await page.evaluate(() => window.__room.stopMusic());
   // a tap on the TV screen starts the music
   await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`);
@@ -1675,9 +1675,9 @@ test("Room 01 the window-side robot is the DJ: a tap starts the music with a cov
   await expect.poll(async () => (await page.evaluate(() => window.__room.robotPoint())).front).toBe(true);
   await tapRobot();
   await expect.poll(async () => (await state()).playing, { timeout: 8000, message: "a tap on the robot starts the music" }).toBe(true);
-  expect((await state()).title).toBe("窗邊的午後");
+  expect((await state()).title).toBe("晨曦");
   await expect(page.locator("#robotBubble [data-cover]"), "the bubble shows the first cover").toHaveAttribute("src", /room04-record-cover-0-v1\.webp/);
-  await expect(page.locator("#robotBubble [data-bubble-copy]")).toContainText("窗邊的午後");
+  await expect(page.locator("#robotBubble [data-bubble-copy]")).toContainText("晨曦");
   await page.waitForTimeout(1800); // the hop ends
   await tapRobot();
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the next tap changes the piece" }).toBe("追劇夜");
@@ -1687,15 +1687,15 @@ test("Room 01 the window-side robot is the DJ: a tap starts the music with a cov
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the third piece is Room 04's Bund swing" }).toBe("十里洋場");
   await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-3-v1\.webp/);
   await expect.poll(async () => (await state()).notes, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(20);
-  expect(await page.evaluate(() => window.__room.musicTracks?.() ?? null)).toEqual(["窗邊的午後", "追劇夜", "十里洋場", "午後上行"]);
+  expect(await page.evaluate(() => window.__room.musicTracks?.() ?? null)).toEqual(["晨曦", "追劇夜", "十里洋場", "午後上行"]);
   await page.waitForTimeout(1800);
   await tapRobot();
   await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the fourth piece is the ambient groove" }).toBe("午後上行"); // old -> new: 微光慢拍 -> 午後上行 (renamed 2026-11-24)
   await page.waitForTimeout(1800);
   await tapRobot();
-  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back" }).toBe("窗邊的午後");
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back" }).toBe("晨曦");
   await page.evaluate(() => window.__room.set("mood", "slow")); // a mood that is not series night does not undo the pick
-  expect((await state()).title).toBe("窗邊的午後");
+  expect((await state()).title).toBe("晨曦");
   await page.evaluate(() => window.__room.stopMusic());
   expect(errors).toEqual([]);
 });
@@ -1709,7 +1709,7 @@ test("Room 01 the record player shows its own card over the record player: the p
   await page.evaluate(() => window.__room.tapRecordPlayer());
   await expect.poll(async () => (await page.evaluate(() => window.__room.recordCard())).shown, { timeout: 8000, message: "the card pops up over the record player" }).toBe(true);
   const card = await page.evaluate(() => window.__room.recordCard());
-  expect(card.text).toContain("正在播放：窗邊的午後"); expect(card.text).toContain("下一首：追劇夜");
+  expect(card.text).toContain("正在播放：晨曦"); expect(card.text).toContain("下一首：追劇夜");
   expect(card.cover).toMatch(/room04-record-cover-0-v1\.webp/);
   await page.evaluate(() => window.__room.tapRecordPlayer()); // the next tap stops it, and the card goes
   await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);

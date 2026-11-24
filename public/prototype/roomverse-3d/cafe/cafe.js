@@ -1551,7 +1551,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
   const setArm = (value) => { armPivot.rotation.y = value; };
   const recordTrackListeners = [], recordStateListeners = [];
   const roomSound = createRoomSound(), rainBed = createRoomSound(), epicNight = createNightMusic();
-  let epicOn = false, synthKind = "epic"; // synthKind: which piece the shared night engine plays, "epic" (series night) or "day" (窗邊的午後, Paul 2026-11-22: Room 01's day piece joins this record's round as its fifth side). Series night: the record plays the epic orchestral piece (its own synthesis, like the synth fallback) instead of the record files
+  let epicOn = false, synthKind = "epic"; // synthKind: which piece the shared night engine plays, "epic" (series night) or "day" (晨曦, Paul 2026-11-22: Room 01's day piece joins this record's round as its fifth side). Series night: the record plays the epic orchestral piece (its own synthesis, like the synth fallback) instead of the record files
   const titles = roomSound.tracks();
   let recordTrack = -1, usingSynth = false;
   function announceRecord(index) {

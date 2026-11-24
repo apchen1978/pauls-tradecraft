@@ -2,7 +2,7 @@
 // major, livelier with a vibraphone layer, a cinematic piece for series night with more bass, and a real piano instead of the MIDI-like keyboard; two pieces are enough).
 // 2026-11-17 (later): the day piece is now Room 04's first record, 慢板, played faster by Room 04's own engine (see createRoomMusic at the end); this file's own engine plays the series-night piece. (Earlier: two pieces made with the browser's own audio synthesis plus a real sampled piano (piano.js: Salamander Grand Piano, CC BY 3.0, credited on the page). No song, melody or arrangement is borrowed:
 // everything is written here note by note.
-//   Day (the "day" group): Track 1 "窗邊的午後": C major, 96 beats a minute, a light bounce. A sixteen-bar form, all major chords. First half: Cmaj9, Fmaj9, Cadd9, G6/9, Fmaj9, Cadd9, D9, G7.
+//   Day (the "day" group): Track 1 "晨曦": C major, 96 beats a minute, a light bounce. A sixteen-bar form, all major chords. First half: Cmaj9, Fmaj9, Cadd9, G6/9, Fmaj9, Cadd9, D9, G7.
 //   Second half, a lift: Fmaj9, G6/9, Cmaj9, Cadd9, Fmaj9, Bbmaj9, D9, G7. Syncopated piano chord hits, a bouncing walking bass, a bright vibraphone layer that sparkles on the off-beats and doubles the
 //   melody an octave up in the second half, a whisper of ride and brushes.
 //   Series night (the "night" group): Track 2 "追劇夜" (rewritten 2026-11-22, see TRACKS): an epic D-minor piece at 84 beats a minute, sixteen bars: a hush of low piano and tremolo strings, a build with timpani and horns,
@@ -16,12 +16,12 @@ import { createNightMusic } from "./night-score.js?v=auto"; // the series-night 
 
 // Room 01's music: two pieces. The day piece (every mood except series night) is Room 04's first record, 慢板, played by Room 04's own music engine on the real piano, without the vinyl crackle, and
 // at 100 beats a minute instead of 58 (Paul, 2026-11-17: the café is Shanghai, slowly, but the living room at golden hour wants a brisker, brighter tempo; the Room 04 records themselves are unchanged).
-// In this room it keeps the name 窗邊的午後. The visitor may have heard it in the Shanghai café: a small echo between the rooms. Series night plays the cinematic piece above.
+// In this room it keeps the name 晨曦. The visitor may have heard it in the Shanghai café: a small echo between the rooms. Series night plays the cinematic piece above.
 export function createRoomMusic() {
   const night = createNightMusic(), day = createRoomSound(), piano = createPiano();
   let active = "day";
   return {
-    // Call from inside a tap. Paul 2026-11-23: track 0 is 窗邊的午後 again (Room 04's 慢板 at a brisk 100 bpm, as it was), 1 is series night (追劇夜), 2 is Room 04's Bund swing (十里洋場), 3 is 午後上行 (the ambient lo-fi groove,
+    // Call from inside a tap. Paul 2026-11-23: track 0 is 晨曦 again (Room 04's 慢板 at a brisk 100 bpm, as it was), 1 is series night (追劇夜), 2 is Room 04's Bund swing (十里洋場), 3 is 午後上行 (the ambient lo-fi groove,
     // a practice piece, from night-score.js). Returns true if it started.
     start(track = 0, options = {}) {
       night.stop(); day.stop();
@@ -32,10 +32,10 @@ export function createRoomMusic() {
     },
     stop() { day.stop(); night.stop(); },
     next() { if (active === "night" || active === "groove") night.next(); }, // QA: the cinematic piece goes round again; the day piece simply keeps going
-    tracks: () => ["窗邊的午後", "追劇夜", "十里洋場", "午後上行"],
+    tracks: () => ["晨曦", "追劇夜", "十里洋場", "午後上行"],
     state() {
       if (active === "night" || active === "groove") return { ...night.state(), ...(active === "groove" ? { track: 3, group: "day" } : { group: "night" }), piano: piano.ready() };
-      const d = day.state(), swing = active === "swing"; return { playing: d.playing, context: d.context, bars: d.bars, notes: d.notes, track: swing ? 2 : 0, title: swing ? "十里洋場" : "窗邊的午後", group: "day", playlist: false, piano: piano.ready() };
+      const d = day.state(), swing = active === "swing"; return { playing: d.playing, context: d.context, bars: d.bars, notes: d.notes, track: swing ? 2 : 0, title: swing ? "十里洋場" : "晨曦", group: "day", playlist: false, piano: piano.ready() };
     },
   };
 }

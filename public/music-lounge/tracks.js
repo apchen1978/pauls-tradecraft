@@ -1,11 +1,11 @@
 export const COPY = {
   zh: {
     title: "人機協作 Music Lounge",
-    subtitle: "從午後的鋼琴與爵士鼓，到夜色裡的旋律。",
+    subtitle: "從晨曦的鋼琴、午後的爵士鼓，到夜晚的旋律。",
     credit: "Paul × AI 共同創作",
     hint: "挑一首，點了再聽。一次播放一首。",
     listTitle: "挑一首聽",
-    listNote: "依聽感從午後排到夜晚。",
+    listNote: "依聽感從晨曦一路排到夜晚。",
     rooms: "在哪些房間聽得到",
     made: "怎麼做出來的",
     play: "播放",
@@ -21,11 +21,11 @@ export const COPY = {
   },
   en: {
     title: "The Human–AI Music Lounge",
-    subtitle: "From afternoon piano and jazz drums to music after dark.",
+    subtitle: "From morning light and piano, through the afternoon, to music after dark.",
     credit: "Paul × AI, co-created",
     hint: "Choose a track and press play. One track at a time.",
     listTitle: "Choose a track",
-    listNote: "Arranged by feel, from afternoon into the night.",
+    listNote: "Arranged by feel, from first light into the night.",
     rooms: "Hear it in",
     made: "How it was made",
     play: "Play",
@@ -43,8 +43,8 @@ export const COPY = {
 
 export const TRACKS = [
   {
-    id: "window-afternoon", title: { zh: "窗邊的午後", en: "Afternoon by the Window" }, rooms: ["Room 01"], engine: "cafe", index: 0, room01Day: true, cover: "/music-lounge/covers/window-afternoon.webp?v=1",
-    mood: { zh: "暖光裡輕輕搖擺", en: "A gentle swing in warm light" },
+    id: "window-afternoon", title: { zh: "晨曦", en: "Morning Light" }, rooms: ["Room 01"], engine: "cafe", index: 0, room01Day: true, cover: "/music-lounge/covers/window-afternoon.webp?v=1",
+    mood: { zh: "晨光裡輕輕搖擺", en: "A gentle swing in morning light" },
     made: { zh: "這首沿用 Room 04《慢板》的音樂資料，在 Room 01 以 100 BPM 播放。Room 01 版本不加黑膠雜音。", en: "This reuses the music written for Room 04’s “Adagio,” played at 100 BPM in Room 01. The Room 01 version leaves out the vinyl crackle." },
   },
   {
