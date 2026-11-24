@@ -111,12 +111,16 @@ function paintOvenPanelSheet(context, width, height, clock) {
         context.fillRect(x, y, w, h);
       }
     };
+    // Paul 2026-11-25 (found by comparing two live captures a minute apart: they were byte-identical). "00:08" was
+    // being read as four digits, so the colon was painted as a dim block and the minutes units were never drawn. Only
+    // the digits are digit glyphs now; the colon stays the two dots below.
+    const clockDigits = String(clock).replace(/[^0-9]/g, "").padEnd(4, "0").slice(0, 4);
     const digitGap = digitW * 0.26, colonW = digitW * 0.42;
-    const totalW = digitW * 4 + digitGap * 4 + colonW;
+    const totalW = digitW * 4 + digitGap * 3 + colonW; // three gaps between four digits, one beside the colon
     let ox = cx - totalW / 2;
     context.shadowColor = "rgba(255,170,82,0.75)"; context.shadowBlur = dh * 0.55;
     for (let i = 0; i < 4; i++) {
-      drawDigit(clock[i], ox); ox += digitW + digitGap;
+      drawDigit(clockDigits[i], ox); ox += digitW + digitGap;
       if (i === 1) {
         context.fillStyle = "rgba(255,182,96,1)";
         context.fillRect(ox - digitGap * 0.5, dy + dh * 0.3, stroke * 0.9, stroke * 0.9);
