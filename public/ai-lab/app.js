@@ -901,11 +901,18 @@ function renderSpirit() {
   $("spirit-end-kicker").textContent = x.close.kicker;
   $("spirit-end-title").textContent = x.close.title;
   $("spirit-end-body").replaceChildren(...spiritBlocks(x.close.blocks));
+  $("feature-portals-kicker").textContent = x.close.featureKicker;
+  $("feature-portals-title").textContent = x.close.featureTitle;
   $("gallery-kicker").textContent = x.close.galleryKicker;
   $("gallery-title").textContent = x.close.galleryTitle;
   $("gallery-description").textContent = x.close.galleryDescription;
   $("gallery-cta").textContent = x.close.galleryCta;
   $("gallery-link").href = `/gallery/?lang=${state.lang}`;
+  $("music-lounge-kicker").textContent = x.close.musicLoungeKicker;
+  $("music-lounge-title").textContent = x.close.musicLoungeTitle;
+  $("music-lounge-description").textContent = x.close.musicLoungeDescription;
+  $("music-lounge-cta").textContent = x.close.musicLoungeCta;
+  $("music-lounge-link").href = `/music-lounge/?lang=${state.lang}`;
 }
 
 function render() {

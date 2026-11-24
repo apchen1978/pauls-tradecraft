@@ -28,10 +28,16 @@ export const SPIRIT = {
     close: {
       kicker: "最後",
       title: "把門開得更大",
-      galleryKicker: "從 AI Lab 延伸的一組創作",
+      featureKicker: "人與 AI 一起創作",
+      featureTitle: "畫畫與音樂，兩種合作方式",
+      galleryKicker: "畫作 × AI",
       galleryTitle: "人機協作畫廊",
-      galleryDescription: "從港口晨光到冬夜散場，看看一個想法如何長成一幅畫。",
+      galleryDescription: "人定方向、挑選與修整，AI 協助把想法畫成作品。",
       galleryCta: "走進畫廊",
+      musicLoungeKicker: "音樂 × AI",
+      musicLoungeTitle: "人機協作 Music Lounge",
+      musicLoungeDescription: "Paul × AI 共同創作十首曲子，從午後聽到夜晚。",
+      musicLoungeCta: "走進 Music Lounge",
       blocks: [
         {
           h: "商業與創作，互相餵養",
@@ -97,10 +103,16 @@ export const SPIRIT = {
     close: {
       kicker: "AND FINALLY",
       title: "Opening the door wider",
-      galleryKicker: "A creative collection beyond AI Lab",
+      featureKicker: "People and AI, creating together",
+      featureTitle: "Art and music, two ways of working together",
+      galleryKicker: "Artwork × AI",
       galleryTitle: "The Human–AI Gallery",
-      galleryDescription: "From a sunlit harbour to a quiet winter stage, see an idea take shape as a painting.",
+      galleryDescription: "Paul shapes the direction; AI helps turn ideas into images.",
       galleryCta: "Enter the gallery",
+      musicLoungeKicker: "Music × AI",
+      musicLoungeTitle: "The Human–AI Music Lounge",
+      musicLoungeDescription: "Ten tracks created by Paul and AI, from afternoon to night.",
+      musicLoungeCta: "Enter the Music Lounge",
       blocks: [
         {
           h: "Business and creation feed each other",
