@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=4";
+import { COPY, TRACKS } from "./tracks.js?v=5";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];

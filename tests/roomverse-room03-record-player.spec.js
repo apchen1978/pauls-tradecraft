@@ -71,8 +71,8 @@ test("Room 03 a glowing ring points at the record player; one tap plays West Coa
   await expect.poll(async () => (await state()).bay.piano, { timeout: 20000, message: "the real piano samples load after the tap" }).toBe(true);
   await expect.poll(async () => (await state()).bay.notes, { timeout: 15000 }).toBeGreaterThan(12);
   expect((await audioFiles()).length, "the piano samples were fetched by the tap").toBeGreaterThan(0);
-  // With no second tap, the next piece follows on its own once the first has played through its sixteen bars (about 42 s).
-  await expect.poll(async () => (await state()).side, { timeout: 90000, intervals: [1000], message: "布魯克林窗台 follows by itself" }).toBe(1);
+  // With no second tap, the next piece follows once 灣區晴日 has played its 24 bars (about 63 s).
+  await expect.poll(async () => (await state()).side, { timeout: 120000, intervals: [1000], message: "布魯克林窗台 follows by itself" }).toBe(1);
   expect((await state()).bay.playing, "the first piece has stopped").toBe(false);
   await expect.poll(async () => (await state()).windowsill.playing, { timeout: 8000 }).toBe(true);
   expect((await state()).windowsill.title).toBe("布魯克林窗台");

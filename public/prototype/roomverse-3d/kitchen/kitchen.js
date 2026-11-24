@@ -3,9 +3,9 @@ import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
-import { createRoomRecord } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
+import { createRoomRecord, RECORD_A_BARS } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: movie night plays the epic orchestral piece of Room 01
-import { createRoomSound } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
+import { createRoomSound, CAFE_ALLEY_BARS } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
 import { createBayRecord, BAY_BARS } from "./sound.js?v=auto"; // Room 03's own piece "灣區晴日", played first
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
@@ -7382,7 +7382,7 @@ export async function start({ stage, onReady = () => {} }) {
   const recordBay = createBayRecord(), recordA = createRoomRecord(), recordB = createRoomSound(), recordEpic = createNightMusic();
   // [engine, bars to play once through, how to start it]. 午後弄堂 is about 5 dB softer than the others (measured), so it plays 1.4x louder here (+3 dB), as before.
   // 午後上行 (side 4) is a 42-bar piece (TRACKS[1].formBars in night-score.js); a count of 16 cut it off after about 38 s of its 101 s.
-  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, 16, () => recordA.start(0)], [recordB, 12, () => recordB.start(1, false, { playlist: false, level: 1.4 })], [recordEpic, 16, () => recordEpic.start(0, { playlist: false })], [recordEpic, 42, () => recordEpic.start(1, { playlist: false })]];
+  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, RECORD_A_BARS, () => recordA.start(0)], [recordB, CAFE_ALLEY_BARS, () => recordB.start(1, false, { playlist: false, level: 1.4 })], [recordEpic, 16, () => recordEpic.start(0, { playlist: false })], [recordEpic, 42, () => recordEpic.start(1, { playlist: false })]]; // 16 is 追劇夜, 42 is 午後上行 v36; neither form was extended
   let recordSide = -1; // -1 stopped, 0 灣區晴日, 1 布魯克林窗台, 2 午後弄堂, 3 追劇夜 (the epic orchestral piece; it is the first piece when the mood is movie night), 4 晨曦 (Room 01's day piece, Paul 2026-11-22; the same night engine, its second piece)
   let syncRecordMotion = null; // Card I: set once the record player is built; turns the platter and drops the arm while a piece plays
   let recordTimer = 0;

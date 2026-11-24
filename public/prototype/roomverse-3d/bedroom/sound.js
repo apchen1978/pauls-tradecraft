@@ -10,7 +10,8 @@
 import { createPiano } from "../piano.js?v=auto";
 const realPiano = createPiano(), PIANO_K = 3.0; // PIANO_K scales the synth-era levels to the louder piano samples
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
-const BPM = 84, STEP = 60 / BPM / 4, SWING = 0.2, BAR_STEPS = 16, FORM_BARS = 16; // a bar is sixteen steps; the odd steps lean late by 20 percent of a step
+const BPM = 84, STEP = 60 / BPM / 4, SWING = 0.2, BAR_STEPS = 16, FORM_BARS = 32; // sixteen steps a bar; the form is the old sixteen bars, then that shape again, then a two-bar cadence
+export const RECORD_A_BARS = FORM_BARS; // Room 03 plays side A once through and then moves on
 const CHORDS = [
   { bass: 38, comp: [53, 57, 60, 64] },   // Dm9
   { bass: 43, comp: [53, 59, 62, 64] },   // G13
@@ -93,35 +94,40 @@ export function createRoomRecord() {
   };
   const scheduleBarA = () => {
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
-    const section = barIndex % FORM_BARS, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
-    // the beat: a dusty boom-bap, the kick drops out in the breakdown
-    if (section !== 12 && section !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
-    snare(at(4) + jitter(5), 0.5); snare(at(12) + jitter(5), 0.55); if (barIndex % 2) snare(at(15), 0.12); // the backbeat, with a ghost note
-    const hatStep = section >= 8 && section <= 11 ? 1 : 2; for (let i = 0; i < BAR_STEPS; i += hatStep) hat(at(i) + jitter(4), i % 4 === 0 ? 0.13 : 0.075, false); // eighths, sixteenths in the third four bars
-    if (barIndex % 4 === 3) hat(at(14), 0.12, true);
+    const section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
+    // the beat: a dusty boom-bap, the kick drops out in the breakdown and on the final two bars
+    if (!ending && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
+    if (!ending) { snare(at(4) + jitter(5), 0.5); snare(at(12) + jitter(5), 0.55); if (barIndex % 2) snare(at(15), 0.12); } // the backbeat, with a ghost note
+    const lift = section >= 16 && section < FORM_BARS - 4; // the second pass is the fuller chorus: same hat level, sixteenths instead of eighths, then the cadence thins out
+    const hatStep = !ending && (lift || (local >= 8 && local <= 11)) ? 1 : 2; for (let i = 0; i < BAR_STEPS; i += hatStep) hat(at(i) + jitter(4), i % 4 === 0 ? 0.13 : 0.075, false);
+    if (!ending && barIndex % 4 === 3) hat(at(14), 0.12, true);
     // the sub bass
-    bass(at(0), chord.bass, 0.34, STEP * 6); bass(at(7), chord.bass + (barIndex % 2 ? 7 : 0), 0.24, STEP * 2); bass(at(10), chord.bass, 0.28, STEP * 4);
+    bass(at(0), ending && section === FORM_BARS - 1 ? 38 : chord.bass, 0.34, STEP * (ending ? 12 : 6)); if (!ending) { bass(at(7), chord.bass + (barIndex % 2 ? 7 : 0), 0.24, STEP * 2); bass(at(10), chord.bass, 0.28, STEP * 4); }
     // the piano comp: a rolled chord on the one, then two short stabs
-    chord.comp.forEach((midi, i) => piano(at(0) + i * 0.028 + jitter(5), midi, vary(0.075), STEP * 9, -0.15 + i * 0.1));
-    for (const [i, gain, length] of [[6, 0.04, 2], [10, 0.045, 3]]) chord.comp.slice(1).forEach((midi, k) => piano(at(i) + k * 0.02, midi, vary(gain), STEP * length, 0.1 - k * 0.08));
-    // the melody, a little behind the beat: absent for the first two bars, then phrase A, phrase B, then A again
-    if (section >= 2) { const phrase = section >= 8 && section <= 11 ? MELODY_B : MELODY_A; for (const [i, midi, length] of phrase[barIndex % 4]) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); }
+    const comp = ending && section === FORM_BARS - 1 ? [50, 53, 57, 62] : chord.comp; // the last bar is a plain D minor
+    comp.forEach((midi, i) => piano(at(0) + i * 0.028 + jitter(5), midi, vary(0.075), STEP * (ending ? 14 : 9), -0.15 + i * 0.1));
+    if (!ending) for (const [i, gain, length] of [[6, 0.04, 2], [10, 0.045, 3]]) chord.comp.slice(1).forEach((midi, k) => piano(at(i) + k * 0.02, midi, vary(gain), STEP * length, 0.1 - k * 0.08));
+    // the melody, a little behind the beat: absent for the first two bars of each sixteen, then phrase A, phrase B, then A again; the last two bars cadence on D
+    if (ending) { const line = section === FORM_BARS - 2 ? [[2, 69, 6], [10, 67, 4]] : [[0, 62, 14]]; for (const [i, midi, length] of line) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); }
+    else if (local >= 2) { const phrase = local >= 8 && local <= 11 ? MELODY_B : MELODY_A; for (const [i, midi, length] of phrase[local % 4]) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); }
     barIndex += 1; nextTime += BAR_STEPS * STEP;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
   const scheduleBarB = () => { // side B: slower, softer, more space
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
-    const STEPB = 60 / BPM_B / 4, section = barIndex % FORM_BARS, chord = CHORDS_B[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEPB + (i % 2 ? SWING_B * STEPB : 0);
-    // a brushed backbeat from bar 2: a soft kick on the one (and the "and" of three on odd bars), a light snare on two and four, quiet eighth-note hats; bars 12 and 13 thin out to hats
-    if (section >= 2 && section !== 12 && section !== 13) { kick(at(0) + jitter(6), 0.5); if (barIndex % 2) kick(at(10) + jitter(6), 0.3); snare(at(4) + jitter(6), 0.2); snare(at(12) + jitter(6), 0.22); }
-    if (section >= 2) for (let i = 0; i < BAR_STEPS; i += 2) hat(at(i) + jitter(5), i % 4 === 0 ? 0.075 : 0.045, false);
-    // the bass: the root on the one, the fifth on beat three
-    bass(at(0), chord.bass, 0.3, STEPB * 7); bass(at(8), chord.bass + 7, 0.2, STEPB * 5);
+    const STEPB = 60 / BPM_B / 4, section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = CHORDS_B[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEPB + (i % 2 ? SWING_B * STEPB : 0);
+    // a brushed backbeat from bar 2: a soft kick on the one (and the "and" of three on odd bars), a light snare on two and four, quiet eighth-note hats; bars 12 and 13 of each half thin out to hats
+    if (!ending && local >= 2 && local !== 12 && local !== 13) { kick(at(0) + jitter(6), 0.5); if (barIndex % 2) kick(at(10) + jitter(6), 0.3); snare(at(4) + jitter(6), 0.2); snare(at(12) + jitter(6), 0.22); }
+    if (local >= 2 || ending) for (let i = 0; i < BAR_STEPS; i += 2) hat(at(i) + jitter(5), i % 4 === 0 ? 0.075 : 0.045, false);
+    // the bass: the root on the one, the fifth on beat three; the last bar holds F
+    bass(at(0), ending && section === FORM_BARS - 1 ? 41 : chord.bass, 0.3, STEPB * (ending ? 14 : 7)); if (!ending) bass(at(8), chord.bass + 7, 0.2, STEPB * 5);
     // the piano comp: one long rolled chord, a quieter answer on beat three
-    chord.comp.forEach((midi, i) => piano(at(0) + i * 0.035 + jitter(6), midi, vary(0.062), STEPB * 12, -0.15 + i * 0.1));
-    chord.comp.slice(1).forEach((midi, k) => piano(at(8) + k * 0.024, midi, vary(0.032), STEPB * 7, 0.1 - k * 0.08));
-    // the melody, high and slow: absent for the first two bars, phrase A, then the higher phrase B, then A again
-    if (section >= 2) { const phrase = section >= 8 && section <= 11 ? MELODY_B_B : MELODY_B_A; for (const [i, midi, length] of phrase[barIndex % 4]) piano(at(i) + 0.018 + jitter(9), midi, vary(0.085), STEPB * (length + 1), 0.2); }
+    const comp = ending && section === FORM_BARS - 1 ? [53, 57, 60, 65] : chord.comp; // Fmaj7, the home chord
+    comp.forEach((midi, i) => piano(at(0) + i * 0.035 + jitter(6), midi, vary(0.062), STEPB * (ending ? 14 : 12), -0.15 + i * 0.1));
+    if (!ending) chord.comp.slice(1).forEach((midi, k) => piano(at(8) + k * 0.024, midi, vary(0.032), STEPB * 7, 0.1 - k * 0.08));
+    // the melody, high and slow: absent for the first two bars of each half, phrase A, then the higher phrase B, then A again; the last two bars cadence on F
+    if (ending) { const line = section === FORM_BARS - 2 ? [[2, 72, 6], [10, 71, 4]] : [[0, 65, 14]]; for (const [i, midi, length] of line) piano(at(i) + 0.018 + jitter(9), midi, vary(0.085), STEPB * (length + 1), 0.2); }
+    else if (local >= 2) { const phrase = local >= 8 && local <= 11 ? MELODY_B_B : MELODY_B_A; for (const [i, midi, length] of phrase[local % 4]) piano(at(i) + 0.018 + jitter(9), midi, vary(0.085), STEPB * (length + 1), 0.2); }
     barIndex += 1; nextTime += BAR_STEPS * STEPB;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
   };
