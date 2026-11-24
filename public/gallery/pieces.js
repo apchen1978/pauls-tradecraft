@@ -352,6 +352,46 @@ export const PIECES = [
     caption: { zh: "Room 03 感恩節電視的畫面，是想像的城市遊行，不是某個真實節慶的紀錄。", en: "The picture on the Room 03 TV at Thanksgiving. An imagined city parade, not a record of a real event." },
     made: { zh: "Paul 想讓感恩節的電視有遊行的熱鬧；AI 繪製這幅秋日大街，放進 Room 03 的電視，這裡是畫廊版。", en: "Paul wanted Thanksgiving on the TV to feel like a parade. AI painted this autumn avenue for the Room 03 TV, and this is the gallery copy." },
   },
+  {
+    id: "room01-amber-fig", date: "2026-11-25", frame: "plain", width: 1120, height: 1400,
+    image: "assets/room01-amber-fig.webp", imageSmall: "assets/room01-amber-fig-mobile.webp", thumbnail: "assets/room01-amber-fig-thumb.webp",
+    title: { zh: "夕光裡的無花果", en: "Figs in Amber Light" },
+    alt: { zh: "夕光照著陶壺、無花果葉和桌上的藍布。", en: "Late sun on an earthenware jug, fig leaves and blue linen." },
+    caption: { zh: "Room 01 沙發上方畫框的可選掛畫。", en: "An optional print for the frame above the Room 01 sofa." },
+    made: { zh: "AI 繪製這幅畫。以陶壺與枝葉做大色塊，讓畫掛遠了仍看得清。", en: "AI painted this piece. Broad shapes make the jug and leaves readable from across the room." },
+  },
+  {
+    id: "room02-blue-hour", date: "2026-11-25", frame: "plain", width: 1440, height: 810,
+    image: "assets/room02-blue-hour.webp", imageSmall: "assets/room02-blue-hour-mobile.webp", thumbnail: "assets/room02-blue-hour-thumb.webp",
+    title: { zh: "布魯克林的藍色時刻", en: "Brooklyn at Blue Hour" },
+    alt: { zh: "暮色中的紅磚屋頂、逃生梯、月牙和一扇暖色窗。", en: "Brick rooftops, a fire escape, a crescent and a warm window at dusk." },
+    caption: { zh: "Room 02 夜晚與追劇心情的床邊掛畫。", en: "A print beside the Room 02 bed in late-night and series moods." },
+    made: { zh: "AI 繪製這幅畫。畫廊保留橫幅，房間取暖窗和逃生梯配合直式畫框。", en: "AI painted this piece. The gallery shows the panorama. The portrait crop in the room keeps the warm window and fire escape." },
+  },
+  {
+    id: "room03-lemons", date: "2026-11-25", frame: "plain", width: 1280, height: 960,
+    image: "assets/room03-lemons.webp", imageSmall: "assets/room03-lemons-mobile.webp", thumbnail: "assets/room03-lemons-thumb.webp",
+    title: { zh: "藍盤上的檸檬", en: "Lemons on a Blue Plate" },
+    alt: { zh: "鈷藍盤上有三顆檸檬和幾片葉子，旁邊是條紋布巾。", en: "Three lemons and loose leaves on a cobalt plate beside a striped tea towel." },
+    caption: { zh: "Room 03 窗邊燈上方畫框的可選掛畫。", en: "An optional print for the frame above the lamp in Room 03." },
+    made: { zh: "AI 繪製這幅畫。以鈷藍襯明黃，並保留厚塗筆觸。", en: "AI painted this piece. Cobalt sets off the yellow fruit, with thick strokes left visible." },
+  },
+  {
+    id: "room04-rain-lane", date: "2026-11-25", frame: "plain", width: 1280, height: 960,
+    image: "assets/room04-rain-lane.webp", imageSmall: "assets/room04-rain-lane-mobile.webp", thumbnail: "assets/room04-rain-lane-thumb.webp",
+    title: { zh: "雨後弄堂", en: "Lane After the Rain" },
+    alt: { zh: "法國梧桐在紅磚弄堂上方伸展，撐傘的行人走過倒映咖啡館暖光的路面。", en: "A plane tree stretches over a red-brick lane as a pedestrian with an umbrella passes warm reflections from a café." },
+    caption: { zh: "Room 04 咖啡館門旁的另一組掛畫，描繪想像中的上海街巷。", en: "An imagined Shanghai lane in an alternate set of prints by the Room 04 café door." },
+    made: { zh: "AI 參考愚園路的梧桐、紅磚老屋和弄堂小店，畫出這處想像的街角。", en: "AI painted this imagined corner using Yuyuan Road’s plane trees, brick houses and lane shops as references." },
+  },
+  {
+    id: "room01-alishan-cloud-sea", date: "2026-11-25", frame: "plain", width: 1440, height: 960,
+    image: "assets/room01-alishan-cloud-sea.webp", imageSmall: "assets/room01-alishan-cloud-sea-mobile.webp", thumbnail: "assets/room01-alishan-cloud-sea-thumb.webp",
+    title: { zh: "阿里山・雲海列車", en: "Alishan Above the Clouds" },
+    alt: { zh: "紅色林鐵列車沿著濕潤的山路轉彎，山谷鋪滿雲海。", en: "A red forest railway train rounds a rain-darkened mountain curve above a valley filled with clouds." },
+    caption: { zh: "Room 01 沙發上方的可選掛畫，畫的是想像中的阿里山林鐵一景。", en: "An imagined Alishan Forest Railway scene for the frame above the Room 01 sofa." },
+    made: { zh: "Paul 想把紅車與彎軌留在畫裡，並加入阿里山雲海。AI 依林鐵紅色柴油機關車的形象重新構圖。", en: "Paul wanted to keep the red railcar and curved track and add Alishan’s sea of clouds. AI recomposed the scene around the forest railway’s red diesel locomotives." },
+  },
 ];
 
 export function validatePieces(pieces) {

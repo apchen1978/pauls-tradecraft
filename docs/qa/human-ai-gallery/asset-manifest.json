@@ -1207,5 +1207,160 @@
         "sha256": "e3cb9090bcdf0b23e220bdfe3da22f29dd8b17093ac129fbbe8b3fc30342fe5f"
       }
     ]
+  },
+  {
+    "id": "room01-amber-fig",
+    "source": "docs/gallery/sources/room01-amber-fig-source.webp",
+    "sourceSha256": "ea10bc48afdeb04876d74f83537fe5b8a06adbd886c3387cd4c00b682e445d6e",
+    "derivatives": [
+      {
+        "file": "room01-amber-fig.webp",
+        "width": 1120,
+        "height": 1400,
+        "bytes": 315182,
+        "quality": 86,
+        "sha256": "1284be0ce098d43e623ece5aadad548fcb10b0abae92be80106e1734d7235c64"
+      },
+      {
+        "file": "room01-amber-fig-mobile.webp",
+        "width": 800,
+        "height": 1000,
+        "bytes": 138248,
+        "quality": 82,
+        "sha256": "7c6bd08a4e9d034e5a5438b4da66ffd4e1fe3731f2535fcb2c3197f2ffb7f337"
+      },
+      {
+        "file": "room01-amber-fig-thumb.webp",
+        "width": 480,
+        "height": 600,
+        "bytes": 40082,
+        "quality": 77,
+        "sha256": "38433bba76dfec3e35115d7ce8d7f85728ce7a321f715890a3dfa03ad9401fea"
+      }
+    ]
+  },
+  {
+    "id": "room02-blue-hour",
+    "source": "docs/gallery/sources/room02-blue-hour-source.webp",
+    "sourceSha256": "370422649977e19c125f96d5f65a6666b4fc463814116763a66966540909eff5",
+    "derivatives": [
+      {
+        "file": "room02-blue-hour.webp",
+        "width": 1440,
+        "height": 810,
+        "bytes": 245892,
+        "quality": 86,
+        "sha256": "6801504fa82bd56ce986f3fe3767e6d058ee456681deabe6d6a891f31ef6f0d1"
+      },
+      {
+        "file": "room02-blue-hour-mobile.webp",
+        "width": 800,
+        "height": 450,
+        "bytes": 68570,
+        "quality": 82,
+        "sha256": "facb7c72f7a500ec0ba3c29e8724cf0c5fb10336aa5afccc7c1e05c2eae60ac1"
+      },
+      {
+        "file": "room02-blue-hour-thumb.webp",
+        "width": 480,
+        "height": 270,
+        "bytes": 20678,
+        "quality": 77,
+        "sha256": "31bcc1aae78c4e363f8feeaf76a75357be618682f5f03a60cd8e30b649674750"
+      }
+    ]
+  },
+  {
+    "id": "room03-lemons",
+    "source": "docs/gallery/sources/room03-lemons-source.webp",
+    "sourceSha256": "5afe1565b949f2b19dc1ba249a4641d2a334dc7620fca152055eb4b4a288d07c",
+    "derivatives": [
+      {
+        "file": "room03-lemons.webp",
+        "width": 1280,
+        "height": 960,
+        "bytes": 372060,
+        "quality": 86,
+        "sha256": "6706f47906b646e067c922b27d9947db5469e5ed454afb3ba863ee594dd7146b"
+      },
+      {
+        "file": "room03-lemons-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 133048,
+        "quality": 82,
+        "sha256": "27db57cff79db36851643d959b28b2a3c646de72b61d47224b9dea43ce0c77cc"
+      },
+      {
+        "file": "room03-lemons-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 40950,
+        "quality": 77,
+        "sha256": "e93dd4511af69706a2ee528197a1cf30c0f7e658130db434cc693bdc0394f92d"
+      }
+    ]
+  },
+  {
+    "id": "room04-rain-lane",
+    "source": "docs/gallery/sources/room04-rain-lane-source.webp",
+    "sourceSha256": "82389d855a51562dab4fcd4efd5e6b2ddf955342c90bcd4b51db64bcf2858c33",
+    "derivatives": [
+      {
+        "file": "room04-rain-lane.webp",
+        "width": 1280,
+        "height": 960,
+        "bytes": 383010,
+        "quality": 86,
+        "sha256": "e8a3c1a3d0711e062ad3559de16f26a6126c6ba5bbed76785fc13a840da96c30"
+      },
+      {
+        "file": "room04-rain-lane-mobile.webp",
+        "width": 800,
+        "height": 600,
+        "bytes": 138748,
+        "quality": 82,
+        "sha256": "8ece11de07ed96c66ee8140a2ff451fc670eacd5399c7578f8f658ed59553a9a"
+      },
+      {
+        "file": "room04-rain-lane-thumb.webp",
+        "width": 480,
+        "height": 360,
+        "bytes": 39536,
+        "quality": 77,
+        "sha256": "59c674ccbf03267525866fdc59422273f1403ef27b0ebe1002dfee3fb7b887a4"
+      }
+    ]
+  },
+  {
+    "id": "room01-alishan-cloud-sea",
+    "source": "docs/gallery/sources/room01-alishan-cloud-sea-source.webp",
+    "sourceSha256": "c64488f62ad467d7c6e266775115d4b45caad8827101f65059d0f4ad6c85b89e",
+    "derivatives": [
+      {
+        "file": "room01-alishan-cloud-sea.webp",
+        "width": 1440,
+        "height": 960,
+        "bytes": 421508,
+        "quality": 86,
+        "sha256": "d6d1cf3ac5d799a555871af1868b3bd4d85839ce19c41b3a1745481a8a4841ba"
+      },
+      {
+        "file": "room01-alishan-cloud-sea-mobile.webp",
+        "width": 800,
+        "height": 533,
+        "bytes": 133378,
+        "quality": 82,
+        "sha256": "8fdc5f39810e5177978f880b1cea85028e13bdb6844de86674c44b731be4c081"
+      },
+      {
+        "file": "room01-alishan-cloud-sea-thumb.webp",
+        "width": 480,
+        "height": 320,
+        "bytes": 40614,
+        "quality": 77,
+        "sha256": "46dac60ad949ad36af23b38781feee79fa8ece482a603268092a5cb9ce3cb53b"
+      }
+    ]
   }
 ]

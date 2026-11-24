@@ -1277,6 +1277,8 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     ridge: { zh: "晨光山脊", en: "Morning ridge" },
     paper: { zh: "紙剪植物", en: "Paper-cut leaves" },
     inkmoon: { zh: "墨與金月", en: "Ink and gold moon" },
+    "amber-fig": { zh: "夕光裡的無花果", en: "Figs in Amber Light" },
+    "alishan-cloud-sea": { zh: "阿里山・雲海列車", en: "Alishan Above the Clouds" },
   };
   const prints = {}, printLoader = new THREE.TextureLoader();
   const printMat = new THREE.MeshStandardMaterial({ roughness: .85 });
@@ -1290,7 +1292,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const AX = .35, AY = 1.70, AW = 1.07, AH = .76; // a larger frame for the 3:2 paintings; its bottom edge stays where it was (1.29 m), above the LED strip
   add(new THREE.BoxGeometry(AW + .06, AH + .06, .035), new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 }), AX, AY, BACK + .02);
   add(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), AX, AY, BACK + .038, false);
-  add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false); // .93 x .62 m (3:2): the new paintings are 1536 x 1024, the old prints 1200 x 766 are drawn a little wide, which their flat shapes tolerate
+  const sofaPrint = add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false);
   const rugMat = new THREE.MeshStandardMaterial({ roughness: 1 });
   const rug = add(new THREE.BoxGeometry(2.6, .012, 1.65), rugMat, SX, .006, SZ + .95, false);
   rug.name = "living-room-rug"; rug.rotation.y = .0873; rug.position.z -= .08;
@@ -3257,6 +3259,7 @@ let lanternMat = null;
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
     led.visible = !!m.led;
     printMat.map = printFor(state.print); printMat.needsUpdate = true;
+    sofaPrint.scale.x = state.print === "amber-fig" ? (AH - .14) * .8 / (AW - .14) : 1;
     easeLights();
     linen.color.set(CURTAINS[state.curtain].color);
     const w = WALLS[state.wall];

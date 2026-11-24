@@ -1869,12 +1869,22 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Codex's three
   // American city posters (batch 14: San Francisco, New York, Los Angeles; Paul asked for pictures that fit an American flat) in thin oak frames,
   // each 50 x 67 cm with its cream paper border, 10 cm apart, centred over the bed at 1.55 m.
+  let brooklynPrint, daytimeBrooklyn, blueHourBrooklyn;
+  function updateBrooklynPrint(mood) {
+    const isNight = mood === "night" || mood === "series";
+    if (isNight && !blueHourBrooklyn) {
+      blueHourBrooklyn = art("room02-blue-hour-frame-v1.webp", { apply: () => updateBrooklynPrint(live.mood) });
+    }
+    brooklynPrint.map = isNight && blueHourBrooklyn?.image ? blueHourBrooklyn : daytimeBrooklyn;
+    brooklynPrint.needsUpdate = true;
+  }
   { const PW = .5, PH = .5 * 4 / 3, GAP = .1, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
     const frameOak = new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 });
     ["san-francisco", "new-york", "brooklyn"].forEach((city, i) => {
       const x = (i - 1) * (PW + GAP + .03), fr = new THREE.Mesh(new THREE.BoxGeometry(PW + .03, PH + .03, .03), frameOak); fr.position.set(x, 0, 0); fr.castShadow = true; fr.receiveShadow = true; g.add(fr);
       const tex = texLoader.load(new URL(`../art/room02-city-${city}${compact ? "-mobile" : ""}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
       const pic = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: tex, roughness: .85 })); pic.position.set(x, 0, .0155); pic.receiveShadow = true; g.add(pic);
+      if (city === "brooklyn") { brooklynPrint = pic.material; daytimeBrooklyn = tex; }
     }); }
   // (2) Room 01's glass planning board, on the west wall beside the desk, between the desk and the plant (its own words: a work list, the red line is
   // the one that matters). A glass slab on four brass stand-offs, a small oak ledge with two black markers and a red one.
@@ -2230,6 +2240,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
     applyDeckLed(name); // the deck's power lamp: its mood level (dim in daylight, bright at night) when stopped, fully lit while the record plays
     applyTv(name);
+    updateBrooklynPrint(name);
     setBlind(m.blind);
     applyEnv(name);
     for (const sp of sprites) sp.material.color.setScalar(SPRITE_TINT[name] ?? 1);
@@ -2424,6 +2435,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
       painted: { ...painted },
+      brooklynPrint: brooklynPrint.map?.image?.src?.split("/").pop() ?? null,
       mood, blind: +((wTop - blindBar.position.y).toFixed(3)),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
