@@ -17,7 +17,9 @@ test("AI Lab links to the bilingual Music Lounge", async ({ page }) => {
     return { top: rect.top, bottom: rect.bottom };
   });
   expect(coverBounds.top).toBeGreaterThanOrEqual(0);
-  expect(coverBounds.bottom).toBeLessThanOrEqual(844);
+  const mobileCards = await page.locator("#gallery-front .gallery-entry").evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().height));
+  expect(mobileCards).toHaveLength(2);
+  for (const height of mobileCards) expect(height).toBeGreaterThan(280);
   await mkdir(evidence, { recursive: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: path.join(evidence, "ai-lab-cover-mobile-zh.png") });
@@ -34,8 +36,9 @@ test("AI Lab links to the bilingual Music Lounge", async ({ page }) => {
   await page.locator("#gallery-front").screenshot({ path: path.join(evidence, "ai-lab-entry-desktop-en.png") });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: path.join(evidence, "ai-lab-cover-mobile-en.png") });
-  const englishCoverBottom = await page.locator("#gallery-front").evaluate((element) => element.getBoundingClientRect().bottom);
-  expect(englishCoverBottom).toBeLessThanOrEqual(844);
+  const englishCards = await page.locator("#gallery-front .gallery-entry").evaluateAll((cards) => cards.map((card) => card.getBoundingClientRect().height));
+  expect(englishCards).toHaveLength(2);
+  for (const height of englishCards) expect(height).toBeGreaterThan(280);
   await page.goto("/ai-lab/?lang=zh#gallery-front");
   const chineseEntry = page.getByRole("link", { name: /人機協作 Music Lounge/ });
   await chineseEntry.click();

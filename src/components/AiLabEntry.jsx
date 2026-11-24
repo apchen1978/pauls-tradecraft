@@ -12,7 +12,7 @@ export default function AiLabEntry() {
   return (
     <section id="ai-lab" aria-labelledby="ai-lab-heading" className="ai-lab-highlight scroll-mt-24 border-b border-bone/10 text-bone">
       <div className="mx-auto max-w-7xl px-5 py-16 md:px-6 md:py-24">
-        <div className="grid items-center gap-8 rounded-card border border-bone/20 bg-pine/55 p-5 shadow-[0_24px_64px_-40px_rgba(5,20,26,.8)] md:gap-10 md:p-9 lg:grid-cols-[0.88fr_1.12fr] lg:gap-12 lg:p-12">
+        <div className="ai-lab-panel grid items-center gap-8 rounded-card border p-5 md:gap-10 md:p-9 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12 lg:p-12">
           <div className="min-w-0">
             <p className="font-mono text-xs tracking-[0.12em] text-gold md:text-sm">{a.kicker}</p>
             <h2 id="ai-lab-heading" className="mt-5 max-w-[13ch] text-[2.55rem] font-semibold leading-[1.08] tracking-[-0.035em] text-bone md:text-[3.7rem]">{a.title}</h2>
