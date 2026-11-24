@@ -1,5 +1,5 @@
 // Room 03's own record (Paul, 2026-11-18: Room 03 is a Bay Area flat; its record player only played pieces borrowed from Room 02 and Room 04, so give it one new piece of its own, played first).
-// "灣區午後" / "Bay Area Afternoon": a light, sunny West Coast loop at 92 beats a minute, nearly straight eighths with a little lift, in G major: Gmaj9, Em9, Cmaj9 and D6/9 (I-vi-IV-V with
+// "灣區晴日" / "West Coast Sun": a light, sunny West Coast loop at 92 beats a minute, nearly straight eighths with a little lift, in G major: Gmaj9, Em9, Cmaj9 and D6/9 (I-vi-IV-V with
 // open voicings, no minor turn at the end, so it keeps rising). A soft bossa-style bass (root, fifth on the "and" of two, root, fifth), a rim click and a shaker made from noise, a rolled comp
 // and a bright, bouncy hook (see the melodies below) on the same real piano as the other rooms (piano.js: Salamander Grand Piano, CC BY 3.0, credited on the page), over a very faint record crackle and an airy room.
 // The form is sixteen bars: two bars of comp, the hook and its answer, the same shape lifted an octave in bars 8 to 11, then the hook again and a cadence home to G. Everything is written here note by note; nothing is borrowed and no sound file is
@@ -31,7 +31,7 @@ const MELODY_B = [ // the lift
   [[0, 81, 2], [3, 78, 2], [6, 76, 2], [8, 78, 2], [10, 81, 2], [12, 83, 3]],   // D6/9: A F# E F# A, the sixth B leads back into the hook
 ];
 const CADENCE = [[0, 74, 2], [2, 76, 2], [4, 78, 2], [7, 81, 2], [10, 78, 2], [12, 76, 1], [14, 78, 2], [16, 79, 8]]; // the last bar (D6/9): up to A, down, F# and home to G on the next downbeat
-export const BAY_TITLE = { zh: "灣區午後", en: "Bay Area Afternoon" };
+export const BAY_TITLE = { zh: "灣區晴日", en: "West Coast Sun" };
 export const BAY_BARS = FORM_BARS; // one time through the form, about 42 s
 
 export function createBayRecord() {
