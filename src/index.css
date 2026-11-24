@@ -121,11 +121,24 @@
 }
 
 .ai-lab-highlight {
-  background-color: #142c29;
+  background-color: #141820;
   background-image:
-    radial-gradient(ellipse at 78% 18%, rgba(83, 159, 184, .22), transparent 42%),
-    radial-gradient(ellipse at 12% 84%, rgba(240, 138, 110, .16), transparent 38%),
-    linear-gradient(122deg, #142c29, #183c3e 56%, #203a38);
+    radial-gradient(ellipse at 82% 8%, rgba(255, 196, 92, .32), transparent 46%),
+    radial-gradient(ellipse at 8% 88%, rgba(255, 112, 72, .18), transparent 42%),
+    radial-gradient(ellipse at 55% 40%, rgba(110, 140, 255, .2), transparent 48%),
+    linear-gradient(128deg, #2c2416, #1c2a4a 52%, #171c2e);
+}
+
+.ai-lab-panel {
+  background: linear-gradient(145deg, rgba(48, 34, 18, .94), rgba(18, 26, 52, .92));
+  border-color: rgba(240, 195, 106, .38);
+  box-shadow: 0 28px 70px -32px rgba(0, 0, 0, .62), 0 0 0 1px rgba(255, 214, 150, .12);
+}
+
+#ai-lab ol li {
+  min-height: 4.75rem;
+  border-color: rgba(240, 195, 106, .28);
+  background: rgba(255, 244, 220, .06);
 }
 
 .ai-lab-art-wash {
