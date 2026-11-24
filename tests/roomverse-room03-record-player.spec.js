@@ -43,7 +43,7 @@ test("Room 03 the credenza record player is a real, supported object (step 1: no
   expect(errors).toEqual([]);
 });
 
-test("Room 03 a glowing ring points at the record player; one tap plays Bay Area Afternoon, Brooklyn Windowsill and Afternoon Lane round and round; the next tap stops", async ({ page }) => {
+test("Room 03 a glowing ring points at the record player; one tap plays West Coast Sun, Brooklyn Windowsill and Afternoon Lane round and round; the next tap stops", async ({ page }) => {
   test.setTimeout(240000);
   const errors = await openRoom(page);
   const audioFiles = () => page.evaluate(() => performance.getEntriesByType("resource").map((e) => e.name).filter((n) => /\.mp3/i.test(n)));
@@ -61,13 +61,13 @@ test("Room 03 a glowing ring points at the record player; one tap plays Bay Area
   const ring = await page.locator("#vinylRing").boundingBox();
   const spot = await page.evaluate(() => { const v = window.__room03.camera; const rect = document.querySelector("canvas").getBoundingClientRect(); const q = new v.position.constructor(2.77 + 0.1, 0.875, 0.53).project(v); return { x: rect.left + (q.x + 1) * rect.width / 2, y: rect.top + (1 - q.y) * rect.height / 2 }; });
   expect(Math.hypot(spot.x - (ring.x + ring.width / 2), spot.y - (ring.y + ring.height / 2)), "the platter edge is farther from the ring centre than a ring radius").toBeGreaterThan(20);
-  // Tap 1: Room 03's own piece, 灣區午後, plays first.
+  // Tap 1: Room 03's own piece, 灣區晴日, plays first.
   await page.mouse.click(spot.x, spot.y);
   await expect(page.locator("#vinylRing"), "the ring goes away once the record player has been found").toBeHidden();
   expect((await page.evaluate(() => window.__room03.recordPlayerInfo())).hintSeen).toBe(true);
   await expect.poll(async () => (await state()).bay.playing, { timeout: 8000, message: "the first tap starts the music" }).toBe(true);
   expect((await state()).side).toBe(0);
-  expect((await state()).bay.title).toBe("灣區午後");
+  expect((await state()).bay.title).toBe("灣區晴日");
   await expect.poll(async () => (await state()).bay.piano, { timeout: 20000, message: "the real piano samples load after the tap" }).toBe(true);
   await expect.poll(async () => (await state()).bay.notes, { timeout: 15000 }).toBeGreaterThan(12);
   expect((await audioFiles()).length, "the piano samples were fetched by the tap").toBeGreaterThan(0);

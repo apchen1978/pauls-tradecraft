@@ -48,8 +48,8 @@ export const TRACKS = [
     made: { zh: "這首沿用 Room 04《慢板》的音樂資料，在 Room 01 以 100 BPM 播放。Room 01 版本不加黑膠雜音。", en: "This reuses the music written for Room 04’s “Adagio,” played at 100 BPM in Room 01. The Room 01 version leaves out the vinyl crackle." },
   },
   {
-    id: "bay-area-afternoon", title: { zh: "灣區午後", en: "Bay Area Afternoon" }, rooms: ["Room 03"], engine: "bay", index: 0, cover: "/music-lounge/covers/bay-area-afternoon.webp?v=1",
-    mood: { zh: "明亮的西岸午後", en: "A bright West Coast afternoon" },
+    id: "bay-area-afternoon", title: { zh: "灣區晴日", en: "West Coast Sun" }, rooms: ["Room 03"], engine: "bay", index: 0, cover: "/music-lounge/covers/bay-area-afternoon.webp?v=1",
+    mood: { zh: "清亮的西岸日光", en: "Clear West Coast daylight" },
     made: { zh: "以 G 大調和四和弦循環寫成 16 小節，加入 bossa 風格的低音、rim click、shaker 與鋼琴主題。Room 03 的唱片機也會播放這首。", en: "A 16-bar piece in G major built on a four-chord loop, with a bossa-style bass, rim click, shaker and piano hook. Room 03’s record player also plays it." },
   },
   {
