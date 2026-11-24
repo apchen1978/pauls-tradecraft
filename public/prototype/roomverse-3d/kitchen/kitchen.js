@@ -61,8 +61,17 @@ const refreshOvenPanelClock = () => {
   ovenPanelTexture.image.getContext("2d").clearRect(0, 0, ovenPanelTexture.image.width, ovenPanelTexture.image.height);
   paintOvenPanelSheet(ovenPanelTexture.image.getContext("2d"), ovenPanelTexture.image.width, ovenPanelTexture.image.height, now);
   ovenPanelTexture.needsUpdate = true;
+  // the room renders on demand, so a repainted clock would otherwise wait for the visitor to move. The local `render`
+  // lives inside the room factory and is not in scope here, so the published hook asks for the frame instead.
+  try { window.__room03?.render?.(); } catch { /* the room is being torn down */ }
 };
-if (typeof window !== "undefined") { ovenPanelShown = ovenPanelClockText(); window.setInterval(refreshOvenPanelClock, 10000); }
+let ovenPanelTimer = 0;
+if (typeof window !== "undefined") {
+  ovenPanelShown = ovenPanelClockText();
+  ovenPanelTimer = window.setInterval(refreshOvenPanelClock, 10000);
+  // CC review 2026-11-24: hold the handle and drop it when the page goes away, so the timer can never outlive the room.
+  window.addEventListener("pagehide", () => { window.clearInterval(ovenPanelTimer); ovenPanelTimer = 0; }, { once: true });
+}
 
 function makeOvenPanelTexture(clock) {
   return makeTexture((context, width, height) => paintOvenPanelSheet(context, width, height, clock), 2048, 256);
