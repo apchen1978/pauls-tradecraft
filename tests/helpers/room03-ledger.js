@@ -10,25 +10,25 @@
 
 export const LEDGER = Object.freeze({
   // Measured with everything loaded, desktop 1440 px (the phone shares the same geometry).
-  scene: Object.freeze({ vertices: 168212, meshes: 157 }),
+  scene: Object.freeze({ vertices: 168240, meshes: 158 }), // Paul 2026-11-24: the oven's touch panel is real geometry, not a printed patch
   // Draw calls in the first frame (desktop 1440 px, phone 390 px), golden/daylight opening view.
-  openingDrawCalls: Object.freeze({ desktop: 103, phone: 100 }),
+  openingDrawCalls: Object.freeze({ desktop: 104, phone: 101 }), // +1 each: the oven panel face is its own textured mesh
   // Draw calls per mood (first frame after the mood is set), measured with the persistent paper-napkin pack.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ daylight: 103, golden: 103, movie: 104, night: 103, dinner: 105, sunday: 104, thanksgiving: 109 }),
-    phone: Object.freeze({ daylight: 100, golden: 100, movie: 101, night: 100, dinner: 102, sunday: 101, thanksgiving: 106 }),
+    desktop: Object.freeze({ daylight: 104, golden: 104, movie: 105, night: 104, dinner: 106, sunday: 105, thanksgiving: 110 }),
+    phone: Object.freeze({ daylight: 101, golden: 101, movie: 102, night: 101, dinner: 103, sunday: 102, thanksgiving: 107 }),
   }),
   // Room above the measured value that cap checks allow. Kept at the strictest of the caps the specs used before the ledger existed
   // (vertices: the red-pot spec's 39,105 + 11,300 = 50,405). A resized desktop page is not a real phone, so it has its own cap.
   // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
   headroom: Object.freeze({ vertices: 15900, meshes: 19, desktopCalls: 12, phoneCalls: 12 }),
-  resizedPhoneCalls: 92,
+  resizedPhoneCalls: 93,
   // Opening draw calls when the desktop window is resized (more of the room is in view at the wider sizes). Measured 2026-11-05 on main 4af7e5f;
   // 1440 px is the ledger's own number (openingDrawCalls.desktop). These were red against the 1440 cap of 80 before.
   // Paul 2026-11-22: 104 -> 105 at 1280 and 1920. The hairline brass edge at the ends of the zellige field brings the
 // brass batch into the opening frame, so it is drawn there now (measured 105 at both widths).
-  desktopCallsByWidth: Object.freeze({ 1280: 105, 1920: 105 }),
+  desktopCallsByWidth: Object.freeze({ 1280: 106, 1920: 106 }),
   // Newest last. One line per change; the numbers are the measured totals AFTER the change.
   history: Object.freeze([
     { date: "2026-10-29", change: "(reconstructed from spec comments) main 261fbc4 plus living details", vertices: 47680, meshes: 99, desktopCalls: 68, phoneCalls: 70 },
@@ -105,6 +105,9 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-22", change: "oven mitts (Paul: the print read as a sticker): every leaf and petal is now an extruded pad about 1.8 mm proud with a soft bevel, and each flower centre is a domed bead; the mitts hang where they were", vertices: 169124, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "open kitchen (Paul): the two 13 cm stone returns that stood out from the wok wall like fins are gone, so the zellige field ends at the wall edge the way an open kitchen does", vertices: 168164, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
     { date: "2026-11-22", change: "a hairline brass edge at both ends of the zellige field (5 mm wide, 24 mm deep): the cut brick edge meets a metal line instead of stopping against the wall", vertices: 168212, meshes: 157, desktopCalls: 103, phoneCalls: 100 },
+    { date: "2026-11-24", change: "oven touch panel (Paul): the three glowing rectangles become an inset panel - a glass slab, a brushed chrome frame, "
+      + "a recessed display well carrying a seven-segment clock, six key wells with thin amber icons (power, mode, temperature, timer, light, lock), "
+      + "two indicators on their own base plates and a printed sheet at the front of the stack (+28 vertices, +1 mesh)", vertices: 168240, meshes: 158, desktopCalls: 104, phoneCalls: 101 },
   ]),
 });
 
