@@ -129,7 +129,7 @@ export const LOOK_GROUPS = Object.freeze({
   lamp: Object.freeze({ bamboo: 1, rings: 2 }), // Codex card 50: the two designs Paul kept. "bamboo": the bamboo cloud over the window seat and paper rings over the counter; "rings": the other way round
   scarf: Object.freeze({ olive: 0x66763f, terracotta: 0xc4623a, mustard: 0xd6a43a, navy: 0x2f4560, rose: 0xd49a96 }),
   chair: Object.freeze({ bentwood: 0x9a6a3a, black: 0x2a2a2c, natural: 0xc9a06a, forest: 0x2f4a3a, terracotta: 0xa5563b, navy: 0x2f4560 }),
-  gallery: Object.freeze({ a: 1, b: 2 }), // two sets of eight wall prints (Codex cards 49 and 52 G)
+  gallery: Object.freeze({ a: 1, b: 2, c: 3 }),
   rug: Object.freeze({ weave: "", jute: "room04-rug-1-jute.webp", wool: "room04-rug-2-wool-lattice.webp", abstract: "room04-rug-3-abstract.webp", stripe: "room04-rug-4-stripe.webp", ivory: "../../tex/rug-ivory-v1.webp", medallion: "../../tex/rug-medallion-v1.webp", slate: "../../bedroom/art/room02-a1-living-rug-v1.webp", arches: "../../bedroom/art/room02-rug-modern-v1.webp", oat: "../../bedroom/art/room02-rug-oat-v1.webp" }), // the round rug at the window seat (Codex card 52 B)
   menu: Object.freeze({ board: ["room04-menu-board-a-v1.webp", "room04-menu-board-b-v1.webp"], chalk: ["room04-menu-a-chalk-art-big.webp", "room04-menu-a-small.webp"], minimal: ["room04-menu-b-minimal-big.webp", "room04-menu-b-small.webp"], script: ["room04-menu-c-script-big.webp", "room04-menu-c-small.webp"] }), // the two chalk menus (Codex card 52 D)
   stool: Object.freeze({ bentwood: 1, leather: 2, metal: 3, arc: 4, none: 0 }), // the four bar stools along the counter (Codex card 52 A)
@@ -2441,12 +2441,20 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy; return atlas;
     };
     PRINT_FILES.push(...LOUNGE_FILES); PRINT_FILES_B.push(...LOUNGE_FILES); // both gallery sets carry the same three Lounge prints
-    const loadImages = (files, then) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.src = artUrl(file); }); };
-    const atlases = {}; let wallMaterial = null;
+    const PRINT_FILES_C = PRINT_FILES_B.map((file, i) => i === 2 ? "room04-print-rain-lane-v1.webp" : file);
+    const loadImages = (files, then, onError) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.onerror = onError ?? null; img.src = artUrl(file); }); };
+    const atlases = {}, pendingGalleries = new Set(); let wallMaterial = null;
     function setGallery(key) {
       if (!wallMaterial) return;
       if (atlases[key]) { wallMaterial.map = atlases[key]; wallMaterial.needsUpdate = true; render(); return; }
-      if (key === "b") loadImages(PRINT_FILES_B, (images) => { atlases.b = drawAtlas(images); if (currentLook.gallery === "b") setGallery("b"); });
+      const files = key === "b" ? PRINT_FILES_B : key === "c" ? PRINT_FILES_C : null;
+      if (!files || pendingGalleries.has(key)) return;
+      pendingGalleries.add(key);
+      loadImages(files, (images) => {
+        pendingGalleries.delete(key);
+        atlases[key] = drawAtlas(images);
+        if (currentLook.gallery === key) setGallery(key);
+      }, () => pendingGalleries.delete(key));
     }
     galleryRef.apply = (key) => setGallery(key);
     afterFirstFrame.push(() => loadImages(PRINT_FILES, (images) => {

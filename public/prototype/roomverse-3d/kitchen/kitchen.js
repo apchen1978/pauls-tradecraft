@@ -3501,6 +3501,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       "moon-hills": "./art/room03-lamp-wall-moon-hills-v1.webp",
       "hills-sun": "./art/room03-lamp-wall-hills-sun-v1.webp",
       "botanical-window": "./art/room03-lamp-wall-botanical-window-v1.webp",
+      "blue-plate-lemons": "./art/room03-lamp-wall-blue-plate-lemons-v1.webp",
     },
   };
   const frameAssetByKey = { "cable-car": cableCar, "redwood-path": redwoodPath, "lamp-wall": lampWall };
