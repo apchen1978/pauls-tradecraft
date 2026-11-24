@@ -49,8 +49,26 @@ function makeTexture(paint, width = 256, height = 256) {
 // band, the bezel, the seven-segment clock, the six keys with their thin icons, the two amber indicators on their base plates
 // and the divider hairlines - is drawn into one canvas 0.48 m wide. One quad prints the lot, so the panel costs geometry
 // instead of forty small boxes, and every lit thing is the same amber, so it reads as one light source rather than a row of dots.
-function makeOvenPanelTexture() {
-  return makeTexture((context, width, height) => {
+// Paul 2026-11-24: the panel shows the time, so it has to agree with the room's other screens. Room 04's counter screens read the
+// system clock (cafe.js clockTime), so this one does too, from the same source, and repaints itself when the minute turns.
+const ovenPanelClockText = () => { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+let ovenPanelTexture = null, ovenPanelShown = "";
+const refreshOvenPanelClock = () => {
+  if (!ovenPanelTexture) return;
+  const now = ovenPanelClockText();
+  if (now === ovenPanelShown) return;
+  ovenPanelShown = now;
+  ovenPanelTexture.image.getContext("2d").clearRect(0, 0, ovenPanelTexture.image.width, ovenPanelTexture.image.height);
+  paintOvenPanelSheet(ovenPanelTexture.image.getContext("2d"), ovenPanelTexture.image.width, ovenPanelTexture.image.height, now);
+  ovenPanelTexture.needsUpdate = true;
+};
+if (typeof window !== "undefined") { ovenPanelShown = ovenPanelClockText(); window.setInterval(refreshOvenPanelClock, 10000); }
+
+function makeOvenPanelTexture(clock) {
+  return makeTexture((context, width, height) => paintOvenPanelSheet(context, width, height, clock), 2048, 256);
+}
+
+function paintOvenPanelSheet(context, width, height, clock) {
     const W = width, H = height, px = (metres) => metres * (W / 0.48), cx = W / 2, at = (metres) => cx + metres * (W / 0.48);
     // the sheet is transparent where geometry shows through: only ink is drawn
     context.clearRect(0, 0, W, H);
@@ -60,13 +78,13 @@ function makeOvenPanelTexture() {
 
 
     // the display: a recessed window with a seven-segment clock
-    const dw = px(0.092), dh = px(0.016), dx = cx - dw / 2, dy = H / 2 - dh / 2;
+    const dw = px(0.112), dh = px(0.021), dx = cx - dw / 2, dy = H / 2 - dh / 2;
     context.fillStyle = "rgba(0,0,0,0.85)"; context.fillRect(dx - 4, dy - 4, dw + 8, dh + 8);
     const well = context.createLinearGradient(0, dy, 0, dy + dh);
     well.addColorStop(0, "#0c0d0a"); well.addColorStop(1, "#050604");
     context.fillStyle = well; context.fillRect(dx, dy, dw, dh);
     const DIGITS = { "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg" };
-    const digitW = dh * 0.58, stroke = Math.max(2, dh * 0.105), gapY = dh * 0.06, midY = dy + dh / 2;
+    const digitW = dh * 0.60, stroke = Math.max(3, dh * 0.115), gapY = dh * 0.06, midY = dy + dh / 2;
     const segBox = (ox, seg) => {
       if (seg === "a") return [ox + stroke * 0.6, dy, digitW - stroke * 1.2, stroke];
       if (seg === "d") return [ox + stroke * 0.6, dy + dh - stroke, digitW - stroke * 1.2, stroke];
@@ -80,18 +98,18 @@ function makeOvenPanelTexture() {
       const lit = DIGITS[ch] || "";
       for (const seg of "abcdefg") {
         const [x, y, w, h] = segBox(ox, seg);
-        context.fillStyle = lit.includes(seg) ? "rgba(255,176,92,0.95)" : "rgba(255,176,92,0.06)";
+        context.fillStyle = lit.includes(seg) ? "rgba(255,182,96,1)" : "rgba(255,176,92,0.055)";
         context.fillRect(x, y, w, h);
       }
     };
-    const clock = "1234", digitGap = digitW * 0.28, colonW = digitW * 0.45;
+    const digitGap = digitW * 0.26, colonW = digitW * 0.42;
     const totalW = digitW * 4 + digitGap * 4 + colonW;
     let ox = cx - totalW / 2;
-    context.shadowColor = "rgba(255,168,80,0.5)"; context.shadowBlur = dh * 0.45;
+    context.shadowColor = "rgba(255,170,82,0.75)"; context.shadowBlur = dh * 0.55;
     for (let i = 0; i < 4; i++) {
       drawDigit(clock[i], ox); ox += digitW + digitGap;
       if (i === 1) {
-        context.fillStyle = "rgba(255,176,92,0.95)";
+        context.fillStyle = "rgba(255,182,96,1)";
         context.fillRect(ox - digitGap * 0.5, dy + dh * 0.3, stroke * 0.9, stroke * 0.9);
         context.fillRect(ox - digitGap * 0.5, dy + dh * 0.62, stroke * 0.9, stroke * 0.9);
         ox += colonW;
@@ -143,7 +161,6 @@ function makeOvenPanelTexture() {
       const x = at(z);
       context.fillRect(x, px(0.006), 2, px(0.024));
     }
-  }, 2048, 256);
 }
 
 function makeFineNoise(seed, alpha = 0.035) {
@@ -972,7 +989,7 @@ function buildSideKitchen(b, m, scene) {
     addBox(b, "side-kitchen", trim, [0.006, t, ovenPanelW + t * 2], [panelFaceX - 0.0035, glassBottom - t / 2, counterZ]);
     for (const sz of [-1, 1]) addBox(b, "side-kitchen", trim, [0.006, ovenPanelH + t * 2, t], [panelFaceX - 0.0035, ovenPanelY, counterZ + sz * (dz + t / 2)]);
     // the display well: a dark recess with a chrome lip above and below, and the amber digits printed on its back
-    const wellW = 0.104, wellH = 0.020, wellY = ovenPanelY + 0.004;
+    const wellW = 0.126, wellH = 0.028, wellY = ovenPanelY; // centred on the sheet, so no lip clips a digit
     addBox(b, "side-kitchen", m.black, [0.004, wellH, wellW], [panelFaceX - 0.0012, wellY, counterZ]);
     for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.black, [0.0045, 0.0016, wellW + 0.004], [panelFaceX - 0.0036, wellY + sy * (wellH / 2 + 0.0008), counterZ]); // dark lips, not chrome: a lit edge would glare
     // six key wells on the glass, three either side of the display, the power key the widest
@@ -981,10 +998,11 @@ function buildSideKitchen(b, m, scene) {
     }
     // the two amber indicators keep their base plates, so neither dot floats on the glass
     for (const dz2 of [-0.104, 0.104]) addBox(b, "side-kitchen", m.black, [0.0022, 0.0052, 0.0072], [panelFaceX - 0.0009, ovenPanelY - 0.0135, counterZ + dz2]);
-    const sheet = makeOvenPanelTexture();
+    const sheet = makeOvenPanelTexture(ovenPanelClockText());
+    ovenPanelTexture = sheet; ovenPanelShown = ovenPanelClockText();
     const face = new THREE.Mesh(new THREE.PlaneGeometry(ovenPanelW, ovenPanelH).rotateY(-Math.PI / 2), new THREE.MeshStandardMaterial({
       map: sheet, color: 0xffffff, roughness: 0.3, metalness: 0.1, transparent: true, alphaTest: 0.02,
-      emissive: 0xffffff, emissiveMap: sheet, emissiveIntensity: 0.52,
+      emissive: 0xffffff, emissiveMap: sheet, emissiveIntensity: 0.9,
     }));
     face.name = "oven-touch-panel"; face.userData.category = "side-kitchen";
     face.position.set(panelFaceX - 0.0052, ovenPanelY, counterZ); // the print sits in front of the wells, so no lip cuts a digit
