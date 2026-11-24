@@ -45,6 +45,107 @@ function makeTexture(paint, width = 256, height = 256) {
   return texture;
 }
 
+// Paul 2026-11-24: the oven wanted an inset touch panel, not three glowing rectangles. Everything the panel shows - the glass
+// band, the bezel, the seven-segment clock, the six keys with their thin icons, the two amber indicators on their base plates
+// and the divider hairlines - is drawn into one canvas 0.48 m wide. One quad prints the lot, so the panel costs geometry
+// instead of forty small boxes, and every lit thing is the same amber, so it reads as one light source rather than a row of dots.
+function makeOvenPanelTexture() {
+  return makeTexture((context, width, height) => {
+    const W = width, H = height, px = (metres) => metres * (W / 0.48), cx = W / 2, at = (metres) => cx + metres * (W / 0.48);
+    // the sheet is transparent where geometry shows through: only ink is drawn
+    context.clearRect(0, 0, W, H);
+    const glass = context.createLinearGradient(0, 0, 0, H);
+    glass.addColorStop(0, "#171a1b"); glass.addColorStop(0.45, "#0a0b0c"); glass.addColorStop(1, "#121415");
+    context.fillStyle = glass; context.fillRect(0, 0, W, H);
+
+
+    // the display: a recessed window with a seven-segment clock
+    const dw = px(0.092), dh = px(0.016), dx = cx - dw / 2, dy = H / 2 - dh / 2;
+    context.fillStyle = "rgba(0,0,0,0.85)"; context.fillRect(dx - 4, dy - 4, dw + 8, dh + 8);
+    const well = context.createLinearGradient(0, dy, 0, dy + dh);
+    well.addColorStop(0, "#0c0d0a"); well.addColorStop(1, "#050604");
+    context.fillStyle = well; context.fillRect(dx, dy, dw, dh);
+    const DIGITS = { "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg" };
+    const digitW = dh * 0.58, stroke = Math.max(2, dh * 0.105), gapY = dh * 0.06, midY = dy + dh / 2;
+    const segBox = (ox, seg) => {
+      if (seg === "a") return [ox + stroke * 0.6, dy, digitW - stroke * 1.2, stroke];
+      if (seg === "d") return [ox + stroke * 0.6, dy + dh - stroke, digitW - stroke * 1.2, stroke];
+      if (seg === "g") return [ox + stroke * 0.6, midY - stroke / 2, digitW - stroke * 1.2, stroke];
+      if (seg === "f") return [ox, dy + stroke * 0.5, stroke, dh / 2 - stroke];
+      if (seg === "b") return [ox + digitW - stroke, dy + stroke * 0.5, stroke, dh / 2 - stroke];
+      if (seg === "e") return [ox, midY + stroke * 0.2, stroke, dh / 2 - stroke * 1.2];
+      return [ox + digitW - stroke, midY + stroke * 0.2, stroke, dh / 2 - stroke * 1.2];
+    };
+    const drawDigit = (ch, ox) => {
+      const lit = DIGITS[ch] || "";
+      for (const seg of "abcdefg") {
+        const [x, y, w, h] = segBox(ox, seg);
+        context.fillStyle = lit.includes(seg) ? "rgba(255,176,92,0.95)" : "rgba(255,176,92,0.06)";
+        context.fillRect(x, y, w, h);
+      }
+    };
+    const clock = "1234", digitGap = digitW * 0.28, colonW = digitW * 0.45;
+    const totalW = digitW * 4 + digitGap * 4 + colonW;
+    let ox = cx - totalW / 2;
+    context.shadowColor = "rgba(255,168,80,0.5)"; context.shadowBlur = dh * 0.45;
+    for (let i = 0; i < 4; i++) {
+      drawDigit(clock[i], ox); ox += digitW + digitGap;
+      if (i === 1) {
+        context.fillStyle = "rgba(255,176,92,0.95)";
+        context.fillRect(ox - digitGap * 0.5, dy + dh * 0.3, stroke * 0.9, stroke * 0.9);
+        context.fillRect(ox - digitGap * 0.5, dy + dh * 0.62, stroke * 0.9, stroke * 0.9);
+        ox += colonW;
+      }
+    }
+    context.shadowBlur = 0;
+
+    // six keys, symmetric about the display, each a thin recessed outline with a hairline icon
+    const keyY = H / 2;
+    const KEYS = [[-0.212, "power"], [-0.170, "mode"], [-0.128, "temp"], [0.128, "timer"], [0.170, "light"], [0.212, "lock"]];
+    const keyIcon = (kind, x, size) => {
+      const r = size * 0.32;
+      context.strokeStyle = "rgba(255,196,132,0.30)"; context.lineWidth = Math.max(1.5, size * 0.085);
+      context.beginPath();
+      if (kind === "power") {
+        context.arc(x, keyY, r, -Math.PI / 2 + 0.6, -Math.PI / 2 + Math.PI * 2 - 0.6); context.stroke();
+        context.beginPath(); context.moveTo(x, keyY - r * 1.2); context.lineTo(x, keyY - r * 0.05); context.stroke();
+      } else if (kind === "mode") {
+        for (const d of [-0.55, 0, 0.55]) { context.beginPath(); context.moveTo(x - r, keyY + r * d); context.lineTo(x + r, keyY + r * d); context.stroke(); }
+      } else if (kind === "temp") {
+        context.beginPath(); context.moveTo(x, keyY - r); context.lineTo(x, keyY + r * 0.4); context.stroke();
+        context.beginPath(); context.arc(x, keyY + r * 0.7, r * 0.4, 0, Math.PI * 2); context.stroke();
+      } else if (kind === "timer") {
+        context.arc(x, keyY, r, 0, Math.PI * 2); context.stroke();
+        context.beginPath(); context.moveTo(x, keyY - r * 0.5); context.lineTo(x, keyY); context.lineTo(x + r * 0.45, keyY + r * 0.25); context.stroke();
+      } else if (kind === "light") {
+        context.arc(x, keyY - r * 0.12, r * 0.58, Math.PI * 0.12, Math.PI * 0.88, true); context.stroke();
+        context.beginPath(); context.moveTo(x - r * 0.32, keyY + r * 0.5); context.lineTo(x + r * 0.32, keyY + r * 0.5); context.stroke();
+      } else {
+        context.rect(x - r * 0.68, keyY - r * 0.02, r * 1.36, r * 0.92); context.stroke();
+        context.beginPath(); context.arc(x, keyY - r * 0.12, r * 0.42, Math.PI, 0); context.stroke();
+      }
+    };
+    KEYS.forEach(([z, kind], i) => {
+      const size = i === 0 ? px(0.0125) : px(0.0105), half = size / 2, x = at(z);
+      context.strokeStyle = "rgba(226,232,234,0.10)"; context.lineWidth = 1.5;
+      context.strokeRect(x - half, keyY - half, size, size);
+      keyIcon(kind, x, size);
+    });
+
+    // two amber indicators, each on its own base plate, and a hairline either side of the display
+    for (const z of [-0.104, 0.104]) {
+      const x = at(z);
+      context.fillStyle = "rgba(0,0,0,0.7)"; context.fillRect(x - 7, keyY + H * 0.02, 14, 9);
+      context.fillStyle = "rgba(255,178,86,0.85)"; context.fillRect(x - 3, keyY + H * 0.045, 6, 6);
+    }
+    context.fillStyle = "rgba(226,232,234,0.10)";
+    for (const z of [-0.100, 0.100]) {
+      const x = at(z);
+      context.fillRect(x, px(0.006), 2, px(0.024));
+    }
+  }, 2048, 256);
+}
+
 function makeFineNoise(seed, alpha = 0.035) {
   let state = seed;
   const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
@@ -858,25 +959,37 @@ function buildSideKitchen(b, m, scene) {
     const stem = new THREE.CylinderGeometry(0.006, 0.008, 0.014, 12).rotateX(Math.PI / 2).translate(oven.frontX - 0.024, windowY + 0.205, counterZ + sz * 0.19);
     addGeometryToBucket(b, "side-kitchen", m.steel, stem, [0, 0, 0]);
   }
-  // Dark-glass timer panel and small amber indicators echo the kitchen's appliance UI.
-  // These are emissive pixels only, not another light source.
-  const ovenPanelY = ovenBay.top - 0.044;
-  addBox(b, "side-kitchen", m.ovenGlass, [0.008, 0.060, 0.24], [oven.frontX - 0.013, ovenPanelY, counterZ]);
-  // Paul 2026-11-24: three bare glowing rectangles read as stickers. Each key now has a recessed body on a common baseline, the
-  // glow sits inside its body, the indicator has a base instead of floating, and a hairline divides keys from status.
-  // Every flat, flush face is a single quad rather than a box: the panel gains five elements and still costs no more
-  // vertices than the four boxes it replaced (the scene budget test holds at 168212).
-  const quad = (material, width, height, position) => {
-    const face = new THREE.PlaneGeometry(width, height).rotateY(-Math.PI / 2);
-    addGeometryToBucket(b, "side-kitchen", material, face, position);
-  };
-  for (const [dz, width] of [[-0.045, 0.024], [-0.008, 0.024], [0.030, 0.016]]) {
-    addBox(b, "side-kitchen", m.black, [0.004, 0.015, width], [oven.frontX - 0.0145, ovenPanelY, counterZ + dz]);
-    quad(m.wokGlow, width - 0.006, 0.007, [oven.frontX - 0.0168, ovenPanelY + 0.001, counterZ + dz]);
+  // Paul 2026-11-24: an inset touch panel built as real geometry - a glass slab, a brushed chrome frame around it, a
+  // recessed display well with its own frame, six key wells, and the indicator bases. The printed sheet only carries
+  // what print carries on the real appliance: the seven-segment clock, the thin key icons and the divider.
+  const ovenPanelY = ovenBay.top - 0.052, ovenPanelW = 0.446, ovenPanelH = 0.056, panelFaceX = oven.frontX - 0.0095;
+  {
+    const glassTop = ovenPanelY + ovenPanelH / 2, glassBottom = ovenPanelY - ovenPanelH / 2;
+    // the glass, sunk 1.5 mm behind the chrome frame so the frame reads as the high edge
+    addBox(b, "side-kitchen", m.ovenGlass, [0.005, ovenPanelH, ovenPanelW], [panelFaceX, ovenPanelY, counterZ]);
+    const trim = m.steel, t = 0.0022, dz = ovenPanelW / 2;
+    addBox(b, "side-kitchen", trim, [0.006, t, ovenPanelW + t * 2], [panelFaceX - 0.0035, glassTop + t / 2, counterZ]);
+    addBox(b, "side-kitchen", trim, [0.006, t, ovenPanelW + t * 2], [panelFaceX - 0.0035, glassBottom - t / 2, counterZ]);
+    for (const sz of [-1, 1]) addBox(b, "side-kitchen", trim, [0.006, ovenPanelH + t * 2, t], [panelFaceX - 0.0035, ovenPanelY, counterZ + sz * (dz + t / 2)]);
+    // the display well: a dark recess with a chrome lip above and below, and the amber digits printed on its back
+    const wellW = 0.104, wellH = 0.020, wellY = ovenPanelY + 0.004;
+    addBox(b, "side-kitchen", m.black, [0.004, wellH, wellW], [panelFaceX - 0.0012, wellY, counterZ]);
+    for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.black, [0.0045, 0.0016, wellW + 0.004], [panelFaceX - 0.0036, wellY + sy * (wellH / 2 + 0.0008), counterZ]); // dark lips, not chrome: a lit edge would glare
+    // six key wells on the glass, three either side of the display, the power key the widest
+    for (const [dz2, w] of [[-0.212, 0.0130], [-0.170, 0.0112], [-0.128, 0.0112], [0.128, 0.0112], [0.170, 0.0112], [0.212, 0.0112]]) {
+      addBox(b, "side-kitchen", m.black, [0.0025, 0.0132, w], [panelFaceX - 0.0009, ovenPanelY + 0.0035, counterZ + dz2]);
+    }
+    // the two amber indicators keep their base plates, so neither dot floats on the glass
+    for (const dz2 of [-0.104, 0.104]) addBox(b, "side-kitchen", m.black, [0.0022, 0.0052, 0.0072], [panelFaceX - 0.0009, ovenPanelY - 0.0135, counterZ + dz2]);
+    const sheet = makeOvenPanelTexture();
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(ovenPanelW, ovenPanelH).rotateY(-Math.PI / 2), new THREE.MeshStandardMaterial({
+      map: sheet, color: 0xffffff, roughness: 0.3, metalness: 0.1, transparent: true, alphaTest: 0.02,
+      emissive: 0xffffff, emissiveMap: sheet, emissiveIntensity: 0.52,
+    }));
+    face.name = "oven-touch-panel"; face.userData.category = "side-kitchen";
+    face.position.set(panelFaceX - 0.0052, ovenPanelY, counterZ); // the print sits in front of the wells, so no lip cuts a digit
+    scene.add(face);
   }
-  quad(m.steel, 0.196, 0.0015, [oven.frontX - 0.0168, ovenPanelY + 0.024, counterZ]); // the hairline
-  quad(m.black, 0.011, 0.007, [oven.frontX - 0.0160, ovenPanelY - 0.020, counterZ + 0.052]); // indicator base
-  quad(m.wokGlow, 0.004, 0.003, [oven.frontX - 0.0168, ovenPanelY - 0.020, counterZ + 0.052]); // its amber dot
   scene.userData.wokOven = { ...oven, bay: ovenBay, cooktopY: counterY + 0.055 + 0.014, cabinetFrontX: doorX - 0.006, backX: oven.frontX + oven.depth, counterBottomY: bodyTop, display: "240 x 60 mm dark-glass timer panel with amber indicators", handle: "centered horizontal brushed stainless bar pull on two standoffs", cabinetPulls: "two brass pulls on oven-facing inner door edges", cabinetPullOffsetFromOvenMm };
 
   addGeometryToBucket(b, "wok-counter", m.stone, roundedBoxGeometry([counterDepth, counterH, counterLen], 0.025), [counterX, counterY, counterZ]);
