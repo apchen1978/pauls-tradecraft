@@ -2,7 +2,7 @@ import { AGENTS, LINKS, NAV_CHAPTERS, TEXT, TIERS } from "./content.js";
 import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
-import { SPIRIT } from "./spirit.js";
+import { SPIRIT } from "./spirit.js?v=2";
 import { ADOPTION, PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
 import { LADDER } from "./ladder.js";
 import { TOOLPATH } from "./toolpath.js";
