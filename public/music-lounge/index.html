@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>人機協作 Music Lounge · Paul’s Tradecraft</title>
+  <meta name="description" content="ROOMVERSE 原創程式生成音樂。挑一首，點了再聽。Original generative music from ROOMVERSE. Choose a track and press play.">
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script type="module" src="app.js?v=3"></script>
+</head>
+<body>
+  <a class="skip" href="#tracks" id="skip">跳至曲目</a>
+  <header class="top">
+    <a class="brand" id="home" href="/?lang=zh">Paul’s Tradecraft</a>
+    <nav aria-label="Language" class="languages">
+      <a href="?lang=zh" lang="zh-Hant">中文</a>
+      <a href="?lang=en" lang="en">EN</a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <section class="intro" aria-labelledby="title">
+      <p class="eyebrow">PAUL × AI</p>
+      <h1 id="title">人機協作 Music Lounge</h1>
+      <p class="lead" id="subtitle">從午後的鋼琴與爵士鼓，到夜色裡的旋律。</p>
+      <p class="credit" id="credit">Paul × AI 共同創作</p>
+      <p class="hint" id="hint">挑一首，點了再聽。一次播放一首。</p>
+    </section>
+    <section class="track-section" id="tracks" aria-labelledby="list-title">
+      <div class="section-heading">
+        <h2 id="list-title">挑一首聽</h2>
+        <p id="list-note">依聽感從午後排到夜晚。</p>
+      </div>
+      <ol class="track-list" id="track-list"></ol>
+    </section>
+  </main>
+  <footer class="foot">
+    <a id="back" href="/ai-lab/?lang=zh#gallery-front">回到 AI Lab</a>
+    <span>ROOMVERSE</span>
+  </footer>
+</body>
+</html>
