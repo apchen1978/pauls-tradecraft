@@ -1,17 +1,43 @@
-import { COPY, TRACKS } from "./tracks.js?v=3";
+import { COPY, TRACKS } from "./tracks.js?v=4";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
 const $ = (id) => document.getElementById(id);
 document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
 document.title = `${copy.title} · Paul’s Tradecraft`;
-for (const [id, key] of Object.entries({ skip: "skip", title: "title", subtitle: "subtitle", credit: "credit", hint: "hint", "list-title": "listTitle", "list-note": "listNote", back: "back" })) $(id).textContent = copy[key];
+for (const [id, key] of Object.entries({
+  skip: "skip",
+  title: "title",
+  subtitle: "subtitle",
+  split: "split",
+  credit: "credit",
+  hint: "hint",
+  "morning-title": "morning",
+  "morning-note": "morningNote",
+  "afternoon-title": "afternoon",
+  "afternoon-note": "afternoonNote",
+  "night-title": "night",
+  "night-note": "nightNote",
+  back: "back",
+})) $(id).textContent = copy[key];
 $("home").href = `/?lang=${lang}`;
 $("back").href = `/ai-lab/?lang=${lang}#gallery-front`;
 document.querySelectorAll(".languages a").forEach((link) => {
   if (link.getAttribute("lang") === document.documentElement.lang) link.setAttribute("aria-current", "page");
   else link.removeAttribute("aria-current");
 });
+
+const ROOM_HREF = {
+  "Room 01": "/prototype/roomverse-3d/",
+  "Room 02": "/prototype/roomverse-3d/bedroom/",
+  "Room 03": "/prototype/roomverse-3d/kitchen/",
+  "Room 04": "/prototype/roomverse-3d/cafe/",
+};
+const GROUPS = [
+  { id: "morning", ids: ["window-afternoon"] },
+  { id: "afternoon", ids: ["bay-area-afternoon", "afternoon-alley", "afternoon-ascending", "brooklyn-windowsill", "bund-swing"] },
+  { id: "night", ids: ["adagio", "bund-at-night", "fire-escape-rain", "series-night"] },
+];
 
 let audioUnlockContext = null;
 let intent = 0;
@@ -63,6 +89,16 @@ async function makePlayer(track) {
   return { player, start: () => player.start(), stop: () => player.stop(), state: () => player.state() };
 }
 
+function syncLive() {
+  let live = false;
+  for (const [, button] of buttons) {
+    const on = button.getAttribute("aria-pressed") === "true";
+    button.closest(".track-card")?.classList.toggle("is-live", on);
+    if (on) live = true;
+  }
+  document.body.classList.toggle("lounge-live", live);
+}
+
 function resetCard(id, message = "") {
   const button = buttons.get(id);
   const status = statuses.get(id);
@@ -71,6 +107,7 @@ function resetCard(id, message = "") {
   button.setAttribute("aria-label", `${copy.play}: ${TRACKS.find((item) => item.id === id)?.title[lang] ?? ""}`);
   button.textContent = copy.play;
   status.textContent = message;
+  syncLive();
 }
 
 async function stopActive() {
@@ -107,6 +144,7 @@ async function playTrack(track) {
   button.setAttribute("aria-label", `${copy.loading}: ${track.title[lang]}`);
   button.textContent = copy.loading;
   status.textContent = copy.loading;
+  syncLive();
   await stopActive();
   if (token !== intent) return;
 
@@ -148,6 +186,10 @@ function makeTrackCard(track) {
   const cover = document.createElement("div");
   cover.className = "track-cover";
   cover.setAttribute("aria-hidden", "true");
+  const sleeve = document.createElement("span");
+  sleeve.className = "sleeve";
+  const disc = document.createElement("div");
+  disc.className = "disc";
   const image = document.createElement("img");
   image.src = track.cover;
   image.alt = "";
@@ -155,10 +197,20 @@ function makeTrackCard(track) {
   image.height = 240;
   image.loading = "lazy";
   image.decoding = "async";
-  cover.append(image);
+  const grooves = document.createElement("span");
+  grooves.className = "grooves";
+  const hub = document.createElement("span");
+  hub.className = "hub";
+  disc.append(image, grooves, hub);
+  const eq = document.createElement("span");
+  eq.className = "eq";
+  for (let bar = 0; bar < 5; bar += 1) eq.append(document.createElement("i"));
+  cover.append(sleeve, disc, eq);
+
   const top = document.createElement("div");
   top.className = "track-top";
   const heading = document.createElement("div");
+  heading.className = "track-heading";
   const title = document.createElement("h3");
   title.textContent = track.title[lang];
   const mood = document.createElement("p");
@@ -175,33 +227,48 @@ function makeTrackCard(track) {
   buttons.set(track.id, button);
   top.append(heading, button);
 
+  const roomBlock = document.createElement("div");
+  roomBlock.className = "room-block";
   const roomLabel = document.createElement("p");
   roomLabel.className = "field-label";
   roomLabel.textContent = copy.rooms;
   const roomTags = document.createElement("ul");
   roomTags.className = "room-tags";
-  roomTags.setAttribute("aria-label", copy.rooms);
+  roomTags.setAttribute("aria-label", copy.roomsLabel);
   for (const room of track.rooms) {
+    const href = ROOM_HREF[room];
+    if (!href) continue;
     const tag = document.createElement("li");
-    tag.textContent = room;
+    const link = document.createElement("a");
+    link.href = `${href}?lang=${lang}`;
+    link.textContent = room;
+    tag.append(link);
     roomTags.append(tag);
   }
+  roomBlock.append(roomLabel, roomTags);
 
-  const madeLabel = document.createElement("h4");
-  madeLabel.className = "field-label";
-  madeLabel.textContent = copy.made;
+  const notes = document.createElement("details");
+  notes.className = "notes";
+  const summary = document.createElement("summary");
+  summary.textContent = copy.notes;
   const made = document.createElement("p");
   made.className = "track-made";
   made.textContent = track.made[lang];
+  notes.append(summary, made);
+
   const status = document.createElement("p");
   status.className = "track-status";
   status.setAttribute("role", "status");
   statuses.set(track.id, status);
-  item.append(cover, top, roomLabel, roomTags, madeLabel, made, status);
+  item.append(cover, top, roomBlock, notes, status);
   return item;
 }
 
-$("track-list").replaceChildren(...TRACKS.map(makeTrackCard));
+const byId = new Map(TRACKS.map((track) => [track.id, track]));
+for (const group of GROUPS) {
+  $(`${group.id}-list`).replaceChildren(...group.ids.map((id) => makeTrackCard(byId.get(id))));
+}
+
 window.addEventListener("pagehide", () => {
   ++intent;
   pendingId = null;
