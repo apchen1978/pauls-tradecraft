@@ -57,7 +57,7 @@ test("lists ten tracks and defers all music modules and piano samples until play
     }
     expect(track.rooms.length, `${track.id} room tags`).toBeGreaterThan(0);
     expect(track.cover, `${track.id} cover path`).toBeTruthy();
-    await access(path.resolve("public", `.${track.cover}`));
+    await access(path.resolve("public", `.${track.cover.split("?")[0]}`));
   }
   const requests = [];
   page.on("request", (request) => requests.push(new URL(request.url()).pathname));

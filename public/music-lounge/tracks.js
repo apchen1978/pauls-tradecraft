@@ -43,12 +43,12 @@ export const COPY = {
 
 export const TRACKS = [
   {
-    id: "window-afternoon", title: { zh: "窗邊的午後", en: "Afternoon by the Window" }, rooms: ["Room 01"], engine: "cafe", index: 0, room01Day: true, cover: "/music-lounge/covers/window-afternoon.webp",
+    id: "window-afternoon", title: { zh: "窗邊的午後", en: "Afternoon by the Window" }, rooms: ["Room 01"], engine: "cafe", index: 0, room01Day: true, cover: "/music-lounge/covers/window-afternoon.webp?v=1",
     mood: { zh: "暖光裡輕輕搖擺", en: "A gentle swing in warm light" },
     made: { zh: "這首沿用 Room 04《慢板》的音樂資料，在 Room 01 以 100 BPM 播放。Room 01 版本不加黑膠雜音。", en: "This reuses the music written for Room 04’s “Adagio,” played at 100 BPM in Room 01. The Room 01 version leaves out the vinyl crackle." },
   },
   {
-    id: "bay-area-afternoon", title: { zh: "灣區午後", en: "Bay Area Afternoon" }, rooms: ["Room 03"], engine: "bay", index: 0, cover: "/music-lounge/covers/bay-area-afternoon.webp",
+    id: "bay-area-afternoon", title: { zh: "灣區午後", en: "Bay Area Afternoon" }, rooms: ["Room 03"], engine: "bay", index: 0, cover: "/music-lounge/covers/bay-area-afternoon.webp?v=1",
     mood: { zh: "明亮的西岸午後", en: "A bright West Coast afternoon" },
     made: { zh: "以 G 大調和四和弦循環寫成 16 小節，加入 bossa 風格的低音、rim click、shaker 與鋼琴主題。Room 03 的唱片機也會播放這首。", en: "A 16-bar piece in G major built on a four-chord loop, with a bossa-style bass, rim click, shaker and piano hook. Room 03’s record player also plays it." },
   },
@@ -63,7 +63,7 @@ export const TRACKS = [
     made: { zh: "這首 42 小節的作品以 comping 和爵士鼓為主。v36 只重寫右手即興線，保留既有和弦、低音、鼓與曲式。", en: "This 42-bar piece centres on comping and jazz drums. Version 36 rewrote only the right-hand improvisation, keeping the existing chords, bass, drums and form." },
   },
   {
-    id: "brooklyn-windowsill", title: { zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, rooms: ["Room 02", "Room 03"], engine: "bedroom", index: 0, cover: "/music-lounge/covers/brooklyn-windowsill.webp",
+    id: "brooklyn-windowsill", title: { zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, rooms: ["Room 02", "Room 03"], engine: "bedroom", index: 0, cover: "/music-lounge/covers/brooklyn-windowsill.webp?v=1",
     mood: { zh: "帶著 swing 的 boom-bap", en: "Boom-bap with a little swing" },
     made: { zh: "以 D 小調的四和弦循環和 swung sixteenths 打底，讓真鋼琴旋律在低音與節拍上方進來。曲子以 16 小節為一輪。", en: "A D-minor four-chord loop and swung sixteenths set the foundation, with sampled piano melody over bass and beat. The piece runs in a 16-bar form." },
   },
@@ -83,7 +83,7 @@ export const TRACKS = [
     made: { zh: "這段 C 小調循環以 66 BPM 演奏，讓鋼琴、低音、刷鼓和近似弱音小號的旋律交疊。四個和弦循環三次後會接下一首。", en: "This C-minor loop moves at 66 BPM, layering piano, bass, brushed drums and a muted-trumpet-like melody. Its four-chord cycle repeats three times before the next record." },
   },
   {
-    id: "fire-escape-rain", title: { zh: "防火梯的雨", en: "Fire Escape Rain" }, rooms: ["Room 02"], engine: "bedroom", index: 1, cover: "/music-lounge/covers/fire-escape-rain.webp",
+    id: "fire-escape-rain", title: { zh: "防火梯的雨", en: "Fire Escape Rain" }, rooms: ["Room 02"], engine: "bedroom", index: 1, cover: "/music-lounge/covers/fire-escape-rain.webp?v=1",
     mood: { zh: "慢拍、像雨落在窗邊", en: "A slow pace, like rain at the window" },
     made: { zh: "68 BPM 的刷鼓與鋼琴旋律走過 Fmaj9、Em7、Dm9、G13，窗雨聲取代黑膠底聲。這是 Room 02 唱片的 B 面，和 A 面共用鋼琴取樣。", en: "At 68 BPM, brushed drums and piano move through Fmaj9, Em7, Dm9 and G13, with window rain in place of vinyl noise. It is side B of the Room 02 record and uses the same piano samples as side A." },
   },

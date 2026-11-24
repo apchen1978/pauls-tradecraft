@@ -120,6 +120,19 @@
   }
 }
 
+.ai-lab-highlight {
+  background-color: #142c29;
+  background-image:
+    radial-gradient(ellipse at 78% 18%, rgba(83, 159, 184, .22), transparent 42%),
+    radial-gradient(ellipse at 12% 84%, rgba(240, 138, 110, .16), transparent 38%),
+    linear-gradient(122deg, #142c29, #183c3e 56%, #203a38);
+}
+
+.ai-lab-art-wash {
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(13, 28, 34, .04), transparent 45%, rgba(10, 27, 30, .18));
+}
+
 /* Traditional Chinese typography. Unlayered on purpose: it must win over the
    per-component tracking-[-0.03em] utilities, which are tuned for Latin. */
 :lang(zh-Hant) :is(h1, h2, h3, h4) {
