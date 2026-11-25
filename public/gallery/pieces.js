@@ -378,19 +378,19 @@ export const PIECES = [
   },
   {
     id: "room04-rain-lane", date: "2026-11-25", frame: "plain", width: 1280, height: 960,
-    image: "assets/room04-rain-lane.webp", imageSmall: "assets/room04-rain-lane-mobile.webp", thumbnail: "assets/room04-rain-lane-thumb.webp",
+    image: "assets/room04-rain-lane-v2.webp", imageSmall: "assets/room04-rain-lane-v2-mobile.webp", thumbnail: "assets/room04-rain-lane-v2-thumb.webp",
     title: { zh: "雨後弄堂", en: "Lane After the Rain" },
-    alt: { zh: "法國梧桐在紅磚弄堂上方伸展，撐傘的行人走過倒映咖啡館暖光的路面。", en: "A plane tree stretches over a red-brick lane as a pedestrian with an umbrella passes warm reflections from a café." },
+    alt: { zh: "法國梧桐伸過紅磚弄堂，暖色線燈照著雨棚下的一桌兩椅，玻璃內的點單螢幕亮著淡青色。", en: "A plane tree stretches over a red-brick lane. A warm strip light shines over a table and two chairs under the rain canopy, and a pale teal ordering screen glows behind glass." },
     caption: { zh: "Room 04 咖啡館門旁的另一組掛畫，描繪想像中的上海街巷。", en: "An imagined Shanghai lane in an alternate set of prints by the Room 04 café door." },
-    made: { zh: "AI 參考愚園路的梧桐、紅磚老屋和弄堂小店，畫出這處想像的街角。", en: "AI painted this imagined corner using Yuyuan Road’s plane trees, brick houses and lane shops as references." },
+    made: { zh: "AI 參考愚園路的梧桐與紅磚老屋，畫出一間有玻璃店面和電子點單螢幕的當代咖啡館。", en: "AI used Yuyuan Road’s plane trees and brick houses as references and painted a contemporary café with a glass front and digital ordering screen." },
   },
   {
-    id: "room01-alishan-cloud-sea", date: "2026-11-25", frame: "plain", width: 1440, height: 960,
-    image: "assets/room01-alishan-cloud-sea.webp", imageSmall: "assets/room01-alishan-cloud-sea-mobile.webp", thumbnail: "assets/room01-alishan-cloud-sea-thumb.webp",
-    title: { zh: "阿里山・雲海列車", en: "Alishan Above the Clouds" },
-    alt: { zh: "紅色林鐵列車沿著濕潤的山路轉彎，山谷鋪滿雲海。", en: "A red forest railway train rounds a rain-darkened mountain curve above a valley filled with clouds." },
+    id: "room01-alishan-forest-train", date: "2026-11-25", frame: "plain", width: 1440, height: 960,
+    image: "assets/room01-alishan-forest-train.webp", imageSmall: "assets/room01-alishan-forest-train-mobile.webp", thumbnail: "assets/room01-alishan-forest-train-thumb.webp",
+    title: { zh: "阿里山・林中列車", en: "Alishan Forest Train" },
+    alt: { zh: "紅色林鐵列車沿著雨後彎軌穿過山林，軌旁長著蕨類。", en: "A red forest railway train rounds a rain-darkened curve through mountain woodland and ferns." },
     caption: { zh: "Room 01 沙發上方的可選掛畫，畫的是想像中的阿里山林鐵一景。", en: "An imagined Alishan Forest Railway scene for the frame above the Room 01 sofa." },
-    made: { zh: "Paul 想把紅車與彎軌留在畫裡，並加入阿里山雲海。AI 依林鐵紅色柴油機關車的形象重新構圖。", en: "Paul wanted to keep the red railcar and curved track and add Alishan’s sea of clouds. AI recomposed the scene around the forest railway’s red diesel locomotives." },
+    made: { zh: "Paul 選了林中版本。AI 參考阿里山林鐵的紅色柴油機關車，畫出雨後彎軌與山林。", en: "Paul chose the woodland version. AI used Alishan’s red diesel locomotives as a reference for the train on the rain-darkened curve." },
   },
 ];
 

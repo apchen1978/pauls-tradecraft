@@ -4,7 +4,7 @@ const roomverse = "/prototype/roomverse-3d/";
 
 test.use({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
 
-for (const [print, mood] of [["amber-fig", "golden"], ["alishan-cloud-sea", "rain"]]) {
+for (const [print, mood] of [["amber-fig", "golden"], ["alishan-forest-train", "rain"]]) {
   test(`Room 01 opens ${print} from a shared room link`, async ({ page }) => {
     const file = `wall-print-${print}-v1.webp`;
     const image = page.waitForResponse((response) => response.url().endsWith(`/${file}`));
@@ -41,7 +41,7 @@ test("Room 03 paints the new still life into the existing lamp-wall atlas", asyn
 test("Room 04 loads the rainy lane as a third gallery set", async ({ page }) => {
   await page.goto(`${roomverse}cafe/?lang=en&gallery=c`);
   await page.locator("#enter").click();
-  await page.waitForFunction(() => window.__room04?.info().art.includes("room04-print-rain-lane-v1.webp"));
+  await page.waitForFunction(() => window.__room04?.info().art.includes("room04-print-rain-lane-v2.webp"));
   expect(await page.evaluate(() => window.__room04.info().look.gallery)).toBe("c");
   expect(await page.evaluate(() => window.__room04.lookGroups().gallery)).toEqual(["a", "b", "c"]);
 });
