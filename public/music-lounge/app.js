@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=7";
+import { COPY, TRACKS } from "./tracks.js?v=auto";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -79,22 +79,22 @@ function unlockAudioFromGesture() {
 
 async function makePlayer(track) {
   if (track.engine === "night") {
-    const { createNightMusic } = await import("/prototype/roomverse-3d/night-score.js?v=6");
+    const { createNightMusic } = await import("/prototype/roomverse-3d/night-score.js?v=auto");
     const player = createNightMusic();
     return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
   }
   if (track.engine === "cafe") {
-    const { createRoomSound } = await import("/prototype/roomverse-3d/cafe/sound.js?v=6");
+    const { createRoomSound } = await import("/prototype/roomverse-3d/cafe/sound.js?v=auto");
     const player = createRoomSound();
     const options = track.room01Day ? { vinyl: false, bpm: 100 } : track.room01NoVinyl ? { vinyl: false } : {};
     return { player, start: () => player.start(track.index, false, options), stop: () => player.stop(), state: () => player.state() };
   }
   if (track.engine === "bedroom") {
-    const { createRoomRecord } = await import("/prototype/roomverse-3d/bedroom/sound.js?v=6");
+    const { createRoomRecord } = await import("/prototype/roomverse-3d/bedroom/sound.js?v=auto");
     const player = createRoomRecord();
     return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
   }
-  const { createBayRecord } = await import("/prototype/roomverse-3d/kitchen/sound.js?v=6");
+  const { createBayRecord } = await import("/prototype/roomverse-3d/kitchen/sound.js?v=auto");
   const player = createBayRecord();
   return { player, start: () => player.start(), stop: () => player.stop(), state: () => player.state() };
 }

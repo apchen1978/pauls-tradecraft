@@ -163,10 +163,10 @@ export function createRoomSound() {
   return {
     // Render short sections so offline processing has a bounded number of
     // live nodes. Mix their releases into the next section, including the loop.
-    async renderTrack(index, sampleRate = 44100) {
+    async renderTrack(index, sampleRate = 44100, passes = 2) {
       if (ctx) throw new Error("Offline rendering needs a fresh Room 04 sound engine.");
       const track = TRACKS[index];
-      const bars = (track.length ?? BARS_PER_TRACK) * 2;
+      const bars = (track.length ?? BARS_PER_TRACK) * passes;
       const frameAt = (bar) => Math.round(bar * 240 / track.bpm * sampleRate);
       const frames = frameAt(bars);
       ctx = new OfflineAudioContext(2, 1, sampleRate);

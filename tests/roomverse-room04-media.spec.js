@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const room = "/prototype/roomverse-3d/cafe/";
-const trackPath = /\/cafe\/audio\/room04-track-\d-v1\.(m4a|ogg)$/;
+const trackPath = /\/cafe\/audio\/room04-track-\d-v[12]\.(m4a|ogg)$/;
 
 async function openRecord(page) {
   await page.goto(room + "?lang=zh");
@@ -31,8 +31,8 @@ test("Room 04 native media survives a page hide and follows the media controls",
   await page.locator("#recordHit").click();
   const state = () => page.evaluate(() => window.__room04.soundState());
   await expect.poll(async () => (await state()).currentTime, { timeout: 15000 }).toBeGreaterThan(0.1);
-  expect(requests.some((url) => /room04-track-0-v1\.(m4a|ogg)$/.test(url))).toBe(true);
-  expect(await page.locator("audio").getAttribute("src")).toMatch(/room04-track-0-v1\.(m4a|ogg)$/);
+  expect(requests.some((url) => /room04-track-0-v2\.(m4a|ogg)$/.test(url))).toBe(true);
+  expect(await page.locator("audio").getAttribute("src")).toMatch(/room04-track-0-v2\.(m4a|ogg)$/);
   expect(await page.evaluate(() => ({
     title: navigator.mediaSession.metadata.title,
     artist: navigator.mediaSession.metadata.artist,
@@ -75,12 +75,12 @@ test("Room 04 native media survives a page hide and follows the media controls",
 
 test("Room 04 retries in Opus and retains the synthesizer if both formats fail", async ({ page }) => {
   test.setTimeout(120000);
-  await page.route("**/audio/room04-track-0-v1.m4a", (route) => route.fulfill({ status: 503 }));
-  await page.route("**/audio/room04-track-1-v1.*", (route) => route.fulfill({ status: 503 }));
+  await page.route("**/audio/room04-track-0-v2.m4a", (route) => route.fulfill({ status: 503 }));
+  await page.route("**/audio/room04-track-1-v2.*", (route) => route.fulfill({ status: 503 }));
   await openRecord(page);
   await page.locator("#recordHit").click();
   await expect.poll(() => page.locator("audio").evaluate((audio) => audio.currentTime), { timeout: 15000 }).toBeGreaterThan(0.1);
-  await expect(page.locator("audio")).toHaveAttribute("src", /room04-track-0-v1\.ogg$/);
+  await expect(page.locator("audio")).toHaveAttribute("src", /room04-track-0-v2\.ogg$/);
   await page.locator("#recordHit").dispatchEvent("click");
   await page.locator("#recordHit").dispatchEvent("click");
   await expect.poll(() => page.evaluate(() => window.__room04.soundState().backend), { timeout: 15000 }).toBe("synth");
@@ -99,7 +99,8 @@ test("Room 04 serves all four tracks in both formats within the audio budget", a
   let total = 0;
   for (let index = 0; index < 4; index++) {
     for (const [extension, mime] of [["m4a", "audio/mp4"], ["ogg", "audio/ogg"]]) {
-      const response = await request.get(`${room}audio/room04-track-${index}-v1.${extension}`);
+      const version = index === 3 ? "v1" : "v2";
+      const response = await request.get(`${room}audio/room04-track-${index}-${version}.${extension}`);
       expect(response.status()).toBe(200);
       expect(response.headers()["content-type"]).toContain(mime);
       const bytes = (await response.body()).length;
