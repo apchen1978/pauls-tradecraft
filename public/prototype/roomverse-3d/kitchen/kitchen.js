@@ -3,10 +3,10 @@ import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
-import { createRoomRecord, RECORD_A_BARS } from "../bedroom/sound.js?v=6"; // Room 02's "布魯克林窗台" (side A)
+import { createRoomRecord, RECORD_A_BARS } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: movie night plays the epic orchestral piece of Room 01
-import { createRoomSound, CAFE_ALLEY_BARS } from "../cafe/sound.js?v=6"; // Room 04's records; track 1 is "午後弄堂"
-import { createBayRecord, BAY_BARS } from "./sound.js?v=6"; // Room 03's own piece "灣區晴日", played first
+import { createRoomSound, CAFE_ALLEY_BARS } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
+import { createBayRecord, BAY_BARS } from "./sound.js?v=auto"; // Room 03's own piece "灣區晴日", played first
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
@@ -7431,15 +7431,40 @@ export async function start({ stage, onReady = () => {} }) {
   };
   const vinylTimer = setInterval(positionVinylRing, 1000);
   const vinylPointerDown = (event) => { if (event.isPrimary) vinylTap = { x: event.clientX, y: event.clientY }; };
+  const recordRaycaster = new THREE.Raycaster();
+  const recordNames = new Set(["room03-record-platter", "room03-record-tonearm", "room03-credenza-record-player", "room03-credenza-record-player-gold"]);
+  // The glowing ring sits on the deck centre (2.77, 0.875, 0.53). The record and the tonearm sit 5.5 cm toward the room, at z 0.475.
+  // In the close record view that offset lands outside the deck-centre circle, so a tap on the vinyl or the arm never started the music.
+  const hitsRecordPlayer = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+    recordRaycaster.setFromCamera({ x: ((event.clientX - rect.left) / rect.width) * 2 - 1, y: -((event.clientY - rect.top) / rect.height) * 2 + 1 }, camera);
+    return recordRaycaster.intersectObjects(scene.children, true).some((hit) => recordNames.has(hit.object.name));
+  };
+  // The vinyl itself sits 5.5 cm in front of the deck centre the glowing ring uses. A tap on that disc counts even when the
+  // ray slips through a groove gap, and a tap on the arm or the gold trim still counts by the mesh hit above.
+  const onVinylDisc = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+    const center = new THREE.Vector3(2.77, 0.868, 0.475).project(camera);
+    if (center.z >= 1) return false;
+    const edge = new THREE.Vector3(2.77 + 0.132, 0.868, 0.475).project(camera);
+    const cx = rect.left + (center.x + 1) * rect.width / 2, cy = rect.top + (1 - center.y) * rect.height / 2;
+    const radius = Math.hypot((edge.x - center.x) * rect.width / 2, (edge.y - center.y) * rect.height / 2);
+    return Math.hypot(event.clientX - cx, event.clientY - cy) <= Math.max(24, radius);
+  };
   const vinylPointerUp = (event) => {
     if (!vinylTap || !event.isPrimary) return;
     const start = vinylTap; vinylTap = null;
     if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
-    const p = vinylPoint(); if (!p) return;
-    // the hit area follows how big the turntable looks on screen (a 14 cm platter radius), never smaller than a finger
-    const edge = new THREE.Vector3(2.77, 0.875, 0.53 + 0.14).project(camera), rect = canvas.getBoundingClientRect();
-    const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
-    if (Math.hypot(event.clientX - p.x, event.clientY - p.y) > Math.max(34, radiusPx * 1.1)) return;
+    const p = vinylPoint();
+    let nearDeck = false;
+    if (p) {
+      const edge = new THREE.Vector3(2.77, 0.875, 0.53 + 0.14).project(camera), rect = canvas.getBoundingClientRect();
+      const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
+      nearDeck = Math.hypot(event.clientX - p.x, event.clientY - p.y) <= Math.max(34, radiusPx * 1.1);
+    }
+    if (!nearDeck && !onVinylDisc(event) && !hitsRecordPlayer(event)) return;
     vinylFound = true; positionVinylRing();
     const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 6 : 5];
     showNookCaption(caption[nookLang], null, now >= 0 ? 6500 : 3500);

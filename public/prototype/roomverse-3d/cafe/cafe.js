@@ -5,7 +5,7 @@ import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { loadModel } from "../bedroom/models.js?v=auto";
 import { auditRoom04 } from "./physics-audit.js?v=auto";
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
-import { createRoomSound } from "./sound.js?v=6";
+import { createRoomSound } from "./sound.js?v=auto";
 import { createTrackPlayer } from "../media-player.js?v=auto";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai; the room opens at golden hour, standing just inside the door.
@@ -1564,8 +1564,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       title,
       titleEn: ["Slow Tempo", "Lane in the Afternoon", "Night on the Bund", "Bund Swing"][index],
       sources: [
-        { type: 'audio/mp4; codecs="mp4a.40.2"', src: new URL(`./audio/room04-track-${index}-v1.m4a`, import.meta.url).href },
-        { type: 'audio/ogg; codecs="opus"', src: new URL(`./audio/room04-track-${index}-v1.ogg`, import.meta.url).href },
+        { type: 'audio/mp4; codecs="mp4a.40.2"', src: new URL(`./audio/room04-track-${index}-${index === 3 ? "v1" : "v2"}.m4a`, import.meta.url).href },
+        { type: 'audio/ogg; codecs="opus"', src: new URL(`./audio/room04-track-${index}-${index === 3 ? "v1" : "v2"}.ogg`, import.meta.url).href },
       ],
       artwork: [
         { src: new URL(`./audio/room04-record-cover-${index}-512-v1.jpg`, import.meta.url).href, sizes: "512x512", type: "image/jpeg" },

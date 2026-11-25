@@ -11,7 +11,7 @@
 // Nothing plays until the visitor taps (browsers allow sound only after a tap); a second tap, hiding the page or leaving stops it. start() must be called from inside that tap. In playlist
 // mode a piece goes round again, with no gap, until the visitor stops it or leaves.
 import { createPiano } from "./piano.js?v=auto";
-import { createRoomSound } from "./cafe/sound.js?v=6"; // Room 04's music engine plays the day piece
+import { createRoomSound } from "./cafe/sound.js?v=auto"; // Room 04's music engine plays the day piece
 import { createNightMusic } from "./night-score.js?v=auto"; // the series-night engine is shared with Rooms 02, 03 and 04
 
 // Room 01's music: two pieces. The day piece (every mood except series night) is Room 04's first record, 慢板, played by Room 04's own music engine on the real piano, without the vinyl crackle, and
