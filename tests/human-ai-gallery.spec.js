@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-const ROOM_IDS = ["room02-la-coast-collection", "room01-corner-watercolour", "room02-city-new-york", "room02-city-san-francisco", "room02-city-brooklyn", "room03-bay-cable-car", "room03-ferry-building", "room03-marin-hills", "room01-amber-fig", "room02-blue-hour", "room03-lemons", "room04-rain-lane", "room01-alishan-cloud-sea"];
+const ROOM_IDS = ["room02-la-coast-collection", "room01-corner-watercolour", "room02-city-new-york", "room02-city-san-francisco", "room02-city-brooklyn", "room03-bay-cable-car", "room03-ferry-building", "room03-marin-hills", "room01-amber-fig", "room02-blue-hour", "room03-lemons", "room04-rain-lane", "room01-alishan-forest-train"];
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
@@ -136,7 +136,7 @@ for (const width of [390, 768, 1440]) {
       await expect(page.locator("#room-collection-title")).toHaveText(COLLECTION[lang].roomCollectionTitle);
       await expect(page.locator("#room-collection article")).toHaveCount(ROOM_IDS.length);
       await expect(page.locator("#room-collection article").first()).toHaveAttribute("data-piece", "room02-la-coast-collection");
-      await expect(page.locator("#room-collection article").last()).toHaveAttribute("data-piece", "room01-alishan-cloud-sea");
+      await expect(page.locator("#room-collection article").last()).toHaveAttribute("data-piece", "room01-alishan-forest-train");
       await expect(page.locator("#room-collection article h4")).toHaveText(PIECES.filter((piece) => ROOM_IDS.includes(piece.id)).map((piece) => piece.title[lang]));
       const roomverseBoxes = await page.locator("#roomverse article").evaluateAll((articles) => articles.map((article) => article.getBoundingClientRect().toJSON()));
       if (width >= 1000) expect(roomverseBoxes.map(({ top }) => top)).toEqual(roomverseBoxes.map(() => roomverseBoxes[0].top));

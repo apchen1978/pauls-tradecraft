@@ -1278,7 +1278,7 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
     paper: { zh: "紙剪植物", en: "Paper-cut leaves" },
     inkmoon: { zh: "墨與金月", en: "Ink and gold moon" },
     "amber-fig": { zh: "夕光裡的無花果", en: "Figs in Amber Light" },
-    "alishan-cloud-sea": { zh: "阿里山・雲海列車", en: "Alishan Above the Clouds" },
+    "alishan-forest-train": { zh: "阿里山・林中列車", en: "Alishan Forest Train" },
   };
   const prints = {}, printLoader = new THREE.TextureLoader();
   const printMat = new THREE.MeshStandardMaterial({ roughness: .85 });

@@ -2441,7 +2441,7 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       const atlas = new THREE.CanvasTexture(canvas); atlas.colorSpace = THREE.SRGBColorSpace; atlas.anisotropy = maxAnisotropy; return atlas;
     };
     PRINT_FILES.push(...LOUNGE_FILES); PRINT_FILES_B.push(...LOUNGE_FILES); // both gallery sets carry the same three Lounge prints
-    const PRINT_FILES_C = PRINT_FILES_B.map((file, i) => i === 2 ? "room04-print-rain-lane-v1.webp" : file);
+    const PRINT_FILES_C = PRINT_FILES_B.map((file, i) => i === 2 ? "room04-print-rain-lane-v2.webp" : file);
     const loadImages = (files, then, onError) => { const images = []; let left = files.length; files.forEach((file, i) => { const img = new Image(); img.onload = () => { images[i] = img; loadedArt.add(file); if (--left === 0) then(images); }; img.onerror = onError ?? null; img.src = artUrl(file); }); };
     const atlases = {}, pendingGalleries = new Set(); let wallMaterial = null;
     function setGallery(key) {

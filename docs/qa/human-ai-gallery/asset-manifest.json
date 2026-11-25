@@ -1303,63 +1303,63 @@
   },
   {
     "id": "room04-rain-lane",
-    "source": "docs/gallery/sources/room04-rain-lane-source.webp",
-    "sourceSha256": "82389d855a51562dab4fcd4efd5e6b2ddf955342c90bcd4b51db64bcf2858c33",
+    "source": "docs/gallery/sources/room04-rain-lane-v2-source.webp",
+    "sourceSha256": "8fd266143e68064133d60f260e6bf1c88acbfe9afbd9cd2a57b7635913734eae",
     "derivatives": [
       {
-        "file": "room04-rain-lane.webp",
+        "file": "room04-rain-lane-v2.webp",
         "width": 1280,
         "height": 960,
-        "bytes": 383010,
+        "bytes": 327316,
         "quality": 86,
-        "sha256": "e8a3c1a3d0711e062ad3559de16f26a6126c6ba5bbed76785fc13a840da96c30"
+        "sha256": "c3a759efc5e3f128c8b60a5e00f545c1ac97f229b01c66bb8a5fbf4eb31e5816"
       },
       {
-        "file": "room04-rain-lane-mobile.webp",
+        "file": "room04-rain-lane-v2-mobile.webp",
         "width": 800,
         "height": 600,
-        "bytes": 138748,
+        "bytes": 132352,
         "quality": 82,
-        "sha256": "8ece11de07ed96c66ee8140a2ff451fc670eacd5399c7578f8f658ed59553a9a"
+        "sha256": "e5ee546c70b5a8f31ce2fccfcede8d91c32c6dd7c8872ad94870006fbe4e42a4"
       },
       {
-        "file": "room04-rain-lane-thumb.webp",
+        "file": "room04-rain-lane-v2-thumb.webp",
         "width": 480,
         "height": 360,
-        "bytes": 39536,
+        "bytes": 41202,
         "quality": 77,
-        "sha256": "59c674ccbf03267525866fdc59422273f1403ef27b0ebe1002dfee3fb7b887a4"
+        "sha256": "cbac78b5be14316da5868b46e992256ae985703950a19e8b299bfb751f26439f"
       }
     ]
   },
   {
-    "id": "room01-alishan-cloud-sea",
-    "source": "docs/gallery/sources/room01-alishan-cloud-sea-source.webp",
-    "sourceSha256": "c64488f62ad467d7c6e266775115d4b45caad8827101f65059d0f4ad6c85b89e",
+    "id": "room01-alishan-forest-train",
+    "source": "docs/gallery/sources/room01-alishan-forest-train-source.webp",
+    "sourceSha256": "4c3e64ef1b3e3c848e9c07a5fdc8cd7941aee4f7f95621e81cc16f88fa306de5",
     "derivatives": [
       {
-        "file": "room01-alishan-cloud-sea.webp",
+        "file": "room01-alishan-forest-train.webp",
         "width": 1440,
         "height": 960,
-        "bytes": 421508,
+        "bytes": 405182,
         "quality": 86,
-        "sha256": "d6d1cf3ac5d799a555871af1868b3bd4d85839ce19c41b3a1745481a8a4841ba"
+        "sha256": "f952e1f09ccffcbce2471a95785b3ee34254f3493626db61cfeea7b0b9aa75d5"
       },
       {
-        "file": "room01-alishan-cloud-sea-mobile.webp",
+        "file": "room01-alishan-forest-train-mobile.webp",
         "width": 800,
         "height": 533,
-        "bytes": 133378,
+        "bytes": 124448,
         "quality": 82,
-        "sha256": "8fdc5f39810e5177978f880b1cea85028e13bdb6844de86674c44b731be4c081"
+        "sha256": "db8d5d4386b3fe6083ba2ad5c4441a52a3dfc18dc85b95a09c4cbd3e6ecaa3f5"
       },
       {
-        "file": "room01-alishan-cloud-sea-thumb.webp",
+        "file": "room01-alishan-forest-train-thumb.webp",
         "width": 480,
         "height": 320,
-        "bytes": 40614,
+        "bytes": 38190,
         "quality": 77,
-        "sha256": "46dac60ad949ad36af23b38781feee79fa8ece482a603268092a5cb9ce3cb53b"
+        "sha256": "fdb438601895208ca05577385af25d87495a5da36444bce55b8d7b3e34c526a6"
       }
     ]
   }
