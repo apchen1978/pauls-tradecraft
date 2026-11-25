@@ -1,4 +1,4 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=14";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=15";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
@@ -17,6 +17,8 @@ document.querySelectorAll(".languages a").forEach((a) => {
 });
 
 const dialog = $("viewer");
+const roomLink = $("viewer-room-link");
+roomLink.textContent = copy.viewInRoom;
 let selected = 0;
 let trigger;
 function showPainting(index) {
@@ -32,6 +34,16 @@ function showPainting(index) {
   $("viewer-title").textContent = piece.title[lang];
   $("viewer-caption").textContent = piece.caption[lang];
   $("viewer-made").textContent = piece.made[lang];
+  if (piece.roomHref) {
+    const url = new URL(piece.roomHref, location.origin);
+    url.searchParams.set("lang", lang);
+    roomLink.href = url.pathname + url.search;
+    roomLink.hidden = false;
+  } else {
+    if (document.activeElement === roomLink) $("close").focus();
+    roomLink.hidden = true;
+    roomLink.removeAttribute("href");
+  }
 }
 function openPainting(index, button) {
   trigger = button;
