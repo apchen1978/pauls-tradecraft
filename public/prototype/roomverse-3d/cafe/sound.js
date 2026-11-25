@@ -9,29 +9,45 @@
 // beat, a soft kick, swing brushes, and short Charleston piano stabs.
 import { createPiano } from "../piano.js?v=auto"; // a real piano (Salamander Grand Piano, CC BY 3.0, credited on the page): the synthesised keyboard sounded like MIDI
 const realPiano = createPiano(), PIANO_K = 3.2; // PIANO_K scales the old synth levels to the louder samples
-const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 12; // playlist mode (Paul, 2026-11-17): each piece plays three times through its four chords (about 40 to 50 s), then the next one follows with no gap, until the visitor stops it or leaves
+const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12); const BARS_PER_TRACK = 12; // playlist fallback: three times through a four-chord loop, used only when a track has no written length
+const copyBar = (bar, extra = {}) => ({ chord: bar.chord.slice(), bass: bar.bass, melody: bar.melody.slice(), ...(bar.tune ? { ending: true, tune: bar.tune.map((note) => note.slice()) } : {}), ...extra });
+// One pass is the four-chord phrase twice, a bridge that starts on the last chord of that phrase, the phrase again, then a two-bar cadence. Gains stay at the old levels.
+const pass = (chords, bridge, cadence) => [...chords, ...chords, ...bridge, ...chords, ...cadence].map((bar) => copyBar(bar));
+const ADAGIO = [
+  { chord: [50, 57, 60, 64, 65], bass: 38, melody: [69, 72, 74, 76, 77] },   // Dm9
+  { chord: [43, 53, 59, 64, 69], bass: 43, melody: [71, 74, 76, 79, 81] },   // G13
+  { chord: [48, 55, 59, 62, 64], bass: 36, melody: [72, 74, 76, 79, 83] },   // Cmaj9
+  { chord: [45, 55, 60, 64, 67], bass: 45, melody: [72, 76, 79, 81, 84] },   // Am9
+];
+const ALLEY = [
+  { chord: [53, 57, 60, 64, 67], bass: 41, melody: [69, 72, 74, 77, 79] },   // Fmaj9
+  { chord: [58, 62, 65, 69, 72], bass: 46, melody: [70, 72, 74, 77, 81] },   // Bbmaj9
+  { chord: [53, 57, 60, 64, 67], bass: 45, melody: [69, 72, 74, 76, 79] },   // Fmaj9/A
+  { chord: [52, 58, 62, 64, 69], bass: 36, melody: [69, 72, 74, 76, 77] },   // C13
+];
+const BUND_NIGHT = [
+  { chord: [48, 55, 60, 63, 69], bass: 36, melody: [72, 75, 77, 79, 81] },   // Cm6
+  { chord: [53, 56, 60, 62, 65], bass: 41, melody: [68, 72, 75, 77, 80] },   // Fm6
+  { chord: [48, 55, 59, 63, 67], bass: 36, melody: [72, 74, 75, 79, 83] },   // Cm(maj7)
+  { chord: [43, 53, 59, 62, 68], bass: 43, melody: [71, 74, 77, 79, 80] },   // G7b9
+];
+export const CAFE_ALLEY_BARS = 18; // one pass of 午後弄堂; Room 03 advances its record on this count
 const TRACKS = [
-  { title: "慢板", bpm: 58, swing: 0.18, filter: 2100, bass: [[0, 0, 1.8], [2.5, 7, 1.2]], brush: [[1, 0.05, true], [3, 0.05, true], [1.66, 0.022], [3.66, 0.022]], stabs: [[0, 0.085]],
-    bars: [
-      { chord: [50, 57, 60, 64, 65], bass: 38, melody: [69, 72, 74, 76, 77] },   // Dm9
-      { chord: [43, 53, 59, 64, 69], bass: 43, melody: [71, 74, 76, 79, 81] },   // G13
-      { chord: [48, 55, 59, 62, 64], bass: 36, melody: [72, 74, 76, 79, 83] },   // Cmaj9
-      { chord: [45, 55, 60, 64, 67], bass: 45, melody: [72, 76, 79, 81, 84] },   // Am9
-    ] },
-  { title: "午後弄堂", bpm: 74, swing: 0.08, filter: 2600, bass: [[0, 0, 1.0], [1.5, 7, 0.8], [2.5, 0, 1.0], [3.5, 7, 0.6]], brush: [[0.5, 0.03], [1, 0.045, true], [1.5, 0.03], [2.5, 0.03], [3, 0.045, true], [3.5, 0.03]], stabs: [[0, 0.08], [2.5, 0.05]],
-    bars: [
-      { chord: [53, 57, 60, 64, 67], bass: 41, melody: [69, 72, 74, 77, 79] },   // Fmaj9
-      { chord: [58, 62, 65, 69, 72], bass: 46, melody: [70, 72, 74, 77, 81] },   // Bbmaj9
-      { chord: [53, 57, 60, 64, 67], bass: 45, melody: [69, 72, 74, 76, 79] },   // Fmaj9/A
-      { chord: [52, 58, 62, 64, 69], bass: 36, melody: [69, 72, 74, 76, 77] },   // C13
-    ] },
-  { title: "夜色外灘", bpm: 66, swing: 0.22, filter: 2000, bass: [[0, 0, 1.4], [1.5, 7, 0.8], [2.5, 0, 1.0], [3.5, -2, 0.5]], brush: [[1, 0.05, true], [3, 0.05, true], [1.66, 0.025], [3.66, 0.025]], stabs: [[0, 0.08], [2.5, 0.045]],
-    bars: [
-      { chord: [48, 55, 60, 63, 69], bass: 36, melody: [72, 75, 77, 79, 81] },   // Cm6
-      { chord: [53, 56, 60, 62, 65], bass: 41, melody: [68, 72, 75, 77, 80] },   // Fm6
-      { chord: [48, 55, 59, 63, 67], bass: 36, melody: [72, 74, 75, 79, 83] },   // Cm(maj7)
-      { chord: [43, 53, 59, 62, 68], bass: 43, melody: [71, 74, 77, 79, 80] },   // G7b9
-    ] },
+  { title: "慢板", bpm: 58, swing: 0.18, filter: 2100, length: 18, bass: [[0, 0, 1.8], [2.5, 7, 1.2]], brush: [[1, 0.05, true], [3, 0.05, true], [1.66, 0.022], [3.66, 0.022]], stabs: [[0, 0.085]],
+    bars: pass(ADAGIO, [ADAGIO[3], ADAGIO[0], ADAGIO[1], ADAGIO[2]], [
+      copyBar(ADAGIO[1], { ending: true, tune: [[0, 71, 1], [1.5, 74, 1], [3, 79, 1]] }), // G13: B, D, then G
+      copyBar(ADAGIO[2], { ending: true, tune: [[0, 76, 1], [1.5, 79, 1], [2.5, 72, 1.5]] }), // Cmaj9: E, G, and C held
+    ]) },
+  { title: "午後弄堂", bpm: 74, swing: 0.08, filter: 2600, length: CAFE_ALLEY_BARS, bass: [[0, 0, 1.0], [1.5, 7, 0.8], [2.5, 0, 1.0], [3.5, 7, 0.6]], brush: [[0.5, 0.03], [1, 0.045, true], [1.5, 0.03], [2.5, 0.03], [3, 0.045, true], [3.5, 0.03]], stabs: [[0, 0.08], [2.5, 0.05]],
+    bars: pass(ALLEY, [ALLEY[1], ALLEY[3], ALLEY[0], ALLEY[3]], [
+      copyBar(ALLEY[3], { ending: true, tune: [[0, 72, 1], [1.5, 74, 1], [3, 77, 1]] }), // C13: C, D, F
+      copyBar(ALLEY[0], { ending: true, tune: [[0, 76, 1], [1.5, 77, 1], [2.5, 65, 1.5]] }), // Fmaj9: E, F, and the low F held
+    ]) },
+  { title: "夜色外灘", bpm: 66, swing: 0.22, filter: 2000, length: 18, bass: [[0, 0, 1.4], [1.5, 7, 0.8], [2.5, 0, 1.0], [3.5, -2, 0.5]], brush: [[1, 0.05, true], [3, 0.05, true], [1.66, 0.025], [3.66, 0.025]], stabs: [[0, 0.08], [2.5, 0.045]],
+    bars: pass(BUND_NIGHT, [BUND_NIGHT[1], BUND_NIGHT[3], BUND_NIGHT[0], BUND_NIGHT[3]], [
+      copyBar(BUND_NIGHT[3], { ending: true, tune: [[0, 71, 1], [1.5, 74, 1], [3, 77, 1]] }), // G7b9: B, D, F
+      copyBar(BUND_NIGHT[0], { ending: true, tune: [[0, 75, 1], [1.5, 72, 1], [2.5, 60, 1.5]] }), // Cm6: Eb, C, and the low C held
+    ]) },
   { title: "十里洋場", bpm: 152, swing: 0.16, filter: 3200, length: 32, strum: 0.012, short: 0.16, kick: 0.16, lead: true, sparse: false,
     bass: [], brush: [[0, 0.03], [1, 0.055], [1.5, 0.028, true], [2, 0.03], [3, 0.055], [3.5, 0.028, true]], stabs: [[0, 0.075], [1.5, 0.06]],
     bars: [ // walk: the bass's four quarter notes; tune: [beat, note, beats] (off-beat eighths are swung)
@@ -114,8 +130,11 @@ export function createRoomSound() {
       if (chorus !== 1) lead(t, note, 0.06, len, "reed");
       if (chorus !== 0) lead(t, chorus === 3 ? note - 12 : note, chorus === 3 ? 0.04 : 0.055, len, "trumpet");
     }
-    let at = 0.5 + rnd() * 0.5; // a few sparse melody notes, in the gaps
-    while ((track.sparse !== false || chorus === 2) && at < 3.7) { const note = bar.melody[Math.floor(rnd() * bar.melody.length)]; piano(t0 + at * beat, note, 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
+    if (bar.ending && bar.tune) for (const [at, note, beats] of bar.tune) piano(t0 + at * beat + (at % 1 ? track.swing * beat : 0), note, 0.075, beats * beat, track.filter); // the cadence is written; it uses the same piano level as the sparse line
+    else {
+      let at = 0.5 + rnd() * 0.5; // a few sparse melody notes, in the gaps
+      while ((track.sparse !== false || chorus === 2) && at < 3.7) { const note = bar.melody[Math.floor(rnd() * bar.melody.length)]; piano(t0 + at * beat, note, 0.07, beat * (1.6 + rnd()), track.filter); at += 0.9 + rnd() * 1.6; }
+    }
     barIndex += 1; nextTime += barLength;
   };
   const scheduleBar = () => {

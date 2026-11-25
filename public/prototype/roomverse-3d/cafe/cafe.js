@@ -5,7 +5,7 @@ import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { loadModel } from "../bedroom/models.js?v=auto";
 import { auditRoom04 } from "./physics-audit.js?v=auto";
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
-import { createRoomSound } from "./sound.js?v=auto";
+import { createRoomSound } from "./sound.js?v=6";
 import { createTrackPlayer } from "../media-player.js?v=auto";
 
 // Room 04 | Shanghai, Slowly. A small red-brick cafe in Shanghai; the room opens at golden hour, standing just inside the door.

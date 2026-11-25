@@ -7,7 +7,7 @@
 import { createPiano } from "../piano.js?v=auto";
 const realPiano = createPiano(), PIANO_K = 3.0;
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
-const BPM = 92, STEP = 60 / BPM / 4, SWING = 0.07, BAR_STEPS = 16, FORM_BARS = 16;
+const BPM = 92, STEP = 60 / BPM / 4, SWING = 0.07, BAR_STEPS = 16, FORM_BARS = 24; // the old sixteen bars, then bars 8–15 again (the higher phrase and the cadence home to G)
 const CHORDS = [
   { bass: 43, comp: [59, 62, 66, 69] },   // Gmaj9: B D F# A
   { bass: 40, comp: [55, 59, 62, 66] },   // Em9: G B D F#
@@ -32,7 +32,7 @@ const MELODY_B = [ // the lift
 ];
 const CADENCE = [[0, 74, 2], [2, 76, 2], [4, 78, 2], [7, 81, 2], [10, 78, 2], [12, 76, 1], [14, 78, 2], [16, 79, 8]]; // the last bar (D6/9): up to A, down, F# and home to G on the next downbeat
 export const BAY_TITLE = { zh: "灣區晴日", en: "West Coast Sun" };
-export const BAY_BARS = FORM_BARS; // one time through the form, about 42 s
+export const BAY_BARS = FORM_BARS; // one time through the form, about 63 s at 92 BPM
 
 export function createBayRecord() {
   let ctx = null, bus = null, master = null, crackle = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, seed = 23, noise = null, reverbBuffer = null, runId = 0;
@@ -77,11 +77,11 @@ export function createBayRecord() {
     return buffer;
   };
   const scheduleBar = () => {
-    const section = barIndex % FORM_BARS, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
+    const section = barIndex % FORM_BARS, local = section < 16 ? section : section - 8, chord = CHORDS[local % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
     // percussion from bar 2: a soft kick on one and three, a bossa-style rim figure, sixteenth shakers (the accent on the beat)
-    if (section >= 2) {
+    if (local >= 2) {
       kick(at(0) + jitter(5), 0.32); kick(at(8) + jitter(5), 0.22);
-      for (const i of (barIndex % 2 ? [2, 6, 12] : [0, 6, 10])) rim(at(i) + jitter(4), 0.05);
+      for (const i of (local % 2 ? [2, 6, 12] : [0, 6, 10])) rim(at(i) + jitter(4), 0.05);
       for (let i = 0; i < BAR_STEPS; i += 1) shaker(at(i) + jitter(3), i % 4 === 0 ? 0.05 : i % 2 ? 0.022 : 0.032);
     }
     // the bass: root, fifth on the "and" of two, root on three, fifth to lead on
@@ -90,11 +90,10 @@ export function createBayRecord() {
     chord.comp.forEach((midi, i) => piano(at(0) + i * 0.03 + jitter(5), midi, vary(0.062), STEP * 7, -0.2 + i * 0.12));
     chord.comp.slice(1).forEach((midi, k) => piano(at(6) + k * 0.018, midi, vary(0.034), STEP * 3, 0.12 - k * 0.08));
     chord.comp.slice(2).forEach((midi, k) => piano(at(12) + k * 0.018, midi, vary(0.03), STEP * 3, 0.1));
-    // the melody: absent for the first two bars, then phrase A, the higher phrase B, then A again ending on the cadence. Short notes and a slightly stronger touch keep it bouncy;
-    // a soft bell an octave up doubles the head of the hook for a little holiday sparkle.
-    if (section >= 2) {
-      const row = section === FORM_BARS - 1 ? CADENCE : (section >= 8 && section <= 11 ? MELODY_B : MELODY_A)[barIndex % 4], hook = barIndex % 2 === 0;
-      for (const [i, midi, length] of row) { const t = at(i) + 0.008 + jitter(5); piano(t, midi, vary(0.095), STEP * (length + 0.6), 0.22); if (hook && i < 8) bell(t, midi + 12, section >= 8 && section <= 11 ? 0.012 : 0.016); }
+    // the melody: absent for the first two bars, then phrase A, the higher phrase B, then A again ending on the cadence. Bars 16–23 replay bars 8–15, so the piece ends on that same cadence a second time.
+    if (local >= 2) {
+      const row = local === 15 ? CADENCE : (local >= 8 && local <= 11 ? MELODY_B : MELODY_A)[local % 4], hook = local % 2 === 0;
+      for (const [i, midi, length] of row) { const t = at(i) + 0.008 + jitter(5); piano(t, midi, vary(0.095), STEP * (length + 0.6), 0.22); if (hook && i < 8) bell(t, midi + 12, local >= 8 && local <= 11 ? 0.012 : 0.016); }
     }
     barIndex += 1; nextTime += BAR_STEPS * STEP;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));

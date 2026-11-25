@@ -62,12 +62,12 @@ export const TRACKS = [
   {
     id: "bay-area-afternoon", title: { zh: "灣區晴日", en: "West Coast Sun" }, rooms: ["Room 03"], engine: "bay", index: 0, cover: "/music-lounge/covers/bay-area-afternoon.webp?v=1",
     mood: { zh: "晴朗的西岸，鋼琴和沙鈴一起亮著", en: "Piano and shaker shine in clear West Coast sun." },
-    made: { zh: "以 G 大調和四和弦循環寫成 16 小節，加入 bossa 風格的低音、rim click、shaker 與鋼琴主題。Room 03 的唱片機也會播放這首。", en: "A 16-bar piece in G major built on a four-chord loop, with a bossa-style bass, rim click, shaker and piano hook. Room 03’s record player also plays it." },
+    made: { zh: "以 G 大調和四和弦循環寫成，前 16 小節之後再奏一次較高的樂句，落回 G，一共 24 小節。Room 03 的唱片機也會播放這首。", en: "A G-major four-chord piece: the first 16 bars, then the higher phrase and the cadence home to G once more, 24 bars in all. Room 03’s record player also plays it." },
   },
   {
     id: "afternoon-alley", title: { zh: "午後弄堂", en: "Afternoon Alley" }, rooms: ["Room 03", "Room 04"], engine: "cafe", index: 1, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-1-v1.webp",
     mood: { zh: "午後的弄堂裡，刷鼓陪鋼琴慢慢走", en: "Brushed drums walk with the piano down an afternoon alley." },
-    made: { zh: "這段 F 大調循環以 74 BPM 演奏，鋼琴和弦、低音與刷奏節奏交錯，保留很淡的黑膠底聲。Room 03 的唱片機也會播放同一段音樂。", en: "This F-major loop moves at 74 BPM, with piano chords, bass and brushed percussion, over a faint vinyl texture. Room 03’s record player uses the same piece." },
+    made: { zh: "這段 F 大調循環以 74 BPM 演奏，樂句走兩遍、轉一個橋段再回來，最後落在 F，一共 18 小節。Room 03 的唱片機也會播放同一段音樂。", en: "This F-major loop moves at 74 BPM: the phrase twice, a short bridge, the phrase again, then a cadence on F, 18 bars in all. Room 03’s record player uses the same piece." },
   },
   {
     id: "afternoon-ascending", title: { zh: "午後上行", en: "Afternoon Ascending" }, rooms: ["Room 01", "Room 03", "Room 04"], engine: "night", index: 1, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-4-v1.webp",
@@ -77,12 +77,12 @@ export const TRACKS = [
   {
     id: "brooklyn-windowsill", title: { zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, rooms: ["Room 02", "Room 03"], engine: "bedroom", index: 0, cover: "/music-lounge/covers/brooklyn-windowsill.webp?v=1",
     mood: { zh: "窗臺上，鋼琴帶著 swing 踩進節拍", en: "On the windowsill, piano swings into the beat." },
-    made: { zh: "以 D 小調的四和弦循環和 swung sixteenths 打底，讓真鋼琴旋律在低音與節拍上方進來。曲子以 16 小節為一輪。", en: "A D-minor four-chord loop and swung sixteenths set the foundation, with sampled piano melody over bass and beat. The piece runs in a 16-bar form." },
+    made: { zh: "以 D 小調的四和弦循環和 swung sixteenths 打底，16 小節的旋律再走一遍，最後兩小節落在 D。一輪一共 32 小節。", en: "A D-minor four-chord loop and swung sixteenths set the foundation. The 16-bar melody plays again, then two bars land on D, 32 bars in all." },
   },
   {
     id: "adagio", title: { zh: "慢板", en: "Adagio" }, rooms: ["Room 04"], engine: "cafe", index: 0, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-0-v1.webp",
     mood: { zh: "很慢的 swing，樂句之間留著空", en: "A slow swing, with space left between the phrases." },
-    made: { zh: "這首以 58 BPM 演奏 Dm9、G13、Cmaj9、Am9 四個和弦，搭配刷奏、低音與鋼琴。Room 01 重用這段音樂時，改為 100 BPM 並拿掉黑膠底聲。", en: "At 58 BPM, this piece moves through Dm9, G13, Cmaj9 and Am9, with brushes, bass and piano. Room 01 reuses it at 100 BPM without the vinyl crackle." },
+    made: { zh: "這首以 58 BPM 演奏 Dm9、G13、Cmaj9、Am9，樂句走兩遍再經由 Am9 轉回，最後落在 C，一共 18 小節。Room 01 重用這段音樂時，改為 100 BPM 並拿掉黑膠底聲。", en: "At 58 BPM this moves through Dm9, G13, Cmaj9 and Am9, states that phrase twice, turns through Am9, and cadences on C, 18 bars in all. Room 01 reuses it at 100 BPM without the vinyl crackle." },
   },
   {
     id: "bund-swing", title: { zh: "十里洋場", en: "The Bund Swing" }, rooms: ["Room 01", "Room 04"], engine: "cafe", index: 3, room01NoVinyl: true, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-3-v1.webp",
@@ -92,12 +92,12 @@ export const TRACKS = [
   {
     id: "bund-at-night", title: { zh: "夜色外灘", en: "Bund at Night" }, rooms: ["Room 04"], engine: "cafe", index: 2, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-2-v1.webp",
     mood: { zh: "外灘入夜，弱音小號壓著更重的拍", en: "Night on the Bund, a muted trumpet over a heavier swing." },
-    made: { zh: "這段 C 小調循環以 66 BPM 演奏，讓鋼琴、低音、刷鼓和近似弱音小號的旋律交疊。四個和弦循環三次後會接下一首。", en: "This C-minor loop moves at 66 BPM, layering piano, bass, brushed drums and a muted-trumpet-like melody. Its four-chord cycle repeats three times before the next record." },
+    made: { zh: "這段 C 小調循環以 66 BPM 演奏，四個和弦走兩遍，從 Fm 轉一個橋段再回來，最後落在 C，一共 18 小節。播完這一輪才接下一首。", en: "This C-minor loop moves at 66 BPM: the four chords twice, a turn that starts on Fm, the chords again, then a cadence on C, 18 bars in all. The next record follows after that pass." },
   },
   {
     id: "fire-escape-rain", title: { zh: "防火梯的雨", en: "Fire Escape Rain" }, rooms: ["Room 02"], engine: "bedroom", index: 1, cover: "/music-lounge/covers/fire-escape-rain.webp?v=1",
     mood: { zh: "深夜，雨打在紐約的鐵窗上", en: "Late at night, rain strikes an iron window in New York." },
-    made: { zh: "68 BPM 的刷鼓與鋼琴旋律走過 Fmaj9、Em7、Dm9、G13，窗雨聲取代黑膠底聲。這是 Room 02 唱片的 B 面，和 A 面共用鋼琴取樣。", en: "At 68 BPM, brushed drums and piano move through Fmaj9, Em7, Dm9 and G13, with window rain in place of vinyl noise. It is side B of the Room 02 record and uses the same piano samples as side A." },
+    made: { zh: "68 BPM 的刷鼓與鋼琴走過 Fmaj9、Em7、Dm9、G13，16 小節再走一遍，最後兩小節落在 F，一共 32 小節。這是 Room 02 唱片的 B 面，窗雨聲取代黑膠底聲。", en: "At 68 BPM, brushed drums and piano move through Fmaj9, Em7, Dm9 and G13. Those 16 bars play again, then two bars land on F, 32 bars in all. It is side B of the Room 02 record, with window rain instead of vinyl noise." },
   },
   {
     id: "series-night", title: { zh: "追劇夜", en: "Series Night" }, rooms: ["Room 01", "Room 02", "Room 03", "Room 04"], engine: "night", index: 0, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-5-v1.webp",

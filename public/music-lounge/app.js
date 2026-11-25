@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=4";
+import { COPY, TRACKS } from "./tracks.js?v=6";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -48,11 +48,13 @@ const statuses = new Map();
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function unlockAudioFromGesture() {
-  if (audioUnlockContext) return;
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return;
+  const Native = window.AudioContext || window.webkitAudioContext;
+  if (!Native || Native.__loungeShared) {
+    if (audioUnlockContext) void audioUnlockContext.resume();
+    return;
+  }
   try {
-    audioUnlockContext = new AudioContextClass();
+    audioUnlockContext = new Native();
     const buffer = audioUnlockContext.createBuffer(1, 1, audioUnlockContext.sampleRate);
     const source = audioUnlockContext.createBufferSource();
     const gain = audioUnlockContext.createGain();
@@ -62,6 +64,14 @@ function unlockAudioFromGesture() {
     gain.connect(audioUnlockContext.destination);
     source.start();
     void audioUnlockContext.resume();
+    // The score modules load after this tap, and each engine then does `new AudioContext()`.
+    // A context created after the tap can stay suspended, so every later constructor
+    // returns the context this tap already resumed.
+    const shared = function LoungeAudioContext() { return audioUnlockContext; };
+    shared.prototype = Native.prototype;
+    shared.__loungeShared = true;
+    if (window.AudioContext) window.AudioContext = shared;
+    if (window.webkitAudioContext) window.webkitAudioContext = shared;
   } catch {
     audioUnlockContext = null;
   }
@@ -69,22 +79,22 @@ function unlockAudioFromGesture() {
 
 async function makePlayer(track) {
   if (track.engine === "night") {
-    const { createNightMusic } = await import("/prototype/roomverse-3d/night-score.js?v=auto");
+    const { createNightMusic } = await import("/prototype/roomverse-3d/night-score.js?v=6");
     const player = createNightMusic();
     return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
   }
   if (track.engine === "cafe") {
-    const { createRoomSound } = await import("/prototype/roomverse-3d/cafe/sound.js?v=auto");
+    const { createRoomSound } = await import("/prototype/roomverse-3d/cafe/sound.js?v=6");
     const player = createRoomSound();
     const options = track.room01Day ? { vinyl: false, bpm: 100 } : track.room01NoVinyl ? { vinyl: false } : {};
     return { player, start: () => player.start(track.index, false, options), stop: () => player.stop(), state: () => player.state() };
   }
   if (track.engine === "bedroom") {
-    const { createRoomRecord } = await import("/prototype/roomverse-3d/bedroom/sound.js?v=auto");
+    const { createRoomRecord } = await import("/prototype/roomverse-3d/bedroom/sound.js?v=6");
     const player = createRoomRecord();
     return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
   }
-  const { createBayRecord } = await import("/prototype/roomverse-3d/kitchen/sound.js?v=auto");
+  const { createBayRecord } = await import("/prototype/roomverse-3d/kitchen/sound.js?v=6");
   const player = createBayRecord();
   return { player, start: () => player.start(), stop: () => player.stop(), state: () => player.state() };
 }
