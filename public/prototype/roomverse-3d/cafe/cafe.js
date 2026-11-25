@@ -1564,8 +1564,8 @@ export async function start({ stage, onReady = () => {}, onMenuTap = () => {} })
       title,
       titleEn: ["Slow Tempo", "Lane in the Afternoon", "Night on the Bund", "Bund Swing"][index],
       sources: [
-        { type: 'audio/mp4; codecs="mp4a.40.2"', src: new URL(`./audio/room04-track-${index}-v1.m4a`, import.meta.url).href },
-        { type: 'audio/ogg; codecs="opus"', src: new URL(`./audio/room04-track-${index}-v1.ogg`, import.meta.url).href },
+        { type: 'audio/mp4; codecs="mp4a.40.2"', src: new URL(`./audio/room04-track-${index}-${index === 3 ? "v1" : "v2"}.m4a`, import.meta.url).href },
+        { type: 'audio/ogg; codecs="opus"', src: new URL(`./audio/room04-track-${index}-${index === 3 ? "v1" : "v2"}.ogg`, import.meta.url).href },
       ],
       artwork: [
         { src: new URL(`./audio/room04-record-cover-${index}-512-v1.jpg`, import.meta.url).href, sizes: "512x512", type: "image/jpeg" },
