@@ -36,7 +36,7 @@ const SECTION_ORDER = ["commercial", "operations", "labs"];
 const WIDE_CARDS = {
   "overseas-lead-discovery": { balance: true },
   "global-business-development": { balance: true },
-  "trade-profit-navigator": { balance: false },
+  "trade-profit-navigator": { balance: true },
 };
 
 // Public narrative top-3 (C): the Commercial Decision Desk is featured separately; the flagship wall is GBD + Trade Profit Navigator.
@@ -854,7 +854,7 @@ export default function Works() {
       >
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
-            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
+            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-start md:bg-paper md:p-8 lg:p-10" : ""}`}>
               {editorialCoverIds.has(w.id) ? <EditorialCover work={w} lang={lang} /> : <CoverImage
                 src={cover}
                 alt={w.imageAlt[lang]}
