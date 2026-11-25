@@ -181,8 +181,13 @@ test.describe("nav names", () => {
         const nav = page.locator("header nav");
         const showcaseLink = nav.getByRole("link", { name: showcase, exact: true });
         const worksLink = nav.getByRole("link", { name: works, exact: true });
+        const labLink = nav.getByRole("link", { name: "AI Lab", exact: true });
         await expect(showcaseLink).toHaveAttribute("href", "#showcase");
         await expect(worksLink).toHaveAttribute("href", "#works");
+        await expect(labLink).toHaveAttribute("href", "#ai-lab");
+        await expect(showcaseLink).toHaveCSS("background-color", "rgb(184, 153, 102)");
+        await expect(worksLink).toHaveCSS("background-color", "rgb(217, 145, 121)");
+        await expect(labLink).toHaveCSS("background-color", "rgb(142, 190, 184)");
         const fit = await showcaseLink.evaluate((el) => {
           const row = el.parentElement;
           const links = [...row.querySelectorAll(":scope > a")];

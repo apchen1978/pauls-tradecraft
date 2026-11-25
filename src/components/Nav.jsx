@@ -18,22 +18,21 @@ export default function Nav() {
   }, [open]);
 
   const links = [
-    // Paul 2026-11-20: the two things that carry the site come first and are framed (a gold-edged pill for the Immersive Collection, a quieter bone-edged one for the Business Works), then
-    // the AI Lab, the Garage, and how I work, the notes and about. "What I do" is gone from the bar: the work itself shows it (its section is still on the page).
+    // The three main destinations lead the desktop navigation.
     { href: "#showcase", label: t.nav.showcase, tier: "featured" },
     { href: "#works", label: t.nav.works, tier: "major" },
-    { href: "#ai-lab", label: t.nav.aiLab, tier: "lab" }, // Paul 2026-11-20: the AI Lab is as important as the other two, so it is framed too, in its own colour (a soft sage-mint, kin to the paper green)
+    { href: "#ai-lab", label: t.nav.aiLab, tier: "lab" },
     { href: "#garage", label: t.nav.garage, tier: "garage" },
     { href: "#capabilities", label: t.nav.services, tier: "method" },
     { href: "#trade-notes", label: t.nav.notes, tier: "notes" },
     { href: "#about", label: t.nav.about, tier: "about" },
   ];
 
-  // Paul 2026-11-22: every tab is framed, each in its own colour; the Immersive Collection is a solid gold pill with dark text. A frame is a 1 px ring in the tab's colour with a faint tint of it inside.
+  // Solid fills identify the three main destinations; tinted outlines identify the other sections.
   const TIER_DESKTOP = {
     featured: "rounded-full border border-gold bg-gold px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
-    major: "rounded-full border border-[#e8dcc3]/70 bg-[#e8dcc3]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#e8dcc3]/20 focus-visible:bg-[#e8dcc3]/20 xl:px-3.5",
-    lab: "rounded-full border border-[#8fbfa8]/80 bg-[#8fbfa8]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#8fbfa8]/20 hover:text-bone focus-visible:bg-[#8fbfa8]/20 xl:px-3.5",
+    major: "rounded-full border border-[#d99179] bg-[#d99179] px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
+    lab: "rounded-full border border-[#8ebeb8] bg-[#8ebeb8] px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
     garage: "rounded-full border border-[#e59a7a]/80 bg-[#e59a7a]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#e59a7a]/20 focus-visible:bg-[#e59a7a]/20 xl:px-3.5",
     method: "rounded-full border border-[#8fb4dc]/80 bg-[#8fb4dc]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#8fb4dc]/20 focus-visible:bg-[#8fb4dc]/20 xl:px-3.5",
     notes: "rounded-full border border-[#b9a6e0]/80 bg-[#b9a6e0]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#b9a6e0]/20 focus-visible:bg-[#b9a6e0]/20 xl:px-3.5",
