@@ -6,7 +6,7 @@ import * as THREE from "../vendor/three.module.min.js"; // same self-hosted thre
 import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 import { loadModel, loadGlb } from "./models.js?v=5";
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
-import { createRoomRecord } from "./sound.js?v=6"; // the record by the window plays one piece (Brooklyn Windowsill)
+import { createRoomRecord } from "./sound.js?v=auto"; // the record by the window plays one piece (Brooklyn Windowsill)
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
