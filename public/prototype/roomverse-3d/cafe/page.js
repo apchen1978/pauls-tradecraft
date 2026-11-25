@@ -414,7 +414,7 @@ async function enterRoom() {
  entering = true; $("poster").hidden = true; document.documentElement.classList.remove("arriving"); $("status").hidden = false; $("status").textContent = COPY[lang].loading;
  performance.mark("room04-enter");
  try {
-  const { start } = await import("./cafe.js?v=auto");
+  const { start } = await import("./cafe.js?v=6");
   room = await start({ stage: $("stage"), onMenuTap: () => { room?.pokeRobot?.(); openBubble("menu", 7000); } });
   room.onRecordTrack?.((index) => { recordTrackShown = index; if (!document.hidden && room.recordPlaying() && ($("bubble").hidden || bubbleOwner === "record")) openBubble("record", 7000); });
   room.onRecordPlayback?.((playing) => { if (!playing && bubbleOwner === "record") closeBubble(); });

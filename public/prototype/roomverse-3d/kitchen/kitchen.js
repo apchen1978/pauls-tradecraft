@@ -3,10 +3,10 @@ import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
-import { createRoomRecord, RECORD_A_BARS } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
+import { createRoomRecord, RECORD_A_BARS } from "../bedroom/sound.js?v=6"; // Room 02's "布魯克林窗台" (side A)
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: movie night plays the epic orchestral piece of Room 01
-import { createRoomSound, CAFE_ALLEY_BARS } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
-import { createBayRecord, BAY_BARS } from "./sound.js?v=auto"; // Room 03's own piece "灣區晴日", played first
+import { createRoomSound, CAFE_ALLEY_BARS } from "../cafe/sound.js?v=6"; // Room 04's records; track 1 is "午後弄堂"
+import { createBayRecord, BAY_BARS } from "./sound.js?v=6"; // Room 03's own piece "灣區晴日", played first
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
