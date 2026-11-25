@@ -60,6 +60,21 @@ export const TRACKS = [
     made: { zh: "這首沿用 Room 04《慢板》的音樂資料，在 Room 01 以 100 BPM 播放。Room 01 版本不加黑膠雜音。", en: "This reuses the music written for Room 04’s “Adagio,” played at 100 BPM in Room 01. The Room 01 version leaves out the vinyl crackle." },
   },
   {
+    id: "series-night", title: { zh: "追劇夜", en: "Series Night" }, rooms: ["Room 01", "Room 02", "Room 03", "Room 04"], engine: "night", index: 0, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-5-v1.webp",
+    mood: { zh: "低音鋼琴悄悄起，一路推向管弦高峰", en: "Low piano begins quietly, then rises to an orchestral peak." },
+    made: { zh: "這首 D 小調 16 小節作品由低音鋼琴與弦樂開始，逐步加入銅管、定音鼓，最後再回到開場。播放會在 16 小節後回到開頭，直到停止。", en: "This 16-bar piece in D minor begins with low piano and strings, builds with brass and timpani, then returns to its opening. It loops back to the start after 16 bars until stopped." },
+  },
+  {
+    id: "bund-swing", title: { zh: "十里洋場", en: "The Bund Swing" }, rooms: ["Room 01", "Room 04"], engine: "cafe", index: 3, room01NoVinyl: true, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-3-v1.webp",
+    mood: { zh: "明亮的舞廳裡，小號與鋼琴輪流上場", en: "In a bright dance hall, trumpet and piano take turns." },
+    made: { zh: "F 大調的 8 小節主題在蘆笛、弱音小號與鋼琴聲部間接續，配上 walking bass 和刷鼓。整首編排為 32 小節。", en: "An eight-bar F-major theme passes between a reed lead, muted-trumpet-like lead and piano, over walking bass and brushed drums. The full arrangement spans 32 bars." },
+  },
+  {
+    id: "afternoon-ascending", title: { zh: "午後上行", en: "Afternoon Ascending" }, rooms: ["Room 01", "Room 03", "Room 04"], engine: "night", index: 1, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-4-v1.webp",
+    mood: { zh: "鬆弛的爵士鼓上，右手即興慢慢上行", en: "The right hand climbs over a laid-back jazz groove." },
+    made: { zh: "這首 42 小節的作品以 comping 和爵士鼓為主。v36 只重寫右手即興線，保留既有和弦、低音、鼓與曲式。", en: "This 42-bar piece centres on comping and jazz drums. Version 36 rewrote only the right-hand improvisation, keeping the existing chords, bass, drums and form." },
+  },
+  {
     id: "bay-area-afternoon", title: { zh: "灣區晴日", en: "West Coast Sun" }, rooms: ["Room 03"], engine: "bay", index: 0, cover: "/music-lounge/covers/bay-area-afternoon.webp?v=1",
     mood: { zh: "晴朗的西岸，鋼琴和沙鈴一起亮著", en: "Piano and shaker shine in clear West Coast sun." },
     made: { zh: "以 G 大調和四和弦循環寫成，前 16 小節之後再奏一次較高的樂句，落回 G，一共 24 小節。Room 03 的唱片機也會播放這首。", en: "A G-major four-chord piece: the first 16 bars, then the higher phrase and the cadence home to G once more, 24 bars in all. Room 03’s record player also plays it." },
@@ -68,11 +83,6 @@ export const TRACKS = [
     id: "afternoon-alley", title: { zh: "午後弄堂", en: "Afternoon Alley" }, rooms: ["Room 03", "Room 04"], engine: "cafe", index: 1, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-1-v1.webp",
     mood: { zh: "午後的弄堂裡，刷鼓陪鋼琴慢慢走", en: "Brushed drums walk with the piano down an afternoon alley." },
     made: { zh: "這段 F 大調循環以 74 BPM 演奏，樂句走兩遍、轉一個橋段再回來，最後落在 F，一共 18 小節。Room 03 的唱片機也會播放同一段音樂。", en: "This F-major loop moves at 74 BPM: the phrase twice, a short bridge, the phrase again, then a cadence on F, 18 bars in all. Room 03’s record player uses the same piece." },
-  },
-  {
-    id: "afternoon-ascending", title: { zh: "午後上行", en: "Afternoon Ascending" }, rooms: ["Room 01", "Room 03", "Room 04"], engine: "night", index: 1, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-4-v1.webp",
-    mood: { zh: "鬆弛的爵士鼓上，右手即興慢慢上行", en: "The right hand climbs over a laid-back jazz groove." },
-    made: { zh: "這首 42 小節的作品以 comping 和爵士鼓為主。v36 只重寫右手即興線，保留既有和弦、低音、鼓與曲式。", en: "This 42-bar piece centres on comping and jazz drums. Version 36 rewrote only the right-hand improvisation, keeping the existing chords, bass, drums and form." },
   },
   {
     id: "brooklyn-windowsill", title: { zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, rooms: ["Room 02", "Room 03"], engine: "bedroom", index: 0, cover: "/music-lounge/covers/brooklyn-windowsill.webp?v=1",
@@ -85,11 +95,6 @@ export const TRACKS = [
     made: { zh: "這首以 58 BPM 演奏 Dm9、G13、Cmaj9、Am9，樂句走兩遍再經由 Am9 轉回，最後落在 C，一共 18 小節。Room 01 重用這段音樂時，改為 100 BPM 並拿掉黑膠底聲。", en: "At 58 BPM this moves through Dm9, G13, Cmaj9 and Am9, states that phrase twice, turns through Am9, and cadences on C, 18 bars in all. Room 01 reuses it at 100 BPM without the vinyl crackle." },
   },
   {
-    id: "bund-swing", title: { zh: "十里洋場", en: "The Bund Swing" }, rooms: ["Room 01", "Room 04"], engine: "cafe", index: 3, room01NoVinyl: true, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-3-v1.webp",
-    mood: { zh: "明亮的舞廳裡，小號與鋼琴輪流上場", en: "In a bright dance hall, trumpet and piano take turns." },
-    made: { zh: "F 大調的 8 小節主題在蘆笛、弱音小號與鋼琴聲部間接續，配上 walking bass 和刷鼓。整首編排為 32 小節。", en: "An eight-bar F-major theme passes between a reed lead, muted-trumpet-like lead and piano, over walking bass and brushed drums. The full arrangement spans 32 bars." },
-  },
-  {
     id: "bund-at-night", title: { zh: "夜色外灘", en: "Bund at Night" }, rooms: ["Room 04"], engine: "cafe", index: 2, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-2-v1.webp",
     mood: { zh: "外灘入夜，弱音小號壓著更重的拍", en: "Night on the Bund, a muted trumpet over a heavier swing." },
     made: { zh: "這段 C 小調循環以 66 BPM 演奏，四個和弦走兩遍，從 Fm 轉一個橋段再回來，最後落在 C，一共 18 小節。播完這一輪才接下一首。", en: "This C-minor loop moves at 66 BPM: the four chords twice, a turn that starts on Fm, the chords again, then a cadence on C, 18 bars in all. The next record follows after that pass." },
@@ -98,10 +103,5 @@ export const TRACKS = [
     id: "fire-escape-rain", title: { zh: "防火梯的雨", en: "Fire Escape Rain" }, rooms: ["Room 02"], engine: "bedroom", index: 1, cover: "/music-lounge/covers/fire-escape-rain.webp?v=1",
     mood: { zh: "深夜，雨打在紐約的鐵窗上", en: "Late at night, rain strikes an iron window in New York." },
     made: { zh: "68 BPM 的刷鼓與鋼琴走過 Fmaj9、Em7、Dm9、G13，16 小節再走一遍，最後兩小節落在 F，一共 32 小節。這是 Room 02 唱片的 B 面，窗雨聲取代黑膠底聲。", en: "At 68 BPM, brushed drums and piano move through Fmaj9, Em7, Dm9 and G13. Those 16 bars play again, then two bars land on F, 32 bars in all. It is side B of the Room 02 record, with window rain instead of vinyl noise." },
-  },
-  {
-    id: "series-night", title: { zh: "追劇夜", en: "Series Night" }, rooms: ["Room 01", "Room 02", "Room 03", "Room 04"], engine: "night", index: 0, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-5-v1.webp",
-    mood: { zh: "低音鋼琴悄悄起，一路推向管弦高峰", en: "Low piano begins quietly, then rises to an orchestral peak." },
-    made: { zh: "這首 D 小調 16 小節作品由低音鋼琴與弦樂開始，逐步加入銅管、定音鼓，最後再回到開場。播放會在 16 小節後回到開頭，直到停止。", en: "This 16-bar piece in D minor begins with low piano and strings, builds with brass and timpani, then returns to its opening. It loops back to the start after 16 bars until stopped." },
   },
 ];
