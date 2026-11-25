@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { withDemoLang } from "../demoLinks.js";
@@ -52,6 +52,92 @@ function ShowcaseImage({ item, index }) {
   );
 }
 
+// Paintings and music that live inside the rooms (Paul 2026-11-26): the gallery and the Music Lounge sit directly under
+// the four rooms, large and generous, so a visitor who never scrolls further still sees rooms, paintings and music together.
+// Images load natively lazy: this block is far below the first screen. A third slot (text, fiction) can join the grid later.
+const paintingCells = [
+  "col-span-2 aspect-[4/3] md:col-span-1 md:row-span-2 md:aspect-auto", // tall interior
+  "col-span-2 aspect-[16/9] md:col-span-2 md:aspect-auto",
+  "aspect-square md:aspect-auto",
+  "aspect-square md:aspect-auto",
+  "col-span-2 aspect-[16/9] md:col-span-1 md:aspect-auto",
+  "col-span-2 aspect-[16/9] md:col-span-1 md:aspect-auto",
+];
+
+function Collection({ data, lang }) {
+  const galleryHref = `${data.galleryHref}?lang=${lang}`;
+  const musicHref = `${data.musicHref}?lang=${lang}`;
+  const serif = { fontFamily: '"Noto Serif TC","Songti TC",serif' };
+  return (
+    <div id="showcase-collection" className="w-full scroll-mt-24 rounded-[1.25rem] bg-[#1d1915] px-5 py-12 text-[#f1e9da] md:px-12 md:py-20">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#d3ad62] md:text-sm">{data.tag}</p>
+      <h3 className="mt-3 max-w-[18em] text-[2.25rem] font-normal leading-[1.15] tracking-[0.04em] md:text-[3.4rem]" style={serif}>{data.title}</h3>
+      <p className="mt-4 max-w-[36em] text-[1.15rem] leading-[1.6] tracking-[0.03em] text-[#f2c48a] md:text-[1.5rem]">{data.lead}</p>
+
+      <section id="showcase-gallery" aria-labelledby="showcase-gallery-title" className="mt-12 scroll-mt-28 md:mt-16">
+        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.16em] text-[#d3ad62]">{data.galleryCount}</p>
+            <h4 id="showcase-gallery-title" className="mt-1 text-[1.75rem] font-normal leading-[1.25] md:text-[2.25rem]" style={serif}>{data.galleryLabel}</h4>
+            <p className="mt-1 text-sm text-[#b9ae9a] md:text-base">{data.galleryNote}</p>
+          </div>
+          <a
+            href={galleryHref}
+            className="group inline-flex min-h-11 items-center gap-2 border-b border-[#d3ad62] pb-1 text-base text-[#f1e9da] transition-colors hover:text-[#d3ad62] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d3ad62]"
+          >
+            <span>{data.galleryCta}</span>
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        </div>
+        <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:grid-rows-[repeat(2,minmax(0,17rem))] md:gap-4">
+          {data.paintings.map((p, i) => (
+            <li key={p.id} className={`group/tile relative min-h-0 overflow-hidden rounded bg-black shadow-[0_18px_40px_rgba(0,0,0,0.45)] ${paintingCells[i]}`}>
+              <a href={galleryHref} tabIndex="-1" aria-hidden="true" className="block h-full w-full">
+                <img src={p.src} width={p.w} height={p.h} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover/tile:scale-[1.03]" />
+              </a>
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent px-3 pb-2.5 pt-10 text-xs text-[#f1e9da] md:text-sm" style={serif}>{p.name}</span>
+              <span className="sr-only">{p.alt}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="showcase-music" aria-labelledby="showcase-music-title" className="mt-14 scroll-mt-28 md:mt-20">
+        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.16em] text-[#d3ad62]">{data.musicCount}</p>
+            <h4 id="showcase-music-title" className="mt-1 text-[1.75rem] font-normal leading-[1.25] md:text-[2.25rem]" style={serif}>{data.musicLabel}</h4>
+            <p className="mt-1 text-sm text-[#b9ae9a] md:text-base">{data.musicNote}</p>
+          </div>
+          <a
+            href={musicHref}
+            className="group inline-flex min-h-11 items-center gap-2 border-b border-[#d3ad62] pb-1 text-base text-[#f1e9da] transition-colors hover:text-[#d3ad62] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d3ad62]"
+          >
+            <span>{data.musicCta}</span>
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" className="shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </a>
+        </div>
+        <ul className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          {data.covers.map((c) => (
+            <li key={c.id} className="group/tile relative aspect-square overflow-hidden rounded bg-black shadow-[0_18px_40px_rgba(0,0,0,0.45)]">
+              <a href={musicHref} tabIndex="-1" aria-hidden="true" className="block h-full w-full">
+                <img src={c.src} width="512" height="512" alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover/tile:scale-[1.03]" />
+              </a>
+              <span className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-start gap-0.5 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-3 pb-2.5 pt-12 text-xs text-[#f1e9da] md:flex-row md:items-end md:justify-between md:gap-2 md:text-sm">
+                <span style={serif}>{c.name}</span>
+                <span className="shrink-0 text-[0.7rem] tracking-[0.12em] text-[#d3ad62]">{c.note}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <p className="mt-10 text-sm font-semibold text-[#f2c48a]">{data.how}</p>
+      <p className="mt-2 text-xs leading-relaxed text-[#8f8574]">{data.boundary}</p>
+    </div>
+  );
+}
+
 export default function Showcase() {
   const { lang, t } = useLang();
   const s = t.showcase;
@@ -80,7 +166,8 @@ export default function Showcase() {
           {items.map((item, index) => {
             const wide = wideAt(index, items.length, item);
             if (item.rooms) return (
-            <li key={item.href} className={`flex flex-col ${wide.li}`}>
+            <Fragment key={item.href}>
+            <li className={`flex flex-col ${wide.li}`}>
               <p className="mx-auto mb-6 max-w-[34em] text-center text-base leading-relaxed text-moss md:mb-8 md:text-lg">{item.bridge}</p>
               {/* Gallery panel (Paul 2026-11-11): a dark warm band that breaks from the pale cards around it, covers as the main thing, museum-label captions. */}
               <article className="w-full rounded-[1.25rem] bg-[#1d1915] px-5 py-12 text-[#f1e9da] md:px-12 md:py-20">
@@ -138,6 +225,13 @@ export default function Showcase() {
                 <p className="mt-2 text-xs leading-relaxed text-[#8f8574]">{item.boundary}</p>
               </article>
             </li>
+            {/* Its own list item, so the ROOMVERSE card keeps exactly the covers, headings and articles it had. */}
+            {item.collection && (
+              <li className={`flex ${wide.li}`}>
+                <Collection data={item.collection} lang={lang} />
+              </li>
+            )}
+            </Fragment>
             );
             return (
             <li key={item.href} className={`flex ${wide.li}`}>
