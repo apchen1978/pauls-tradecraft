@@ -42,10 +42,50 @@ const GROUPS = [
 let audioUnlockContext = null;
 let intent = 0;
 let pendingId = null;
+let pendingTrack = null;
 let active = null;
 const buttons = new Map();
 const statuses = new Map();
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// One bar for the whole page, the same on a phone and a desktop: it says which track is up, what the player is actually
+// doing, and it stops it. The card's own status line and this bar are driven by one function so they cannot disagree.
+const bar = {
+  root: $("player-bar"),
+  kicker: $("player-kicker"),
+  title: $("player-title"),
+  status: $("player-status"),
+  stop: $("player-stop"),
+  thumb: $("player-thumb"),
+};
+$("player-stop").addEventListener("click", () => void stopFromBar());
+function showBar(track, statusText) {
+  bar.kicker.textContent = copy.nowPlaying;
+  bar.title.textContent = track.title[lang];
+  bar.status.textContent = statusText;
+  bar.stop.textContent = copy.barStop;
+  bar.stop.setAttribute("aria-label", `${copy.barStop}: ${track.title[lang]}`);
+  // the sleeve of the track that is up, so the bar is identified at a glance even when the card is scrolled away
+  bar.thumb.style.backgroundImage = `url("${track.cover}")`;
+  if (bar.root.hidden) {
+    bar.root.hidden = false;
+    document.body.classList.add("has-player-bar");
+  }
+}
+
+function hideBar() {
+  bar.root.hidden = true;
+  document.body.classList.remove("has-player-bar");
+  bar.title.textContent = "";
+  bar.status.textContent = "";
+}
+
+// The card and the bar always show the same words for the same moment.
+function setStatus(id, text) {
+  const status = statuses.get(id);
+  if (status) status.textContent = text;
+  if (active?.track.id === id) bar.status.textContent = text;
+}
 
 function unlockAudioFromGesture() {
   const Native = window.AudioContext || window.webkitAudioContext;
@@ -120,12 +160,25 @@ function resetCard(id, message = "") {
   syncLive();
 }
 
+// The bar's stop button works in every state, including while a track is still loading and there is nothing to stop yet.
+async function stopFromBar() {
+  const token = ++intent;
+  const loading = pendingTrack;
+  pendingTrack = null;
+  pendingId = null;
+  await stopActive();
+  if (token !== intent) return;
+  if (loading) resetCard(loading.id, copy.stopped);
+  hideBar();
+}
+
 async function stopActive() {
   if (!active) return;
   const previous = active;
   active = null;
   previous.handle.stop();
   resetCard(previous.track.id, copy.stopped);
+  hideBar();
   await pause(720);
 }
 
@@ -143,12 +196,14 @@ async function playTrack(track) {
     intent += 1;
     pendingId = null;
     resetCard(track.id);
+    hideBar();
     return;
   }
 
   unlockAudioFromGesture();
   const token = ++intent;
   pendingId = track.id;
+  pendingTrack = track;
   for (const item of TRACKS) resetCard(item.id);
   button.setAttribute("aria-pressed", "true");
   button.setAttribute("aria-label", `${copy.loading}: ${track.title[lang]}`);
@@ -157,9 +212,19 @@ async function playTrack(track) {
   syncLive();
   await stopActive();
   if (token !== intent) return;
+  showBar(track, copy.loading);
+  // A slow network shows up while the score module is still being fetched, before there is any player to start. Say so
+  // instead of repeating "loading" for half a minute as if nothing were wrong.
+  const slowLoad = setTimeout(() => {
+    if (token === intent && pendingId === track.id) {
+      status.textContent = copy.slowLoad;
+      showBar(track, copy.slowLoad);
+    }
+  }, 12000);
 
   try {
     const handle = await makePlayer(track);
+    clearTimeout(slowLoad);
     if (token !== intent) {
       handle.stop();
       return;
@@ -168,23 +233,38 @@ async function playTrack(track) {
     if (!started) throw new Error("audio did not start");
     active = { track, handle };
     pendingId = null;
+    pendingTrack = null;
     button.textContent = copy.stop;
     button.setAttribute("aria-label", `${copy.stop}: ${track.title[lang]}`);
-    status.textContent = copy.waiting;
-    const deadline = Date.now() + 20000;
-    while (token === intent && active?.track.id === track.id && Date.now() < deadline) {
+    setStatus(track.id, copy.waiting);
+    // Paul 2026-11-25: waiting for the first note used to fall through to "playing" after 20 s even when nothing had been
+    // heard, which is a status that lies. Now the bar says what is true: waiting, then "slower than usual" while it keeps
+    // listening, and only "playing" once the engine has actually scheduled a note. A player that never starts is reported
+    // as a failure rather than left looking like it plays.
+    const startedAt = Date.now();
+    const slowAfter = 12000, giveUpAfter = 60000;
+    for (;;) {
+      if (token !== intent || active?.track.id !== track.id) return;
       if (handle.state().notes > 0) {
-        status.textContent = copy.playing;
+        setStatus(track.id, copy.playing);
         return;
+      }
+      const waited = Date.now() - startedAt;
+      if (waited >= slowAfter && bar.status.textContent === copy.waiting) setStatus(track.id, copy.slow);
+      if (waited >= giveUpAfter) {
+        throw new Error("no note was scheduled");
       }
       await pause(120);
     }
-    if (token === intent && active?.track.id === track.id) status.textContent = copy.playing;
   } catch {
+    clearTimeout(slowLoad);
     if (token === intent) {
       pendingId = null;
+      active?.handle.stop();
       active = null;
       resetCard(track.id, copy.failed);
+      showBar(track, copy.failed);
+      setTimeout(() => { if (!active) hideBar(); }, 4000);
     }
   }
 }
@@ -281,6 +361,7 @@ for (const group of GROUPS) {
 
 window.addEventListener("pagehide", () => {
   ++intent;
+  hideBar();
   pendingId = null;
   active?.handle.stop();
   active = null;

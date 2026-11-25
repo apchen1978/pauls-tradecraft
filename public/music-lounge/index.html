@@ -7,7 +7,7 @@
   <title>人機協作 Music Lounge · Paul’s Tradecraft</title>
   <meta name="description" content="ROOMVERSE 原創程式生成音樂。挑一首，點了再聽。Original generative music from ROOMVERSE. Choose a track and press play.">
   <link rel="icon" href="/favicon.png">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=auto">
   <script type="module" src="app.js?v=auto"></script>
 </head>
 <body>
@@ -52,6 +52,17 @@
       </section>
     </div>
   </main>
+  <div class="player-bar" id="player-bar" role="region" aria-label="Player" hidden>
+    <div class="player-bar-inner">
+      <span class="player-thumb" id="player-thumb" aria-hidden="true"></span>
+      <p class="player-text">
+        <span class="player-kicker" id="player-kicker">正在播放</span>
+        <span class="player-title" id="player-title"></span>
+        <span class="player-status" id="player-status" role="status" aria-live="polite"></span>
+      </p>
+      <button class="player-stop" id="player-stop" type="button">停止</button>
+    </div>
+  </div>
   <footer class="foot">
     <a id="back" href="/ai-lab/?lang=zh#gallery-front">回到 AI Lab</a>
     <span>ROOMVERSE</span>
