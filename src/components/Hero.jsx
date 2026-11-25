@@ -4,6 +4,7 @@ import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
+import { openGarageThenScroll } from "../sectionLinks.js";
 
 // Phones: keep each comma-separated clause on one line, so a line breaks after the comma instead of
 // splitting a phrase ("值得／遇到對的買家") or stranding two words ("with you."). md and up are unchanged.
@@ -135,6 +136,12 @@ export default function Hero() {
               );
             })}
           </ol>
+          {/* Sits after the cards in the source (so the cards stay the first links of this block) and is placed
+              on the label row, top right, so it costs no height. */}
+          <p className="absolute -top-[3px] right-0 flex items-center gap-1.5 whitespace-nowrap max-[359px]:hidden">
+            <a href="#ai-lab" className="-my-3 inline-block py-3 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-amber rounded-full"><span className="block rounded-full border px-2.5 py-0.5 text-xs font-semibold leading-snug text-pine transition-[filter] group-hover:brightness-95 border-[#8ebeb8] bg-[#8ebeb8]/30">{h.moreAiLab}</span></a>
+            <a href="#garage" onClick={() => openGarageThenScroll()} className="-my-3 inline-block py-3 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-amber rounded-full"><span className="block rounded-full border px-2.5 py-0.5 text-xs font-semibold leading-snug text-pine transition-[filter] group-hover:brightness-95 border-[#e59a7a] bg-[#e59a7a]/25">{h.moreGarage}</span></a>
+          </p>
           <p className="mt-3 text-xs leading-relaxed text-moss">{h.worksNote}</p>
         </motion.div>
       </div>
