@@ -492,7 +492,7 @@ const dict = {
           collection: {
             tag: "ROOMVERSE · 畫與聲音　典藏",
             title: "房間裡的畫，房間裡的聲音。",
-            lead: "牆上的每一幅畫、唱片機裡的每一首曲子，都是和 AI 一起做出來的。我們不是學畫的，也不是學音樂的，是會計背景。",
+            lead: "牆上的每一幅畫、唱片機裡的每一首曲子，都是 Paul 和 AI 彼此丟靈感、一起腦力激盪做出來的，和 ROOMVERSE 的每一間房密不可分。",
             galleryLabel: "人機協作畫廊",
             galleryCount: "四十多幅畫",
             galleryNote: "從房間牆上的畫，到窗外的城市與港口。",
@@ -1504,7 +1504,7 @@ const dict = {
           collection: {
             tag: "ROOMVERSE · Paintings & Music　Collection",
             title: "Paintings on the walls. Music in the rooms.",
-            lead: "Every picture on a wall and every tune on a record player was made together with AI. We did not train as painters or musicians; we come from accounting.",
+            lead: "Every picture on a wall and every tune on a record player came out of Paul and AI sparking ideas off each other and brainstorming together, and each belongs to the ROOMVERSE rooms it was made for.",
             galleryLabel: "The Human–AI Gallery",
             galleryCount: "40+ paintings",
             galleryNote: "From the pictures on the room walls to the cities and harbours outside the window.",
