@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=6";
+import { COPY, TRACKS } from "./tracks.js?v=7";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -35,8 +35,8 @@ const ROOM_HREF = {
 };
 const GROUPS = [
   { id: "morning", ids: ["window-afternoon"] },
-  { id: "afternoon", ids: ["bay-area-afternoon", "afternoon-alley", "afternoon-ascending", "brooklyn-windowsill", "bund-swing"] },
-  { id: "night", ids: ["adagio", "bund-at-night", "fire-escape-rain", "series-night"] },
+  { id: "afternoon", ids: ["series-night", "bund-swing", "afternoon-ascending", "bay-area-afternoon", "afternoon-alley", "brooklyn-windowsill"] },
+  { id: "night", ids: ["adagio", "bund-at-night", "fire-escape-rain"] },
 ];
 
 let audioUnlockContext = null;

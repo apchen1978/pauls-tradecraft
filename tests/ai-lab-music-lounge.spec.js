@@ -70,7 +70,10 @@ test("lists ten tracks and defers all music modules and piano samples until play
   await expect(page.locator(".track-cover")).toHaveCount(10);
   await expect(page.locator(".track-cover img")).toHaveCount(10);
   await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("晨曦");
-  await expect(page.locator(".track-card").nth(9).locator("h3")).toHaveText("追劇夜");
+  await expect(page.locator(".track-card").nth(1).locator("h3")).toHaveText("追劇夜");
+  await expect(page.locator(".track-card").nth(2).locator("h3")).toHaveText("十里洋場");
+  await expect(page.locator(".track-card").nth(3).locator("h3")).toHaveText("午後上行");
+  await expect(page.locator(".track-card").nth(9).locator("h3")).toHaveText("防火梯的雨");
   const coverImages = page.locator(".track-cover img");
   for (let index = 0; index < 10; index += 1) {
     const image = coverImages.nth(index);
@@ -117,16 +120,18 @@ test("lists ten tracks and defers all music modules and piano samples until play
   await second.click();
   await expect(second).toHaveAttribute("aria-pressed", "false");
 
+  const engineFile = { night: "/night-score.js", cafe: "/cafe/sound.js", bedroom: "/bedroom/sound.js", bay: "/kitchen/sound.js" };
   for (const track of musicTracks) {
     const button = page.locator(`[data-track="${track.id}"] .play-button`);
     await button.click();
     await expect(button).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator('.track-card [aria-pressed="true"]')).toHaveCount(1);
+    await expect.poll(() => requests.some((url) => url.endsWith(engineFile[track.engine]))).toBe(true);
   }
   for (const source of ["/night-score.js", "/cafe/sound.js", "/bedroom/sound.js", "/kitchen/sound.js"]) {
     await expect.poll(() => requests.some((url) => url.endsWith(source))).toBe(true);
   }
-  const lastPlaying = page.locator('[data-track="series-night"] .play-button');
+  const lastPlaying = page.locator('[data-track="fire-escape-rain"] .play-button');
   await lastPlaying.click();
   await expect(lastPlaying).toHaveAttribute("aria-pressed", "false");
 
