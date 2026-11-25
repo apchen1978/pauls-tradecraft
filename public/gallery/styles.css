@@ -63,6 +63,8 @@ dialog button:hover { background: #35443c; }
 .viewer-art img { display: block; width: 100%; height: auto; max-height: 65dvh; object-fit: contain; }
 .viewer-copy h2 { font-size: 25px; line-height: 1.4; margin: 0 0 18px; font-weight: 550; text-wrap: balance; }
 .viewer-copy p { line-height: 1.85; font-size: 16px; margin: 0; color: #d4d8cb; }
+.viewer-room-link:not([hidden]) { display: inline-flex; align-items: center; min-height: 44px; margin-top: 14px; padding: 8px 14px; border: 1px solid var(--gold); border-radius: 6px; color: var(--gold); font-size: 15px; text-decoration: none; }
+.viewer-room-link:hover { background: #35443c; }
 .making { border-top: 1px solid #4a584d; margin-top: 24px; padding-top: 20px; }
 .making h3 { color: var(--gold); font-size: 13px; margin: 0 0 10px; font-weight: 550; }
 .making p { font-size: 14px; color: var(--muted); line-height: 1.8; }

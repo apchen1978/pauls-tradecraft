@@ -17,7 +17,7 @@ export const COLLECTION = {
     tvTitle: "電視螢幕裡的畫面", tvNote: "Room 01、Room 03 與 Room 04 的電視在不同心情下播放的畫面，原本只在螢幕裡一閃而過，這裡可以慢慢看。都是想像的概念插畫，不是真實地點的照片。",
     moveTitle: "房間牆上的運動", moveNote: "Room 02 臥室牆上的三張運動海報：籃球、足球與跑步。都是想像的概念插畫，不是真實球員或賽事。",
     shTitle: "上海的一角", shNote: "Room 04 咖啡廳牆上的三幅畫：黎明的江面、夜渡與石庫門。都是想像的概念插畫，不是真實地點的照片。",
-    back: "回到 AI Lab", open: "放大欣賞：", close: "關閉大圖 ×", previous: "← 上一幅", next: "下一幅 →", made: "怎麼做出來的",
+    back: "回到 AI Lab", open: "放大欣賞：", close: "關閉大圖 ×", previous: "← 上一幅", next: "下一幅 →", made: "怎麼做出來的", viewInRoom: "到房間看這幅",
   },
   en: {
     title: "The Human–AI Gallery", subtitle: "From a first idea, to a picture worth pausing for.",
@@ -35,7 +35,7 @@ export const COLLECTION = {
     tvTitle: "Pictures on the TV Screens", tvNote: "The pictures the TVs in Rooms 01, 03 and 04 play in different moods, usually seen only in passing, here to look at slowly. All are imagined concept illustrations, not photographs of real places.",
     moveTitle: "Sport on the Walls", moveNote: "Three sports posters from the Room 02 bedroom: basketball, football and running. All are concept illustrations, not real players or matches.",
     shTitle: "A Corner of Shanghai", shNote: "Three prints from the Room 04 café: a river at dawn, a night ferry and a shikumen door. All are imagined concept illustrations, not photographs of real places.",
-    back: "Back to AI Lab", open: "View painting: ", close: "Close painting ×", previous: "← Previous", next: "Next →", made: "How it was made",
+    back: "Back to AI Lab", open: "View painting: ", close: "Close painting ×", previous: "← Previous", next: "Next →", made: "How it was made", viewInRoom: "See this painting in the room",
   },
 };
 
@@ -378,6 +378,7 @@ export const PIECES = [
   },
   {
     id: "room04-rain-lane", date: "2026-11-25", frame: "plain", width: 1280, height: 960,
+    roomHref: "/prototype/roomverse-3d/cafe/?gallery=c",
     image: "assets/room04-rain-lane-v2.webp", imageSmall: "assets/room04-rain-lane-v2-mobile.webp", thumbnail: "assets/room04-rain-lane-v2-thumb.webp",
     title: { zh: "雨後弄堂", en: "Lane After the Rain" },
     alt: { zh: "法國梧桐伸過紅磚弄堂，暖色線燈照著雨棚下的一桌兩椅，玻璃內的點單螢幕亮著淡青色。", en: "A plane tree stretches over a red-brick lane. A warm strip light shines over a table and two chairs under the rain canopy, and a pale teal ordering screen glows behind glass." },
@@ -386,6 +387,7 @@ export const PIECES = [
   },
   {
     id: "room01-alishan-forest-train", date: "2026-11-25", frame: "plain", width: 1440, height: 960,
+    roomHref: "/prototype/roomverse-3d/?mood=rain&print=alishan-forest-train",
     image: "assets/room01-alishan-forest-train.webp", imageSmall: "assets/room01-alishan-forest-train-mobile.webp", thumbnail: "assets/room01-alishan-forest-train-thumb.webp",
     title: { zh: "阿里山・林中列車", en: "Alishan Forest Train" },
     alt: { zh: "紅色林鐵列車沿著雨後彎軌穿過山林，軌旁長著蕨類。", en: "A red forest railway train rounds a rain-darkened curve through mountain woodland and ferns." },

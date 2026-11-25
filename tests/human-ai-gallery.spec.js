@@ -16,6 +16,40 @@ async function loaded(page) {
   await expect.poll(() => page.locator("#viewer-image").evaluate((im) => im.complete && im.naturalWidth > 0)).toBe(true);
 }
 
+for (const lang of ["zh", "en"]) {
+  for (const width of [390, 1440]) {
+    test(`Gallery room links preserve the selected art and language at ${width}px ${lang}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(url(lang));
+      const label = lang === "zh" ? "到房間看這幅" : "See this painting in the room";
+      const open = (id) => page.locator(`[data-piece="${id}"] button`).click();
+      const roomLink = page.getByRole("link", { name: label });
+      await open("room01-alishan-forest-train");
+      await expect(roomLink).toHaveAttribute("href", `/prototype/roomverse-3d/?mood=rain&print=alishan-forest-train&lang=${lang}`);
+      await loaded(page);
+      const evidence = process.env.GALLERY_LINK_QA;
+      if (evidence) await page.locator("#viewer").screenshot({ path: resolve(evidence, `after-${lang}-${width}.png`) });
+      await roomLink.focus();
+      await page.keyboard.press("ArrowRight");
+      await expect(roomLink).toHaveCount(0);
+      await expect(page.locator("#viewer-room-link")).not.toHaveAttribute("href");
+      await expect(page.locator("#close")).toBeFocused();
+      await page.keyboard.press("ArrowLeft");
+      if (width === 1440) await page.keyboard.press("ArrowLeft");
+      const print = width === 390 ? "wall-print-alishan-forest-train-v1.webp" : "room04-print-rain-lane-v2.webp";
+      if (width === 1440) await expect(roomLink).toHaveAttribute("href", `/prototype/roomverse-3d/cafe/?gallery=c&lang=${lang}`);
+      await roomLink.click();
+      await page.locator("#enter").click();
+      if (width === 390) {
+        await expect.poll(() => page.evaluate(() => window.__room?.framedPictures().sofa), { timeout: 20000 }).toBe(print);
+      } else {
+        await expect.poll(() => page.evaluate((file) => window.__room04?.info().art.includes(file), print), { timeout: 30000 }).toBe(true);
+        expect(await page.evaluate(() => window.__room04.look().gallery)).toBe("c");
+      }
+    });
+  }
+}
+
 test("collection: bilingual records, local images, provenance and required-field rejection", () => {
   expect(() => validatePieces(PIECES)).not.toThrow();
   expect(PIECES).toHaveLength(44);
