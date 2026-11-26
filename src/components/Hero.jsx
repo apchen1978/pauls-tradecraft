@@ -28,7 +28,7 @@ const fadeUp = {
 // keeps one claim and shows the three most important commercial works; the interactive
 // works follow right below it (see BelowFold). Paul 2026-10-30: the two buttons duplicated the work cards and the
 // nav's contact link on phones, so like the credentials line they show from md up only.
-const HERO_WORKS = ["commercial-decision-desk", "overseas-lead-discovery", "trade-profit-navigator"];
+const HERO_WORKS = ["overseas-lead-discovery", "commercial-decision-desk", "trade-profit-navigator"];
 
 export default function Hero() {
   const { lang, t } = useLang();
