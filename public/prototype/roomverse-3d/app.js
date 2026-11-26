@@ -1292,7 +1292,8 @@ export async function start({ stage, panel, lang, onReady, onTravelChoice = () =
   const AX = .35, AY = 1.70, AW = 1.07, AH = .76; // a larger frame for the 3:2 paintings; its bottom edge stays where it was (1.29 m), above the LED strip
   add(new THREE.BoxGeometry(AW + .06, AH + .06, .035), new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 }), AX, AY, BACK + .02);
   add(new THREE.BoxGeometry(AW, AH, .006), new THREE.MeshStandardMaterial({ color: "#f7f3ea", roughness: .9 }), AX, AY, BACK + .038, false);
-  const sofaPrint = add(new THREE.PlaneGeometry(AW - .14, AH - .14), printMat, AX, AY, BACK + .042, false);
+  const PW = AW - .08, PH = PW / 1.5; // the painting fills more of the frame: about 4 cm of cream mat at the sides and 5 cm above and below, down from 7 cm all round (Paul, 2026-11-26: a little less white edge); it stays 3:2
+  const sofaPrint = add(new THREE.PlaneGeometry(PW, PH), printMat, AX, AY, BACK + .042, false);
   const rugMat = new THREE.MeshStandardMaterial({ roughness: 1 });
   const rug = add(new THREE.BoxGeometry(2.6, .012, 1.65), rugMat, SX, .006, SZ + .95, false);
   rug.name = "living-room-rug"; rug.rotation.y = .0873; rug.position.z -= .08;
@@ -3069,7 +3070,7 @@ let lanternMat = null;
   })();
 
   // ---------- state + panel ----------
-  const state = { mood: "golden", wall: "original", rug: "stripe", curtain: "linen", print: "ridge", lang }; let musicSync = null; // set once the music is built: it keeps the music in step with the mood
+  const state = { mood: "tv", wall: "wine", rug: "stripe", curtain: "linen", print: "alishan-forest-train", lang }; let musicSync = null; // set once the music is built: it keeps the music in step with the mood
   robotBubble = document.getElementById("robotBubble");
   let robotSleeping = false, robotIdleTimer = 0, robotBubbleTimer = 0, robotTurnTimer = 0, robotTurnFrame = 0, robotCustomLine = null;
   let directorStillOpen = false;
@@ -3145,11 +3146,12 @@ let lanternMat = null;
   const sideWallPaper = () => { if (!sideStripe) { sideStripe = WALLS.stripe.tex(); sideStripe.repeat.set(D / WALLS.stripe.size, (H + .3) / WALLS.stripe.size); } return sideStripe; }; // its own texture object: the repeat is set per use
   const fromUrl = new URLSearchParams(location.search);
   // The painting follows the mood once the visitor changes the feeling (the first view always shows the main painting); a picked or addressed painting wins.
-  const DEFAULT_PRINT_BY_MOOD = { rain: "rain", family: "paper", tech: "moon", chic: "ridge", slow: "paper", golden: "ridge", tv: "inkmoon" };
+  // Paul 2026-11-26: Room 01 opens as series night with the deep wine wall and the Alishan painting; that painting is the series-night default. The other feelings keep their own prints.
+  const DEFAULT_PRINT_BY_MOOD = { rain: "rain", family: "paper", tech: "moon", chic: "ridge", slow: "paper", golden: "ridge", tv: "alishan-forest-train" };
   let printWasChosen = Object.hasOwn(PRINTS, fromUrl.get("print") ?? "");
   let wallWasChosen = Object.hasOwn(WALLS, fromUrl.get("wall") ?? "");
   for (const k in CHOICES) { const v = fromUrl.get(k); if (v && Object.hasOwn(CHOICES[k], v)) state[k] = v; }
-  if (fromUrl.get("from") === "home" && !Object.hasOwn(MOODS, fromUrl.get("mood") ?? "")) state.mood = "golden"; // Room 01 opens in golden hour (Paul, 2026-11-17: the drifting light motes and the bright music suit it best), also from the home cover; a valid explicit mood in the address wins
+  if (fromUrl.get("from") === "home" && !Object.hasOwn(MOODS, fromUrl.get("mood") ?? "")) state.mood = "tv"; // Room 01 opens as series night, wine wall and Alishan painting (Paul, 2026-11-26; it was golden hour from 2026-11-17: the drifting light motes and the bright music suit it best), also from the home cover; a valid explicit mood in the address wins
   if (!wallWasChosen) state.wall = DEFAULT_WALL_BY_MOOD[state.mood];
   function choose(key, value) {
     const previous = state[key];
@@ -3259,7 +3261,7 @@ let lanternMat = null;
     outMat.map = cache["view-" + state.mood] ||= VIEWS[state.mood](); outMat.needsUpdate = true;
     led.visible = !!m.led;
     printMat.map = printFor(state.print); printMat.needsUpdate = true;
-    sofaPrint.scale.x = state.print === "amber-fig" ? (AH - .14) * .8 / (AW - .14) : 1;
+    sofaPrint.scale.x = state.print === "amber-fig" ? PH * .8 / PW : 1;
     easeLights();
     linen.color.set(CURTAINS[state.curtain].color);
     const w = WALLS[state.wall];

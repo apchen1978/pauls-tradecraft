@@ -506,10 +506,10 @@ const dict = {
             how: "Paul 定方向、用耳朵與眼睛把關 ・ AI 作畫與寫譜",
             boundary: "畫作是概念插畫，不是真實地點或商品；曲子是程式即時演奏，不是錄音室錄音。",
             paintings: [
+              { id: "alishan", src: "/gallery/assets/room01-alishan-forest-train-mobile.webp", w: 800, h: 533, name: "阿里山・林中列車", alt: "阿里山森林裡行駛的小火車概念畫。" },
               { id: "interior", src: "/gallery/assets/roomverse-room04-shanghai-slowly-interior-concept-mobile.webp", w: 750, h: 937, name: "ROOMVERSE 04・上海慢板", alt: "上海慢板咖啡廳店內的概念畫：機器人店員在吧台後，黑板上寫著飲品，窗邊有圓桌與午後暖光。" },
               { id: "bluehour", src: "/gallery/assets/room02-blue-hour-mobile.webp", w: 800, h: 450, name: "布魯克林的藍色時刻", alt: "藍色時刻的布魯克林概念畫：紅磚屋、防火梯與一扇亮著暖光的窗，遠處是曼哈頓天際線。" },
               { id: "bund", src: "/gallery/assets/roomverse-room04-shanghai-bund-dawn-mobile.webp", w: 800, h: 640, name: "黎明的外灘", alt: "黎明時分的上海外灘概念畫。" },
-              { id: "alishan", src: "/gallery/assets/room01-alishan-forest-train-mobile.webp", w: 800, h: 533, name: "阿里山・林中列車", alt: "阿里山森林裡行駛的小火車概念畫。" },
               { id: "lemons", src: "/gallery/assets/room03-lemons-mobile.webp", w: 800, h: 600, name: "藍盤上的檸檬", alt: "藍色盤子上的檸檬靜物概念畫。" },
               { id: "newyork", src: "/gallery/assets/roomverse-room02-city-new-york-mobile.webp", w: 800, h: 1067, name: "紐約・窗外的城市", alt: "夕陽下的布魯克林大橋與曼哈頓天際線概念畫。" },
             ],
@@ -1518,10 +1518,10 @@ const dict = {
             how: "Paul sets the direction and checks by eye and ear ・ AI paints and writes the score",
             boundary: "Paintings are concept illustrations, not real places or products; the music is played live by code, not a studio recording.",
             paintings: [
+              { id: "alishan", src: "/gallery/assets/room01-alishan-forest-train-mobile.webp", w: 800, h: 533, name: "Alishan Forest Train", alt: "A concept painting of a small train in the Alishan forest." },
               { id: "interior", src: "/gallery/assets/roomverse-room04-shanghai-slowly-interior-concept-mobile.webp", w: 750, h: 937, name: "ROOMVERSE 04 · Shanghai Adagio", alt: "A concept painting of the Shanghai Adagio cafe interior: a robot barista behind the counter, a chalkboard menu, a round table by the window and warm afternoon light." },
               { id: "bluehour", src: "/gallery/assets/room02-blue-hour-mobile.webp", w: 800, h: 450, name: "Brooklyn at Blue Hour", alt: "A concept painting of Brooklyn at blue hour: brick houses, a fire escape and one warmly lit window, with the Manhattan skyline beyond." },
               { id: "bund", src: "/gallery/assets/roomverse-room04-shanghai-bund-dawn-mobile.webp", w: 800, h: 640, name: "Dawn on the Bund", alt: "A concept painting of the Shanghai Bund at dawn." },
-              { id: "alishan", src: "/gallery/assets/room01-alishan-forest-train-mobile.webp", w: 800, h: 533, name: "Alishan Forest Train", alt: "A concept painting of a small train in the Alishan forest." },
               { id: "lemons", src: "/gallery/assets/room03-lemons-mobile.webp", w: 800, h: 600, name: "Lemons on a Blue Plate", alt: "A concept still life of lemons on a blue plate." },
               { id: "newyork", src: "/gallery/assets/roomverse-room02-city-new-york-mobile.webp", w: 800, h: 1067, name: "New York, Through the Window", alt: "A concept painting of the Brooklyn Bridge and the Manhattan skyline at sunset." },
             ],

@@ -529,7 +529,7 @@ test("homepage Showcase: ROOMVERSE 3D is the first card, with Trade Street besid
 });
 
 test("each feeling shows one line on why the pairing works, and it follows the feeling and the language", async ({ page }) => {
-  await page.goto(`${PAGE}?lang=zh`);
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
@@ -564,7 +564,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
-  await expect(pressed(0)).toHaveText("傍晚金色時光"); // an unknown mood falls back to the default, golden hour (2026-11-17)
+  await expect(pressed(0)).toHaveText("追劇夜"); // an unknown mood falls back to the default, series night (2026-11-26; it was golden hour from 2026-11-17)
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
 
@@ -1474,9 +1474,9 @@ for (const [label, viewport] of [["phone", { width: 390, height: 844 }], ["deskt
   });
 }
 
-test("Room 01 enters golden hour from the home cover and still lets visitors switch moods", async ({ page }) => {
+test("Room 01 enters as series night from the home cover and still lets visitors switch moods", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh&from=home`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tv"]')).toHaveAttribute("aria-pressed", "true");
   await page.locator("#panelToggle").click();
   await page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]').click();
   await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
@@ -1487,9 +1487,9 @@ test("Room 01 honours a valid mood explicitly supplied with the home route", asy
   await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
 });
 
-test("a direct Room 01 visit opens in golden hour", async ({ page }) => {
+test("a direct Room 01 visit opens as series night", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="golden"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tv"]')).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the two coffee-table books sit on the table and the red suitcase stands on its wheels in front of the painting", async ({ page }) => {
@@ -1620,7 +1620,7 @@ test("Room 01 the music plays on: one tap keeps the piece going on the real pian
 test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and plain painted side walls; the stripes pair with the leaf wallpaper in the other moods", async ({ page }) => {
   test.setTimeout(90000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto(`${PAGE}?lang=zh`);
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await expect.poll(async () => (await page.evaluate(() => window.__room.wallInfo())).backMap, { timeout: 20000, message: "the wallpaper loads" }).toBe(true);
   const info = async () => page.evaluate(() => window.__room.wallInfo());

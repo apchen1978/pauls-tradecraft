@@ -121,6 +121,15 @@ export const PIECES = [
     made: { zh: "Paul 選定店內望向街口的草稿 B；AI 保留原構圖，局部精修咖啡亮點、機器人遞杯、電車倒影與鬆動的畫面邊角。", en: "Paul selected draft B, the view from inside toward the street. AI kept its composition and refined the coffee highlight, the baristas' handoff, the tram reflection and the looser painted edges." },
   },
   {
+    id: "room01-alishan-forest-train", date: "2026-11-25", frame: "plain", width: 1440, height: 960,
+    roomHref: "/prototype/roomverse-3d/?mood=rain&print=alishan-forest-train",
+    image: "assets/room01-alishan-forest-train.webp", imageSmall: "assets/room01-alishan-forest-train-mobile.webp", thumbnail: "assets/room01-alishan-forest-train-thumb.webp",
+    title: { zh: "阿里山・林中列車", en: "Alishan Forest Train" },
+    alt: { zh: "紅色林鐵列車沿著雨後彎軌穿過山林，軌旁長著蕨類。", en: "A red forest railway train rounds a rain-darkened curve through mountain woodland and ferns." },
+    caption: { zh: "Room 01 沙發上方的掛畫，畫的是想像中的阿里山林鐵一景。", en: "The painting above the Room 01 sofa: an imagined Alishan Forest Railway scene." },
+    made: { zh: "Paul 選了林中版本。AI 參考阿里山林鐵的紅色柴油機關車，畫出雨後彎軌與山林。", en: "Paul chose the woodland version. AI used Alishan’s red diesel locomotives as a reference for the train on the rain-darkened curve." },
+  },
+  {
     id: "room02-la-coast-collection", date: "2026-10-23", frame: "plain", width: 1200, height: 1600,
     image: "assets/roomverse-room02-la-coast.webp", imageSmall: "assets/roomverse-room02-la-coast-mobile.webp", thumbnail: "assets/roomverse-room02-la-coast-thumb.webp",
     title: { zh: "南加州海岸，日落", en: "Southern California Coast at Sunset" },
@@ -384,15 +393,6 @@ export const PIECES = [
     alt: { zh: "法國梧桐伸過紅磚弄堂，暖色線燈照著雨棚下的一桌兩椅，玻璃內的點單螢幕亮著淡青色。", en: "A plane tree stretches over a red-brick lane. A warm strip light shines over a table and two chairs under the rain canopy, and a pale teal ordering screen glows behind glass." },
     caption: { zh: "Room 04 咖啡館門旁的另一組掛畫，描繪想像中的上海街巷。", en: "An imagined Shanghai lane in an alternate set of prints by the Room 04 café door." },
     made: { zh: "AI 參考愚園路的梧桐與紅磚老屋，畫出一間有玻璃店面和電子點單螢幕的當代咖啡館。", en: "AI used Yuyuan Road’s plane trees and brick houses as references and painted a contemporary café with a glass front and digital ordering screen." },
-  },
-  {
-    id: "room01-alishan-forest-train", date: "2026-11-25", frame: "plain", width: 1440, height: 960,
-    roomHref: "/prototype/roomverse-3d/?mood=rain&print=alishan-forest-train",
-    image: "assets/room01-alishan-forest-train.webp", imageSmall: "assets/room01-alishan-forest-train-mobile.webp", thumbnail: "assets/room01-alishan-forest-train-thumb.webp",
-    title: { zh: "阿里山・林中列車", en: "Alishan Forest Train" },
-    alt: { zh: "紅色林鐵列車沿著雨後彎軌穿過山林，軌旁長著蕨類。", en: "A red forest railway train rounds a rain-darkened curve through mountain woodland and ferns." },
-    caption: { zh: "Room 01 沙發上方的可選掛畫，畫的是想像中的阿里山林鐵一景。", en: "An imagined Alishan Forest Railway scene for the frame above the Room 01 sofa." },
-    made: { zh: "Paul 選了林中版本。AI 參考阿里山林鐵的紅色柴油機關車，畫出雨後彎軌與山林。", en: "Paul chose the woodland version. AI used Alishan’s red diesel locomotives as a reference for the train on the rain-darkened curve." },
   },
 ];
 
