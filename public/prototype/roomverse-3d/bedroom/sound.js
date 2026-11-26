@@ -85,9 +85,9 @@ const LICKS = {
   16: [[6, 77, 4], [12, 74, 3]],                   // Dm9: the answer begins, F then D
   17: [[6, 79, 6], [12, 76, 3]],                   // G13: G, then E
   18: [[8, 76, 6]],                                // Cmaj9: E held
-  19: [[6, 72, 2], [8, 76, 4], [14, 79, 2]],       // Am7: C E, and a pickup G: the climb
+  19: [[6, 73, 2], [8, 76, 4], [14, 79, 2]],       // A7(b9): C# E, and a pickup G (the 7th): the climb, pulled up to the peak
   20: [[8, 81, 8]],                                // Dm9: the one high A, the peak of the piece
-  21: [[6, 79, 3], [9, 77, 3], [12, 76, 3]],       // G13: G F E, falling away
+  21: [[6, 79, 3], [9, 77, 3], [12, 76, 3]],       // Bbmaj7 (borrowed): G F E, the 6th, the 5th and the lifted 11th, falling away
   22: [[8, 74, 3], [11, 72, 5]],                   // Cmaj9: D C
   23: [[6, 71, 2], [8, 69, 6]],                    // Am7: B A, settling
   24: [[8, 65, 8]],                                // Dm9: the memory begins on a held F
@@ -98,6 +98,9 @@ const LICKS = {
   29: [[6, 67, 2], [8, 64, 6]],                    // G13: G E, then the last two bars land on D
 };
 const STRENGTH = { 8: .7, 9: .75, 10: .8, 11: .85, 13: .75, 15: .8, 16: .9, 17: 1, 18: .95, 19: 1, 20: 1.3, 21: 1.1, 22: .95, 23: .85, 24: .75, 25: .7, 26: .8, 27: .7, 28: .65, 29: .6 }; // how hard each bar is played: a shape with one peak
+// The harmony at the peak (Paul 2026-11-27: borrow a chord there, or add a turnaround). Bar 19 turns Am7 into A7(b9), the dominant that pulls the line up to the high A over Dm9 at bar 20 (the same chord Series Night uses before its wave);
+// bar 21 turns G13 into Bbmaj7, a chord borrowed from the minor key, which falls to C on the next bar and gives the descent a bitter-sweet colour. The beat, the bass pattern and the comp rhythm stay as they were.
+const CLIMAX_CHORDS = { 19: { bass: 45, comp: [55, 58, 61, 64] }, 21: { bass: 46, comp: [58, 62, 65, 69] } }; // A7(b9): G Bb C# E over A; Bbmaj7: Bb D F A
 const SCALE = [0, 2, 4, 5, 7, 9, 11]; // C major, the key of all four chords
 const thirdBelow = (midi) => { const pc = ((midi % 12) + 12) % 12, i = SCALE.indexOf(pc); if (i < 0) return midi - 4; const j = i - 2, octave = Math.floor(midi / 12) + (j < 0 ? -1 : 0); return octave * 12 + SCALE[(j + 7) % 7]; };
 
@@ -218,7 +221,7 @@ export function createRoomRecord() {
   };
   const scheduleBarA = () => {
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
-    const section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
+    const section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = (!CLASSIC && CLIMAX_CHORDS[section]) || CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
     // the beat: a dusty boom-bap, the kick drops out in the breakdown and on the final two bars
     if (!ending && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
     if (!CLASSIC && !ending && section >= 16 && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) sub808(at(i) + jitter(3), chord.bass, (i === 0 ? 0.3 : 0.2) * (section === 20 ? 1.35 : 1), STEP * (i === 0 ? 6 : 3)); // the second half hits harder: an 808-style sub rings under every kick
