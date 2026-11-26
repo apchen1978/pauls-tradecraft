@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=auto";
+import { COPY, TRACKS } from "./tracks.js?v=xlink";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -19,9 +19,11 @@ for (const [id, key] of Object.entries({
   "night-title": "night",
   "night-note": "nightNote",
   back: "back",
+  "gallery-link": "gallery",
 })) $(id).textContent = copy[key];
 $("home").href = `/?lang=${lang}`;
 $("back").href = `/ai-lab/?lang=${lang}#gallery-front`;
+$("gallery-link").href = `/gallery/?lang=${lang}`;
 document.querySelectorAll(".languages a").forEach((link) => {
   if (link.getAttribute("lang") === document.documentElement.lang) link.setAttribute("aria-current", "page");
   else link.removeAttribute("aria-current");

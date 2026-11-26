@@ -298,6 +298,12 @@ h1 {
   font-size: 14px;
 }
 .foot a { display: inline-flex; min-height: 44px; align-items: center; }
+.foot-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
+/* The way over to the other half of the pair: a quiet gold pill, so a visitor who likes the music finds the pictures. */
+.foot .cross-link { gap: 8px; padding: 0 18px; border: 1px solid rgba(255, 215, 138, .6); border-radius: 999px; background: rgba(255, 215, 138, .08); color: var(--gold); font-weight: 650; text-decoration: none; }
+.foot .cross-link::after { content: "→"; transition: transform .2s ease; }
+.foot .cross-link:hover, .foot .cross-link:focus-visible { background: rgba(255, 215, 138, .2); }
+.foot .cross-link:hover::after { transform: translateX(3px); }
 body.lounge-live .track-card:not(.is-live) { opacity: .4; filter: saturate(.62) brightness(.75); }
 .track-card.is-live {
   opacity: 1;
