@@ -3099,7 +3099,7 @@ let lanternMat = null;
     return {
       hemi: m.hemi, win: m.win, lamp: m.lamp, fill: m.fill, floor: m.floor, exposure: m.exposure, sunY: m.sunY ?? 2.6, shadowRadius: m.shadowRadius ?? 8, led: m.led ? .5 : 0,
       floorHalo: m.floor ? m.glow : 0, tableHalo: m.glow, lanternHalo: m.glow * .7 + .05, down: DOWNLIGHT_LEVEL[mood] ?? 0,
-      shade: m.floor ? .55 : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
+      shade: m.floor ? (mood === "tv" ? .34 : .55) : 0, table: m.glow > .3 ? .45 : .18, // the AI shade is a solid shape: a soft glow keeps its form; dimmer in daylight
       winCol: new THREE.Color(m.winCol), out: new THREE.Color(m.out), hemiSky: new THREE.Color(tint.hemiSky), sideWall: new THREE.Color(tint.sideWall), entryWall: new THREE.Color(tint.entryWall), tvWall: TV_STRIP_GLOW[mood], wallWarmth: WALLS_WITHOUT_WARM_WASH.has(state.wall) ? 0 : TV_WALL_WASH[mood], screenReflection: mood === "tv" ? .17 : 0, screenLevel,
     };
   };
