@@ -428,3 +428,7 @@ body.has-player-bar { padding-bottom: 96px; }
   .player-pause { width: 44px; padding: 0; }
   .player-pause .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+.voice-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 6px 0 2px; color: var(--gold); font-size: 13px; font-weight: 700; letter-spacing: .04em; }
+.voice-pick select { min-height: 44px; padding: 0 14px; border: 1px solid rgba(255, 215, 138, .55); border-radius: 999px; background: rgba(255, 215, 138, .1); color: #fff6ea; font: inherit; font-weight: 700; }
+.voice-pick select:focus-visible { outline: 3px solid #ffe1a8; outline-offset: 3px; }
+.voice-pick option { color: #1a1206; }

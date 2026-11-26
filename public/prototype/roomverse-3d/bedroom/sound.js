@@ -65,7 +65,7 @@ const TITLES = [{ zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, { zh: "
 // The melody voice (Paul, 2026-11-26: the piano on top does not blend with the low, dark beat and comp; try other instruments). ?lead=rhodes (the default), organ, sax, guitar or piano on the page
 // address picks it, so the voices can be compared on the same link. LEAD_K evens the levels out against the piano. On the synthesized voices the first note of a phrase slides up into pitch
 // from a semitone below, the way a singer or a horn does (the old semitone grace note on the piano clashed with the chord and is gone).
-const LEAD = (() => { const v = typeof location !== "undefined" ? new URLSearchParams(location.search).get("lead") : null; return ["rhodes", "organ", "sax", "guitar", "piano"].includes(v) ? v : "rhodes"; })();
+let LEAD = (() => { const v = typeof location !== "undefined" ? new URLSearchParams(location.search).get("lead") : null; return ["rhodes", "organ", "sax", "guitar", "piano"].includes(v) ? v : "organ"; })();
 const LEAD_K = { rhodes: 0.53, organ: 0.63, sax: 0.47, guitar: 1.3 };
 const CLASSIC = typeof location !== "undefined" && new URLSearchParams(location.search).get("take") === "classic";
 const MELODY_NEW = {
@@ -214,8 +214,12 @@ export function createRoomRecord() {
     else if (local >= 2 && CLASSIC) { const phrase = local >= 8 && local <= 11 ? MELODY_B : MELODY_A; for (const [i, midi, length] of phrase[local % 4]) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); }
     else if (local >= 2) {
       // the richer take: the written line, played with a shape. Each bar has its own strength; the timing sits a little behind the beat and drifts slowly (a wave across the bars, not a random shake per note).
-      const second = section >= 16, strength = (CONTOUR[local] ?? 0.8) * (second ? 1.08 : 1), lag = 0.014 + 0.011 * Math.sin(barIndex * 0.7);
-      MELODY_NEW[local].forEach(([i0, midi, length], n) => {
+      const second = section >= 16, strength = (CONTOUR[local] ?? 0.8) * (second ? 1.08 : 1), lag = 0.032 + 0.012 * Math.sin(barIndex * 0.7);
+      // Paul 2026-11-27: the melody was a flat line over the groove; it is an ornament now. Half the notes: the first and the last of each bar on the first pass, the first two on the second pass,
+      // so each pass sounds different and the beat and the chords get room to breathe.
+      const bar = MELODY_NEW[local];
+      bar.forEach(([i0, midi, length], n) => {
+        if (bar.length > 2 && !(second ? n <= 1 : n === 0 || n === bar.length - 1)) return;
         const i = second && i0 === 8 && n > 0 ? 7 : i0; // in the second pass the half-bar note lands a sixteenth early: a push into the beat
         const accent = n === 0 ? 1.1 : 1, time = at(i) + lag + jitter(3), gain = vary(0.09) * strength * accent;
         // (the old semitone grace note on the piano is gone: it clashed with the chord; the synthesized voices slide into the note instead)
@@ -250,6 +254,8 @@ export function createRoomRecord() {
   };
   const scheduleBar = () => (side === 1 ? scheduleBarB() : scheduleBarA());
   return {
+    setLead(v) { if (["rhodes", "organ", "sax", "guitar", "piano"].includes(v)) LEAD = v; }, // the melody voice can be changed while the piece plays; it takes effect from the next notes
+    lead() { return LEAD; },
     // Call from inside a tap. Returns true if it started.
     start(which = 0) {
       if (playing) return true;

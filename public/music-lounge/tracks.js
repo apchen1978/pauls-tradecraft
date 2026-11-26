@@ -19,6 +19,8 @@ export const COPY = {
     pause: "暫停",
     resume: "繼續",
     paused: "已暫停",
+    voice: "主奏音色",
+    voices: { organ: "風琴", sax: "薩克斯風", guitar: "吉他", rhodes: "電鋼琴 Rhodes", piano: "鋼琴" },
     loading: "正在載入音樂與鋼琴音色…",
     waiting: "正在準備第一個音…",
     playing: "播放中",
@@ -53,6 +55,8 @@ export const COPY = {
     pause: "Pause",
     resume: "Resume",
     paused: "Paused",
+    voice: "Lead voice",
+    voices: { organ: "Organ", sax: "Saxophone", guitar: "Guitar", rhodes: "Rhodes electric piano", piano: "Piano" },
     loading: "Loading the music and piano sounds…",
     waiting: "Preparing the first note…",
     playing: "Playing",
@@ -102,8 +106,8 @@ export const TRACKS = [
   },
   {
     id: "brooklyn-windowsill", title: { zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, rooms: ["Room 02", "Room 03"], engine: "bedroom", index: 0, cover: "/music-lounge/covers/brooklyn-windowsill.webp?v=1",
-    mood: { zh: "窗臺上，鋼琴帶著 swing 踩進節拍", en: "On the windowsill, piano swings into the beat." },
-    made: { zh: "以 D 小調的四和弦循環和 swung sixteenths 打底，16 小節的旋律再走一遍，最後兩小節落在 D。一輪一共 32 小節。", en: "A D-minor four-chord loop and swung sixteenths set the foundation. The 16-bar melody plays again, then two bars land on D, 32 bars in all." },
+    mood: { zh: "窗臺上，R&B 的節拍與和弦，旋律只做點綴", en: "On the windowsill: an R&B beat and chords, with the melody as an ornament." },
+    made: { zh: "以 D 小調的四和弦循環、swung sixteenths 和電鋼琴滾奏打底，低音每四小節滑向下一個根音。旋律不是一條連續的線，而是短短的點綴與呼應，兩遍用不同的音並刻意慢半拍，主奏音色可在卡片上換。最後兩小節落在 D，一輪 32 小節。", en: "A D-minor four-chord loop, swung sixteenths and a rolled electric piano set the foundation, and the bass glides to the next root every fourth bar. The melody is short ornaments and answers rather than a continuous line, with different notes on each pass played a little behind the beat, and the lead voice can be changed on the card. Two bars land on D, 32 bars in all." },
   },
   {
     id: "adagio", title: { zh: "慢板", en: "Adagio" }, rooms: ["Room 04"], engine: "cafe", index: 0, cover: "/prototype/roomverse-3d/cafe/art/room04-record-cover-0-v1.webp",
