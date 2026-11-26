@@ -1432,20 +1432,6 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   for (const x of [-.67, .67]) sofaPart(sofaSoftBox(.26, .31, .80, .12), sofaFrameMat, "sofa-rounded-arm", x, .485, .02);
   const legGeometry = new THREE.CylinderGeometry(.024, .036, .18, 12, 1);
   for (const x of [-.62, .62]) for (const z of [-.30, .31]) sofaPart(legGeometry, sofaLegMat, "legs", x, .09, z);
-  { // a knitted throw in terracotta: it lies on the seat, climbs the inside of the right arm, crosses its top and hangs down the outside, 38 cm wide, with a soft sag along its free edge
-    const nu = 18, nv = 5, wide = .38, path = [[.06, .447], [.22, .449], [.40, .452], [.51, .456], [.555, .50], [.56, .58], [.60, .658], [.68, .672], [.76, .66], [.815, .62], [.828, .52], [.822, .36], [.815, .30]];
-    const arc = [0]; for (let i = 1; i < path.length; i++) arc.push(arc[i - 1] + Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]));
-    const at = (t) => { const e = t * arc[arc.length - 1]; let i = 1; while (i < arc.length - 1 && arc[i] < e) i++; const k = (e - arc[i - 1]) / (arc[i] - arc[i - 1]); return [path[i - 1][0] + (path[i][0] - path[i - 1][0]) * k, path[i - 1][1] + (path[i][1] - path[i - 1][1]) * k]; };
-    const pos = [], uv = [], idx = [];
-    for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
-      const b = -.04 + wide * j / nv, t = i / nu, [x, y] = at(t), onArm = t > .3 && t < .75 ? 1 : 0, ripple = .006 * Math.sin(t * 19 + b * 7) + .004 * Math.sin(b * 31 + 1.3), dropEdge = (j === nv || j === 0 ? 1 : 0) * (t > .72 ? -.02 * Math.sin(i * 1.9) : 0);
-      pos.push(x + (t > .75 ? ripple * 1.5 : 0) + (t < .3 ? 0 : t > .75 ? 0 : 0), y + (t < .3 ? ripple : 0) + dropEdge - (t > .72 ? (b + .04) / wide * .018 : 0), b); uv.push(t * 1.1, b * 2.2);
-    }
-    for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a0 = j * (nu + 1) + i, c = a0 + nu + 1; idx.push(a0, c, a0 + 1, a0 + 1, c, c + 1); }
-    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals();
-    const sofaThrowMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#c8865c", "#a8683f"), roughness: 1, side: THREE.DoubleSide });
-    sofaPart(g, sofaThrowMat, "sofa-throw", 0, 0, 0);
-  }
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
   // Keep the two loose cushions inside the seat/back corner. A slight lean and uneven roll read as fabric at rest;
   // the previous 45-degree yaw made the square cushion show mostly its thin side from the room.
@@ -1464,6 +1450,17 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }), roughness: .5 });
   const bronze = new THREE.MeshStandardMaterial({ color: "#2f2b27", roughness: .42, metalness: .55 });
   const darkOak = woodMat("#7a5a40", { rough: .55, tint: "#8e6f55" });
+  // A low stone pedestal table in front of the sofa, the same one Room 04's lounge has (Paul 2026-11-28): an oak base disc, a stone column and a 56 cm stone top, 43.5 cm high, 30 cm from the sofa's seat front.
+  // It is small on purpose: the middle of the room still breathes (it stands 0.7 m clear of the bed's foot and 1.1 m clear of the TV rug's far edge).
+  const stoneTable = new THREE.Group(); stoneTable.name = "sofa-stone-table"; root.add(stoneTable);
+  { const T = hold(stoneTable), tx0 = .30, tz0 = .92, top = .435;
+    T(new THREE.CylinderGeometry(.17, .17, .022, 32), darkOak, "sofa-table-base", tx0, .011, tz0); // stands on the floor
+    T(new THREE.CylinderGeometry(.05, .05, top - .03 + .01 - .022, 24), travertine, "sofa-table-column", tx0, .022 + (top - .03 + .01 - .022) / 2, tz0); // from the base disc up into the top (10 mm buried)
+    T(new THREE.CylinderGeometry(.28, .28, .03, 40), travertine, "sofa-table-top", tx0, top - .015, tz0); // top face at 43.5 cm
+    T(box(.2, .028, .15), new THREE.MeshStandardMaterial({ color: "#c9bfa9", roughness: .9 }), "sofa-table-book-a", tx0 - .04, top + .014, tz0 + .05).rotation.y = .22; // two closed books, no text
+    T(box(.16, .022, .12), new THREE.MeshStandardMaterial({ color: "#7d8f78", roughness: .9 }), "sofa-table-book-b", tx0 - .035, top + .028 + .011, tz0 + .045).rotation.y = -.15;
+    loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "sofa-table-mug"; g.position.set(tx0 + .1, top + .0475, tz0 - .09); g.rotation.y = 2.2; stoneTable.add(g); redraw(); }).catch(() => {}); // the mug stands on the top
+  }
   const ringTable = (g, name, r, topY, topR, topH, topMat) => {
     const h = hold(g);
     h(new THREE.CylinderGeometry(topR, topR, topH, 36), topMat, name + "-top", 0, topY, 0);
@@ -2336,7 +2333,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
-      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs" && o.name !== "sofa-throw") { o.material.color.set(CHOICES.sofa[value]); if (o.material === sofaFrameMat) o.material.color.multiplyScalar(.84); } }); // loose cushions, wooden legs and the throw keep their own colours; the frame stays a shade deeper than the cushions
+      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs") { o.material.color.set(CHOICES.sofa[value]); if (o.material === sofaFrameMat) o.material.color.multiplyScalar(.84); } }); // loose cushions and wooden legs keep their own colours; the frame stays a shade deeper than the cushions
     } else if (kind === "tv" && CHOICES.tv.includes(value)) {
       chosen.tv = value; applyTv(live.mood);
     } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
