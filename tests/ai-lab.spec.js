@@ -81,10 +81,9 @@ for (const width of [390, 1440]) {
       }
       await expect(page.locator("#story li")).toHaveCount(x.c4.story.length);
       await expect(page.locator("#play-work")).toHaveAttribute("href", `/prototype/match-the-approved-lamp/?lang=${lang}`);
-      const choices = page.locator("#contact-cta a");
-      await expect(choices).toHaveCount(2);
-      await expect(choices.nth(0)).toHaveAttribute("href", `/?lang=${lang}#contact`);
-      await expect(choices.nth(1)).toHaveAttribute("href", `/?lang=${lang}#contact`);
+      await expect(page.locator("#closing-points li")).toHaveCount(x.closingPoints.length);
+      await expect(page.locator("#closing a")).toHaveCount(0);
+      await expect(page.locator('main a[href$="#contact"]')).toHaveCount(0);
       await noOverflow(page);
 
       const stored = await page.evaluate(() => ({ local: localStorage.length, cookie: document.cookie }));

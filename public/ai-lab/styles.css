@@ -224,8 +224,8 @@ h3 { margin: 0; color: var(--bone); font-size: 1.1rem; }
 .term[open] { border-color: var(--mint); }
 .term p { margin: 8px 0 0; }
 .term .ex { color: var(--meta); font-size: 15px; }
-.cta { margin: 0 0 40px; padding: 40px 24px; border: 1px solid var(--gold); border-radius: 18px; text-align: center; background: rgba(184, 153, 102, .08); }
-.cta h2 { font-size: clamp(1.35rem, 3.4vw, 2rem); }
+.closing { margin: 0 0 40px; padding: 40px 24px; border: 1px solid var(--gold); border-radius: 18px; text-align: center; background: rgba(184, 153, 102, .08); }
+.closing h2 { font-size: clamp(1.35rem, 3.4vw, 2rem); }
 .foot { max-width: 1080px; margin: 0 auto; padding: 18px 20px 40px; font-size: 13px; color: var(--meta); border-top: 1px solid var(--line); }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
 
@@ -288,14 +288,12 @@ body { overflow-x: clip; }
 .tier .here { top: 8px; right: 7%; }
 
 /* CTA with glow */
-.cta { position: relative; overflow: hidden; padding: 56px 24px; background: radial-gradient(40rem 16rem at 50% 120%, rgba(184, 153, 102, .25), transparent 70%), rgba(184, 153, 102, .06); scroll-margin-top: 72px; }
-.cta h2 { max-width: 20em; margin-left: auto; margin-right: auto; }
-.cta-choices { display: grid; gap: 12px; max-width: 760px; margin: 22px auto 0; text-align: left; }
-.cta-choice { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 44px; padding: 14px 16px; border: 1px solid rgba(184, 153, 102, .55); border-radius: 14px; background: rgba(184, 153, 102, .1); color: var(--bone); text-decoration: none; }
-.cta-choice:hover { border-color: var(--gold); background: rgba(184, 153, 102, .18); }
-.cta-choice strong { font-size: 1.02rem; line-height: 1.35; }
-.cta-choice span { color: var(--body); font-size: .95rem; font-weight: 450; line-height: 1.45; }
-@media (min-width: 720px) { .cta-choices { grid-template-columns: 1fr 1fr; } }
+.closing { position: relative; overflow: hidden; padding: 56px 24px; background: radial-gradient(40rem 16rem at 50% 120%, rgba(184, 153, 102, .25), transparent 70%), rgba(184, 153, 102, .06); scroll-margin-top: 72px; }
+.closing h2 { max-width: 20em; margin-left: auto; margin-right: auto; }
+/* Plain statements, no buttons: the page ends by saying what it was for, not by sending the reader somewhere. */
+.closing-points { display: grid; gap: 14px; max-width: 760px; margin: 24px auto 0; padding: 0; list-style: none; text-align: left; counter-reset: closing; }
+.closing-points li { position: relative; padding: 2px 0 2px 44px; color: var(--bone); font-size: 1.04rem; line-height: 1.7; counter-increment: closing; }
+.closing-points li::before { content: counter(closing); position: absolute; left: 0; top: 2px; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid rgba(184, 153, 102, .7); border-radius: 50%; color: var(--gold); font-size: .85rem; font-weight: 700; line-height: 1; }
 
 /* scroll reveal: only added by script for sections below the first screen */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
