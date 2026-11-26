@@ -66,24 +66,25 @@ const TITLES = [{ zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, { zh: "
 // address picks it, so the voices can be compared on the same link. LEAD_K evens the levels out against the piano. On the synthesized voices the first note of a phrase slides up into pitch
 // from a semitone below, the way a singer or a horn does (the old semitone grace note on the piano clashed with the chord and is gone).
 let LEAD = (() => { const v = typeof location !== "undefined" ? new URLSearchParams(location.search).get("lead") : null; return ["rhodes", "organ", "sax", "guitar", "piano"].includes(v) ? v : "organ"; })();
-const LEAD_K = { rhodes: 0.53, organ: 0.63, sax: 0.47, guitar: 1.3 };
+const LEAD_K = { rhodes: 0.53, organ: 0.7, sax: 0.47, guitar: 1.3 };
 const CLASSIC = typeof location !== "undefined" && new URLSearchParams(location.search).get("take") === "classic";
-const MELODY_NEW = {
-  2: [[2, 64, 3], [5, 67, 3], [8, 69, 6]],                    // Cmaj9: the motif, E G A
-  3: [[2, 72, 4], [8, 71, 2], [10, 69, 6]],                   // Am7: the answer, C B A
-  4: [[2, 65, 3], [5, 69, 3], [8, 72, 6]],                    // Dm9: the motif a step higher, F A C
-  5: [[0, 71, 4], [6, 69, 2], [8, 67, 4], [12, 64, 4]],       // G13: it settles, B A G E
-  6: [[0, 64, 2], [3, 67, 3], [6, 69, 2], [8, 72, 8]],        // Cmaj9: the motif again with a new rhythm, up to C
-  7: [[2, 76, 6], [8, 74, 2], [10, 72, 6]],                   // Am7: the first peak, E D C
-  8: [[0, 72, 2], [2, 74, 2], [4, 77, 4], [8, 76, 4], [12, 74, 4]],          // Dm9: B phrase, C D F E D
-  9: [[0, 79, 6], [6, 77, 2], [8, 76, 4], [12, 74, 4]],       // G13: the high G, the peak of the piece
-  10: [[0, 76, 4], [4, 72, 4], [8, 74, 2], [10, 72, 2], [12, 71, 4]],        // Cmaj9: falling, E C D C B
-  11: [[0, 69, 8], [10, 72, 3], [13, 76, 3]],                 // Am7: A held, then a pickup up to E
-  12: [[2, 69, 6], [10, 72, 2], [12, 69, 4]],                 // Dm9: the breakdown quotes the old calm line
-  13: [[0, 67, 4], [6, 65, 2], [8, 64, 8]],                   // G13
-  14: [[2, 64, 3], [5, 67, 3], [8, 69, 8]],                   // Cmaj9: the motif one last time
-  15: [[0, 72, 6], [8, 69, 4], [12, 67, 4]],                  // Am7: C A G, into the second pass
+const LICKS = { // [step, midi, length in steps] per bar. The kick sits on steps 0 and 10 and the snare on 4 and 12, so the licks come in after the snare (6), on the half bar (8) and as pickups (14).
+  2: [[6, 64, 2], [8, 67, 6]],                    // Cmaj9: E then G, after the snare
+  3: [[6, 69, 2], [8, 72, 5]],                    // Am7: A then C
+  4: [[8, 69, 7]],                                // Dm9: one held A, space around it
+  5: [[6, 71, 2], [9, 67, 6]],                    // G13: B, and G a sixteenth after the half bar
+  6: [[6, 64, 2], [8, 67, 3]],                    // Cmaj9: the motif again
+  7: [[6, 69, 2], [8, 72, 3], [11, 76, 4]],       // Am7: A C E, rising
+  8: [[8, 77, 6]],                                // Dm9: a high F held, sung
+  9: [[6, 79, 4], [12, 76, 3]],                   // G13: the one high G, then E on the snare
+  10: [[8, 72, 5]],                               // Cmaj9: C, falling back
+  11: [[6, 69, 2], [8, 72, 3], [14, 76, 2]],      // Am7: A C, and a pickup E into the breakdown
+  12: [[8, 69, 8]],                               // Dm9: breakdown, one long A
+  13: [[6, 67, 2], [8, 64, 8]],                   // G13: G then E
+  14: [[8, 67, 6]],                               // Cmaj9: G
+  15: [[6, 72, 2], [8, 69, 4], [14, 67, 2]],      // Am7: C A G, into the second pass
 };
+const PASS2_ANSWER = { 3: [14, 67, 2], 5: [14, 74, 2], 9: [14, 74, 2] }; // on the second pass a short answer on the "a" of four in three bars
 const CONTOUR = { 2: .85, 3: .8, 4: .9, 5: .85, 6: .95, 7: 1, 8: 1, 9: 1.2, 10: 1.05, 11: .95, 12: .7, 13: .65, 14: .75, 15: .8 }; // how hard each bar is played: a shape, not a constant
 const SCALE = [0, 2, 4, 5, 7, 9, 11]; // C major, the key of all four chords
 const thirdBelow = (midi) => { const pc = ((midi % 12) + 12) % 12, i = SCALE.indexOf(pc); if (i < 0) return midi - 4; const j = i - 2, octave = Math.floor(midi / 12) + (j < 0 ? -1 : 0); return octave * 12 + SCALE[(j + 7) % 7]; };
@@ -166,12 +167,17 @@ export function createRoomRecord() {
     const tine = ctx.createOscillator(), tineGain = ctx.createGain(); tine.type = "sine"; tine.frequency.value = hz(midi) * 4; tineGain.gain.setValueAtTime(g * 0.22, time); tineGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16); tine.connect(tineGain); tineGain.connect(out);
     car.connect(out); out.connect(tone); for (const o of [car, mod, tine]) { o.start(time); o.stop(end + 0.35); } leadOut(tone, pan);
   };
-  const organ = (time, midi, g, length, pan, scoop) => { // a drawbar organ: sine partials, a soft attack, a slow Leslie-like tremolo
-    const out = ctx.createGain(), trem = ctx.createGain(), tone = ctx.createBiquadFilter(), end = time + Math.max(0.3, length); tone.type = "lowpass"; tone.frequency.value = 4200;
-    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(g, time + 0.02); out.gain.setValueAtTime(g, end); out.gain.exponentialRampToValueAtTime(0.0001, end + 0.12);
-    const lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 6.2; depth.gain.value = 0.07; trem.gain.value = 0.93; lfo.connect(depth); depth.connect(trem.gain); lfo.start(time); lfo.stop(end + 0.3);
-    for (const [ratio, level] of [[1, 1], [2, 0.6], [3, 0.3], [4, 0.2], [6, 0.1]]) { const osc = ctx.createOscillator(), pg = ctx.createGain(); osc.type = "sine"; bend(osc, time, midi, scoop, ratio); pg.gain.value = level / 2.2; osc.connect(pg); pg.connect(out); osc.start(time); osc.stop(end + 0.3); }
-    out.connect(trem); trem.connect(tone); leadOut(tone, pan);
+  const organ = (time, midi, g, length, pan, scoop) => { // a drawbar organ: the 16', 5 1/3' and 8' bars full (the soul and gospel "888" setting), a third-harmonic percussion that dies away, a short key click,
+    // a chorus-vibrato, a slow Leslie-like sway, and a long note swells a little after the attack
+    const out = ctx.createGain(), sway = ctx.createGain(), tone = ctx.createBiquadFilter(), end = time + Math.max(0.3, length); tone.type = "lowpass"; tone.frequency.value = 5200;
+    const peak = length > 0.7 ? g * 1.12 : g;
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(g * 0.9, time + 0.012); out.gain.exponentialRampToValueAtTime(peak, time + Math.min(0.5, length * 0.5)); out.gain.setValueAtTime(peak, end); out.gain.exponentialRampToValueAtTime(0.0001, end + 0.1);
+    const lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 6.1; depth.gain.value = 0.06; sway.gain.value = 0.94; lfo.connect(depth); depth.connect(sway.gain); lfo.start(time); lfo.stop(end + 0.3);
+    const vibrato = ctx.createOscillator(), vibratoDepth = ctx.createGain(); vibrato.frequency.value = 6.8; vibratoDepth.gain.value = 5; vibrato.connect(vibratoDepth); vibrato.start(time); vibrato.stop(end + 0.3);
+    for (const [ratio, level] of [[0.5, 0.9], [1.5, 0.75], [1, 1], [2, 0.18], [3, 0.12]]) for (const cents of [-4, 4]) { const osc = ctx.createOscillator(), pg = ctx.createGain(); osc.type = "sine"; bend(osc, time, midi, scoop, ratio); osc.detune.value = cents; vibratoDepth.connect(osc.detune); pg.gain.value = level / 5.5; osc.connect(pg); pg.connect(out); osc.start(time); osc.stop(end + 0.3); }
+    const perc = ctx.createOscillator(), percGain = ctx.createGain(); perc.type = "sine"; perc.frequency.value = hz(midi) * 3; percGain.gain.setValueAtTime(g * 0.35, time); percGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.2); perc.connect(percGain); percGain.connect(out); perc.start(time); perc.stop(time + 0.25);
+    const click = ctx.createBufferSource(), clickBand = ctx.createBiquadFilter(), clickGain = ctx.createGain(); click.buffer = noiseBuffer(); clickBand.type = "bandpass"; clickBand.frequency.value = 2800; clickBand.Q.value = 0.9; clickGain.gain.setValueAtTime(g * 0.1, time); clickGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.012); click.connect(clickBand); clickBand.connect(clickGain); clickGain.connect(out); click.start(time); click.stop(time + 0.03);
+    out.connect(sway); sway.connect(tone); leadOut(tone, pan);
   };
   const sax = (time, midi, g, length, pan, scoop) => { // a breathy synthesized saxophone: saw and square through two vowel-like bands, a late vibrato, a puff of breath, a scoop up into the pitch
     const out = ctx.createGain(), mix = ctx.createGain(), low = ctx.createBiquadFilter(), band1 = ctx.createBiquadFilter(), band2 = ctx.createBiquadFilter(), gain1 = ctx.createGain(), gain2 = ctx.createGain(), end = time + Math.max(0.3, length);
@@ -215,14 +221,12 @@ export function createRoomRecord() {
     else if (local >= 2) {
       // the richer take: the written line, played with a shape. Each bar has its own strength; the timing sits a little behind the beat and drifts slowly (a wave across the bars, not a random shake per note).
       const second = section >= 16, strength = (CONTOUR[local] ?? 0.8) * (second ? 1.08 : 1), lag = 0.032 + 0.012 * Math.sin(barIndex * 0.7);
-      // Paul 2026-11-27: the melody was a flat line over the groove; it is an ornament now. Half the notes: the first and the last of each bar on the first pass, the first two on the second pass,
-      // so each pass sounds different and the beat and the chords get room to breathe.
-      const bar = MELODY_NEW[local];
-      bar.forEach(([i0, midi, length], n) => {
-        if (bar.length > 2 && !(second ? n <= 1 : n === 0 || n === bar.length - 1)) return;
-        const i = second && i0 === 8 && n > 0 ? 7 : i0; // in the second pass the half-bar note lands a sixteenth early: a push into the beat
+      // Paul 2026-11-27 (R&B pocket): the melody is an ornament that sings in the gaps of the groove, after the snare, on the half bar and as pickups; it leaves the one and the backbeat alone.
+      // The second pass moves every note from step 8 on one sixteenth early (a push) and adds a short answer in three bars, so the two passes are not the same.
+      const lick = LICKS[local], answer = second ? PASS2_ANSWER[local] : null;
+      const bar = (second ? lick.map(([i, m, l]) => [i >= 8 ? i - 1 : i, m, l]) : lick).concat(answer ? [answer] : []);
+      bar.forEach(([i, midi, length], n) => {
         const accent = n === 0 ? 1.1 : 1, time = at(i) + lag + jitter(3), gain = vary(0.09) * strength * accent;
-        // (the old semitone grace note on the piano is gone: it clashed with the chord; the synthesized voices slide into the note instead)
         lead(time, midi, gain, STEP * (length + 1), 0.2, n === 0); // the melody voice; on a synth voice the first note of a phrase slides up into pitch
         if (local >= 7 && local <= 11 && length >= 6) lead(time + 0.012, thirdBelow(midi), gain * 0.55, STEP * (length + 1), -0.1, false); // on the long notes of the climb, a third below
         if (second && n === 0 && (local === 6 || local === 9 || local === 14)) bell(time + 0.02, midi + 12, 0.028 * strength, STEP * 10, 0.35); // a bell an octave up on the peaks of the second pass
