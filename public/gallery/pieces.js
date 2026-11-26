@@ -17,7 +17,7 @@ export const COLLECTION = {
     tvTitle: "電視螢幕裡的畫面", tvNote: "Room 01、Room 03 與 Room 04 的電視在不同心情下播放的畫面，原本只在螢幕裡一閃而過，這裡可以慢慢看。都是想像的概念插畫，不是真實地點的照片。",
     moveTitle: "房間牆上的運動", moveNote: "Room 02 臥室牆上的三張運動海報：籃球、足球與跑步。都是想像的概念插畫，不是真實球員或賽事。",
     shTitle: "上海的一角", shNote: "Room 04 咖啡廳牆上的三幅畫：黎明的江面、夜渡與石庫門。都是想像的概念插畫，不是真實地點的照片。",
-    back: "回到 AI Lab", open: "放大欣賞：", close: "關閉大圖 ×", previous: "← 上一幅", next: "下一幅 →", made: "怎麼做出來的", viewInRoom: "到房間看這幅",
+    back: "回到 AI Lab", lounge: "去聽 Music Lounge", open: "放大欣賞：", close: "關閉大圖 ×", previous: "← 上一幅", next: "下一幅 →", made: "怎麼做出來的", viewInRoom: "到房間看這幅",
   },
   en: {
     title: "The Human–AI Gallery", subtitle: "From a first idea, to a picture worth pausing for.",
@@ -35,7 +35,7 @@ export const COLLECTION = {
     tvTitle: "Pictures on the TV Screens", tvNote: "The pictures the TVs in Rooms 01, 03 and 04 play in different moods, usually seen only in passing, here to look at slowly. All are imagined concept illustrations, not photographs of real places.",
     moveTitle: "Sport on the Walls", moveNote: "Three sports posters from the Room 02 bedroom: basketball, football and running. All are concept illustrations, not real players or matches.",
     shTitle: "A Corner of Shanghai", shNote: "Three prints from the Room 04 café: a river at dawn, a night ferry and a shikumen door. All are imagined concept illustrations, not photographs of real places.",
-    back: "Back to AI Lab", open: "View painting: ", close: "Close painting ×", previous: "← Previous", next: "Next →", made: "How it was made", viewInRoom: "See this painting in the room",
+    back: "Back to AI Lab", lounge: "Visit the Music Lounge", open: "View painting: ", close: "Close painting ×", previous: "← Previous", next: "Next →", made: "How it was made", viewInRoom: "See this painting in the room",
   },
 };
 

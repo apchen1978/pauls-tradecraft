@@ -1,4 +1,4 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=15";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=xlink";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
@@ -11,6 +11,8 @@ for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", s
 $("home").href = `/?lang=${lang}`;
 $("home").ariaLabel = copy.home;
 $("back").href = `/ai-lab/?lang=${lang}#gallery-front`;
+$("lounge").href = `/music-lounge/?lang=${lang}`;
+$("lounge").textContent = copy.lounge;
 document.querySelectorAll(".languages a").forEach((a) => {
   if (a.getAttribute("lang") === document.documentElement.lang) a.setAttribute("aria-current", "page");
   else a.removeAttribute("aria-current");

@@ -51,6 +51,12 @@ h1 { margin: 0; color: #fffaf3; font-size: clamp(32px, 4.4vw, 58px); line-height
 .collection .painting:nth-child(n+3) h3, .collection .painting:nth-child(n+3) p { max-width: 400px; margin-inline: auto; }
 .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 26px 0 40px; border-top: 1px solid rgba(240, 195, 106, .28); color: var(--muted); font-size: 14px; }
 .foot a { display: inline-flex; align-items: center; min-height: 44px; }
+.foot-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
+/* The way over to the other half of the pair: a quiet gold pill, so a visitor who likes the pictures finds the music. */
+.foot .cross-link { gap: 8px; padding: 0 18px; border: 1px solid rgba(240, 195, 106, .6); border-radius: 999px; background: rgba(240, 195, 106, .08); color: var(--gold); font-weight: 650; text-decoration: none; }
+.foot .cross-link::after { content: "→"; transition: transform .2s ease; }
+.foot .cross-link:hover, .foot .cross-link:focus-visible { background: rgba(240, 195, 106, .2); }
+.foot .cross-link:hover::after { transform: translateX(3px); }
 dialog { padding: 20px 26px 24px; background: #1e2b27; border: 1px solid #697466; color: #eee8db; width: min(1200px, calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 32px); overflow: auto; }
 dialog::backdrop { background: #080f0de8; }
 .viewer-top { display: flex; justify-content: flex-end; margin-bottom: 18px; }
