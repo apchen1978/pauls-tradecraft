@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=xlink";
+import { COPY, TRACKS } from "./tracks.js?v=voice";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -41,6 +41,8 @@ const GROUPS = [
   { id: "night", ids: ["adagio", "bund-at-night", "fire-escape-rain"] },
 ];
 
+// Brooklyn Windowsill lets the visitor pick the melody voice on its card (Paul 2026-11-27); ?lead= in the address still works.
+let brooklynLead = ["organ", "sax", "guitar", "rhodes", "piano"].includes(new URLSearchParams(location.search).get("lead")) ? new URLSearchParams(location.search).get("lead") : "organ";
 let audioUnlockContext = null;
 let intent = 0;
 let pendingId = null;
@@ -186,6 +188,7 @@ async function makePlayer(track) {
   if (track.engine === "bedroom") {
     const { createRoomRecord } = await import("/prototype/roomverse-3d/bedroom/sound.js?v=auto");
     const player = createRoomRecord();
+    if (track.id === "brooklyn-windowsill") player.setLead?.(brooklynLead); // the voice chosen on the card
     return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
   }
   const { createBayRecord } = await import("/prototype/roomverse-3d/kitchen/sound.js?v=auto");
@@ -423,7 +426,30 @@ function makeTrackCard(track) {
   status.className = "track-status";
   status.setAttribute("role", "status");
   statuses.set(track.id, status);
-  item.append(cover, top, roomBlock, notes, status);
+  const extras = [];
+  if (track.id === "brooklyn-windowsill") {
+    const pick = document.createElement("div");
+    pick.className = "voice-pick";
+    const label = document.createElement("label");
+    label.textContent = copy.voice;
+    const select = document.createElement("select");
+    select.id = "voice-brooklyn";
+    label.htmlFor = select.id;
+    for (const key of ["organ", "sax", "guitar", "rhodes", "piano"]) {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = copy.voices[key];
+      if (key === brooklynLead) option.selected = true;
+      select.append(option);
+    }
+    select.addEventListener("change", () => {
+      brooklynLead = select.value;
+      if (active?.track.id === track.id) active.handle.player.setLead?.(brooklynLead); // takes effect from the next notes
+    });
+    pick.append(label, select);
+    extras.push(pick);
+  }
+  item.append(cover, top, roomBlock, ...extras, notes, status);
   return item;
 }
 
