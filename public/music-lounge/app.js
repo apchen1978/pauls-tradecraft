@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=voice";
+import { COPY, TRACKS } from "./tracks.js?v=orch";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -42,7 +42,7 @@ const GROUPS = [
 ];
 
 // Brooklyn Windowsill lets the visitor pick the melody voice on its card (Paul 2026-11-27); ?lead= in the address still works.
-let brooklynLead = ["organ", "sax", "guitar", "rhodes", "piano"].includes(new URLSearchParams(location.search).get("lead")) ? new URLSearchParams(location.search).get("lead") : "organ";
+let brooklynLead = ["orchestra", "sax", "guitar", "rhodes", "piano"].includes(new URLSearchParams(location.search).get("lead")) ? new URLSearchParams(location.search).get("lead") : "orchestra";
 let audioUnlockContext = null;
 let intent = 0;
 let pendingId = null;
@@ -435,7 +435,7 @@ function makeTrackCard(track) {
     const select = document.createElement("select");
     select.id = "voice-brooklyn";
     label.htmlFor = select.id;
-    for (const key of ["organ", "sax", "guitar", "rhodes", "piano"]) {
+    for (const key of ["orchestra", "sax", "guitar", "rhodes", "piano"]) {
       const option = document.createElement("option");
       option.value = key;
       option.textContent = copy.voices[key];
