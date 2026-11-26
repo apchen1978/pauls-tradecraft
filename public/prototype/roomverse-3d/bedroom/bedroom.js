@@ -1439,10 +1439,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     shape.bezierCurveTo(-L0 / 2 + .005, -W0 * .34, -L0 / 2 - .004, -W0 * .1, -L0 / 2 + .002, W0 * .08); shape.bezierCurveTo(-L0 / 2 + .01, W0 * .36, -L0 / 2 + .05, W0 * .42, -L0 / 2 + .09, W0 * .46);
     shape.bezierCurveTo(L0 / 2 - .07, W0 * .56, L0 / 2 - .005, W0 * .34, L0 / 2, 0); shape.bezierCurveTo(L0 / 2 - .005, -W0 * .4, L0 / 2 - .07, -W0 * .5, -L0 / 2 + .09, -W0 * .44); shape.bezierCurveTo(-L0 / 2 + .06, -W0 * .4, -L0 / 2 + .05, -W0 * .37, -L0 / 2 + .045, -W0 * .36);
     const colour = (geometry, hex) => { const g = geometry.index ? geometry.toNonIndexed() : geometry.clone(); g.deleteAttribute("uv"); const c = new THREE.Color(hex), n = g.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(arr, i * 3); g.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return g; };
-    const sole = new THREE.ExtrudeGeometry(shape, { depth: .014, bevelEnabled: true, bevelThickness: .0025, bevelSize: .0025, bevelSegments: 1, curveSegments: 4 }); sole.rotateX(-Math.PI / 2);
-    const footbed = new THREE.ShapeGeometry(shape, 4).rotateX(-Math.PI / 2).scale(.93, 1, .9).translate(0, .0185, 0);
-    const upper = new THREE.SphereGeometry(1, 10, 4, 0, Math.PI * 2, 0, Math.PI / 2).scale(.098, .043, .056).translate(.052, .0185, 0);
-    const rim = new THREE.TorusGeometry(1, .0045, 3, 10).rotateX(Math.PI / 2).scale(.094, 1, .052).translate(.052 - .004, .0215, 0);
+    const sole = new THREE.ExtrudeGeometry(shape, { depth: .014, bevelEnabled: true, bevelThickness: .0025, bevelSize: .0025, bevelSegments: 1, curveSegments: 10 }); sole.rotateX(-Math.PI / 2);
+    const footbed = new THREE.ShapeGeometry(shape, 10).rotateX(-Math.PI / 2).scale(.93, 1, .9).translate(0, .0185, 0);
+    const upper = new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2).scale(.098, .043, .056).translate(.052, .0185, 0);
+    const rim = new THREE.TorusGeometry(1, .0045, 6, 20).rotateX(Math.PI / 2).scale(.094, 1, .052).translate(.052 - .004, .0215, 0);
     const base = mergeGeometries([[sole, 0x3b2a20], [footbed, 0xd9cdb6], [upper, 0x6f7378], [rim, 0x5d6166]].map(([geo, hex]) => colour(geo, hex)), false);
     const put = (x, z, yaw, flip) => { const g = base.clone(); if (flip) { g.scale(1, 1, -1); const pa = g.attributes.position, ca = g.attributes.color; for (let i = 0; i < pa.count; i += 3) for (const att of [pa, ca]) { const x1 = att.getX(i + 1), y1 = att.getY(i + 1), z1 = att.getZ(i + 1); att.setXYZ(i + 1, att.getX(i + 2), att.getY(i + 2), att.getZ(i + 2)); att.setXYZ(i + 2, x1, y1, z1); } } /* a mirrored copy turns every triangle inside out: swap two corners of each */
       g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(x, .0088, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1))); return g; };
@@ -1472,29 +1472,29 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   { const T = hold(stoneTable), tx0 = .30, tz0 = .92, top = .435;
     T(new THREE.CylinderGeometry(.17, .17, .022, 32), darkOak, "sofa-table-base", tx0, .011, tz0); // stands on the floor
     T(new THREE.CylinderGeometry(.05, .05, top - .03 + .01 - .022, 24), travertine, "sofa-table-column", tx0, .022 + (top - .03 + .01 - .022) / 2, tz0); // from the base disc up into the top (10 mm buried)
-    T(new THREE.CylinderGeometry(.28, .28, .03, 32), travertine, "sofa-table-top", tx0, top - .015, tz0); // top face at 43.5 cm
+    T(new THREE.CylinderGeometry(.28, .28, .03, 40), travertine, "sofa-table-top", tx0, top - .015, tz0); // top face at 43.5 cm
     // Two hardbacks, built the way a book is: two boards, a spine and a paper block inset from the edges (the way Room 04's window-sill books are), in a dusty teal and a rust, with a gold title bar and no text.
     const hardback = (name, w, h, d, cover, x, z, yaw, y0) => { const g = new THREE.Group(); g.name = name; g.position.set(x, y0, z); g.rotation.y = yaw; stoneTable.add(g);
       const board = new THREE.MeshStandardMaterial({ color: cover, roughness: .78 }), paper = new THREE.MeshStandardMaterial({ color: "#efe8d6", roughness: .95 }), gilt = new THREE.MeshStandardMaterial({ color: "#e2bd74", roughness: .35, metalness: .7, emissive: "#4d3812", emissiveIntensity: .5 });
-      const H = hold(g); H(box(w, .004, d), board, name + "-lower-board", 0, .002, 0); H(box(w, .004, d), board, name + "-upper-board", 0, h - .002, 0);
+      const H = hold(g); H(softBox(w, .004, d, .008), board, name + "-lower-board", 0, .002, 0); H(softBox(w, .004, d, .008), board, name + "-upper-board", 0, h - .002, 0);
       H(box(.006, h, d - .004), board, name + "-spine", -w / 2 + .003, h / 2, 0); H(box(w - .012, h - .008, d - .01), paper, name + "-pages", .0035, h / 2, 0); // the paper block stands in from the edges, so the boards overhang it
       H(box(.05, .0012, .012), gilt, name + "-title-bar", .012, h + .0006, -d * .22); return g; };
     hardback("sofa-table-book-a", .17, .03, .23, "#4f6f73", tx0 - .05, tz0 + .06, .28, top);
     hardback("sofa-table-book-b", .15, .024, .2, "#b0603f", tx0 - .045, tz0 + .055, -.22, top + .03);
     { // a pen lying on the upper book: a dark lacquer body, a steel cap with a gold ring and clip and a steel point, 15 cm long (the window-seat pen of Room 04, copied)
       const pen = new THREE.Group(); pen.name = "sofa-table-pen"; const lacquer = new THREE.MeshStandardMaterial({ color: "#1d1f24", roughness: .3 }), steel = new THREE.MeshStandardMaterial({ color: "#b9bec4", roughness: .3, metalness: .8 }), gold = new THREE.MeshStandardMaterial({ color: "#e2bd74", roughness: .3, metalness: .7, emissive: "#4d3812", emissiveIntensity: .5 });
-      const P = hold(pen); P(new THREE.CylinderGeometry(.0046, .004, .092, 8), lacquer, "pen-body", 0, -.014, 0); P(new THREE.CylinderGeometry(.0052, .0052, .045, 8), steel, "pen-cap", 0, .0545, 0);
+      const P = hold(pen); P(new THREE.CylinderGeometry(.0046, .004, .092, 12), lacquer, "pen-body", 0, -.014, 0); P(new THREE.CylinderGeometry(.0052, .0052, .045, 12), steel, "pen-cap", 0, .0545, 0);
       P(new THREE.TorusGeometry(.00525, .0007, 4, 12), gold, "pen-ring", 0, .034, 0).rotation.x = Math.PI / 2; P(new THREE.ConeGeometry(.0038, .018, 12), steel, "pen-point", 0, -.069, 0).rotation.x = Math.PI; P(box(.0016, .03, .001), gold, "pen-clip", 0, .052, .0056);
       pen.rotation.z = Math.PI / 2; pen.rotation.y = .5; pen.position.set(tx0 - .03, top + .03 + .024 + .0054, tz0 + .06); stoneTable.add(pen); }
     { // the glazed brick-red mug of Rooms 03 and 04 (no emblem): a hollow lathe body with a rolled rim, a half-loop handle with cap spheres, black coffee 15 mm under the rim and thin gold rim and foot rings
       const mug = new THREE.Group(); mug.name = "sofa-table-mug"; mug.position.set(tx0 + .1, top, tz0 - .09); stoneTable.add(mug); const M = hold(mug), yaw = -.62;
       const glaze = new THREE.MeshStandardMaterial({ color: 0xb0533c, roughness: .3 }), coffee = new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: .35 }), gold = new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: .3, metalness: .7, emissive: 0x4d3812, emissiveIntensity: .5 });
       const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]].map(([r, h]) => new THREE.Vector2(r, h));
-      M(new THREE.LatheGeometry(profile, 20), glaze, "mug-body", 0, 0, 0); M(new THREE.CircleGeometry(.0338, 28).rotateX(-Math.PI / 2), coffee, "mug-coffee", 0, .080, 0);
+      M(new THREE.LatheGeometry(profile, 48), glaze, "mug-body", 0, 0, 0); M(new THREE.CircleGeometry(.0338, 28).rotateX(-Math.PI / 2), coffee, "mug-coffee", 0, .080, 0);
       const dirX = Math.cos(yaw), dirZ = -Math.sin(yaw), loop = .0365, tube = .0052;
-      M(new THREE.TorusGeometry(.0255, tube, 6, 12, Math.PI).rotateZ(-Math.PI / 2).rotateY(yaw), glaze, "mug-handle", dirX * loop, .051, dirZ * loop);
-      for (const side of [-1, 1]) M(new THREE.SphereGeometry(tube, 6, 4), glaze, "mug-handle-cap", dirX * loop, .051 + side * .0255, dirZ * loop);
-      M(new THREE.TorusGeometry(.0374, .0016, 4, 24).rotateX(Math.PI / 2), gold, "mug-rim", 0, .0948, 0); M(new THREE.TorusGeometry(.0403, .0011, 4, 24).rotateX(Math.PI / 2), gold, "mug-foot-ring", 0, .016, 0);
+      M(new THREE.TorusGeometry(.0255, tube, 12, 32, Math.PI).rotateZ(-Math.PI / 2).rotateY(yaw), glaze, "mug-handle", dirX * loop, .051, dirZ * loop);
+      for (const side of [-1, 1]) M(new THREE.SphereGeometry(tube, 10, 8), glaze, "mug-handle-cap", dirX * loop, .051 + side * .0255, dirZ * loop);
+      M(new THREE.TorusGeometry(.0374, .0016, 8, 56).rotateX(Math.PI / 2), gold, "mug-rim", 0, .0948, 0); M(new THREE.TorusGeometry(.0403, .0011, 8, 56).rotateX(Math.PI / 2), gold, "mug-foot-ring", 0, .016, 0);
       // steam: 22 soft points that curl up 16 cm over the rim and fade (Room 04's rig); a still curl is always there, and it drifts while the table is in view
       const COUNT = 22, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) }; for (let i = 0; i < COUNT; i++) data.seed[i] = (i * .618034 + .07 * Math.sin(i * 5.3)) % 1;
       const sc = document.createElement("canvas"); sc.width = sc.height = 64; const sg = sc.getContext("2d"), grad = sg.createRadialGradient(32, 32, 2, 32, 32, 30); grad.addColorStop(0, "rgba(255,255,255,.85)"); grad.addColorStop(.5, "rgba(255,255,255,.3)"); grad.addColorStop(1, "rgba(255,255,255,0)"); sg.fillStyle = grad; sg.fillRect(0, 0, 64, 64);
@@ -1509,7 +1509,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       // The room only draws on demand, so the drift runs a light loop (about 20 frames a second) while the mug is inside the picture and the page is visible; with reduced motion the curl stays still.
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches) { const frustum = new THREE.Frustum(), pv = new THREE.Matrix4(), at = new THREE.Vector3(), t0 = performance.now();
         const seen = () => { if (document.hidden || !ready) return false; camera.updateMatrixWorld(); pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); frustum.setFromProjectionMatrix(pv); return frustum.containsPoint(mug.getWorldPosition(at).setY(top + .15)); };
-        const tick = () => { if (seen()) { stepSteam(7.3 + (performance.now() - t0) / 1000); redraw(); setTimeout(tick, 50); } else setTimeout(tick, 600); }; setTimeout(tick, 1500); }
+        const tick = () => { if (travelling) { setTimeout(tick, 150); return; } /* never draw over a camera glide */ if (seen()) { const t1 = performance.now(); stepSteam(7.3 + (t1 - t0) / 1000); redraw(); setTimeout(tick, Math.max(70, (performance.now() - t1) * 5)); /* a slow device draws less often: at most about a fifth of the time goes to the steam */ } else setTimeout(tick, 600); }; setTimeout(tick, 1500); }
     }
   }
   const ringTable = (g, name, r, topY, topR, topH, topMat) => {

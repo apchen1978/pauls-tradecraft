@@ -648,7 +648,9 @@ test("phone: the room opens in the middle facing the window and plaque; the look
   await page.waitForFunction((w) => Math.abs(window.__bedroom.looks().yaw - w) < .005, .1, { timeout: 5000 }); // this test is the 390 phone: its desk look is [.1, .1, 1.4]; the desktop one is [.22, .12, 1.35]
   v = await page.evaluate(() => window.__bedroom.inView(["desk-top", "window-glass", "house-plaque"]));
   for (const n of ["desk-top", "window-glass", "house-plaque"]) expect(inFrame(v[n]), "desk look: " + n).toBe(true);
-  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]); // the corner looks share one camera spot
+  // the corner looks share one camera spot. The test reads it as soon as the yaw is within .005, which can be a hair before the last frame of the glide, so compare to a millimetre instead of exactly
+  const camera = await page.evaluate(() => window.__bedroom.info().camera);
+  [1.8, 2.05, 2.38].forEach((value, i) => expect(camera[i]).toBeCloseTo(value, 3));
 });
 
 test("window: the painted frame replaces the boxes, the foreground layer sits outside and stays under the city picture's reach", async ({ page }) => {

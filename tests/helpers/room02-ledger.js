@@ -11,20 +11,20 @@
 
 export const LEDGER = Object.freeze({
   // Measured settled (everything loaded), desktop 1440 px; the phone shares the same geometry.
-  scene: Object.freeze({ vertices: 65540, meshes: 306 }),
+  scene: Object.freeze({ vertices: 81237, meshes: 332 }),
   // The bedside pocket set (glasses case, matchbox, cable, charge puck, two vitamin bottles) is checked on its own in the bedroom spec; the rest of the room is the difference.
   pocket: Object.freeze({ vertices: 1079, meshes: 2 }),
-  sceneWithoutPocket: Object.freeze({ vertices: 64461, meshes: 304 }),
+  sceneWithoutPocket: Object.freeze({ vertices: 80158, meshes: 330 }),
   // Draw calls of the last rendered frame after settling, default (focus) mood: desktop 1440 px and phone 390 px.
-  openingDrawCalls: Object.freeze({ desktop: 159, phone: 156 }),
+  openingDrawCalls: Object.freeze({ desktop: 160, phone: 157 }),
   // Draw calls after switching to each mood.
   moodDrawCalls: Object.freeze({
-    desktop: Object.freeze({ focus: 159, weekend: 159, golden: 159, night: 159, sunday: 159, series: 161 }),
-    phone: Object.freeze({ focus: 156, weekend: 156, golden: 156, night: 156, sunday: 156, series: 158 }),
+    desktop: Object.freeze({ focus: 160, weekend: 160, golden: 160, night: 160, sunday: 160, series: 162 }),
+    phone: Object.freeze({ focus: 157, weekend: 157, golden: 157, night: 157, sunday: 157, series: 159 }),
   }),
   // Polish comes first (Paul, 2026-11-06): the caps are only a "still runs smoothly" guard, about 15% above what is measured, so adding detail
   // does not turn tests red. Going past a cap means: measure FPS and memory first, then raise the numbers here with a history line. Never trim a visual to fit.
-  headroom: Object.freeze({ vertices: 9600, meshes: 45, drawCalls: 24 }),
+  headroom: Object.freeze({ vertices: 15000, meshes: 45, drawCalls: 24 }), // vertices 9,600 -> 15,000 (Paul 2026-11-28: the vertex limit may be relaxed)
   history: Object.freeze([
     { date: "2026-11-05", change: "(reconstructed from spec comments) premium turntable and printed record wall (#730) and later merges: 64,291 / 312 settled", vertices: 64291, meshes: 312, desktopCalls: 162, phoneCalls: 0 },
     { date: "2026-11-06", change: "first ledger: the nine floor/console footprints are one merged mesh (312 to 304, 162 to 158 draw calls); measured on main fcf4025, nothing changed", vertices: 64291, meshes: 304, desktopCalls: 158, phoneCalls: 157 },
@@ -33,6 +33,7 @@ export const LEDGER = Object.freeze({
     { date: "2026-11-18", change: "Card I record motion: the tonearm swings on its pivot from a new rest post onto the record while the music plays and the record turns; a short stub now joins the counterweight to the pivot. +116 vertices, +2 meshes (rest post, stub), +2 draw calls desktop and phone (both on screen in the opening look). Headroom unchanged.", vertices: 64411, meshes: 307, desktopCalls: 161, phoneCalls: 158 },
     { date: "2026-11-18", change: "nightstand (Paul): the two-book stack that ran into the lamp base is gone, the glasses case lies on the walnut top, two vitamin bottles (Room 01's pair, vertex coloured) stand at the back left and the beige pouch becomes a matchbox, all in the pocket set; the backpack stands upright on the floor with its front toward the turntable corner; the floor plant's pot gets soil and six pebbles (one mesh)", vertices: 65540, meshes: 306, desktopCalls: 159, phoneCalls: 156 },
     { date: "2026-11-19", change: "a second recessed downlight on the bed side, the desk downlight mirrored (shared trim geometry and material, the track lens material), with one shadowless SpotLight on the bed switch. Measured unchanged: its two meshes sit on the scene outside the counted room group, like the desk downlight, and are above the opening view", vertices: 65540, meshes: 306, desktopCalls: 159, phoneCalls: 156 },
+    { date: "2026-11-28", change: "the sofa area (Paul): a deeper sofa frame, a stone pedestal table (Room 04's lounge table) with two hardbacks, a pen, Room 04's brick-red mug and steam, and Room 01's slippers in charcoal. The ledger had drifted from its record (the caps passed at about 75,000); this line re-measures the scene at 81,237 vertices and 332 meshes, and the vertex headroom goes from 9,600 to 15,000 on Paul's word", vertices: 81237, meshes: 332, desktopCalls: 160, phoneCalls: 157 },
   ]),
 });
 
