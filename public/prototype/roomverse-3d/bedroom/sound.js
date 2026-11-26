@@ -68,24 +68,36 @@ const TITLES = [{ zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, { zh: "
 let LEAD = (() => { const v = typeof location !== "undefined" ? new URLSearchParams(location.search).get("lead") : null; return ["rhodes", "organ", "sax", "guitar", "piano"].includes(v) ? v : "organ"; })();
 const LEAD_K = { rhodes: 0.53, organ: 0.7, sax: 0.47, guitar: 1.3 };
 const CLASSIC = typeof location !== "undefined" && new URLSearchParams(location.search).get("take") === "classic";
-const LICKS = { // [step, midi, length in steps] per bar. The kick sits on steps 0 and 10 and the snare on 4 and 12, so the licks come in after the snare (6), on the half bar (8) and as pickups (14).
-  2: [[6, 64, 2], [8, 67, 6]],                    // Cmaj9: E then G, after the snare
-  3: [[6, 69, 2], [8, 72, 5]],                    // Am7: A then C
-  4: [[8, 69, 7]],                                // Dm9: one held A, space around it
-  5: [[6, 71, 2], [9, 67, 6]],                    // G13: B, and G a sixteenth after the half bar
-  6: [[6, 64, 2], [8, 67, 3]],                    // Cmaj9: the motif again
-  7: [[6, 69, 2], [8, 72, 3], [11, 76, 4]],       // Am7: A C E, rising
-  8: [[8, 77, 6]],                                // Dm9: a high F held, sung
-  9: [[6, 79, 4], [12, 76, 3]],                   // G13: the one high G, then E on the snare
-  10: [[8, 72, 5]],                               // Cmaj9: C, falling back
-  11: [[6, 69, 2], [8, 72, 3], [14, 76, 2]],      // Am7: A C, and a pickup E into the breakdown
-  12: [[8, 69, 8]],                               // Dm9: breakdown, one long A
-  13: [[6, 67, 2], [8, 64, 8]],                   // G13: G then E
-  14: [[8, 67, 6]],                               // Cmaj9: G
-  15: [[6, 72, 2], [8, 69, 4], [14, 67, 2]],      // Am7: C A G, into the second pass
+// The story of the 32 bars (Paul 2026-11-27: it needs a strong sense of narrative and feeling; the organ should come in after the middle; lay a light sustained layer under the melody to glue it to the chords).
+// Bars 0 to 7: the room alone, just the groove and the chords, with one faint bell at bar 7 as a hint. 8 to 11: the organ comes in softly (the question). 12 to 15: the breath, the drums thin out, one long note.
+// 16 to 23: the answer, fuller, climbing to the one high A at bar 20 and then falling. 24 to 29: the memory, the first motif (E G) comes back quietly. 30 and 31 land on D.
+// [step, midi, length in steps], keyed by the bar's place in the 32. The kick sits on steps 0 and 10 and the snare on 4 and 12, so the licks come in after the snare (6), on the half bar (8) and as pickups (14).
+// Every note is a chord tone or an extension of the chord of its bar (bars cycle Dm9, G13, Cmaj9, Am7, starting with Dm9 at bar 0).
+const LICKS = {
+  8: [[8, 69, 7]],                                 // Dm9: the organ enters on one long A, swelling in
+  9: [[6, 71, 2], [9, 67, 6]],                     // G13: B, then G
+  10: [[6, 64, 2], [8, 67, 5]],                    // Cmaj9: the motif, E G
+  11: [[6, 69, 2], [8, 72, 4], [14, 76, 2]],       // Am7: A C, and a pickup E
+  12: [],                                          // Dm9: the breath, nothing but the layer
+  13: [[8, 67, 8]],                                // G13: one long G
+  14: [],                                          // Cmaj9: silence again
+  15: [[12, 72, 2], [14, 76, 2]],                  // Am7: C E, breathing in
+  16: [[6, 77, 4], [12, 74, 3]],                   // Dm9: the answer begins, F then D
+  17: [[6, 79, 6], [12, 76, 3]],                   // G13: G, then E
+  18: [[8, 76, 6]],                                // Cmaj9: E held
+  19: [[6, 72, 2], [8, 76, 4], [14, 79, 2]],       // Am7: C E, and a pickup G: the climb
+  20: [[8, 81, 8]],                                // Dm9: the one high A, the peak of the piece
+  21: [[6, 79, 3], [9, 77, 3], [12, 76, 3]],       // G13: G F E, falling away
+  22: [[8, 74, 3], [11, 72, 5]],                   // Cmaj9: D C
+  23: [[6, 71, 2], [8, 69, 6]],                    // Am7: B A, settling
+  24: [[8, 65, 8]],                                // Dm9: the memory begins on a held F
+  25: [[6, 67, 2], [9, 64, 6]],                    // G13: G then E
+  26: [[6, 64, 2], [8, 67, 6]],                    // Cmaj9: the first motif comes back, E G
+  27: [[8, 69, 8]],                                // Am7: A held
+  28: [[8, 69, 4], [12, 65, 3]],                   // Dm9: A F
+  29: [[6, 67, 2], [8, 64, 6]],                    // G13: G E, then the last two bars land on D
 };
-const PASS2_ANSWER = { 3: [14, 67, 2], 5: [14, 74, 2], 9: [14, 74, 2] }; // on the second pass a short answer on the "a" of four in three bars
-const CONTOUR = { 2: .85, 3: .8, 4: .9, 5: .85, 6: .95, 7: 1, 8: 1, 9: 1.2, 10: 1.05, 11: .95, 12: .7, 13: .65, 14: .75, 15: .8 }; // how hard each bar is played: a shape, not a constant
+const STRENGTH = { 8: .7, 9: .75, 10: .8, 11: .85, 13: .75, 15: .8, 16: .9, 17: 1, 18: .95, 19: 1, 20: 1.3, 21: 1.1, 22: .95, 23: .85, 24: .75, 25: .7, 26: .8, 27: .7, 28: .65, 29: .6 }; // how hard each bar is played: a shape with one peak
 const SCALE = [0, 2, 4, 5, 7, 9, 11]; // C major, the key of all four chords
 const thirdBelow = (midi) => { const pc = ((midi % 12) + 12) % 12, i = SCALE.indexOf(pc); if (i < 0) return midi - 4; const j = i - 2, octave = Math.floor(midi / 12) + (j < 0 ? -1 : 0); return octave * 12 + SCALE[(j + 7) % 7]; };
 
@@ -198,11 +210,18 @@ export function createRoomRecord() {
   };
   const leadVoices = { rhodes, organ, sax, guitar };
   const lead = (time, midi, gain, length, pan, scoop) => { const voice = leadVoices[LEAD]; if (!voice) { piano(time, midi, gain, length, pan); return; } voice(time, midi, gain * LEAD_K[LEAD], length, pan, scoop); };
+  const sub808 = (time, midi, gain, length) => { // an 808-style kick: a sine that drops fast in pitch to the note and then rings on as a sub bass
+    const out = ctx.createGain(), low = ctx.createBiquadFilter(); low.type = "lowpass"; low.frequency.value = 220;
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(gain, time + 0.006); out.gain.exponentialRampToValueAtTime(gain * 0.6, time + 0.12); out.gain.exponentialRampToValueAtTime(0.0001, time + length);
+    const osc = ctx.createOscillator(); osc.type = "sine"; osc.frequency.setValueAtTime(hz(midi) * 3, time); osc.frequency.exponentialRampToValueAtTime(hz(midi), time + 0.05); osc.connect(out); osc.start(time); osc.stop(time + length + 0.05);
+    out.connect(low); low.connect(bus); noteCount += 1;
+  };
   const scheduleBarA = () => {
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
     const section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
     // the beat: a dusty boom-bap, the kick drops out in the breakdown and on the final two bars
     if (!ending && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
+    if (!CLASSIC && !ending && section >= 16 && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) sub808(at(i) + jitter(3), chord.bass, (i === 0 ? 0.3 : 0.2) * (section === 20 ? 1.35 : 1), STEP * (i === 0 ? 6 : 3)); // the second half hits harder: an 808-style sub rings under every kick
     if (!ending) { snare(at(4) + jitter(5), 0.5); snare(at(12) + jitter(5), 0.55); if (barIndex % 2) snare(at(15), 0.12); } // the backbeat, with a ghost note
     const lift = section >= 16 && section < FORM_BARS - 4; // the second pass is the fuller chorus: same hat level, sixteenths instead of eighths, then the cadence thins out
     const hatStep = !ending && (lift || (local >= 8 && local <= 11)) ? 1 : 2; for (let i = 0; i < BAR_STEPS; i += hatStep) hat(at(i) + jitter(4), i % 4 === 0 ? 0.13 : 0.075, false);
@@ -216,24 +235,23 @@ export function createRoomRecord() {
     if (!ending) for (const [i, gain, length] of [[6, 0.04, 2], [10, 0.045, 3]]) chord.comp.slice(1).forEach((midi, k) => piano(at(i) + k * 0.02, midi, vary(gain), STEP * length, 0.1 - k * 0.08));
     if (!CLASSIC && !ending && local >= 2) chord.comp.forEach((midi, k) => keys(at(0) + k * 0.03 + jitter(5), midi, vary(0.03), STEP * 9, 0.25 - k * 0.1)); // a warm electric piano rolls the chord with the piano: the Rhodes colour of R&B
     // the melody, a little behind the beat: absent for the first two bars of each sixteen, then phrase A, phrase B, then A again; the last two bars cadence on D
-    if (ending) { const line = section === FORM_BARS - 2 ? [[2, 69, 6], [10, 67, 4]] : [[0, 62, 14]]; for (const [i, midi, length] of line) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); }
+    if (ending) { const line = section === FORM_BARS - 2 ? [[2, 69, 6], [10, 67, 4]] : [[0, 62, 14]]; for (const [i, midi, length] of line) { if (CLASSIC) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); else lead(at(i) + 0.03 + jitter(6), midi, vary(0.09), STEP * (length + 1), 0.2, false); } } // the last two bars land on D, in the chosen voice
     else if (local >= 2 && CLASSIC) { const phrase = local >= 8 && local <= 11 ? MELODY_B : MELODY_A; for (const [i, midi, length] of phrase[local % 4]) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); }
     else if (local >= 2) {
-      // the richer take: the written line, played with a shape. Each bar has its own strength; the timing sits a little behind the beat and drifts slowly (a wave across the bars, not a random shake per note).
-      const second = section >= 16, strength = (CONTOUR[local] ?? 0.8) * (second ? 1.08 : 1), lag = 0.032 + 0.012 * Math.sin(barIndex * 0.7);
-      // Paul 2026-11-27 (R&B pocket): the melody is an ornament that sings in the gaps of the groove, after the snare, on the half bar and as pickups; it leaves the one and the backbeat alone.
-      // The second pass moves every note from step 8 on one sixteenth early (a push) and adds a short answer in three bars, so the two passes are not the same.
-      const lick = LICKS[local], answer = second ? PASS2_ANSWER[local] : null;
-      const bar = (second ? lick.map(([i, m, l]) => [i >= 8 ? i - 1 : i, m, l]) : lick).concat(answer ? [answer] : []);
-      bar.forEach(([i, midi, length], n) => {
+      // The organ (or the chosen voice) tells the story above; before bar 8 the room is alone with a faint hint, and a light sustained layer of the chord glues the melody to the harmony.
+      const second = section >= 16, strength = STRENGTH[section] ?? 0.8, lag = 0.032 + 0.012 * Math.sin(barIndex * 0.7);
+      (LICKS[section] || []).forEach(([i, midi, length], n) => {
         const accent = n === 0 ? 1.1 : 1, time = at(i) + lag + jitter(3), gain = vary(0.09) * strength * accent;
         lead(time, midi, gain, STEP * (length + 1), 0.2, n === 0); // the melody voice; on a synth voice the first note of a phrase slides up into pitch
-        if (local >= 7 && local <= 11 && length >= 6) lead(time + 0.012, thirdBelow(midi), gain * 0.55, STEP * (length + 1), -0.1, false); // on the long notes of the climb, a third below
-        if (second && n === 0 && (local === 6 || local === 9 || local === 14)) bell(time + 0.02, midi + 12, 0.028 * strength, STEP * 10, 0.35); // a bell an octave up on the peaks of the second pass
+        if (section >= 16 && section <= 23 && length >= 6) lead(time + 0.012, thirdBelow(midi), gain * 0.55, STEP * (length + 1), -0.1, false); // on the long notes of the answer, a third below
+        if (n === 0 && (section === 17 || section === 20 || section === 26)) bell(time + 0.02, midi + 12, 0.03 * strength, STEP * 10, 0.35); // a bell an octave up on the peak and its echoes
       });
-      if (second && local >= 2 && local <= 11) chord.comp.slice(1).forEach((midi, k) => { keys(at(6) + k * 0.018, midi, vary(0.026), STEP * 3, -0.25 + k * 0.12); keys(at(10) + k * 0.018, midi, vary(0.03), STEP * 4, -0.25 + k * 0.12); }); // a soft electric piano doubles the comp stabs
-      if (second && local >= 8 && local <= 11) { ooh(at(0) + 0.02, chord.comp[2], 0.022, STEP * 15); ooh(at(0) + 0.03, chord.comp[3], 0.018, STEP * 15); } // a wordless "ooh" under the climb, like a backing vocal
-      if (local >= 12) pad(at(0), chord.comp, second ? 0.026 : 0.02, STEP * 15); // the breakdown breathes: a slow pad under the quote of the old line
+      if (section === 7) bell(at(8) + 0.03, 76, 0.02, STEP * 8, 0.3); // the faint hint of what is coming
+      if (!CLASSIC && (section === 12 || section === 14)) piano(at(8) + 0.02, chord.comp[3] + 12, 0.06, STEP * 10, 0.25); // the breath: only the piano, one long high note
+      else if (!CLASSIC && section >= 8 && section <= 29 && section % 2 === 1 && !(LICKS[section] || []).some(([i]) => i >= 12)) { piano(at(13) + 0.02, chord.comp[2] + 12, 0.05, STEP * 2, 0.25); piano(at(15) + 0.02, chord.comp[3] + 12, 0.045, STEP * 3, 0.3); } // the piano as an ornament: two soft high notes at the end of every other bar
+      if (second && section >= 18 && section <= 27) chord.comp.slice(1).forEach((midi, k) => { keys(at(6) + k * 0.018, midi, vary(0.026), STEP * 3, -0.25 + k * 0.12); keys(at(10) + k * 0.018, midi, vary(0.03), STEP * 4, -0.25 + k * 0.12); }); // a soft electric piano doubles the comp stabs
+      if (section >= 19 && section <= 22) { ooh(at(0) + 0.02, chord.comp[2], 0.022, STEP * 15); ooh(at(0) + 0.03, chord.comp[3], 0.018, STEP * 15); } // a wordless "ooh" under the climb and the peak
+      if (section >= 6 && section <= 29) pad(at(0), chord.comp, section < 8 ? 0.008 : section < 12 ? 0.013 : section < 16 ? 0.022 : section < 20 ? 0.017 : section < 24 ? 0.024 : 0.014, STEP * 15); // the light sustained layer, swelling in each bar and fullest at the peak
     }
     barIndex += 1; nextTime += BAR_STEPS * STEP;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
