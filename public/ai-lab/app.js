@@ -346,9 +346,7 @@ function renderAdoption() {
   }));
   const journey = el("a", null, copy.c3.journey);
   journey.href = `/ai-lab/enquiry-demo/?lang=${state.lang}`;
-  const talk = el("a", null, copy.ctaChoices[0].title);
-  talk.href = "#contact-cta";
-  $("adopt-links").replaceChildren(journey, talk);
+  $("adopt-links").replaceChildren(journey);
 }
 
 function renderEnterprise() {
@@ -812,7 +810,6 @@ function renderFastRoute() {
     { href: `/ai-lab/guide/?lang=${state.lang}`, mark: "", label: x.fastRoute.guide },
     { href: "#adopt", mark: "", label: ADOPTION[state.lang].title },
     { href: "#c13", mark: "13", label: PART_TWO[state.lang].title },
-    { href: "#contact-cta", mark: "", label: x.ctaTitle },
   ];
   $("fast-route-steps").replaceChildren(...steps.map((step) => {
     const li = el("li");
@@ -862,7 +859,7 @@ function watchChapters() {
   const reveal = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); reveal.unobserve(e.target); } });
   }, { rootMargin: "0px 0px -8% 0px" });
-  document.querySelectorAll(".chapter, .deep, .cta").forEach((node) => {
+  document.querySelectorAll(".chapter, .deep, .closing").forEach((node) => {
     if (node.getBoundingClientRect().top > window.innerHeight) { node.classList.add("reveal"); reveal.observe(node); }
   });
 }
@@ -950,13 +947,8 @@ function render() {
   $("c0-x").textContent = x.c0.sourceOriginal;
   $("c0-x").href = LINKS.x;
   $("c2-demo").textContent = x.c2.demo;
-  $("cta-title").textContent = x.ctaTitle;
-  $("cta-choices").replaceChildren(...x.ctaChoices.map((choice) => {
-    const a = el("a", "cta-choice");
-    a.href = `/?lang=${state.lang}#contact`;
-    a.append(el("strong", null, choice.title), el("span", null, choice.body));
-    return a;
-  }));
+  $("closing-title").textContent = x.closingTitle;
+  $("closing-points").replaceChildren(...x.closingPoints.map((point) => el("li", null, point)));
   $("footer").textContent = x.footer;
   renderFunnel();
   renderCompare(false);

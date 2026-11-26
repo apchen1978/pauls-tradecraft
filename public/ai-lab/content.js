@@ -122,10 +122,12 @@ export const TEXT = {
       guide: "負責人的 AI 入門：一頁指南",
       enquiry: "一封詢盤的旅程",
     },
-    ctaTitle: "想看看你的哪一件工作，可以先交給 AI？",
-    ctaChoices: [
-      { title: "帶負責人上手 AI", body: "談怎麼帶負責人開始用 AI。" },
-      { title: "詢盤接待與報價跟進", body: "談詢價進來後怎麼接待，以及報價之後怎麼跟。" },
+    closingTitle: "這一頁想說的幾件事",
+    closingPoints: [
+      "AI 先做第一遍，人來檢查、人來決定。交出去的是工作，不是責任。",
+      "這些示範是用來看清楚做法，不是成果證明；每一步你都可以打開檢查。",
+      "別人的估計一律標出來源；我自己的判斷和外部資料分開寫，讓你分得出來。",
+      "一個合理的起點：挑一件小而可檢查的事交給 AI，看結果，再決定下一件。",
     ],
     footer: "示範內容不是真實模型的輸出，不宣稱任何成效。第三方的估計都標了來源。",
   },
@@ -236,10 +238,12 @@ export const TEXT = {
       guide: "A decision-maker’s first page on AI",
       enquiry: "One enquiry, start to finish",
     },
-    ctaTitle: "Which part of your work could you hand to AI first?",
-    ctaChoices: [
-      { title: "Help decision-makers get started with AI", body: "Talk about helping a decision-maker start with AI." },
-      { title: "Enquiry handling and quote follow-up", body: "Talk about receiving an enquiry and following up after a quote." },
+    closingTitle: "What this page is meant to say",
+    closingPoints: [
+      "AI does the first pass; a person checks and a person decides. What you hand over is the work, not the responsibility.",
+      "These examples are there to show the method, not to prove results; every step can be opened and checked.",
+      "Other people's estimates always carry their source; my own judgment is written apart from outside data, so you can tell them apart.",
+      "A sensible place to start: pick one small task you can check, hand it to AI, look at the result, then decide the next one.",
     ],
     footer: "Examples are written, not output from a real model, and claim no results. Third-party estimates carry their source.",
   },
