@@ -1409,6 +1409,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
   // 43-inch TV 95 x 55 cm on a 45 cm low console, about 3 m from the sofa; bookshelf 75 x 30 x 180 cm. Books carry no text.
   const sofaMat = new THREE.MeshStandardMaterial({ color: "#8197ab", map: weaveTexture("#f5f1e8", "rgba(55,50,44,.8)"), roughness: .98 });
+  const sofaFrameMat = sofaMat.clone(); sofaFrameMat.color.multiplyScalar(.84); // Paul 2026-11-28: more depth. The frame (base, arms, back) is a shade deeper than the cushions, so the seat and back cushions stand out of it
   const sofaLegMat = woodMat("#b38759", { rough: .7, tint: "#e3d6cc" });
   const tvReflect = canvasTex(256, 144, (ctx, w, h) => { // a switched-off TV is not flat black: it holds a faint reflection of the window and the room
     ctx.fillStyle = "#0c0e12"; ctx.fillRect(0, 0, w, h);
@@ -1424,14 +1425,30 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const mesh = new THREE.Mesh(geometry, material); mesh.name = name; mesh.position.set(x, y, z); mesh.userData.sofaPart = name;
     mesh.castShadow = mesh.receiveShadow = true; target.add(mesh); return mesh;
   };
-  sofaPart(sofaSoftBox(1.5, .2, .84, .1), sofaMat, "sofa-seat-base", 0, .28, .02); // base top at 38 cm
+  sofaPart(sofaSoftBox(1.5, .2, .84, .1), sofaFrameMat, "sofa-seat-base", 0, .28, .02); // base top at 38 cm
   for (const x of [-.38, .38]) sofaPart(sofaSoftBox(.72, .08, .66, .09), sofaMat, "sofa-seat-cushion", x, .4, .07); // seated surface at 44 cm
-  sofaPart(sofaSoftBox(1.48, .44, .18, .09), sofaMat, "sofa-back-frame", 0, .60, -.32); // 82 cm overall back
-  for (const x of [-.36, .36]) sofaPart(sofaSoftBox(.70, .34, .10, .075), sofaMat, "sofa-back-cushion", x, .61, -.205);
-  for (const x of [-.67, .67]) sofaPart(sofaSoftBox(.26, .31, .80, .12), sofaMat, "sofa-rounded-arm", x, .485, .02);
+  sofaPart(sofaSoftBox(1.48, .44, .18, .09), sofaFrameMat, "sofa-back-frame", 0, .60, -.32); // 82 cm overall back
+  for (const x of [-.36, .36]) sofaPart(sofaSoftBox(.70, .34, .10, .075), sofaMat, "sofa-back-cushion", x, .61, -.205).rotation.x = -.09; // leaning back a little, as a cushion does when someone has just sat there
+  for (const x of [-.67, .67]) sofaPart(sofaSoftBox(.26, .31, .80, .12), sofaFrameMat, "sofa-rounded-arm", x, .485, .02);
   const legGeometry = new THREE.CylinderGeometry(.024, .036, .18, 12, 1);
   for (const x of [-.62, .62]) for (const z of [-.30, .31]) sofaPart(legGeometry, sofaLegMat, "legs", x, .09, z);
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
+  // A pair of wool scuffs on the lounge rug (Paul 2026-11-28: take Room 01's slippers, a different colour): the same soft shape as Room 01's, in charcoal wool instead of oatmeal, one kicked off a little askew,
+  // on the rug between the sofa's front and the bed side of the table, where the room can see them. 265 mm long; the soles rest on the rug (rug top at 6 mm), nothing hovers.
+  { const L0 = .265, W0 = .1, shape = new THREE.Shape(); shape.moveTo(-L0 / 2 + .045, -W0 * .36);
+    shape.bezierCurveTo(-L0 / 2 + .005, -W0 * .34, -L0 / 2 - .004, -W0 * .1, -L0 / 2 + .002, W0 * .08); shape.bezierCurveTo(-L0 / 2 + .01, W0 * .36, -L0 / 2 + .05, W0 * .42, -L0 / 2 + .09, W0 * .46);
+    shape.bezierCurveTo(L0 / 2 - .07, W0 * .56, L0 / 2 - .005, W0 * .34, L0 / 2, 0); shape.bezierCurveTo(L0 / 2 - .005, -W0 * .4, L0 / 2 - .07, -W0 * .5, -L0 / 2 + .09, -W0 * .44); shape.bezierCurveTo(-L0 / 2 + .06, -W0 * .4, -L0 / 2 + .05, -W0 * .37, -L0 / 2 + .045, -W0 * .36);
+    const colour = (geometry, hex) => { const g = geometry.index ? geometry.toNonIndexed() : geometry.clone(); g.deleteAttribute("uv"); const c = new THREE.Color(hex), n = g.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(arr, i * 3); g.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return g; };
+    const sole = new THREE.ExtrudeGeometry(shape, { depth: .014, bevelEnabled: true, bevelThickness: .0025, bevelSize: .0025, bevelSegments: 1, curveSegments: 6 }); sole.rotateX(-Math.PI / 2);
+    const footbed = new THREE.ShapeGeometry(shape, 6).rotateX(-Math.PI / 2).scale(.93, 1, .9).translate(0, .0185, 0);
+    const upper = new THREE.SphereGeometry(1, 14, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(.098, .043, .056).translate(.052, .0185, 0);
+    const rim = new THREE.TorusGeometry(1, .0045, 4, 14).rotateX(Math.PI / 2).scale(.094, 1, .052).translate(.052 - .004, .0215, 0);
+    const base = mergeGeometries([[sole, 0x3b2a20], [footbed, 0xd9cdb6], [upper, 0x6f7378], [rim, 0x5d6166]].map(([geo, hex]) => colour(geo, hex)), false);
+    const put = (x, z, yaw, flip) => { const g = base.clone(); if (flip) { g.scale(1, 1, -1); const pa = g.attributes.position, ca = g.attributes.color; for (let i = 0; i < pa.count; i += 3) for (const att of [pa, ca]) { const x1 = att.getX(i + 1), y1 = att.getY(i + 1), z1 = att.getZ(i + 1); att.setXYZ(i + 1, att.getX(i + 2), att.getY(i + 2), att.getZ(i + 2)); att.setXYZ(i + 2, x1, y1, z1); } } /* a mirrored copy turns every triangle inside out: swap two corners of each */
+      g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(x, .0088, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1))); return g; };
+    const pairGeo = mergeGeometries([put(.72, .36, 1.75, false), put(.66, .58, 2.35, true)], false); pairGeo.computeVertexNormals();
+    const slippers = new THREE.Mesh(pairGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 })); slippers.name = "sofa-rug-slippers"; slippers.castShadow = slippers.receiveShadow = true; root.add(slippers);
+  }
   // Keep the two loose cushions inside the seat/back corner. A slight lean and uneven roll read as fabric at rest;
   // the previous 45-degree yaw made the square cushion show mostly its thin side from the room.
   const sofaCushions = [
@@ -1449,6 +1466,17 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }), roughness: .5 });
   const bronze = new THREE.MeshStandardMaterial({ color: "#2f2b27", roughness: .42, metalness: .55 });
   const darkOak = woodMat("#7a5a40", { rough: .55, tint: "#8e6f55" });
+  // A low stone pedestal table in front of the sofa, the same one Room 04's lounge has (Paul 2026-11-28): an oak base disc, a stone column and a 56 cm stone top, 43.5 cm high, 30 cm from the sofa's seat front.
+  // It is small on purpose: the middle of the room still breathes (it stands 0.7 m clear of the bed's foot and 1.1 m clear of the TV rug's far edge).
+  const stoneTable = new THREE.Group(); stoneTable.name = "sofa-stone-table"; root.add(stoneTable);
+  { const T = hold(stoneTable), tx0 = .30, tz0 = .92, top = .435;
+    T(new THREE.CylinderGeometry(.17, .17, .022, 32), darkOak, "sofa-table-base", tx0, .011, tz0); // stands on the floor
+    T(new THREE.CylinderGeometry(.05, .05, top - .03 + .01 - .022, 24), travertine, "sofa-table-column", tx0, .022 + (top - .03 + .01 - .022) / 2, tz0); // from the base disc up into the top (10 mm buried)
+    T(new THREE.CylinderGeometry(.28, .28, .03, 40), travertine, "sofa-table-top", tx0, top - .015, tz0); // top face at 43.5 cm
+    T(box(.2, .028, .15), new THREE.MeshStandardMaterial({ color: "#c9bfa9", roughness: .9 }), "sofa-table-book-a", tx0 - .04, top + .014, tz0 + .05).rotation.y = .22; // two closed books, no text
+    T(box(.16, .022, .12), new THREE.MeshStandardMaterial({ color: "#7d8f78", roughness: .9 }), "sofa-table-book-b", tx0 - .035, top + .028 + .011, tz0 + .045).rotation.y = -.15;
+    loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "sofa-table-mug"; g.position.set(tx0 + .1, top + .0475, tz0 - .09); g.rotation.y = 2.2; stoneTable.add(g); redraw(); }).catch(() => {}); // the mug stands on the top
+  }
   const ringTable = (g, name, r, topY, topR, topH, topMat) => {
     const h = hold(g);
     h(new THREE.CylinderGeometry(topR, topR, topH, 36), topMat, name + "-top", 0, topY, 0);
@@ -2321,7 +2349,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
-      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set(CHOICES.sofa[value]); }); // loose cushions and wooden legs keep their own colours
+      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs") { o.material.color.set(CHOICES.sofa[value]); if (o.material === sofaFrameMat) o.material.color.multiplyScalar(.84); } }); // loose cushions and wooden legs keep their own colours; the frame stays a shade deeper than the cushions
     } else if (kind === "tv" && CHOICES.tv.includes(value)) {
       chosen.tv = value; applyTv(live.mood);
     } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
@@ -2352,7 +2380,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       room: ROOM, window: WINDOW, door: DOOR, drawCalls: renderer.info.render.calls, sofaAsset: (() => {
         let sofaVertices = 0, sofaTriangles = 0, sofaMeshes = 0, legs = 0;
         sofaBody.traverse((o) => { if (!o.isMesh) return; sofaMeshes++; sofaVertices += o.geometry.attributes.position.count; sofaTriangles += (o.geometry.index?.count ?? o.geometry.attributes.position.count) / 3; if (o.name === "legs") legs++; });
-        const cover = sofaBody.getObjectByName("sofa-seat-base").material;
+        const cover = sofaBody.getObjectByName("sofa-seat-cushion").material;
         return { source: sofa.userData.source, vertices: sofaVertices, triangles: sofaTriangles, meshes: sofaMeshes, legs, seatHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-seat-cushion")).max.y,
           backHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-back-frame")).max.y,
           coverColor: "#" + cover.color.getHexString(), legColor: "#" + sofaLegMat.color.getHexString(), pillows: ["sofa-cushion-diamond", "sofa-cushion-lumbar"].map((name) => {
