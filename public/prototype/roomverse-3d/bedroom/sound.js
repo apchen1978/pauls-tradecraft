@@ -106,7 +106,7 @@ const SCALE = [0, 2, 4, 5, 7, 9, 11]; // C major, the key of all four chords
 const thirdBelow = (midi) => { const pc = ((midi % 12) + 12) % 12, i = SCALE.indexOf(pc); if (i < 0) return midi - 4; const j = i - 2, octave = Math.floor(midi / 12) + (j < 0 ? -1 : 0); return octave * 12 + SCALE[(j + 7) % 7]; };
 
 export function createRoomRecord() {
-  let side = 0, ctx = null, bus = null, master = null, crackle = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, seed = 11, noise = null, reverbBuffer = null, runId = 0;
+  let side = 0, ctx = null, bus = null, master = null, crackle = null, timer = 0, playing = false, nextTime = 0, barIndex = 0, noteCount = 0, seed = 11, noise = null, reverbBuffer = null, hallBuffer = null, hallSend = null, runId = 0;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // fixed seed: the same small variations every time, like a record
   const jitter = (ms) => (rnd() - 0.5) * 2 * ms / 1000;
   const vary = (gain) => gain * (0.9 + rnd() * 0.2);
@@ -143,6 +143,11 @@ export function createRoomRecord() {
     for (let channel = 0; channel < 2; channel++) { const data = buffer.getChannelData(channel); let last = 0; for (let i = 0; i < length; i++) { last = last * 0.55 + (rnd() * 2 - 1) * 0.45; data[i] = last * Math.pow(1 - i / length, 2.6); } }
     return buffer;
   };
+  const hall = () => { // a longer, softer, darker tail only the melody sings into, so it floats above the groove
+    const length = Math.floor(ctx.sampleRate * 2.8), buffer = ctx.createBuffer(2, length, ctx.sampleRate);
+    for (let channel = 0; channel < 2; channel++) { const data = buffer.getChannelData(channel); let a = 0, b = 0; for (let i = 0; i < length; i++) { a = a * 0.86 + (rnd() * 2 - 1) * 0.14; b = b * 0.6 + a * 0.4; data[i] = b * 2.2 * Math.pow(1 - i / length, 2.2) * Math.min(1, i / (ctx.sampleRate * 0.05)); } }
+    return buffer;
+  };
   const keys = (time, midi, gain, length, pan = 0) => { // a soft electric piano: a round sine with a short bell-like overtone
     const out = ctx.createGain(); out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(gain, time + 0.01); out.gain.exponentialRampToValueAtTime(0.0001, time + length);
     for (const [ratio, level, type, share] of [[1, 1, "sine", 1], [2, 0.22, "triangle", 0.6], [4, 0.1, "sine", 0.2]]) { const osc = ctx.createOscillator(), g = ctx.createGain(); osc.type = type; osc.frequency.value = hz(midi) * ratio; g.gain.setValueAtTime(level, time); g.gain.exponentialRampToValueAtTime(0.0001, time + Math.max(0.12, length * share)); osc.connect(g); g.connect(out); osc.start(time); osc.stop(time + length + 0.05); }
@@ -172,7 +177,7 @@ export function createRoomRecord() {
     const osc = ctx.createOscillator(); osc.type = "sine"; osc.frequency.setValueAtTime(hz(fromMidi), time); osc.frequency.exponentialRampToValueAtTime(hz(toMidi), time + length * 0.8); osc.connect(out); osc.start(time); osc.stop(time + length + 0.05);
     out.connect(low); low.connect(bus); noteCount += 1;
   };
-  const leadOut = (node, pan) => { const place = ctx.createStereoPanner ? ctx.createStereoPanner() : null; if (place) { place.pan.value = pan; node.connect(place); place.connect(bus); } else node.connect(bus); noteCount += 1; };
+  const leadOut = (node, pan) => { const place = ctx.createStereoPanner ? ctx.createStereoPanner() : null; if (place) { place.pan.value = pan; node.connect(place); place.connect(bus); } else node.connect(bus); if (hallSend && !CLASSIC) node.connect(hallSend); noteCount += 1; };
   const bend = (osc, time, midi, scoop, ratio = 1) => { if (scoop) { osc.frequency.setValueAtTime(hz(midi - 1) * ratio, time); osc.frequency.exponentialRampToValueAtTime(hz(midi) * ratio, time + 0.07); } else osc.frequency.setValueAtTime(hz(midi) * ratio, time); };
   const vib = (osc, time, length, cents, rate, delay) => { const lfo = ctx.createOscillator(), amount = ctx.createGain(); lfo.frequency.value = rate; amount.gain.setValueAtTime(0, time); amount.gain.linearRampToValueAtTime(cents, time + delay + 0.3); lfo.connect(amount); amount.connect(osc.detune); lfo.start(time); lfo.stop(time + length + 0.3); };
   const rhodes = (time, midi, g, length, pan, scoop) => { // a Rhodes-style electric piano: an FM tine that barks at the attack and then rounds off, with a light vibrato
@@ -310,6 +315,7 @@ export function createRoomRecord() {
         const compressor = ctx.createDynamicsCompressor(); compressor.threshold.value = -18; compressor.knee.value = 8; compressor.ratio.value = 4; compressor.attack.value = 0.004; compressor.release.value = 0.14;
         bus = ctx.createGain(); bus.connect(dusty); dusty.connect(compressor); compressor.connect(master);
         const room = ctx.createConvolver(), send = ctx.createGain(), wet = ctx.createGain(); reverbBuffer ??= reverb(); room.buffer = reverbBuffer; send.gain.value = 0.16; wet.gain.value = 0.9; bus.connect(send); send.connect(room); room.connect(wet); wet.connect(master);
+        if (!CLASSIC) { const hallRoom = ctx.createConvolver(), hallWet = ctx.createGain(); hallBuffer ??= hall(); hallRoom.buffer = hallBuffer; hallSend = ctx.createGain(); hallSend.gain.value = 0.34; hallWet.gain.value = 0.8; hallSend.connect(hallRoom); hallRoom.connect(hallWet); hallWet.connect(master); }
         crackle = ctx.createBufferSource(); const buffer = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate), data = buffer.getChannelData(0);
         for (let i = 0; i < data.length; i++) data[i] = (rnd() < (side ? 0.0002 : 0.0005) ? (rnd() * 2 - 1) * 0.9 : 0) + (rnd() * 2 - 1) * (side ? 0.02 : 0.004); // side A: a faint record crackle and a very little hiss; side B: fewer pops and a soft steady hush, like rain on the window
         crackle.buffer = buffer; crackle.loop = true; const high = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); high.type = "highpass"; high.frequency.value = 1400; crackleGain.gain.value = 0.12; crackle.connect(high); high.connect(crackleGain); crackleGain.connect(master); crackle.start();
