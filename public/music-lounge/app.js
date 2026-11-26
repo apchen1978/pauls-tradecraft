@@ -56,9 +56,11 @@ const bar = {
   title: $("player-title"),
   status: $("player-status"),
   stop: $("player-stop"),
+  pause: $("player-pause"),
   thumb: $("player-thumb"),
 };
 $("player-stop").addEventListener("click", () => void stopFromBar());
+$("player-pause").addEventListener("click", () => void togglePause());
 function showBar(track, statusText) {
   bar.kicker.textContent = copy.nowPlaying;
   bar.title.textContent = track.title[lang];
@@ -85,6 +87,56 @@ function setStatus(id, text) {
   const status = statuses.get(id);
   if (status) status.textContent = text;
   if (active?.track.id === id) bar.status.textContent = text;
+}
+
+// Pause / resume (Paul 2026-11-26): every score in this page runs on the one shared AudioContext (see unlockAudioFromGesture),
+// and each engine schedules its notes by that context's clock. Suspending the context therefore freezes the music exactly
+// where it is, and resuming carries on from the same note. Pause is offered only once a note has really sounded.
+const ICON_PAUSE = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><rect x="3" y="2" width="3.4" height="12" rx="1"/><rect x="9.6" y="2" width="3.4" height="12" rx="1"/></svg>';
+const ICON_PLAY = '<svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 2.2v11.6a.8.8 0 0 0 1.2.7l9-5.8a.8.8 0 0 0 0-1.4l-9-5.8A.8.8 0 0 0 4 2.2z"/></svg>';
+const pauseButtons = new Map();
+let paused = false;
+let ready = false;
+
+function paintPauseButton(button, track) {
+  const label = paused ? copy.resume : copy.pause;
+  button.innerHTML = `${paused ? ICON_PLAY : ICON_PAUSE}<span class="label"></span>`;
+  button.querySelector(".label").textContent = label;
+  button.setAttribute("aria-label", `${label}: ${track.title[lang]}`);
+}
+
+function syncPauseUi() {
+  const canPause = Boolean(active && ready && audioUnlockContext);
+  for (const [id, button] of pauseButtons) {
+    const mine = canPause && active.track.id === id;
+    button.hidden = !mine;
+    if (mine) paintPauseButton(button, active.track);
+    button.closest(".track-card")?.classList.toggle("is-paused", mine && paused);
+  }
+  bar.pause.hidden = !canPause;
+  if (canPause) paintPauseButton(bar.pause, active.track);
+  document.body.classList.toggle("lounge-paused", canPause && paused);
+}
+
+async function togglePause() {
+  const ctx = audioUnlockContext;
+  if (!active || !ready || !ctx) return;
+  const track = active.track;
+  const wantPause = !paused;
+  try {
+    if (wantPause) await ctx.suspend();
+    else await ctx.resume();
+  } catch {
+    return; // the browser refused; leave everything as it was
+  }
+  if (active?.track.id !== track.id) {
+    // the track was stopped or replaced while the context was changing state: never leave the page frozen
+    if (wantPause) void ctx.resume();
+    return;
+  }
+  paused = wantPause;
+  setStatus(track.id, paused ? copy.paused : copy.playing);
+  syncPauseUi();
 }
 
 function unlockAudioFromGesture() {
@@ -158,6 +210,7 @@ function resetCard(id, message = "") {
   button.textContent = copy.play;
   status.textContent = message;
   syncLive();
+  syncPauseUi();
 }
 
 // The bar's stop button works in every state, including while a track is still loading and there is nothing to stop yet.
@@ -176,6 +229,11 @@ async function stopActive() {
   if (!active) return;
   const previous = active;
   active = null;
+  ready = false;
+  if (paused) {
+    paused = false;
+    try { await audioUnlockContext?.resume(); } catch { /* the stop below still runs */ }
+  }
   previous.handle.stop();
   resetCard(previous.track.id, copy.stopped);
   hideBar();
@@ -247,6 +305,8 @@ async function playTrack(track) {
       if (token !== intent || active?.track.id !== track.id) return;
       if (handle.state().notes > 0) {
         setStatus(track.id, copy.playing);
+        ready = true;
+        syncPauseUi();
         return;
       }
       const waited = Date.now() - startedAt;
@@ -262,6 +322,8 @@ async function playTrack(track) {
       pendingId = null;
       active?.handle.stop();
       active = null;
+      ready = false;
+      paused = false;
       resetCard(track.id, copy.failed);
       showBar(track, copy.failed);
       setTimeout(() => { if (!active) hideBar(); }, 4000);
@@ -315,7 +377,16 @@ function makeTrackCard(track) {
   button.setAttribute("aria-label", `${copy.play}: ${track.title[lang]}`);
   button.addEventListener("click", () => void playTrack(track));
   buttons.set(track.id, button);
-  top.append(heading, button);
+  const pauseButton = document.createElement("button");
+  pauseButton.className = "pause-button";
+  pauseButton.type = "button";
+  pauseButton.hidden = true;
+  pauseButton.addEventListener("click", () => void togglePause());
+  pauseButtons.set(track.id, pauseButton);
+  const actions = document.createElement("div");
+  actions.className = "track-actions";
+  actions.append(pauseButton, button);
+  top.append(heading, actions);
 
   const roomBlock = document.createElement("div");
   roomBlock.className = "room-block";
