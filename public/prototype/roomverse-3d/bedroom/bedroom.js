@@ -1433,6 +1433,22 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const legGeometry = new THREE.CylinderGeometry(.024, .036, .18, 12, 1);
   for (const x of [-.62, .62]) for (const z of [-.30, .31]) sofaPart(legGeometry, sofaLegMat, "legs", x, .09, z);
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
+  // A pair of wool scuffs on the lounge rug (Paul 2026-11-28: take Room 01's slippers, a different colour): the same soft shape as Room 01's, in charcoal wool instead of oatmeal, one kicked off a little askew,
+  // on the rug between the sofa's front and the bed side of the table, where the room can see them. 265 mm long; the soles rest on the rug (rug top at 6 mm), nothing hovers.
+  { const L0 = .265, W0 = .1, shape = new THREE.Shape(); shape.moveTo(-L0 / 2 + .045, -W0 * .36);
+    shape.bezierCurveTo(-L0 / 2 + .005, -W0 * .34, -L0 / 2 - .004, -W0 * .1, -L0 / 2 + .002, W0 * .08); shape.bezierCurveTo(-L0 / 2 + .01, W0 * .36, -L0 / 2 + .05, W0 * .42, -L0 / 2 + .09, W0 * .46);
+    shape.bezierCurveTo(L0 / 2 - .07, W0 * .56, L0 / 2 - .005, W0 * .34, L0 / 2, 0); shape.bezierCurveTo(L0 / 2 - .005, -W0 * .4, L0 / 2 - .07, -W0 * .5, -L0 / 2 + .09, -W0 * .44); shape.bezierCurveTo(-L0 / 2 + .06, -W0 * .4, -L0 / 2 + .05, -W0 * .37, -L0 / 2 + .045, -W0 * .36);
+    const colour = (geometry, hex) => { const g = geometry.index ? geometry.toNonIndexed() : geometry.clone(); g.deleteAttribute("uv"); const c = new THREE.Color(hex), n = g.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(arr, i * 3); g.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return g; };
+    const sole = new THREE.ExtrudeGeometry(shape, { depth: .014, bevelEnabled: true, bevelThickness: .0025, bevelSize: .0025, bevelSegments: 1, curveSegments: 6 }); sole.rotateX(-Math.PI / 2);
+    const footbed = new THREE.ShapeGeometry(shape, 6).rotateX(-Math.PI / 2).scale(.93, 1, .9).translate(0, .0185, 0);
+    const upper = new THREE.SphereGeometry(1, 14, 6, 0, Math.PI * 2, 0, Math.PI / 2).scale(.098, .043, .056).translate(.052, .0185, 0);
+    const rim = new THREE.TorusGeometry(1, .0045, 4, 14).rotateX(Math.PI / 2).scale(.094, 1, .052).translate(.052 - .004, .0215, 0);
+    const base = mergeGeometries([[sole, 0x3b2a20], [footbed, 0xd9cdb6], [upper, 0x6f7378], [rim, 0x5d6166]].map(([geo, hex]) => colour(geo, hex)), false);
+    const put = (x, z, yaw, flip) => { const g = base.clone(); if (flip) { g.scale(1, 1, -1); const pa = g.attributes.position, ca = g.attributes.color; for (let i = 0; i < pa.count; i += 3) for (const att of [pa, ca]) { const x1 = att.getX(i + 1), y1 = att.getY(i + 1), z1 = att.getZ(i + 1); att.setXYZ(i + 1, att.getX(i + 2), att.getY(i + 2), att.getZ(i + 2)); att.setXYZ(i + 2, x1, y1, z1); } } /* a mirrored copy turns every triangle inside out: swap two corners of each */
+      g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(x, .0088, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1))); return g; };
+    const pairGeo = mergeGeometries([put(.72, .36, 1.75, false), put(.66, .58, 2.35, true)], false); pairGeo.computeVertexNormals();
+    const slippers = new THREE.Mesh(pairGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 })); slippers.name = "sofa-rug-slippers"; slippers.castShadow = slippers.receiveShadow = true; root.add(slippers);
+  }
   // Keep the two loose cushions inside the seat/back corner. A slight lean and uneven roll read as fabric at rest;
   // the previous 45-degree yaw made the square cushion show mostly its thin side from the room.
   const sofaCushions = [
