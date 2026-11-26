@@ -116,36 +116,35 @@ export default function Hero() {
           data-testid="hero-works"
         >
           <p id="hero-works-label" className="text-xs font-semibold tracking-[0.12em] text-moss">{h.worksLabel}</p>
-          <ol aria-labelledby="hero-works-label" className="mt-1 grid gap-1.5 md:mt-3 md:grid-cols-3 md:gap-4">
+          <ol aria-labelledby="hero-works-label" className="mt-1 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mt-3 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0">
             {picks.map((work) => {
               const copy = work[lang] || work.zh;
               const href = work.casePage?.href || withDemoLang(work.link, lang);
               const external = !work.casePage?.href;
               return (
-                <li key={work.id}>
+                <li key={work.id} className="w-[74%] max-w-[22rem] shrink-0 snap-start md:w-auto md:max-w-none md:shrink">
                   <a
                     href={href}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="group relative flex h-full items-start gap-2 rounded-card border border-line bg-white/85 px-2 py-1.5 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink md:flex-col md:items-stretch md:gap-0 md:overflow-hidden md:p-0"
+                    className="group relative flex h-full flex-col items-stretch overflow-hidden rounded-card border border-line bg-white/85 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink"
                   >
                     {HERO_THUMB[work.id] && (
                       <img
                         src={`/images/hero-thumb-${HERO_THUMB[work.id]}-${lang}-320.webp`}
                         srcSet={`/images/hero-thumb-${HERO_THUMB[work.id]}-${lang}-320.webp 320w, /images/hero-thumb-${HERO_THUMB[work.id]}-${lang}.webp 640w`}
-                        sizes="33vw"
+                        sizes="(min-width: 768px) 33vw, 74vw"
                         width="640"
                         height="400"
                         alt=""
-                        loading="lazy"
                         decoding="async"
-                        className="hidden aspect-[2/1] w-full object-cover object-top md:block md:border-b md:border-line"
+                        className="aspect-[2/1] w-full border-b border-line object-cover object-top"
                       />
                     )}
-                    <span className="min-w-0 flex-1 md:px-5 md:py-4">
+                    <span className="min-w-0 flex-1 px-3 py-2.5 md:px-5 md:py-4">
                       <span className="block text-base font-semibold leading-snug text-amber md:text-lg">{copy.title}</span>
                       <span className="mt-0.5 block text-sm leading-snug text-moss md:mt-1 md:leading-relaxed"><Clauses text={work.decisionQuestion?.[lang]} /></span>
                     </span>
-                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 md:absolute md:right-3 md:top-3 md:mt-0 md:rounded-full md:bg-white/90 md:p-1" />
+                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="absolute right-2.5 top-2.5 rounded-full bg-white/90 p-1 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 md:right-3 md:top-3" />
                   </a>
                 </li>
               );
