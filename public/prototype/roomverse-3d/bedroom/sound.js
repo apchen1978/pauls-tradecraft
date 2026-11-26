@@ -62,6 +62,11 @@ const TITLES = [{ zh: "布魯克林窗台", en: "Brooklyn Windowsill" }, { zh: "
 // R&B atmosphere (Paul, 2026-11-26: the first piece of Room 02 should feel like R&B). The beat and the sub bass keep their skeleton. What changes is the colour and the singing:
 // a warm electric piano rolls every chord with the piano, the melody slides into its phrases and in the second pass some notes land a sixteenth early, a wordless "ooh" sits under the climb,
 // and the bass glides to the next root at the end of every fourth bar.
+// The melody voice (Paul, 2026-11-26: the piano on top does not blend with the low, dark beat and comp; try other instruments). ?lead=rhodes (the default), organ, sax, guitar or piano on the page
+// address picks it, so the voices can be compared on the same link. LEAD_K evens the levels out against the piano. On the synthesized voices the first note of a phrase slides up into pitch
+// from a semitone below, the way a singer or a horn does (the old semitone grace note on the piano clashed with the chord and is gone).
+const LEAD = (() => { const v = typeof location !== "undefined" ? new URLSearchParams(location.search).get("lead") : null; return ["rhodes", "organ", "sax", "guitar", "piano"].includes(v) ? v : "rhodes"; })();
+const LEAD_K = { rhodes: 0.53, organ: 0.63, sax: 0.47, guitar: 1.3 };
 const CLASSIC = typeof location !== "undefined" && new URLSearchParams(location.search).get("take") === "classic";
 const MELODY_NEW = {
   2: [[2, 64, 3], [5, 67, 3], [8, 69, 6]],                    // Cmaj9: the motif, E G A
@@ -150,6 +155,43 @@ export function createRoomRecord() {
     const osc = ctx.createOscillator(); osc.type = "sine"; osc.frequency.setValueAtTime(hz(fromMidi), time); osc.frequency.exponentialRampToValueAtTime(hz(toMidi), time + length * 0.8); osc.connect(out); osc.start(time); osc.stop(time + length + 0.05);
     out.connect(low); low.connect(bus); noteCount += 1;
   };
+  const leadOut = (node, pan) => { const place = ctx.createStereoPanner ? ctx.createStereoPanner() : null; if (place) { place.pan.value = pan; node.connect(place); place.connect(bus); } else node.connect(bus); noteCount += 1; };
+  const bend = (osc, time, midi, scoop, ratio = 1) => { if (scoop) { osc.frequency.setValueAtTime(hz(midi - 1) * ratio, time); osc.frequency.exponentialRampToValueAtTime(hz(midi) * ratio, time + 0.07); } else osc.frequency.setValueAtTime(hz(midi) * ratio, time); };
+  const vib = (osc, time, length, cents, rate, delay) => { const lfo = ctx.createOscillator(), amount = ctx.createGain(); lfo.frequency.value = rate; amount.gain.setValueAtTime(0, time); amount.gain.linearRampToValueAtTime(cents, time + delay + 0.3); lfo.connect(amount); amount.connect(osc.detune); lfo.start(time); lfo.stop(time + length + 0.3); };
+  const rhodes = (time, midi, g, length, pan, scoop) => { // a Rhodes-style electric piano: an FM tine that barks at the attack and then rounds off, with a light vibrato
+    const out = ctx.createGain(), tone = ctx.createBiquadFilter(), end = time + Math.max(0.3, length); tone.type = "lowpass"; tone.frequency.value = 3000;
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(g, time + 0.006); out.gain.exponentialRampToValueAtTime(g * 0.55, time + 0.45); out.gain.setValueAtTime(g * 0.55, Math.max(time + 0.46, end - 0.1)); out.gain.exponentialRampToValueAtTime(0.0001, end + 0.25);
+    const car = ctx.createOscillator(), mod = ctx.createOscillator(), index = ctx.createGain(); car.type = "sine"; mod.type = "sine"; bend(car, time, midi, scoop); mod.frequency.value = hz(midi);
+    index.gain.setValueAtTime(hz(midi) * 1.6, time); index.gain.exponentialRampToValueAtTime(hz(midi) * 0.12, time + 0.55); mod.connect(index); index.connect(car.frequency); vib(car, time, length, 5, 5.2, 0.35);
+    const tine = ctx.createOscillator(), tineGain = ctx.createGain(); tine.type = "sine"; tine.frequency.value = hz(midi) * 4; tineGain.gain.setValueAtTime(g * 0.22, time); tineGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.16); tine.connect(tineGain); tineGain.connect(out);
+    car.connect(out); out.connect(tone); for (const o of [car, mod, tine]) { o.start(time); o.stop(end + 0.35); } leadOut(tone, pan);
+  };
+  const organ = (time, midi, g, length, pan, scoop) => { // a drawbar organ: sine partials, a soft attack, a slow Leslie-like tremolo
+    const out = ctx.createGain(), trem = ctx.createGain(), tone = ctx.createBiquadFilter(), end = time + Math.max(0.3, length); tone.type = "lowpass"; tone.frequency.value = 4200;
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(g, time + 0.02); out.gain.setValueAtTime(g, end); out.gain.exponentialRampToValueAtTime(0.0001, end + 0.12);
+    const lfo = ctx.createOscillator(), depth = ctx.createGain(); lfo.frequency.value = 6.2; depth.gain.value = 0.07; trem.gain.value = 0.93; lfo.connect(depth); depth.connect(trem.gain); lfo.start(time); lfo.stop(end + 0.3);
+    for (const [ratio, level] of [[1, 1], [2, 0.6], [3, 0.3], [4, 0.2], [6, 0.1]]) { const osc = ctx.createOscillator(), pg = ctx.createGain(); osc.type = "sine"; bend(osc, time, midi, scoop, ratio); pg.gain.value = level / 2.2; osc.connect(pg); pg.connect(out); osc.start(time); osc.stop(end + 0.3); }
+    out.connect(trem); trem.connect(tone); leadOut(tone, pan);
+  };
+  const sax = (time, midi, g, length, pan, scoop) => { // a breathy synthesized saxophone: saw and square through two vowel-like bands, a late vibrato, a puff of breath, a scoop up into the pitch
+    const out = ctx.createGain(), mix = ctx.createGain(), low = ctx.createBiquadFilter(), band1 = ctx.createBiquadFilter(), band2 = ctx.createBiquadFilter(), gain1 = ctx.createGain(), gain2 = ctx.createGain(), end = time + Math.max(0.3, length);
+    low.type = "lowpass"; low.frequency.value = 2400; band1.type = "bandpass"; band1.frequency.value = 700; band1.Q.value = 2; band2.type = "bandpass"; band2.frequency.value = 1150; band2.Q.value = 3; gain1.gain.value = 1; gain2.gain.value = 0.7;
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(g, time + 0.045); out.gain.setValueAtTime(g * 0.9, Math.max(time + 0.05, end - 0.08)); out.gain.exponentialRampToValueAtTime(0.0001, end + 0.08);
+    for (const [type, level] of [["sawtooth", 1], ["square", 0.4]]) { const osc = ctx.createOscillator(), og = ctx.createGain(); osc.type = type; bend(osc, time, midi, scoop); vib(osc, time, length, 14, 5.3, 0.2); og.gain.value = level; osc.connect(og); og.connect(mix); osc.start(time); osc.stop(end + 0.3); }
+    mix.connect(band1); mix.connect(band2); band1.connect(gain1); band2.connect(gain2); gain1.connect(low); gain2.connect(low); low.connect(out);
+    const breath = ctx.createBufferSource(), air = ctx.createBiquadFilter(), airGain = ctx.createGain(); breath.buffer = noiseBuffer(); air.type = "bandpass"; air.frequency.value = 2600; air.Q.value = 0.8; airGain.gain.setValueAtTime(g * 0.12, time); airGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.14); breath.connect(air); air.connect(airGain); airGain.connect(out); breath.start(time); breath.stop(time + 0.2);
+    leadOut(out, pan);
+  };
+  const guitar = (time, midi, g, length, pan) => { // a clean plucked string (Karplus-Strong): a short burst of noise circling a delay line that loses a little energy each time round
+    const rate = ctx.sampleRate, size = Math.max(2, Math.round(rate / hz(midi))), seconds = Math.min(2.4, length + 0.5), total = Math.floor(rate * seconds), buffer = ctx.createBuffer(1, total, rate), data = buffer.getChannelData(0), line = new Float32Array(size);
+    let prev = 0; for (let i = 0; i < size; i++) { prev = prev * 0.5 + (rnd() * 2 - 1) * 0.5; line[i] = prev; }
+    for (let i = 0, k = 0; i < total; i++) { const a = line[k], b = line[(k + 1) % size]; data[i] = a; line[k] = (a + b) * 0.5 * 0.998; k = (k + 1) % size; }
+    const src = ctx.createBufferSource(), tone = ctx.createBiquadFilter(), out = ctx.createGain(); src.buffer = buffer; tone.type = "lowpass"; tone.frequency.value = 2400;
+    out.gain.setValueAtTime(g, time); out.gain.setValueAtTime(g, time + Math.max(0.2, length)); out.gain.exponentialRampToValueAtTime(0.0001, time + Math.max(0.25, length) + 0.25);
+    src.connect(tone); tone.connect(out); src.start(time); leadOut(out, pan);
+  };
+  const leadVoices = { rhodes, organ, sax, guitar };
+  const lead = (time, midi, gain, length, pan, scoop) => { const voice = leadVoices[LEAD]; if (!voice) { piano(time, midi, gain, length, pan); return; } voice(time, midi, gain * LEAD_K[LEAD], length, pan, scoop); };
   const scheduleBarA = () => {
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
     const section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
@@ -176,9 +218,9 @@ export function createRoomRecord() {
       MELODY_NEW[local].forEach(([i0, midi, length], n) => {
         const i = second && i0 === 8 && n > 0 ? 7 : i0; // in the second pass the half-bar note lands a sixteenth early: a push into the beat
         const accent = n === 0 ? 1.1 : 1, time = at(i) + lag + jitter(3), gain = vary(0.09) * strength * accent;
-        if (n === 0) piano(time - 0.06, midi - 1, second ? 0.035 : 0.028, 0.12, 0.2); // a scoop: a quick note a semitone under, the way a singer slides into a phrase
-        piano(time, midi, gain, STEP * (length + 1), 0.2);
-        if (local >= 7 && local <= 11 && length >= 6) piano(time + 0.012, thirdBelow(midi), gain * 0.55, STEP * (length + 1), -0.1); // on the long notes of the climb, a third below
+        // (the old semitone grace note on the piano is gone: it clashed with the chord; the synthesized voices slide into the note instead)
+        lead(time, midi, gain, STEP * (length + 1), 0.2, n === 0); // the melody voice; on a synth voice the first note of a phrase slides up into pitch
+        if (local >= 7 && local <= 11 && length >= 6) lead(time + 0.012, thirdBelow(midi), gain * 0.55, STEP * (length + 1), -0.1, false); // on the long notes of the climb, a third below
         if (second && n === 0 && (local === 6 || local === 9 || local === 14)) bell(time + 0.02, midi + 12, 0.028 * strength, STEP * 10, 0.35); // a bell an octave up on the peaks of the second pass
       });
       if (second && local >= 2 && local <= 11) chord.comp.slice(1).forEach((midi, k) => { keys(at(6) + k * 0.018, midi, vary(0.026), STEP * 3, -0.25 + k * 0.12); keys(at(10) + k * 0.018, midi, vary(0.03), STEP * 4, -0.25 + k * 0.12); }); // a soft electric piano doubles the comp stabs
