@@ -240,23 +240,34 @@ export function createRoomRecord() {
     const osc = ctx.createOscillator(); osc.type = "sine"; osc.frequency.setValueAtTime(hz(midi) * 3, time); osc.frequency.exponentialRampToValueAtTime(hz(midi), time + 0.05); osc.connect(out); osc.start(time); osc.stop(time + length + 0.05);
     out.connect(low); low.connect(bus); noteCount += 1;
   };
+  const riser = (time, length, gain) => { // a rising wash of noise: the room breathing in before the drop
+    const src = ctx.createBufferSource(), band = ctx.createBiquadFilter(), out = ctx.createGain(); src.buffer = noiseBuffer(); src.loop = true; band.type = "bandpass"; band.Q.value = 0.8;
+    band.frequency.setValueAtTime(500, time); band.frequency.exponentialRampToValueAtTime(7000, time + length);
+    out.gain.setValueAtTime(0.0001, time); out.gain.exponentialRampToValueAtTime(gain, time + length); out.gain.exponentialRampToValueAtTime(0.0001, time + length + 0.04);
+    src.connect(band); band.connect(out); out.connect(bus); src.start(time); src.stop(time + length + 0.1); noteCount += 1;
+  };
+  const impact = (time, gain) => { // the light switching on: a soft burst of air and a deep sub that rings
+    const src = ctx.createBufferSource(), high = ctx.createBiquadFilter(), out = ctx.createGain(); src.buffer = noiseBuffer(); src.loop = true; high.type = "highpass"; high.frequency.value = 3000;
+    out.gain.setValueAtTime(gain, time); out.gain.exponentialRampToValueAtTime(0.0001, time + 1.6); src.connect(high); high.connect(out); out.connect(bus); src.start(time); src.stop(time + 1.7); noteCount += 1;
+  };
   const scheduleBarA = () => {
     if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05; // after a background pause (a throttled timer or a suspended context) pick up from now instead of piling the missed notes on top of one another
     const section = barIndex % FORM_BARS, local = section < 16 ? section : Math.min(section - 16, 15), ending = section >= FORM_BARS - 2, chord = (!CLASSIC && CLIMAX_CHORDS[section]) || CHORDS[barIndex % 4], t0 = nextTime, at = (i) => t0 + i * STEP + (i % 2 ? SWING * STEP : 0);
     // the beat: a dusty boom-bap, the kick drops out in the breakdown and on the final two bars
-    if (!ending && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
+    const pull = !CLASSIC && section === 15; // the one bar before the answer: only the piano and the bass, then the drums and strings arrive together
+    if (!ending && !pull && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) kick(at(i) + jitter(6), i === 0 ? 0.85 : 0.55);
     if (!CLASSIC && !ending && section >= 16 && local !== 12 && local !== 13) for (const i of (barIndex % 4 === 3 ? [0, 7, 10, 14] : [0, 10])) sub808(at(i) + jitter(3), chord.bass, (i === 0 ? 0.3 : 0.2) * (section === 20 ? 1.35 : 1), STEP * (i === 0 ? 6 : 3)); // the second half hits harder: an 808-style sub rings under every kick
-    if (!ending) { snare(at(4) + jitter(5), 0.5); snare(at(12) + jitter(5), 0.55); if (barIndex % 2) snare(at(15), 0.12); } // the backbeat, with a ghost note
+    if (!ending && !pull) { snare(at(4) + jitter(5), 0.5); snare(at(12) + jitter(5), 0.55); if (barIndex % 2) snare(at(15), 0.12); } // the backbeat, with a ghost note
     const lift = section >= 16 && section < FORM_BARS - 4; // the second pass is the fuller chorus: same hat level, sixteenths instead of eighths, then the cadence thins out
-    const hatStep = !ending && (lift || (local >= 8 && local <= 11)) ? 1 : 2; for (let i = 0; i < BAR_STEPS; i += hatStep) hat(at(i) + jitter(4), i % 4 === 0 ? 0.13 : 0.075, false);
-    if (!ending && barIndex % 4 === 3) hat(at(14), 0.12, true);
+    const hatStep = !ending && (lift || (local >= 8 && local <= 11)) ? 1 : 2; for (let i = 0; i < BAR_STEPS; i += hatStep) if (!pull) hat(at(i) + jitter(4), i % 4 === 0 ? 0.13 : 0.075, false);
+    if (!ending && !pull && barIndex % 4 === 3) hat(at(14), 0.12, true);
     // the sub bass
-    bass(at(0), ending && section === FORM_BARS - 1 ? 38 : chord.bass, 0.34, STEP * (ending ? 12 : 6)); if (!ending) { bass(at(7), chord.bass + (barIndex % 2 ? 7 : 0), 0.24, STEP * 2); bass(at(10), chord.bass, 0.28, STEP * 4); }
+    bass(at(0), ending && section === FORM_BARS - 1 ? 38 : chord.bass, 0.34, STEP * (ending ? 12 : 6)); if (!ending && !pull) { bass(at(7), chord.bass + (barIndex % 2 ? 7 : 0), 0.24, STEP * 2); bass(at(10), chord.bass, 0.28, STEP * 4); }
     if (!CLASSIC && !ending && barIndex % 4 === 1) slide(at(13), chord.bass, CHORDS[(barIndex + 1) % 4].bass, 0.2, STEP * 3); // the end-of-phrase glide, an 808-style slide to the next root
     // the piano comp: a rolled chord on the one, then two short stabs
     const comp = ending && section === FORM_BARS - 1 ? [50, 53, 57, 62] : chord.comp; // the last bar is a plain D minor
     comp.forEach((midi, i) => piano(at(0) + i * 0.028 + jitter(5), midi, vary(0.075), STEP * (ending ? 14 : 9), -0.15 + i * 0.1));
-    if (!ending) for (const [i, gain, length] of [[6, 0.04, 2], [10, 0.045, 3]]) chord.comp.slice(1).forEach((midi, k) => piano(at(i) + k * 0.02, midi, vary(gain), STEP * length, 0.1 - k * 0.08));
+    if (!ending && !pull) for (const [i, gain, length] of [[6, 0.04, 2], [10, 0.045, 3]]) chord.comp.slice(1).forEach((midi, k) => piano(at(i) + k * 0.02, midi, vary(gain), STEP * length, 0.1 - k * 0.08));
     if (!CLASSIC && !ending && local >= 2) chord.comp.forEach((midi, k) => keys(at(0) + k * 0.03 + jitter(5), midi, vary(0.03), STEP * 9, 0.25 - k * 0.1)); // a warm electric piano rolls the chord with the piano: the Rhodes colour of R&B
     // the melody, a little behind the beat: absent for the first two bars of each sixteen, then phrase A, phrase B, then A again; the last two bars cadence on D
     if (ending) { const line = section === FORM_BARS - 2 ? [[2, 69, 6], [10, 67, 4]] : [[0, 62, 14]]; for (const [i, midi, length] of line) { if (CLASSIC) piano(at(i) + 0.014 + jitter(8), midi, vary(0.09), STEP * (length + 1), 0.2); else lead(at(i) + 0.03 + jitter(6), midi, vary(0.09), STEP * (length + 1), 0.2, false); } } // the last two bars land on D, in the chosen voice
@@ -276,7 +287,15 @@ export function createRoomRecord() {
       else if (!CLASSIC && section >= 8 && section <= 29 && section % 2 === 1 && !(LICKS[section] || []).some(([i]) => i >= 12)) { piano(at(13) + 0.02, chord.comp[2] + 12, 0.05, STEP * 2, 0.25); piano(at(15) + 0.02, chord.comp[3] + 12, 0.045, STEP * 3, 0.3); } // the piano as an ornament: two soft high notes at the end of every other bar
       if (second && section >= 18 && section <= 27) chord.comp.slice(1).forEach((midi, k) => { keys(at(6) + k * 0.018, midi, vary(0.026), STEP * 3, -0.25 + k * 0.12); keys(at(10) + k * 0.018, midi, vary(0.03), STEP * 4, -0.25 + k * 0.12); }); // a soft electric piano doubles the comp stabs
       if (section >= 19 && section <= 22) { ooh(at(0) + 0.02, chord.comp[2], 0.022, STEP * 15); ooh(at(0) + 0.03, chord.comp[3], 0.018, STEP * 15); } // a wordless "ooh" under the climb and the peak
-      if (section >= 6 && section <= 29) pad(at(0), chord.comp, section < 8 ? 0.008 : section < 12 ? 0.013 : section < 16 ? 0.022 : section < 20 ? 0.017 : section < 24 ? 0.024 : 0.014, STEP * 15); // the light sustained layer, swelling in each bar and fullest at the peak
+      if (section >= 6 && section <= 29) pad(at(0), chord.comp, section < 8 ? 0.008 : section < 12 ? 0.013 : section < 16 ? 0.022 : section === 16 ? 0.03 : section < 20 ? 0.017 : section < 24 ? 0.024 : 0.014, STEP * 15); // the light sustained layer, swelling in each bar and fullest at the peak
+    }
+    if (!CLASSIC && section === 15) riser(at(4), STEP * 12, 0.05); // the breath in, rising through the bar
+    if (!CLASSIC && section === 16) { // the light comes on: air, a deep sub, and the strings swell in on the chord
+      impact(at(0) + 0.005, 0.07); sub808(at(0), chord.bass - 12, 0.4, STEP * 10);
+      chord.comp.forEach((midi, k) => strings(at(0) + k * 0.02, midi + 12, 0.034, STEP * 30, -0.3 + k * 0.2, false));
+    }
+    if (!CLASSIC && section === FORM_BARS - 1) { // the fade out: one soft high D rings on in the hall, a bell far above it, and the groove has left
+      lead(at(6), 74, 0.04, STEP * 40, 0.2, false); bell(at(8), 86, 0.016, STEP * 40, 0.3);
     }
     barIndex += 1; nextTime += BAR_STEPS * STEP;
     timer = setTimeout(scheduleBar, Math.max(50, (nextTime - ctx.currentTime - 0.6) * 1000));
