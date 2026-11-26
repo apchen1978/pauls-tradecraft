@@ -762,6 +762,13 @@ function renderLatest() {
     src.target = "_blank";
     src.rel = "noopener noreferrer";
     li.append(head, el("h3", null, c.title), el("p", null, c.what), took, src);
+    if (item.more) { // an optional second link, for a caveat or a critical view
+      const more = el("a", "obs-src", `${item.more[state.lang]} ↗`);
+      more.href = item.more.url;
+      more.target = "_blank";
+      more.rel = "noopener noreferrer";
+      li.append(more);
+    }
     return li;
   }));
 }

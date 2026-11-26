@@ -623,3 +623,4 @@ body { overflow-x: clip; }
 @media (max-width: 700px) {
   .feature-portals #gallery-front .music-lounge-mark::after { width: 22px; height: 22px; right: 6px; bottom: 6px; }
 }
+.obs-src + .obs-src { margin-left: 16px; }
