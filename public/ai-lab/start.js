@@ -15,7 +15,7 @@ export const START = {
     ],
     sceneCaption: "這就是全部的「技術」：說出來、看一看、再說一次。",
     mythTitle: "你不需要會寫程式",
-    myth: "很多人以為，用 AI 做東西得先學會程式。其實你要做的不是「寫」，而是三件你本來就會的事：說清楚、看一看、改一改。我自己的作品，大多是這樣一句一句做出來的。",
+    myth: "很多人以為，用 AI 做東西得先學會程式。其實你要做的不是「寫」，而是三件你本來就會的事：說清楚、看一看、改一改。我自己的作品，大多是這樣一句一句做出來的。而且不只靠一個 AI：我同時請好幾個不同品牌的 AI 一起想、一起做，像組了一個智囊團。有的幫我規劃，有的動手做，有的負責挑毛病；最後拍板的，還是我。",
     stepsTitle: "三步，就夠了",
     exampleLabel: "你可以這樣說",
     steps: [
@@ -51,7 +51,7 @@ export const START = {
     ],
     sceneCaption: "That is the whole \"technique\": say it, look at it, say it again.",
     mythTitle: "You don't need to code",
-    myth: "Many people think making things with AI means learning to program first. What you actually do is three things you already know how to do: say it clearly, look, and adjust. Most of my own work was made this way, one sentence at a time.",
+    myth: "Many people think making things with AI means learning to program first. What you actually do is three things you already know how to do: say it clearly, look, and adjust. Most of my own work was made this way, one sentence at a time. And not with just one AI: I work with several AIs from different companies at once, like a think tank. One helps me plan, one does the building, one looks for faults; the final call is still mine.",
     stepsTitle: "Three steps are enough",
     exampleLabel: "You could say",
     steps: [
