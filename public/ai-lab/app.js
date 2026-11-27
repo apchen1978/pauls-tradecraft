@@ -3,6 +3,7 @@ import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.j
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
 import { SPIRIT } from "./spirit.js?v=2";
+import { START } from "./start.js?v=1";
 import { ADOPTION, PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
 import { LADDER } from "./ladder.js";
 import { TOOLPATH } from "./toolpath.js";
@@ -896,6 +897,38 @@ function spiritBlocks(blocks) {
   });
 }
 
+function renderStart() { // the opening "start here" section (Paul 2026-11-28): picture first, three steps, no jargon
+  const x = START[state.lang];
+  $("start-kicker").textContent = x.kicker;
+  $("start-title").textContent = x.title;
+  $("start-lead").textContent = x.lead;
+  $("start-scene-label").textContent = x.sceneLabel;
+  $("start-chat").replaceChildren(...x.chat.map((m) => {
+    const row = el("div", `start-bubble ${m.who}`);
+    row.append(el("span", "who mono", m.who === "you" ? x.you : x.ai), el("p", null, m.text));
+    return row;
+  }));
+  $("start-scene-cap").textContent = x.sceneCaption;
+  $("start-myth-title").textContent = x.mythTitle;
+  $("start-myth").textContent = x.myth;
+  $("start-steps-title").textContent = x.stepsTitle;
+  $("start-steps").replaceChildren(...x.steps.map((s, i) => {
+    const li = el("li", "start-step");
+    const body = el("div", "start-step-body");
+    const say = el("p", "start-say");
+    say.append(el("span", "mono", x.exampleLabel), document.createTextNode(` ${s.say}`));
+    body.append(el("h4", null, s.h), el("p", null, s.p), say);
+    li.append(el("span", "start-n mono", String(i + 1)), body);
+    return li;
+  }));
+  $("start-ease-title").textContent = x.easeTitle;
+  $("start-ease").replaceChildren(...x.ease.map((line) => el("li", null, line)));
+  $("start-note-title").textContent = x.noteTitle;
+  $("start-note").replaceChildren(...x.note.map((line) => el("li", null, line)));
+  $("start-closing").textContent = x.closing;
+  $("start-next").textContent = `${x.next} ↓`;
+}
+
 function renderSpirit() {
   const x = SPIRIT[state.lang];
   $("spirit-kicker").textContent = x.open.kicker;
@@ -967,6 +1000,7 @@ function render() {
   renderAdoption();
   renderLadder();
   renderPackage();
+  renderStart();
   renderSpirit();
   renderConsole(false);
   renderRail();
