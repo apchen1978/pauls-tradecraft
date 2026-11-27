@@ -1185,3 +1185,26 @@ for (const width of [1440, 390]) {
     await page.waitForFunction(() => window.__bedroom.info().centred === false, null, { timeout: 8000 });
   });
 }
+
+test("Room 02 late-night game: the record plays the 夜戰 EDM loop, the next tap stops it, and the other moods keep their record", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom, null, { timeout: 60000 }); await page.waitForTimeout(3500);
+  await page.evaluate(() => window.__bedroom.setMood("night"));
+  await page.waitForTimeout(1500);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.vinylPoint())).front, { timeout: 20000 }).toBe(true);
+  const spot = await page.evaluate(() => window.__bedroom.vinylPoint());
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { timeout: 8000, message: "a tap in the late-night game mood starts the game piece" }).toBe(true);
+  const state = await page.evaluate(() => window.__bedroom.recordState());
+  expect(state.game, "it is the game piece").toBe(true);
+  expect(state.side).toBe(3);
+  expect(state.title).toBe("夜戰");
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 12000, message: "it plays notes without needing any sample" }).toBeGreaterThan(40);
+  await expect(page.locator("#propStory")).toContainText("夜戰");
+  await page.waitForTimeout(1500);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { message: "the second tap stops it" }).toBe(false);
+  expect(errors).toEqual([]);
+});

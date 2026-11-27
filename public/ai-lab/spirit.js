@@ -37,7 +37,7 @@ export const SPIRIT = {
       galleryCta: "走進畫廊",
       musicLoungeKicker: "音樂 × AI",
       musicLoungeTitle: "人機協作 Music Lounge",
-      musicLoungeDescription: "Paul × AI 共同創作十首曲子，從午後聽到夜晚。",
+      musicLoungeDescription: "Paul × AI 共同創作十一首曲子，從午後聽到深夜。",
       musicLoungeCta: "走進 Music Lounge",
       blocks: [
         {
@@ -113,7 +113,7 @@ export const SPIRIT = {
       galleryCta: "Enter the gallery",
       musicLoungeKicker: "Music × AI",
       musicLoungeTitle: "The Human–AI Music Lounge",
-      musicLoungeDescription: "Ten tracks created by Paul and AI, from afternoon to night.",
+      musicLoungeDescription: "Eleven tracks created by Paul and AI, from afternoon to late night.",
       musicLoungeCta: "Enter the Music Lounge",
       blocks: [
         {
