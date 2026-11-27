@@ -147,6 +147,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // room turn the head for you; dragging still works within the same limits.
   // The fourth look, "centre", is absolute: the camera walks to the middle of the room at eye height and the head can turn a full circle.
   const LOOKS = { center: { pos: CENTER, yaw: compact ? -.06 : 0, pitch: compact ? -.2 : -.09, zoom: compact ? .76 : .92 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  // The "Sofa corner" look (Paul 2026-11-28: the sofa, its stone table and the rug were hardly visible from any look): an absolute look like "Stand in the middle", the camera walks to the middle of the room and
+  // turns east to the sofa from about 1.8 m, about 30 degrees down, so the sofa, the table with its mug and books, and the rug with the slippers are all in the picture. Any other look button walks back out.
+  { const from = compact ? new THREE.Vector3(-.4, 1.35, .55) : new THREE.Vector3(-.75, 1.4, .5), to = compact ? new THREE.Vector3(1.0, .3, .95) : new THREE.Vector3(1.0, .42, .95), d = to.clone().sub(from);
+    LOOKS.sofa = { pos: from, yaw: Math.atan2(-d.x, -d.z), pitch: Math.atan2(d.y, Math.hypot(d.x, d.z)), zoom: compact ? .9 : .86 }; }
   let lookRun = 0, lookName = "center";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
   // The opening look is the centre (Paul, 2026-10-23): standing in the middle of the room facing the window wall, free to turn all the way round.
