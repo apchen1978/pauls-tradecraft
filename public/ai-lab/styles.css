@@ -657,3 +657,5 @@ body { overflow-x: clip; }
 .start-card-note { border-color: rgba(242, 181, 140, .4); }
 .start-card-note h3 { color: var(--warn); }
 .start-closing { margin-top: 26px; max-width: 40em; }
+.feature-portals-lead { margin: -6px 0 16px; max-width: 42em; color: var(--body); font-size: 15px; line-height: 1.6; }
+@media (max-width: 639px) { .feature-portals-lead { margin: 0 0 10px; font-size: 14px; } }
