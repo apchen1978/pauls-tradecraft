@@ -1167,3 +1167,21 @@ test("Room 02 a glowing ring and a hint line point visitors to the record player
   await page.evaluate(() => window.__bedroom.stopRecord());
   expect(errors).toEqual([]);
 });
+
+for (const width of [1440, 390]) {
+  test(`${width}: the Sofa corner look walks to the middle and shows the sofa, its stone table with the mug, and the slippers on the rug`, async ({ page }) => {
+    await enter(page, { width });
+    await page.locator('#viewRow button[data-look="sofa"]').click();
+    await expect(page.locator('#viewRow button[data-look="sofa"]')).toHaveAttribute("aria-pressed", "true");
+    await page.waitForTimeout(1900); // the room already opens in the middle, so the glide (1.1 s) is the only thing to wait for
+    const v = await page.evaluate(() => window.__bedroom.inView(["sofa", "sofa-stone-table", "sofa-table-mug", "sofa-rug-slippers"]));
+    for (const n of ["sofa", "sofa-stone-table", "sofa-table-mug", "sofa-rug-slippers"]) {
+      expect(v[n], n + " is found").toBeTruthy();
+      expect(v[n].z, n + " is in front of the camera").toBeLessThan(1);
+      expect(Math.abs(v[n].x), n + " is inside the picture sideways").toBeLessThan(.95);
+      expect(Math.abs(v[n].y), n + " is inside the picture vertically").toBeLessThan(.95);
+    }
+    await page.locator('#viewRow button[data-look="tv"]').click(); // any other look walks back out
+    await page.waitForFunction(() => window.__bedroom.info().centred === false, null, { timeout: 8000 });
+  });
+}
