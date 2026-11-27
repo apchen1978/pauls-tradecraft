@@ -624,3 +624,36 @@ body { overflow-x: clip; }
   .feature-portals #gallery-front .music-lounge-mark::after { width: 22px; height: 22px; right: 6px; bottom: 6px; }
 }
 .obs-src + .obs-src { margin-left: 16px; }
+
+/* start here (Paul 2026-11-28): a picture-first way in, before the chapters */
+.start { border-top: 0; padding-top: 24px; }
+.start h2 { max-width: 18em; }
+.start-lead { max-width: 40em; font-size: 1.08em; }
+.start-scene { margin: 26px 0 8px; max-width: 760px; padding: 20px 20px 16px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(160deg, rgba(158, 224, 193, .08), rgba(184, 153, 102, .06)); }
+.start-scene-label { margin: 0 0 12px; color: var(--meta); font-size: 12px; }
+.start-chat { display: grid; gap: 12px; }
+.start-bubble { max-width: 34em; padding: 12px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.start-bubble.you { justify-self: end; background: rgba(184, 153, 102, .14); border-color: rgba(184, 153, 102, .4); }
+.start-bubble.ai { justify-self: start; background: rgba(158, 224, 193, .1); border-color: rgba(158, 224, 193, .35); }
+.start-bubble .who { display: block; margin-bottom: 4px; font-size: 11px; color: var(--meta); }
+.start-bubble p { margin: 0; color: var(--bone); }
+.start-scene-cap { margin: 14px 0 0; color: var(--mint); font-size: 14px; }
+.start-myth { margin-top: 28px; max-width: 42em; }
+.start-myth h3, .start-h { margin: 0; font-size: 18px; color: var(--bone); }
+.start-myth .sub { margin-top: 8px; }
+.start-h { margin-top: 34px; }
+.start-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 14px; max-width: 760px; }
+.start-step { display: grid; grid-template-columns: 44px 1fr; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+.start-n { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--mint); color: var(--mint); font-size: 18px; }
+.start-step h4 { margin: 2px 0 6px; font-size: 16px; color: var(--bone); }
+.start-step p { margin: 0; }
+.start-step .start-say { margin-top: 10px; padding: 8px 12px; border-left: 3px solid var(--gold); background: rgba(184, 153, 102, .08); color: var(--bone); }
+.start-step .start-say .mono { display: block; margin-bottom: 2px; font-size: 11px; color: var(--gold); }
+.start-two { margin-top: 24px; display: grid; gap: 14px; max-width: 760px; }
+@media (min-width: 760px) { .start-two { grid-template-columns: 1fr 1fr; } }
+.start-card { padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+.start-card h3 { margin: 0 0 8px; font-size: 15px; color: var(--mint); }
+.start-card ul { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; }
+.start-card-note { border-color: rgba(242, 181, 140, .4); }
+.start-card-note h3 { color: var(--warn); }
+.start-closing { margin-top: 26px; max-width: 40em; }
