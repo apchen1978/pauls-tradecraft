@@ -125,7 +125,7 @@ export const TRACKS = [
     made: { zh: "68 BPM 的刷鼓與鋼琴走過 Fmaj9、Em7、Dm9、G13，16 小節再走一遍，最後兩小節落在 F，一共 32 小節。這是 Room 02 唱片的 B 面，窗雨聲取代黑膠底聲。", en: "At 68 BPM, brushed drums and piano move through Fmaj9, Em7, Dm9 and G13. Those 16 bars play again, then two bars land on F, 32 bars in all. It is side B of the Room 02 record, with window rain instead of vinyl noise." },
   },
   {
-    id: "late-night-game", title: { zh: "夜戰", en: "Late-Night Game" }, rooms: ["Room 02"], engine: "game", index: 0, cover: "/music-lounge/covers/late-night-game.webp?v=1",
+    id: "late-night-game", title: { zh: "夜戰", en: "Late-Night Game" }, rooms: ["Room 02"], engine: "game", index: 0, cover: "/music-lounge/covers/late-night-game.webp?v=2",
     mood: { zh: "深夜開局，脈衝、低音和薩克斯風一路推高", en: "Game on at midnight: a pulse, a bass line and a saxophone, building." },
     made: { zh: "這首 140 BPM、E 小調的 32 小節電子曲，專為 Room 02 的深夜遊戲而寫：四拍底鼓每一下都壓低低音與和弦，讓它們隨拍子起伏，像一道脈衝。兩次推進與落下之間，夾著一段只有脈動和聲與薩克斯風的緩衝。全曲約 55 秒，播完直接回到開頭，一直循環。", en: "A 32-bar electronic piece at 140 BPM in E minor, written for Room 02’s late-night games: every kick ducks the bass and chords so they swell back like a pulse. Two builds and drops are split by a breakdown of gated chords and saxophone. It lasts about 55 seconds and loops straight back to the start until stopped." },
   },

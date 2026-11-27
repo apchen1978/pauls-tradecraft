@@ -37,7 +37,7 @@ export const SPIRIT = {
       galleryCta: "走進畫廊",
       musicLoungeKicker: "音樂 × AI",
       musicLoungeTitle: "人機協作 Music Lounge",
-      musicLoungeDescription: "Paul × AI 共同創作十一首曲子，從午後聽到深夜。",
+      musicLoungeDescription: "Paul × AI 共同創作十一首曲子，從午後聽到深夜。最新一首《夜戰》，是給遊戲夜的電子脈衝。",
       musicLoungeCta: "走進 Music Lounge",
       blocks: [
         {
@@ -113,7 +113,7 @@ export const SPIRIT = {
       galleryCta: "Enter the gallery",
       musicLoungeKicker: "Music × AI",
       musicLoungeTitle: "The Human–AI Music Lounge",
-      musicLoungeDescription: "Eleven tracks created by Paul and AI, from afternoon to late night.",
+      musicLoungeDescription: "Eleven tracks created by Paul and AI, from afternoon to late night. The newest, Late-Night Game, is an electronic pulse for game night.",
       musicLoungeCta: "Enter the Music Lounge",
       blocks: [
         {
