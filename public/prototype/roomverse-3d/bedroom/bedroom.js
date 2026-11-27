@@ -537,7 +537,8 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (hitRobot) { tapRobot(); return; }
     tapClient = [event.clientX, event.clientY];
     const story = storyAt();
-    if (story === "vinyl-corner") { // the record corner: a tap starts side A, the next tap flips to side B, the third stops it
+    if (story === "vinyl-corner") { // the record corner: a tap starts a piece, every next tap goes to the next one (round the four), a tap on the tonearm stops it
+      if (recordMusic.state().playing && armTapped()) { recordMusic.stop(); deckSync(); showPropStory("vinyl-lifted"); return; } // a tap on the tonearm lifts the needle
       const now = recordMusic.next(); if (now >= 0) vinylFound = true; deckSync();
       showPropStory(now === 3 ? "vinyl-music-game" : now === 2 ? "vinyl-music-night" : now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
       return;
@@ -551,10 +552,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const PROP_STORIES = {
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
-    "vinyl-music": { zh: "♪ A 面：布魯克林窗台。🎹 鋼琴和老派節拍。再點一下翻到 B 面。", en: "♪ Side A: Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to flip to side B." },
-    "vinyl-music-night": { zh: "♪ 追劇夜。🎻 低音鋼琴、顫音弦樂和銅管慢慢堆高，像一部電影的片頭。再點一下就停。", en: "♪ Series Night. 🎻 Low piano, tremolo strings and brass build like a film's opening titles. Tap again to stop." },
-    "vinyl-music-game": { zh: "♪ 夜戰。⚡ 140 BPM 的電子脈衝、低音和薩克斯風，一路推向落下；會一直循環，再點一下就停。", en: "♪ Late-Night Game. ⚡ A 140 BPM electronic pulse, bass and saxophone building to the drop; it loops until you tap again to stop." },
-    "vinyl-music-b": { zh: "♪ B 面：防火梯的雨。🎹 慢一點的深夜鋼琴，窗外下著雨。再點一下就停。", en: "♪ Side B: Fire Escape Rain. 🎹 A slower late-night piano, rain at the window. Tap again to stop." },
+    "vinyl-music": { zh: "♪ 布魯克林窗台（A 面）。🎹 鋼琴和老派節拍。點唱片換下一首，點唱針停止。", en: "♪ Brooklyn Windowsill (side A). 🎹 Piano over a dusty beat. Tap the record for the next piece, tap the needle to stop." },
+    "vinyl-music-night": { zh: "♪ 追劇夜。🎻 低音鋼琴、顫音弦樂和銅管慢慢堆高，像一部電影的片頭。點唱片換下一首，點唱針停止。", en: "♪ Series Night. 🎻 Low piano, tremolo strings and brass build like a film’s opening titles. Tap the record for the next piece, tap the needle to stop." },
+    "vinyl-music-game": { zh: "♪ 夜戰。⚡ 140 BPM 的電子脈衝、低音和薩克斯風，一路推向落下，會一直循環。點唱片換下一首，點唱針停止。", en: "♪ Late-Night Game. ⚡ A 140 BPM electronic pulse, bass and saxophone building to the drop; it loops. Tap the record for the next piece, tap the needle to stop." },
+    "vinyl-lifted": { zh: "唱針抬起來了。再點唱片，從頭開始。", en: "The needle is lifted. Tap the record to start again." },
+    "vinyl-music-b": { zh: "♪ 防火梯的雨（B 面）。🎹 慢一點的深夜鋼琴，窗外下著雨。點唱片換下一首，點唱針停止。", en: "♪ Fire Escape Rain (side B). 🎹 A slower late-night piano, rain at the window. Tap the record for the next piece, tap the needle to stop." },
     "hint-vinyl": { zh: "點一下發光圈裡的唱片機，有音樂喔 🎵", en: "Tap the record player in the glowing ring for some music 🎵" },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
@@ -567,22 +569,23 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   storyCaption.id = "propStory"; storyCaption.setAttribute("role", "status"); storyCaption.setAttribute("aria-live", "polite");
   Object.assign(storyCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(storyCaption);
-  // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped). Paul 2026-11-22: in the series-night mood the tap plays the epic orchestral piece instead
-  // (shared with Room 01): stopped -> epic -> stopped (returns 2 while it plays); in every other mood the record walks side A, side B, stopped as before.
+  // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped; 2026-11-22: series night plays the epic piece; 2026-11-28: a late-night game piece).
+  // Paul 2026-11-28: every tap on the record goes to the NEXT piece, and after the last it comes round to the first; the tonearm is what stops it (a tap on the arm lifts the needle). One playlist of four,
+  // 0 = side A (Brooklyn Windowsill), 1 = side B (Fire Escape Rain), 2 = Series Night, 3 = Late-Night Game. The first tap starts the piece that matches the mood (series night: 2, late-night game: 3, else 0).
   const recordMusic = (() => {
-    const base = createRoomRecord(), epic = createNightMusic(), game = createGameMusic(); let epicOn = false, gameOn = false;
+    const base = createRoomRecord(), epic = createNightMusic(), game = createGameMusic(); let current = -1;
+    const stopAll = () => { base.stop(); epic.stop(); game.stop(); };
+    const startAt = (i) => { stopAll(); const ok = i === 0 ? base.start(0) : i === 1 ? base.start(1) : i === 2 ? epic.start(0, { playlist: true }) : game.start(0); current = ok ? i : -1; return current; };
     return {
-      start: (w) => base.start(w),
-      stop() { base.stop(); epic.stop(); game.stop(); epicOn = false; gameOn = false; },
+      start: (w) => startAt(w === 1 ? 1 : 0) >= 0,
+      stop() { stopAll(); current = -1; },
       resume() { base.resume?.(); epic.resume?.(); game.resume?.(); },
-      next() {
-        if (epicOn) { epic.stop(); epicOn = false; return -1; }
-        if (gameOn) { game.stop(); gameOn = false; return -1; }
-        if (mood === "night" && !base.state().playing) { gameOn = game.start(0); return gameOn ? 3 : -1; } // late-night game: stopped -> the game loop -> stopped
-        if (mood === "series" && !base.state().playing) { epicOn = epic.start(0, { playlist: true }); return epicOn ? 2 : -1; }
-        return base.next();
+      next() { const first = mood === "series" ? 2 : mood === "night" ? 3 : 0; return startAt(current < 0 ? first : (current + 1) % 4); }, // returns the piece now playing, or -1
+      state() {
+        if (current === 3) { const g = game.state(); return { ...g, side: 3, title: "夜戰", titleEn: "Late-Night Game", game: true }; }
+        if (current === 2) { const e = epic.state(); return { ...e, side: 2, title: "追劇夜", titleEn: "Series Night", epic: true }; }
+        return base.state();
       },
-      state() { if (gameOn) { const g = game.state(); return { ...g, side: 3, title: "夜戰", titleEn: "Late-Night Game", game: true }; } if (epicOn) { const e = epic.state(); return { ...e, side: 2, title: "追劇夜", titleEn: "Series Night", epic: true }; } return base.state(); },
     };
   })();
   let storyTimer = 0, storyKey = null, vinylFound = false, vinylHintAt = -1e9, vinylRing = null; const vinylReadyAt = performance.now(); // vinylFound: the visitor has started the music, so the hints stop
@@ -592,6 +595,21 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     clearTimeout(storyTimer); storyTimer = setTimeout(() => { storyCaption.style.opacity = "0"; storyKey = null; }, 4600);
   }
   let tapClient = null; // where the last tap landed on screen (client px), for the finger-sized tap radius below
+  function armTapped() {
+    scene.updateMatrixWorld(true); camera.updateMatrixWorld();
+    const hit = tapRay.intersectObject(armGroup, true)[0], solid = tapRay.intersectObjects(root.children, true).filter((h) => h.object.visible && !(h.object.material?.transparent && h.object.material.opacity < .5))[0];
+    if (hit && (!solid || hit.distance <= solid.distance + .03)) return true;
+    for (let node = solid?.object; node; node = node.parent) if (node === vin) return false; // the tap landed on the record or its plinth: that is "next", not "stop"
+    if (!tapClient) return false;
+    const rect = el.getBoundingClientRect(), head = armGroup.getObjectByName("tonearm-headshell"), pivot = root.getObjectByName("tonearm-pivot");
+    for (const object of [head, pivot]) {
+      if (!object) continue;
+      const p = object.getWorldPosition(new THREE.Vector3()).project(camera);
+      if (p.z >= 1) continue;
+      if (Math.hypot(tapClient[0] - (rect.left + ((p.x + 1) / 2) * rect.width), tapClient[1] - (rect.top + ((1 - p.y) / 2) * rect.height)) < 34) return true;
+    }
+    return false;
+  }
   function storyAt() {
     // The wardrobe carcass is a solid box whose invisible volume reaches into the room from some looks, so it would swallow a tap meant for
     // the bookshelf beyond it; taps pass through the wardrobe. Glass and other see-through meshes are skipped too.
@@ -2561,6 +2579,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
         stylusAboveVinylMm: mm(tip.y - rec.max.y), tubeIntoPivotMm: mm(pivot.max.y - tube.min.y), restIntoPlateMm: mm(TT.top + TT.plinthH + .001 - post.min.y),
         led: Number(turntableLedMat.emissiveIntensity.toFixed(2)), view: lookName };
     },
+    tonearmPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = root.getObjectByName("tonearm-headshell").getWorldPosition(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the needle end of the tonearm on screen
     vinylPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = new THREE.Box3().setFromObject(root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner")).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the turntable on screen
     tvState() { // local QA only
       const m = tvFace.material, on = !!m.emissiveMap;

@@ -1124,7 +1124,7 @@ test("the vinyl corner keeps all 32 records in one draw call and its deck glows 
   expect(info.vertices, "the room stays under the relaxed geometry ceiling").toBeLessThanOrEqual(CAPS.vertices);
 });
 
-test("Room 02 the record player by the window plays side A on a real piano when tapped, flips to side B on the next tap, and stops on the third", async ({ page }) => {
+test("Room 02 the record player by the window plays side A on a real piano when tapped, goes to the next piece on every tap round the four, and stops when the needle is tapped", async ({ page }) => {
   test.setTimeout(90000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
@@ -1145,8 +1145,19 @@ test("Room 02 the record player by the window plays side A on a real piano when 
   await expect(page.locator("#propStory")).toContainText("防火梯的雨");
   await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 15000, message: "side B plays notes" }).toBeGreaterThan(12);
   await page.waitForTimeout(1500);
-  await page.mouse.click(spot.x, spot.y);
-  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { message: "the third tap stops the record" }).toBe(false);
+  for (const [side, title] of [[2, "追劇夜"], [3, "夜戰"], [0, "布魯克林窗台"]]) { // the third, fourth and fifth taps: the next piece each time, and after the last one it comes round to the first
+    await page.mouse.click(spot.x, spot.y);
+    await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).side, { timeout: 8000, message: "every tap goes to the next piece" }).toBe(side);
+    expect((await page.evaluate(() => window.__bedroom.recordState())).title).toBe(title);
+    expect((await page.evaluate(() => window.__bedroom.recordState())).playing, "it never stops by itself").toBe(true);
+    await page.waitForTimeout(800);
+  }
+  await page.locator('#viewRow button[data-look="record"]').click(); await page.waitForTimeout(1700); // the record look brings the needle close
+  const needle = await page.evaluate(() => window.__bedroom.tonearmPoint());
+  expect(needle.front, "the needle end is in the picture").toBe(true);
+  await page.mouse.click(needle.x, needle.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { message: "a tap on the needle stops the record" }).toBe(false);
+  await expect(page.locator("#propStory")).toContainText("唱針");
   expect(errors).toEqual([]);
 });
 
@@ -1186,7 +1197,7 @@ for (const width of [1440, 390]) {
   });
 }
 
-test("Room 02 late-night game: the record plays the 夜戰 EDM loop, the next tap stops it, and the other moods keep their record", async ({ page }) => {
+test("Room 02 late-night game: the record starts with the 夜戰 EDM loop in the game mood and the next tap goes on to the next piece", async ({ page }) => {
   test.setTimeout(120000);
   const errors = []; page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
@@ -1205,6 +1216,7 @@ test("Room 02 late-night game: the record plays the 夜戰 EDM loop, the next ta
   await expect(page.locator("#propStory")).toContainText("夜戰");
   await page.waitForTimeout(1500);
   await page.mouse.click(spot.x, spot.y);
-  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { message: "the second tap stops it" }).toBe(false);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).side, { timeout: 8000, message: "the second tap goes to the next piece, the Brooklyn side A" }).toBe(0);
+  await page.evaluate(() => window.__bedroom.stopRecord());
   expect(errors).toEqual([]);
 });

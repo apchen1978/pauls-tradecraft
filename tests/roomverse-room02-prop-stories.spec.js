@@ -23,8 +23,9 @@ test("tapping a small prop in Room 02 reads a line about it", async ({ page }) =
       const box = await stage.boundingBox();
       await page.mouse.click(box.x + (t.x + 1) / 2 * box.width, box.y + (1 - t.y) / 2 * box.height);
       await page.waitForTimeout(400);
+      // a tap on the record starts or advances the music and says which piece plays, so its story key is a vinyl-music one
       const story = await page.evaluate(() => window.__bedroom.propStory());
-      if (story.visible && story.key === key) { expect(story.text.length).toBeGreaterThan(6); done = true; break; }
+      if (story.visible && (story.key === key || (key === "vinyl-corner" && story.key.startsWith("vinyl-music")))) { expect(story.text.length).toBeGreaterThan(6); done = true; break; }
     }
     if (done) tapped++;
     expect(done, `a tap on ${key} shows its story`).toBe(true);
