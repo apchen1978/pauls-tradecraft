@@ -14,16 +14,16 @@ const CHORDS = [
   { bass: 40, tones: [64, 67, 71] }, { bass: 36, tones: [60, 64, 67] }, { bass: 43, tones: [62, 67, 71] }, { bass: 38, tones: [62, 66, 69] },
   { bass: 40, tones: [64, 67, 71] }, { bass: 36, tones: [60, 64, 67] }, { bass: 38, tones: [62, 66, 69] }, { bass: 35, tones: [63, 66, 71] },
 ];
-// The hook, [step, midi, length in steps] per bar of the eight. Every note is a chord tone or a step away from one; the first four bars state the hook, the second four answer it higher and come down onto the B.
+// The hook, [step, midi, length in steps] per bar of the eight. Every note is a chord tone of its bar (Paul 2026-11-28: the bright synth lead felt a little off the chords, so no passing notes now); the first four bars state the hook, the second four answer it and come down onto the B.
 const HOOK = [
-  [[0, 83, 3], [3, 81, 1], [4, 79, 4], [10, 76, 3], [13, 79, 3]],        // Em: B A G . E G
-  [[0, 76, 3], [3, 79, 1], [4, 84, 4], [10, 83, 3], [13, 79, 3]],        // C: E G C B G
-  [[0, 74, 3], [3, 79, 1], [4, 83, 4], [10, 81, 3], [13, 79, 3]],        // G: D G B A G
-  [[0, 78, 3], [3, 81, 1], [4, 86, 4], [10, 81, 3], [13, 78, 3]],        // D: F# A D A F#
-  [[0, 88, 4], [4, 86, 2], [6, 83, 2], [8, 79, 4], [12, 83, 4]],         // Em: E6 held, then D B G B (the D is the seventh, the rest chord tones)
-  [[0, 84, 4], [4, 83, 2], [6, 79, 2], [8, 76, 4], [12, 79, 4]],         // C
-  [[0, 86, 4], [4, 83, 2], [6, 81, 2], [8, 78, 4], [12, 81, 4]],         // D: D B A F# A (the B is the sixth)
-  [[0, 83, 3], [3, 81, 1], [4, 78, 4], [8, 75, 4], [12, 71, 4]],         // B: B A F# D# B, back down to the start
+  [[0, 83, 3], [3, 79, 1], [4, 76, 4], [10, 79, 3], [13, 83, 3]],        // Em: B G E . G B
+  [[0, 79, 3], [3, 76, 1], [4, 72, 4], [10, 76, 3], [13, 79, 3]],        // C: G E C . E G
+  [[0, 74, 3], [3, 79, 1], [4, 83, 4], [10, 79, 3], [13, 74, 3]],        // G: D G B . G D
+  [[0, 78, 3], [3, 81, 1], [4, 86, 4], [10, 81, 3], [13, 78, 3]],        // D: F# A D . A F#
+  [[0, 83, 4], [4, 79, 2], [6, 76, 2], [8, 79, 4], [12, 83, 4]],         // Em: B G E G B, the answer
+  [[0, 84, 4], [4, 79, 2], [6, 76, 2], [8, 72, 4], [12, 76, 4]],         // C: C6 G E C E
+  [[0, 86, 4], [4, 81, 2], [6, 78, 2], [8, 74, 4], [12, 78, 4]],         // D: D6 A F# D F#
+  [[0, 83, 4], [4, 78, 4], [8, 75, 4], [12, 71, 4]],                     // B: B F# D# B, down onto the chord and round to the start
 ];
 
 function createGameMusic() {
@@ -83,9 +83,9 @@ function createGameMusic() {
     lp.connect(e); panned(e, pan, toneBus);
   };
   const synthLead = (t, midi, g, len) => { // a bright saw lead: two detuned saws and an octave of square under a low-pass that opens a little on the attack
-    const lp = ctx.createBiquadFilter(), e = ctx.createGain(), end = t + len; lp.type = "lowpass"; lp.Q.value = 1.2; lp.frequency.setValueAtTime(5200, t); lp.frequency.exponentialRampToValueAtTime(3000, t + 0.2);
+    const lp = ctx.createBiquadFilter(), e = ctx.createGain(), end = t + len; lp.type = "lowpass"; lp.Q.value = 0.8; lp.frequency.setValueAtTime(3400, t); lp.frequency.exponentialRampToValueAtTime(2000, t + 0.25);
     e.gain.setValueAtTime(0.0001, t); e.gain.exponentialRampToValueAtTime(g, t + 0.012); e.gain.setValueAtTime(g * 0.85, Math.max(t + 0.02, end - 0.05)); e.gain.exponentialRampToValueAtTime(0.0001, end + 0.05);
-    for (const [type, f, cents, k] of [["sawtooth", 1, -9, 0.5], ["sawtooth", 1, 9, 0.5], ["square", 0.5, 0, 0.2]]) { const o = ctx.createOscillator(), og = ctx.createGain(); o.type = type; o.frequency.value = hz(midi) * f; o.detune.value = cents; og.gain.value = k; o.connect(og); og.connect(lp); o.start(t); o.stop(end + 0.08); }
+    for (const [type, f, cents, k] of [["sawtooth", 1, -9, 0.5], ["sawtooth", 1, 9, 0.5], ["square", 0.5, 0, 0.12]]) { const o = ctx.createOscillator(), og = ctx.createGain(); o.type = type; o.frequency.value = hz(midi) * f; o.detune.value = cents; og.gain.value = k; o.connect(og); og.connect(lp); o.start(t); o.stop(end + 0.08); }
     lp.connect(e); e.connect(leadBus); noteCount += 1;
   };
   const sax = (t, midi, g, len, scoop = true) => { // a saxophone-like voice: a saw and a square through two formant peaks, a little breath, a slow vibrato that arrives after the attack, and a small scoop up into the pitch
@@ -99,7 +99,7 @@ function createGameMusic() {
   };
   const lead = (t, midi, g, len, which) => { // which: "synth", "sax" or "both"; ?lead= overrides everything for QA
     const mode = LEAD_MODE === "both" ? which : LEAD_MODE;
-    if (mode === "synth" || mode === "both") synthLead(t, midi, g * (mode === "both" ? 0.55 : 1), len);
+    if (mode === "synth" || mode === "both") synthLead(t, midi, g * (mode === "both" ? 0.42 : 0.85), len);
     if (mode === "sax" || mode === "both") sax(t, midi, g * 1.25, len);
   };
 
