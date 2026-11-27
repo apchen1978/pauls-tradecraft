@@ -28,8 +28,9 @@ export const SPIRIT = {
     close: {
       kicker: "最後",
       title: "把門開得更大",
-      featureKicker: "人與 AI 一起創作",
-      featureTitle: "畫畫與音樂，兩種合作方式",
+      featureKicker: "人與 AI 的合作",
+      featureTitle: "和 AI 合作，有很多種樣子",
+      featureLead: "調研、策劃、整理文件，把一團亂的想法理出頭緒，都能和 AI 一起做，這些都在後面慢慢說。這裡先挑兩個最看得見、也最聽得見的當例子：畫，和音樂。",
       galleryKicker: "畫作 × AI",
       galleryTitle: "人機協作畫廊",
       galleryDescription: "人定方向、挑選與修整，AI 協助把想法畫成作品。",
@@ -103,8 +104,9 @@ export const SPIRIT = {
     close: {
       kicker: "AND FINALLY",
       title: "Opening the door wider",
-      featureKicker: "People and AI, creating together",
-      featureTitle: "Art and music, two ways of working together",
+      featureKicker: "People and AI, working together",
+      featureTitle: "Working with AI takes many forms",
+      featureLead: "Research, planning, tidying a pile of documents, untangling a knot of ideas: all of it can be done together, and the rest comes later. For now, two examples you can see and hear: the pictures, and the music.",
       galleryKicker: "Artwork × AI",
       galleryTitle: "The Human–AI Gallery",
       galleryDescription: "Paul shapes the direction; AI helps turn ideas into images.",
