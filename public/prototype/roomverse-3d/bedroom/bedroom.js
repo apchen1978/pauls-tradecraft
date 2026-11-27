@@ -7,6 +7,7 @@ import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 import { loadModel, loadGlb } from "./models.js?v=5";
 import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
 import { createRoomRecord } from "./sound.js?v=auto"; // the record by the window plays one piece (Brooklyn Windowsill)
+import { createGameMusic } from "./game-score.js?v=auto"; // Paul 2026-11-28: in the late-night game mood the record plays the 夜戰 EDM loop
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -538,7 +539,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const story = storyAt();
     if (story === "vinyl-corner") { // the record corner: a tap starts side A, the next tap flips to side B, the third stops it
       const now = recordMusic.next(); if (now >= 0) vinylFound = true; deckSync();
-      showPropStory(now === 2 ? "vinyl-music-night" : now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
+      showPropStory(now === 3 ? "vinyl-music-game" : now === 2 ? "vinyl-music-night" : now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
       return;
     }
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
@@ -552,6 +553,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
     "vinyl-music": { zh: "♪ A 面：布魯克林窗台。🎹 鋼琴和老派節拍。再點一下翻到 B 面。", en: "♪ Side A: Brooklyn Windowsill. 🎹 Piano over a dusty beat. Tap again to flip to side B." },
     "vinyl-music-night": { zh: "♪ 追劇夜。🎻 低音鋼琴、顫音弦樂和銅管慢慢堆高，像一部電影的片頭。再點一下就停。", en: "♪ Series Night. 🎻 Low piano, tremolo strings and brass build like a film's opening titles. Tap again to stop." },
+    "vinyl-music-game": { zh: "♪ 夜戰。⚡ 140 BPM 的電子脈衝、低音和薩克斯風，一路推向落下；會一直循環，再點一下就停。", en: "♪ Late-Night Game. ⚡ A 140 BPM electronic pulse, bass and saxophone building to the drop; it loops until you tap again to stop." },
     "vinyl-music-b": { zh: "♪ B 面：防火梯的雨。🎹 慢一點的深夜鋼琴，窗外下著雨。再點一下就停。", en: "♪ Side B: Fire Escape Rain. 🎹 A slower late-night piano, rain at the window. Tap again to stop." },
     "hint-vinyl": { zh: "點一下發光圈裡的唱片機，有音樂喔 🎵", en: "Tap the record player in the glowing ring for some music 🎵" },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
@@ -568,17 +570,19 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped). Paul 2026-11-22: in the series-night mood the tap plays the epic orchestral piece instead
   // (shared with Room 01): stopped -> epic -> stopped (returns 2 while it plays); in every other mood the record walks side A, side B, stopped as before.
   const recordMusic = (() => {
-    const base = createRoomRecord(), epic = createNightMusic(); let epicOn = false;
+    const base = createRoomRecord(), epic = createNightMusic(), game = createGameMusic(); let epicOn = false, gameOn = false;
     return {
       start: (w) => base.start(w),
-      stop() { base.stop(); epic.stop(); epicOn = false; },
-      resume() { base.resume?.(); epic.resume?.(); },
+      stop() { base.stop(); epic.stop(); game.stop(); epicOn = false; gameOn = false; },
+      resume() { base.resume?.(); epic.resume?.(); game.resume?.(); },
       next() {
         if (epicOn) { epic.stop(); epicOn = false; return -1; }
+        if (gameOn) { game.stop(); gameOn = false; return -1; }
+        if (mood === "night" && !base.state().playing) { gameOn = game.start(0); return gameOn ? 3 : -1; } // late-night game: stopped -> the game loop -> stopped
         if (mood === "series" && !base.state().playing) { epicOn = epic.start(0, { playlist: true }); return epicOn ? 2 : -1; }
         return base.next();
       },
-      state() { if (epicOn) { const e = epic.state(); return { ...e, side: 2, title: "追劇夜", titleEn: "Series Night", epic: true }; } return base.state(); },
+      state() { if (gameOn) { const g = game.state(); return { ...g, side: 3, title: "夜戰", titleEn: "Late-Night Game", game: true }; } if (epicOn) { const e = epic.state(); return { ...e, side: 2, title: "追劇夜", titleEn: "Series Night", epic: true }; } return base.state(); },
     };
   })();
   let storyTimer = 0, storyKey = null, vinylFound = false, vinylHintAt = -1e9, vinylRing = null; const vinylReadyAt = performance.now(); // vinylFound: the visitor has started the music, so the hints stop

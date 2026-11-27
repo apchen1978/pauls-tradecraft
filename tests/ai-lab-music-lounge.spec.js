@@ -46,8 +46,8 @@ test("AI Lab links to the bilingual Music Lounge", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("人機協作 Music Lounge");
 });
 
-test("lists ten tracks and defers all music modules and piano samples until playback", async ({ page, browser }) => {
-  expect(musicTracks).toHaveLength(10);
+test("lists eleven tracks and defers all music modules and piano samples until playback", async ({ page, browser }) => {
+  expect(musicTracks).toHaveLength(11);
   for (const track of musicTracks) {
     for (const field of ["title", "mood", "made"]) {
       expect(track[field].zh, `${track.id} ${field} Chinese`).toBeTruthy();
@@ -66,34 +66,34 @@ test("lists ten tracks and defers all music modules and piano samples until play
   page.on("request", (request) => requests.push(new URL(request.url()).pathname));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto("/music-lounge/?lang=zh");
-  await expect(page.locator(".track-card")).toHaveCount(10);
-  await expect(page.locator(".track-cover")).toHaveCount(10);
-  await expect(page.locator(".track-cover img")).toHaveCount(10);
+  await expect(page.locator(".track-card")).toHaveCount(11);
+  await expect(page.locator(".track-cover")).toHaveCount(11);
+  await expect(page.locator(".track-cover img")).toHaveCount(11);
   await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("晨曦");
   await expect(page.locator(".track-card").nth(1).locator("h3")).toHaveText("追劇夜");
   await expect(page.locator(".track-card").nth(2).locator("h3")).toHaveText("十里洋場");
   await expect(page.locator(".track-card").nth(3).locator("h3")).toHaveText("午後上行");
   await expect(page.locator(".track-card").nth(9).locator("h3")).toHaveText("防火梯的雨");
   const coverImages = page.locator(".track-cover img");
-  for (let index = 0; index < 10; index += 1) {
+  for (let index = 0; index < 11; index += 1) {
     const image = coverImages.nth(index);
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((element) => element.complete && element.naturalWidth > 0)).toBe(true);
   }
   await page.evaluate(() => window.scrollTo(0, 0));
-  expect(requests.some((url) => /roomverse-3d\/(night-score|cafe\/sound|bedroom\/sound|kitchen\/sound|piano)\.js/.test(url))).toBe(false);
+  expect(requests.some((url) => /roomverse-3d\/(night-score|cafe\/sound|bedroom\/sound|bedroom\/game-score|kitchen\/sound|piano)\.js/.test(url))).toBe(false);
   expect(requests.some((url) => url.includes("/audio/piano/"))).toBe(false);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await mkdir(evidence, { recursive: true });
   await page.screenshot({ path: path.join(evidence, "desktop-zh.png"), fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator(".track-card")).toHaveCount(10);
+  await expect(page.locator(".track-card")).toHaveCount(11);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.screenshot({ path: path.join(evidence, "mobile-zh.png"), fullPage: true });
 
   await page.goto("/music-lounge/?lang=en");
-  await expect(page.locator(".track-card")).toHaveCount(10);
+  await expect(page.locator(".track-card")).toHaveCount(11);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("The Human–AI Music Lounge");
   await expect(page.locator(".track-card").nth(0).locator("h3")).toHaveText("Morning Light");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -120,7 +120,7 @@ test("lists ten tracks and defers all music modules and piano samples until play
   await second.click();
   await expect(second).toHaveAttribute("aria-pressed", "false");
 
-  const engineFile = { night: "/night-score.js", cafe: "/cafe/sound.js", bedroom: "/bedroom/sound.js", bay: "/kitchen/sound.js" };
+  const engineFile = { night: "/night-score.js", cafe: "/cafe/sound.js", bedroom: "/bedroom/sound.js", bay: "/kitchen/sound.js", game: "/bedroom/game-score.js" };
   for (const track of musicTracks) {
     const button = page.locator(`[data-track="${track.id}"] .play-button`);
     await button.click();
@@ -131,7 +131,7 @@ test("lists ten tracks and defers all music modules and piano samples until play
   for (const source of ["/night-score.js", "/cafe/sound.js", "/bedroom/sound.js", "/kitchen/sound.js"]) {
     await expect.poll(() => requests.some((url) => url.endsWith(source))).toBe(true);
   }
-  const lastPlaying = page.locator('[data-track="fire-escape-rain"] .play-button');
+  const lastPlaying = page.locator('[data-track="late-night-game"] .play-button'); // the last track of the list is the one still playing
   await lastPlaying.click();
   await expect(lastPlaying).toHaveAttribute("aria-pressed", "false");
 
@@ -140,7 +140,7 @@ test("lists ten tracks and defers all music modules and piano samples until play
   const mobileRequests = [];
   mobile.on("request", (request) => mobileRequests.push(new URL(request.url()).pathname));
   await mobile.goto("/music-lounge/?lang=en");
-  await expect(mobile.locator(".track-card")).toHaveCount(10);
+  await expect(mobile.locator(".track-card")).toHaveCount(11);
   await expect.poll(() => mobileRequests.some((url) => url.includes("/audio/piano/"))).toBe(false);
   await mobile.locator('[data-track="fire-escape-rain"] .play-button').tap();
   await expect(mobile.locator('[data-track="fire-escape-rain"] .play-button')).toHaveAttribute("aria-pressed", "true");

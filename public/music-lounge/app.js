@@ -1,4 +1,4 @@
-import { COPY, TRACKS } from "./tracks.js?v=orch";
+import { COPY, TRACKS } from "./tracks.js?v=game";
 
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COPY[lang];
@@ -38,7 +38,7 @@ const ROOM_HREF = {
 const GROUPS = [
   { id: "morning", ids: ["window-afternoon"] },
   { id: "afternoon", ids: ["series-night", "bund-swing", "afternoon-ascending", "bay-area-afternoon", "afternoon-alley", "brooklyn-windowsill"] },
-  { id: "night", ids: ["adagio", "bund-at-night", "fire-escape-rain"] },
+  { id: "night", ids: ["adagio", "bund-at-night", "fire-escape-rain", "late-night-game"] },
 ];
 
 // Brooklyn Windowsill lets the visitor pick the melody voice on its card (Paul 2026-11-27); ?lead= in the address still works.
@@ -189,6 +189,11 @@ async function makePlayer(track) {
     const { createRoomRecord } = await import("/prototype/roomverse-3d/bedroom/sound.js?v=auto");
     const player = createRoomRecord();
     if (track.id === "brooklyn-windowsill") player.setLead?.(brooklynLead); // the voice chosen on the card
+    return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
+  }
+  if (track.engine === "game") {
+    const { createGameMusic } = await import("/prototype/roomverse-3d/bedroom/game-score.js?v=auto");
+    const player = createGameMusic();
     return { player, start: () => player.start(track.index), stop: () => player.stop(), state: () => player.state() };
   }
   const { createBayRecord } = await import("/prototype/roomverse-3d/kitchen/sound.js?v=auto");
