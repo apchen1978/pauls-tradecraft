@@ -8,6 +8,8 @@
 // soft round bass, a rolled Fmaj9 - Em7 - Dm9 - G13 comp and a sparse major-pentatonic melody on the same real piano, with a little rain on the window instead of record dust.
 // Nothing is borrowed here either. next() walks the record: stopped -> side A -> flip to side B -> stopped.
 import { createPiano } from "../piano.js?v=auto";
+import { createStrings } from "../strings.js?v=auto"; // Paul 2026-11-28: real strings (CC0 violin section) under the orchestral lead
+const realStrings = createStrings(), STRINGS_K = 1.0; // STRINGS_K levels the sampled strings against the synthesised ones they replace
 const realPiano = createPiano(), PIANO_K = 3.0; // PIANO_K scales the synth-era levels to the louder piano samples
 const hz = (midi) => 440 * Math.pow(2, (midi - 69) / 12);
 const BPM = 84, STEP = 60 / BPM / 4, SWING = 0.2, BAR_STEPS = 16, FORM_BARS = 32; // sixteen steps a bar; the form is the old sixteen bars, then that shape again, then a two-bar cadence
@@ -223,7 +225,11 @@ export function createRoomRecord() {
     for (const [ratio, level, type] of recipe.partials) { const osc = ctx.createOscillator(), og = ctx.createGain(); osc.type = type; bend(osc, time, midi, scoop, ratio); vib(osc, time, length, recipe.vibrato, 5.2, 0.3); og.gain.value = level; osc.connect(og); og.connect(out); osc.start(time); osc.stop(end + 0.4); }
     out.connect(low); leadOut(low, pan);
   };
-  const strings = bowed({ partials: [[1, 0.6, "sawtooth"], [1.005, 0.4, "sawtooth"]], lowpass: 1300, attack: 0.25, vibrato: 9 }); // the string lead of Series Night
+  const stringsSynth = bowed({ partials: [[1, 0.6, "sawtooth"], [1.005, 0.4, "sawtooth"]], lowpass: 1300, attack: 0.25, vibrato: 9 }); // the string lead of Series Night
+  const strings = (time, midi, g, length, pan, scoop) => { // the real strings when they have loaded, the synthesised ones until then or if they could not
+    if (realStrings.ready()) { const dest = ctx.createGain(); dest.gain.value = 1; if (realStrings.play(ctx, dest, time, midi, g * STRINGS_K, Math.max(0.4, length))) { leadOut(dest, pan); return; } }
+    stringsSynth(time, midi, g, length, pan, scoop);
+  };
   const horn = bowed({ partials: [[1, 0.55, "sawtooth"], [1.004, 0.4, "sawtooth"], [0.5, 0.18, "square"]], lowpass: 1700, attack: 0.1, vibrato: 5 }); // its horn
   const leadVoices = { rhodes, organ, sax, guitar };
   const lead = (time, midi, gain, length, pan, scoop) => {
@@ -339,7 +345,7 @@ export function createRoomRecord() {
         for (let i = 0; i < data.length; i++) data[i] = (rnd() < (side ? 0.0002 : 0.0005) ? (rnd() * 2 - 1) * 0.9 : 0) + (rnd() * 2 - 1) * (side ? 0.02 : 0.004); // side A: a faint record crackle and a very little hiss; side B: fewer pops and a soft steady hush, like rain on the window
         crackle.buffer = buffer; crackle.loop = true; const high = ctx.createBiquadFilter(), crackleGain = ctx.createGain(); high.type = "highpass"; high.frequency.value = 1400; crackleGain.gain.value = 0.12; crackle.connect(high); high.connect(crackleGain); crackleGain.connect(master); crackle.start();
         playing = true; barIndex = 0; noteCount = 0; const run = ++runId;
-        realPiano.load(ctx).then(() => { if (!playing || run !== runId) return; nextTime = ctx.currentTime + 0.25; scheduleBar(); }); // the piano samples load on the first tap (about 1 MB, once); the first bar waits for them
+        Promise.all([realPiano.load(ctx), LEAD === "orchestra" ? realStrings.load(ctx) : true]).then(() => { if (!playing || run !== runId) return; nextTime = ctx.currentTime + 0.25; scheduleBar(); }); // the piano samples load on the first tap (about 1 MB, once); the first bar waits for them
         return true;
       } catch { playing = false; return false; }
     },
@@ -357,6 +363,6 @@ export function createRoomRecord() {
       if (side === 0) { this.stop(); return this.start(1) ? 1 : -1; }
       this.stop(); return -1;
     },
-    state: () => ({ playing, side, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, title: TITLES[side].zh, titleEn: TITLES[side].en, piano: realPiano.ready() }),
+    state: () => ({ playing, side, context: ctx ? ctx.state : "none", bars: barIndex, notes: noteCount, title: TITLES[side].zh, titleEn: TITLES[side].en, piano: realPiano.ready(), strings: realStrings.ready() }),
   };
 }

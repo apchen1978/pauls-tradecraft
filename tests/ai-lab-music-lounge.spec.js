@@ -83,6 +83,7 @@ test("lists eleven tracks and defers all music modules and piano samples until p
   await page.evaluate(() => window.scrollTo(0, 0));
   expect(requests.some((url) => /roomverse-3d\/(night-score|cafe\/sound|bedroom\/sound|bedroom\/game-score|kitchen\/sound|piano)\.js/.test(url))).toBe(false);
   expect(requests.some((url) => url.includes("/audio/piano/"))).toBe(false);
+  expect(requests.some((url) => url.includes("/audio/strings/") || url.endsWith("/strings.js")), "no strings samples or module before a tap").toBe(false);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await mkdir(evidence, { recursive: true });
   await page.screenshot({ path: path.join(evidence, "desktop-zh.png"), fullPage: true });
@@ -110,6 +111,7 @@ test("lists eleven tracks and defers all music modules and piano samples until p
   await expect(first).toHaveAttribute("aria-pressed", "true");
   await expect.poll(() => requests.some((url) => url.endsWith("/bedroom/sound.js"))).toBe(true);
   await expect.poll(() => requests.some((url) => url.includes("/audio/piano/") && url.endsWith(".mp3"))).toBe(true);
+  await expect.poll(() => requests.some((url) => url.includes("/audio/strings/") && url.endsWith(".mp3")), { message: "the orchestral lead loads its real string samples on the first tap" }).toBe(true);
 
   const second = page.locator('[data-track="bay-area-afternoon"] .play-button');
   await second.click();
