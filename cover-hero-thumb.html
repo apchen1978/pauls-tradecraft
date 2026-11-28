@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: "Geist Variable";
+    src: url("public/fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    font-weight: 100 900;
+  }
+  :root {
+    --bone: #F6F3ED; --ink: #193A35; --pine: #142C29; --moss: #62716A;
+    --amber: #8A6A2B; --amber-deep: #765A24; --gold: #B89966; --line: #D4DAD1;
+    --serif: Georgia, "Songti TC", "PMingLiU", "Noto Serif CJK TC", "Noto Serif TC", serif;
+    --sans: "Geist Variable", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 640px; height: 400px; overflow: hidden; font-family: var(--sans); background: var(--bone); color: var(--ink); }
+  body.dark { background: var(--pine); color: var(--bone); }
+  .c { width: 640px; height: 400px; padding: 30px 36px 26px; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 14px; font-family: var(--serif); font-size: 15px; }
+  .brand i { flex: 1; height: 1px; background: var(--amber); }
+  .dark .brand i { background: var(--gold); }
+  .main { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+  .h { font-family: var(--serif); font-size: 40px; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance; }
+  html[lang="zh-Hant"] .h { font-size: 36px; line-height: 1.32; letter-spacing: 0; }
+  .num { display: flex; align-items: baseline; gap: 14px; font-family: var(--serif); font-variant-numeric: tabular-nums; }
+  .num b { font-size: 76px; font-weight: 600; line-height: 1; letter-spacing: -0.03em; }
+  .num b.g { color: var(--amber-deep); }
+  .num s { text-decoration: none; font-size: 30px; color: var(--gold); }
+  .fig { display: grid; gap: 10px; }
+  .fig div { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid rgba(184,153,102,.45); padding-bottom: 8px; font-size: 14px; color: #cfd6cf; }
+  .fig div span { font-family: var(--serif); font-size: 26px; color: var(--bone); }
+  .fig div span em { font: 500 13px var(--sans); color: var(--gold); margin-left: 4px; font-style: normal; }
+  .bars { display: grid; gap: 7px; }
+  .bars i { display: block; height: 14px; border-radius: 2px; background: var(--ink); }
+  .bars i:nth-child(1) { width: 100%; }
+  .bars i:nth-child(2) { width: 42%; background: var(--amber); }
+  .bars i:nth-child(3) { width: 22%; background: var(--gold); margin-left: 42%; }
+  .bars i:nth-child(4) { width: 18%; background: var(--line); margin-left: 64%; }
+  .bars i:nth-child(5) { width: 26%; margin-left: 74%; }
+  .foot { font-size: 12.5px; color: var(--amber); }
+  .dark .foot { color: var(--gold); }
+</style>
+</head>
+<body>
+  <div class="c">
+    <div class="brand"><span>Paul’s Tradecraft</span><i></i></div>
+    <div class="main" id="main"></div>
+    <div class="foot" id="foot"></div>
+  </div>
+  <script>
+    // ?w=lead|cdd|tpn&lang=zh|en. Words and figures are the ones already on the site; nothing new is claimed.
+    const q = new URLSearchParams(location.search);
+    const w = ["lead", "cdd", "tpn"].includes(q.get("w")) ? q.get("w") : "lead";
+    const lang = q.get("lang") === "zh" ? "zh" : "en";
+    document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+    const T = {
+      lead: {
+        zh: { h: "還沒談條件之前，<br>該先接觸誰？", foot: "代表性與示範紀錄 · 公開網頁研究 · 未進行主動接觸", a: "44", b: "20" },
+        en: { h: "Who should we<br>reach first?", foot: "Representative and demo records · public-web research · no outreach performed", a: "44", b: "20" },
+      },
+      cdd: {
+        zh: { h: "這筆訂單，現在能不能承諾？", foot: "示範／成效未驗證", r: "訂單收入", c: "資金成本前預期淨貢獻" },
+        en: { h: "Can this order move forward?", foot: "Demo · Outcomes unverified", r: "Order revenue", c: "Expected contribution before funding" },
+      },
+      tpn: {
+        zh: { h: "毛利，還撐得住嗎？", foot: "概念示意 · 非案例比例" },
+        en: { h: "Does the margin still hold?", foot: "Concept · Not case proportions" },
+      },
+    };
+    const t = T[w][lang];
+    if (w === "cdd") document.body.classList.add("dark");
+    let html = `<div class="h">${t.h}</div>`;
+    if (w === "lead") html += `<div class="num"><b>${t.a}</b><s>→</s><b class="g">${t.b}</b></div>`;
+    if (w === "cdd") html += `<div class="fig"><div>${t.r}<span>144,000<em>USD</em></span></div><div>${t.c}<span>36,000<em>USD</em></span></div></div>`;
+    if (w === "tpn") html += `<div class="bars"><i></i><i></i><i></i><i></i><i></i></div>`;
+    document.getElementById("main").innerHTML = html;
+    document.getElementById("foot").textContent = t.foot;
+  </script>
+</body>
+</html>

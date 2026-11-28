@@ -17,6 +17,11 @@ async function openRoom(page, { width, mood = "rain", lang = "zh" }) {
   return errors;
 }
 
+// The models Room 01 loads on entry. It was nine (sofa to laptop); the Room 01 mug and the campus backpack are the two added since, so the count was stale, not a missing request.
+// Listed by name so the next model added to the room is a deliberate edit here instead of a surprise count.
+const ENTRY_MODELS = ["coffee-table", "floor-lamp", "laptop", "low-chair", "plant", "robot", "side-table", "sofa", "table-lamp", "mug-v1", "campus-backpack-v2", "room01-clogs-beige-v2", "room01-popcorn-bowl-v2"].map((n) => `${n}.glb`).sort();
+const loadedModels = (glb) => glb.filter((file) => file.endsWith(".glb")).map((file) => file.split("/").pop()).sort();
+
 test("hall stand is clean geometry in the front-left corner", async ({ page }) => {
   test.setTimeout(120000);
   await mkdir(QA, { recursive: true });
@@ -24,9 +29,9 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
   const glb = [];
   page.on("request", (request) => { if (request.url().includes(".glb")) glb.push(new URL(request.url()).pathname); });
   const errors = await openRoom(page, { width: 1440 });
-  expect(glb.filter((file) => file.endsWith(".glb"))).toHaveLength(9);
+  expect(loadedModels(glb)).toEqual(ENTRY_MODELS);
   expect(glb.some((file) => file.includes("coat-rack"))).toBe(false);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
   const rack = await page.evaluate(() => window.__room.hallStand());
   expect(rack.ready).toBe(true);
   expect(rack.names).toEqual(expect.arrayContaining(["hall-stand-base", "hall-stand-pole", "hall-stand-hook", "hall-stand-scarf"]));
@@ -90,7 +95,7 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
   expect(rack.vertices).toBeLessThan(4000);
   expect(rack.castShadow).toBe(true);
   expect(rack.contact).toBe(true);
-  expect(rack.lightCount).toBe(6);
+  expect(rack.lightCount).toBe(7);
   expect(await page.evaluate(() => window.__room.plaqueView())).toMatchObject({ firstHit: "house-plaque" });
   const before = await page.evaluate(() => window.__room.angle());
   await page.evaluate(() => window.__room.setOrbitAngle(200));
@@ -104,14 +109,14 @@ test("hall stand is clean geometry in the front-left corner", async ({ page }) =
       return { ready: info.ready, min: info.bounds.min, lights: info.lightCount, plaque: window.__room.plaqueView().firstHit, edge: info.clothEdge };
     }, mood);
     expect(settled.ready, mood).toBe(true);
-    expect(settled.lights, mood).toBe(6);
+    expect(settled.lights, mood).toBe(7);
     expect(settled.plaque, mood).toBe("house-plaque");
     // 同一個圍巾回折上限（見上）；其他物件的分項護欄仍是 0.18。
     expect(settled.edge, mood).toBeLessThan(0.26);
     expect(settled.min[0], mood).toBeCloseTo(placed[0], 2);
     expect(settled.min[2], mood).toBeCloseTo(placed[2], 2);
   }
-  expect(glb.filter((file) => file.endsWith(".glb"))).toHaveLength(9);
+  expect(loadedModels(glb)).toEqual(ENTRY_MODELS);
   expect(errors).toEqual([]);
 });
 

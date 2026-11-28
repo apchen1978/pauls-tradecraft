@@ -13,8 +13,8 @@
   <meta property="og:image" content="https://paulstradecraft.com/gallery/assets/imagined-harbor.webp">
   <link rel="canonical" href="https://paulstradecraft.com/gallery/">
   <link rel="icon" href="/favicon.png">
-  <link rel="stylesheet" href="styles.css?v=2">
-  <script type="module" src="app.js?v=9"></script>
+  <link rel="stylesheet" href="styles.css?v=xlink">
+  <script type="module" src="app.js?v=xlink"></script>
 </head>
 <body>
   <a class="skip" href="#main" id="skip">跳至畫作</a>
@@ -72,10 +72,34 @@
       </div>
       <div class="art-grid collection" id="collection"></div>
     </section>
+    <section class="exhibition" aria-labelledby="move-title">
+      <div class="section-heading">
+        <h2 id="move-title">房間牆上的運動</h2>
+        <p id="move-note"></p>
+      </div>
+      <div class="art-grid" id="move"></div>
+    </section>
+    <section class="exhibition" aria-labelledby="sh-title">
+      <div class="section-heading">
+        <h2 id="sh-title">上海的一角</h2>
+        <p id="sh-note"></p>
+      </div>
+      <div class="art-grid" id="shanghai"></div>
+    </section>
+    <section class="exhibition" aria-labelledby="tv-title">
+      <div class="section-heading">
+        <h2 id="tv-title">電視螢幕裡的畫面</h2>
+        <p id="tv-note"></p>
+      </div>
+      <div class="art-grid" id="tv"></div>
+    </section>
     <noscript><p>請啟用 JavaScript 瀏覽畫作與大圖。Enable JavaScript to browse the paintings.</p></noscript>
   </main>
   <footer class="foot">
-    <a id="back" href="/ai-lab/?lang=zh#gallery-front">回到 AI Lab</a>
+    <div class="foot-links">
+      <a id="back" href="/ai-lab/?lang=zh#gallery-front">回到 AI Lab</a>
+      <a id="lounge" class="cross-link" href="/music-lounge/?lang=zh">去聽 Music Lounge</a>
+    </div>
     <p>Paul × AI · Paul’s Tradecraft</p>
   </footer>
   <dialog id="viewer" aria-labelledby="viewer-title" aria-describedby="viewer-caption">
@@ -85,6 +109,7 @@
       <div class="viewer-copy" aria-live="polite" aria-atomic="true">
         <h2 id="viewer-title"></h2>
         <p id="viewer-caption"></p>
+        <a id="viewer-room-link" class="viewer-room-link" hidden></a>
         <div class="making"><h3 id="made-label">怎麼做出來的</h3><p id="viewer-made"></p></div>
       </div>
     </div>

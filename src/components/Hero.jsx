@@ -4,6 +4,7 @@ import { ArrowUpRight } from "@phosphor-icons/react";
 import { useLang } from "../i18n.jsx";
 import { works } from "../data/works.js";
 import { withDemoLang } from "../demoLinks.js";
+import { openGarageThenScroll } from "../sectionLinks.js";
 
 // Phones: keep each comma-separated clause on one line, so a line breaks after the comma instead of
 // splitting a phrase ("值得／遇到對的買家") or stranding two words ("with you."). md and up are unchanged.
@@ -27,7 +28,9 @@ const fadeUp = {
 // keeps one claim and shows the three most important commercial works; the interactive
 // works follow right below it (see BelowFold). Paul 2026-10-30: the two buttons duplicated the work cards and the
 // nav's contact link on phones, so like the credentials line they show from md up only.
-const HERO_WORKS = ["commercial-decision-desk", "overseas-lead-discovery", "trade-profit-navigator"];
+const HERO_WORKS = ["overseas-lead-discovery", "commercial-decision-desk", "trade-profit-navigator"];
+// Small cover for each of the three works (hero-thumb-<key>-<lang>.webp, 640 px, and a 320 px copy for phones).
+const HERO_THUMB = { "overseas-lead-discovery": "lead", "commercial-decision-desk": "cdd", "trade-profit-navigator": "tpn" };
 
 export default function Hero() {
   const { lang, t } = useLang();
@@ -67,13 +70,22 @@ export default function Hero() {
             <span aria-hidden className="hero-gem size-2 rounded-full bg-[#9EE0C1]" />
             {h.kicker}
           </motion.p>
-          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-[#2B2723] md:mt-5 ${headlineClass}`}>
+          <motion.h1 variants={fadeUp} className={`mt-2 max-w-2xl font-semibold tracking-[-0.04em] text-amber-deep md:mt-5 ${headlineClass}`}>
             <Clauses text={h.headline} always />
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-3 max-w-[44ch] text-base leading-[1.6] text-ink md:mt-5 md:text-lg">
             <Clauses text={h.sub} />
           </motion.p>
           <motion.p variants={fadeUp} className="mt-2 text-[0.8125rem] leading-snug text-moss md:hidden">{h.credentialsLine}</motion.p>
+          {/* Phones (Paul 2026-11-20): the Immersive Collection is the first thing to tap. A full-width button, dark with a gold edge and gold text, sits right under the headline block. */}
+          <motion.a
+            variants={fadeUp}
+            href="#showcase"
+            className="mt-5 flex w-full items-center justify-between rounded-field border border-gold bg-ink px-5 py-3.5 text-base font-semibold text-gold shadow-[0_8px_22px_-12px_rgba(20,44,41,0.7)] transition-[transform,filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink active:scale-[0.98] md:hidden"
+          >
+            <span>{h.ctaPrimary}</span>
+            <ArrowUpRight size={20} weight="bold" aria-hidden="true" />
+          </motion.a>
           <motion.ul variants={fadeUp} className="mt-4 hidden flex-wrap gap-x-5 gap-y-1 text-sm leading-[1.55] text-moss md:flex">
             {h.credentials.map((c) => (
               <li key={c.value} className="whitespace-nowrap">
@@ -104,28 +116,46 @@ export default function Hero() {
           data-testid="hero-works"
         >
           <p id="hero-works-label" className="text-xs font-semibold tracking-[0.12em] text-moss">{h.worksLabel}</p>
-          <ol aria-labelledby="hero-works-label" className="mt-1 grid gap-1.5 md:mt-3 md:gap-3 lg:grid-cols-3 lg:gap-4">
+          <ol aria-labelledby="hero-works-label" className="mt-1 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mt-3 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pb-0">
             {picks.map((work) => {
               const copy = work[lang] || work.zh;
               const href = work.casePage?.href || withDemoLang(work.link, lang);
               const external = !work.casePage?.href;
               return (
-                <li key={work.id}>
+                <li key={work.id} className="w-[74%] max-w-[22rem] shrink-0 snap-start md:w-auto md:max-w-none md:shrink">
                   <a
                     href={href}
                     {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="group flex h-full items-start gap-2 rounded-card border border-line bg-white/85 px-2 py-1.5 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink md:gap-4 md:px-5 md:py-4"
+                    className="group relative flex h-full flex-col items-stretch overflow-hidden rounded-card border border-line bg-white/85 shadow-[0_1px_2px_rgb(25_58_53/0.04),0_16px_40px_-28px_rgb(25_58_53/0.25)] transition-[border-color,transform] hover:-translate-y-0.5 hover:border-ink/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ink"
                   >
-                    <span className="min-w-0 flex-1">
+                    {HERO_THUMB[work.id] && (
+                      <img
+                        src={`/images/hero-thumb-${HERO_THUMB[work.id]}-${lang}-320.webp`}
+                        srcSet={`/images/hero-thumb-${HERO_THUMB[work.id]}-${lang}-320.webp 320w, /images/hero-thumb-${HERO_THUMB[work.id]}-${lang}.webp 640w`}
+                        sizes="(min-width: 768px) 33vw, 74vw"
+                        width="640"
+                        height="400"
+                        alt=""
+                        decoding="async"
+                        className="aspect-[2/1] w-full border-b border-line object-cover object-top"
+                      />
+                    )}
+                    <span className="min-w-0 flex-1 px-3 py-2.5 md:px-5 md:py-4">
                       <span className="block text-base font-semibold leading-snug text-amber md:text-lg">{copy.title}</span>
                       <span className="mt-0.5 block text-sm leading-snug text-moss md:mt-1 md:leading-relaxed"><Clauses text={work.decisionQuestion?.[lang]} /></span>
                     </span>
-                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="mt-1 shrink-0 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    <ArrowUpRight size={18} weight="bold" aria-hidden="true" className="absolute right-2.5 top-2.5 rounded-full bg-white/90 p-1 text-ink transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 md:right-3 md:top-3" />
                   </a>
                 </li>
               );
             })}
           </ol>
+          {/* Sits after the cards in the source (so the cards stay the first links of this block) and is placed
+              on the label row, top right, so it costs no height. */}
+          <p className="absolute -top-[3px] right-0 flex items-center gap-1.5 whitespace-nowrap max-[359px]:hidden">
+            <a href="#ai-lab" className="-my-3 inline-block py-3 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-amber rounded-full"><span className="block rounded-full border px-2.5 py-0.5 text-xs font-semibold leading-snug text-pine transition-[filter] group-hover:brightness-95 border-[#8ebeb8] bg-[#8ebeb8]/30">{h.moreAiLab}</span></a>
+            <a href="#garage" onClick={() => openGarageThenScroll()} className="-my-3 inline-block py-3 group focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-amber rounded-full"><span className="block rounded-full border px-2.5 py-0.5 text-xs font-semibold leading-snug text-pine transition-[filter] group-hover:brightness-95 border-[#e59a7a] bg-[#e59a7a]/25">{h.moreGarage}</span></a>
+          </p>
           <p className="mt-3 text-xs leading-relaxed text-moss">{h.worksNote}</p>
         </motion.div>
       </div>

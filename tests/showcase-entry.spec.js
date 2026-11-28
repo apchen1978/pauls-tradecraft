@@ -15,7 +15,7 @@ for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
       await page.goto(`/?lang=${lang}#showcase`);
       const section = page.locator("#showcase");
-      await expect(section.getByRole("heading", { level: 2 })).toHaveText(lang === "zh" ? "互動作品" : "Interactive Works");
+      await expect(section.getByRole("heading", { level: 2 })).toHaveText(lang === "zh" ? "沉浸典藏" : "Immersive Collection");
       await expect(section.locator("article")).toHaveCount(destinations.length);
       for (const [index, destination] of destinations.entries()) {
         const card = section.locator("article").nth(index);

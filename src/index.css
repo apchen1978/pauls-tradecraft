@@ -33,6 +33,7 @@
   --color-pine: #142C29; /* the only dark surface */
   --color-moss: #62716A; /* muted text on bone (4.64:1); do not use on paper/soft */
   --color-amber: #8A6A2B; /* goldOnPaper: accent text on bone/white (4.54:1 / 5.03:1) */
+  --color-amber-deep: #765A24; /* Paul 2026-11-20: the hero headline only, a gold a step heavier than the kicker's amber (about 6.7:1 on bone). A deliberate, recorded exception to the two-gold rule above: it is the same gold, deepened, and it is not used for anything else. */
   --color-gold: #B89966; /* goldOnDark: dark surfaces only (5.48:1 on pine; 4.59:1 on forest/ink, fine for large text, use ondark for small) */
   /* "pop": the one playful accent, coral (decided 2026-10-03). Fills and highlighter
      bands ONLY, with ink/pine text or borders on top (ink on pop 5.04:1, pine on pop 6.02:1).
@@ -117,6 +118,32 @@
     outline: 2px solid var(--color-amber);
     outline-offset: 2px;
   }
+}
+
+.ai-lab-highlight {
+  background-color: #141820;
+  background-image:
+    radial-gradient(ellipse at 82% 8%, rgba(255, 196, 92, .32), transparent 46%),
+    radial-gradient(ellipse at 8% 88%, rgba(255, 112, 72, .18), transparent 42%),
+    radial-gradient(ellipse at 55% 40%, rgba(110, 140, 255, .2), transparent 48%),
+    linear-gradient(128deg, #2c2416, #1c2a4a 52%, #171c2e);
+}
+
+.ai-lab-panel {
+  background: linear-gradient(145deg, rgba(48, 34, 18, .94), rgba(18, 26, 52, .92));
+  border-color: rgba(240, 195, 106, .38);
+  box-shadow: 0 28px 70px -32px rgba(0, 0, 0, .62), 0 0 0 1px rgba(255, 214, 150, .12);
+}
+
+#ai-lab ol li {
+  min-height: 4.75rem;
+  border-color: rgba(240, 195, 106, .28);
+  background: rgba(255, 244, 220, .06);
+}
+
+.ai-lab-art-wash {
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(13, 28, 34, .04), transparent 45%, rgba(10, 27, 30, .18));
 }
 
 /* Traditional Chinese typography. Unlayered on purpose: it must win over the

@@ -29,7 +29,7 @@ test("the entry hall has a low bench and a rug facing the TV, clear of the conso
   expect(nook.vertices).toBeLessThanOrEqual(1800);
 });
 
-test("the coffee maker shows a temperature readout and has no ring handle; the hob is a gas hob with knobs", async ({ page }) => {
+test("the coffee maker shows a temperature readout and has no ring handle; the hob is a flat induction plate with a touch strip", async ({ page }) => {
   await loadRoom(page);
   const found = await page.evaluate(() => {
     const info = window.__room03.info();
@@ -40,5 +40,6 @@ test("the coffee maker shows a temperature readout and has no ring handle; the h
   expect(source, "a seven-segment display is built for the coffee maker").toContain("prop-coffee-maker-temperature-display");
   expect(source, "the black ring handle is gone").not.toContain("TorusGeometry(0.045, 0.008, 5, 20), m.black, [0.075, 0.115, 0.065]");
   expect(source, "the old bare steel burner rings are gone").not.toContain('ring.name = "hob-burner"');
-  expect(source, "four knobs on the hob front").toContain("for (const x of [0.58, 0.74, 0.90, 1.06])");
+  expect(source, "the hob is a flat induction plate now: no front knobs (Paul 2026-11-22)").not.toContain("for (const x of [0.58, 0.74, 0.90, 1.06])");
+  expect(source, "a slim touch strip is the only control").toContain("the slider line");
 });

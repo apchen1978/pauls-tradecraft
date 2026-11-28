@@ -1,0 +1,10 @@
+Strings samples used by Room 02's orchestral lead
+==================================================
+
+Source: VS Chamber Orchestra: Community Edition (VSCO 2 CE), Violin Section, "sustained vibrato" (VlnEns_susVib, velocity layer 1).
+Recorded by Sam Gossner and Simon Dalzell; sample cutting by Elan Hickler (Soundemote).
+Project: https://github.com/sgossner/VSCO-2-CE (LICENSE file: CC0 1.0 Universal, a public-domain dedication).
+Library home: https://versilian-studios.com/vsco-community/
+
+What was done here: eleven notes (G3 to D6) were cut to 3.4 seconds from the steady part of the bow, mixed to mono, levelled and encoded as MP3.
+CC0 asks for no credit; it is given anyway, with thanks to the people who recorded and released them.

@@ -42,7 +42,7 @@ for (const lang of ["zh", "en"]) {
       await expect(toc).toBeVisible();
 
       const steps = page.locator("#fast-route-steps a");
-      await expect(steps).toHaveCount(8);
+      await expect(steps).toHaveCount(7);
       const expected = [
         ["#c2", "02", x.c2.title],
         ["#c3", "03", x.c3.title],
@@ -51,7 +51,6 @@ for (const lang of ["zh", "en"]) {
         [`/ai-lab/guide/?lang=${lang}`, "", x.fastRoute.guide],
         ["#adopt", "", ADOPTION[lang].title],
         ["#c13", "13", PART_TWO[lang].title],
-        ["#contact-cta", "", x.ctaTitle],
       ];
       for (const [index, [href, mark, label]] of expected.entries()) {
         await expect(steps.nth(index)).toHaveAttribute("href", href);
@@ -68,18 +67,14 @@ for (const lang of ["zh", "en"]) {
         const pad = Number.parseFloat(getComputedStyle(link).paddingRight);
         return arrowBox.right <= linkBox.right - pad + 0.5 && arrowBox.left >= linkBox.left && arrowBox.left > linkBox.left + 24;
       }));
-      expect(arrowsInside).toEqual([true, true, true, true, true, true, true, true]);
+      expect(arrowsInside).toEqual([true, true, true, true, true, true, true]);
 
-      await expect(page.locator("#cta-title")).toHaveText(x.ctaTitle);
-      const choices = page.locator("#cta-choices a");
-      await expect(choices).toHaveCount(2);
-      for (const [index, choice] of x.ctaChoices.entries()) {
-        await expect(choices.nth(index)).toHaveAttribute("href", `/?lang=${lang}#contact`);
-        await expect(choices.nth(index).locator("strong")).toHaveText(choice.title);
-        await expect(choices.nth(index).locator("span")).toHaveText(choice.body);
-      }
-      const choiceHeights = await choices.evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
-      for (const height of choiceHeights) expect(height).toBeGreaterThanOrEqual(44);
+      // The page now ends with plain statements, not buttons that send the reader to a contact form.
+      await expect(page.locator("#closing-title")).toHaveText(x.closingTitle);
+      const points = page.locator("#closing-points li");
+      await expect(points).toHaveCount(x.closingPoints.length);
+      for (const [index, point] of x.closingPoints.entries()) await expect(points.nth(index)).toHaveText(point);
+      await expect(page.locator("#closing a")).toHaveCount(0);
 
       await expect(page.locator("#latest-kicker")).toHaveText(LATEST_TEXT[lang].kicker);
       await expect(page.locator("#spirit-end a[href='#c4']")).toHaveCount(1);
@@ -89,7 +84,7 @@ for (const lang of ["zh", "en"]) {
       expect(overflow).toBeLessThanOrEqual(0);
 
       await fast.screenshot({ path: join(screenshots, `${lang}-${width}-fast-route.png`) });
-      await page.locator("#contact-cta").screenshot({ path: join(screenshots, `${lang}-${width}-cta.png`) });
+      await page.locator("#closing").screenshot({ path: join(screenshots, `${lang}-${width}-cta.png`) });
     });
   }
 }

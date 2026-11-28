@@ -12,7 +12,7 @@ for (const [width, height] of [[1440, 900], [390, 844]]) {
     const enter = page.locator("#enter");
     await expect(poster).toBeVisible();
     await expect(enter).toBeVisible();
-    await expect(enter).toHaveText("走進 3D 房間");
+    await expect(enter).toHaveText("進來客廳坐坐");
     await expect(page.locator("#size")).toHaveCount(0);
     await expect(poster).not.toContainText(/1\.3\s*MB|建議用電腦|computer or tablet/i);
     const zhBox = await enter.boundingBox();
@@ -24,7 +24,7 @@ for (const [width, height] of [[1440, 900], [390, 844]]) {
     }
 
     await page.locator("#lang").click();
-    await expect(enter).toHaveText("Step into the 3D room");
+    await expect(enter).toHaveText("Come sit in the living room");
     await expect(page.locator("#size")).toHaveCount(0);
     await expect(poster).not.toContainText(/1\.3\s*MB|建議用電腦|computer or tablet/i);
     const enBox = await enter.boundingBox();

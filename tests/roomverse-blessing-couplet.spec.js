@@ -17,7 +17,7 @@ test("blessing couplet hangs straight, centred between the glass board and the p
   const errors = [];
   page.on("pageerror", (error) => errors.push(String(error)));
   await enter(page);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
   const strip = await page.evaluate(() => window.__room.blessingCouplet());
   expect(strip.text).toBe("福杯滿溢");
   expect(strip.file).toBe("blessing-couplet-v1.webp");

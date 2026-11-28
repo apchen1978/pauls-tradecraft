@@ -85,7 +85,7 @@ test.describe("Room 02 mobile immersive", () => {
     await page.goBack(); await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
     await immersiveShot(page, "landscape-after");
     await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator("#immersiveEnter")).toBeHidden();
+    await expect(page.locator("#immersiveEnter"), "the full-screen button shows on desktop too (2026-11-17)").toBeVisible();
     expect(errors).toEqual([]);
   });
 
@@ -134,7 +134,7 @@ test("studio shell has the planned size, window, door and three floor zones", as
   expect(info.door.h).toBeCloseTo(2.05, 2);
   expect(info.zones).toEqual(["zone-sleep-rug", "zone-lounge-rug"]); // no rug under the desk chair: nobody lays one there
   expect(info.vertices).toBeLessThanOrEqual(CAPS.vertices); // full-room geometry ceiling; the settled scene now includes the procedural sofa, cushions and loaded room assets
-  expect(info.lights).toBe(9); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight and three more (the track light: plaque, bed, print)
+  expect(info.lights).toBe(10); // daylight (3) plus the bedside lamp and the screen, which glow for real in the moods, the desk downlight, three more (the track light: plaque, bed, print) and the bed-side downlight (Paul 2026-11-19)
   expect(errors).toEqual([]);
 });
 
@@ -393,7 +393,7 @@ test("vinyl corner: console under the sill, records inside their cubbies, record
   expect(vinyl.max[2]).toBeLessThan(work.chair.min[2] + .001); // the chair stays in front of it
   expect(vinyl.max[0]).toBeLessThan(bed.min[0]); // west of the bedside table
   expect(vinyl.speakers.meshes).toBe(2); // walnut body and vertex-coloured driver details are each one merged draw call
-  expect(vinyl.speakers.vertices).toBeLessThan(1200); // simplified baffle edges and radial detail keep full-load room geometry within budget
+  expect(vinyl.speakers.vertices).toBeLessThan(7000); /* 1200 before the detailed restyle of 2026-11-20 (now about 6000 for the pair: bolts, rings, frame, domes) (Paul: vertex counts no longer limit polish) */ // simplified baffle edges and radial detail keep full-load room geometry within budget
   expect(sceneInfo.vertices, "full loaded Room 02 geometry stays under the existing 62,000 vertex ceiling").toBeLessThanOrEqual(CAPS.vertices);
   expect(vinyl.speakers.cabinetRoughness).toBeGreaterThanOrEqual(.7); // matte veneer, not a polished plastic block
   expect(vinyl.speakers.baffleRoughness).toBeGreaterThanOrEqual(.7);
@@ -555,6 +555,13 @@ test("all 29 painted surfaces load (floor, wall, rugs, oak, fabrics, window fram
   page.on("requestfailed", (r) => failed.push(r.url()));
   page.on("response", (r) => { if (r.status() >= 400) failed.push(r.status() + " " + r.url()); });
   await enter(page);
+  // Two of the 29 are fetched only when used (2026-11-17): the striped rug when a visitor picks it, and the night balcony picture when the room first goes to night.
+  await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 27, null, { timeout: 60000 });
+  const atStart = await page.evaluate(() => window.__bedroom.info().painted);
+  expect(Object.keys(atStart).some((file) => file.includes("a1-living-rug")), "the striped rug is not fetched at the start").toBe(false);
+  expect(Object.keys(atStart).some((file) => file.includes("window-foreground-night")), "the night balcony picture is not fetched at the start").toBe(false);
+  await page.evaluate(() => window.__bedroom.setChoice("rug", "stripe"));
+  await page.evaluate(() => window.__bedroom.setMood("night"));
   await page.waitForFunction(() => Object.keys(window.__bedroom.info().painted).length >= 29, null, { timeout: 60000 });
   const painted = await page.evaluate(() => window.__bedroom.info().painted);
   expect(Object.values(painted).every(Boolean)).toBe(true);
@@ -641,7 +648,9 @@ test("phone: the room opens in the middle facing the window and plaque; the look
   await page.waitForFunction((w) => Math.abs(window.__bedroom.looks().yaw - w) < .005, .1, { timeout: 5000 }); // this test is the 390 phone: its desk look is [.1, .1, 1.4]; the desktop one is [.22, .12, 1.35]
   v = await page.evaluate(() => window.__bedroom.inView(["desk-top", "window-glass", "house-plaque"]));
   for (const n of ["desk-top", "window-glass", "house-plaque"]) expect(inFrame(v[n]), "desk look: " + n).toBe(true);
-  expect(await page.evaluate(() => window.__bedroom.info().camera)).toEqual([1.8, 2.05, 2.38]); // the corner looks share one camera spot
+  // the corner looks share one camera spot. The test reads it as soon as the yaw is within .005, which can be a hair before the last frame of the glide, so compare to a millimetre instead of exactly
+  const camera = await page.evaluate(() => window.__bedroom.info().camera);
+  [1.8, 2.05, 2.38].forEach((value, i) => expect(camera[i]).toBeCloseTo(value, 3));
 });
 
 test("window: the painted frame replaces the boxes, the foreground layer sits outside and stays under the city picture's reach", async ({ page }) => {
@@ -732,6 +741,17 @@ test("the linen curtains never cover the house plaque", async ({ page }) => {
     expect(c.min[1]).toBeGreaterThanOrEqual(.01); // gentle hem ripple stays above the floor
     expect(c.max[1]).toBeLessThan(2.4); // top edge stays below the ceiling and rod area
     expect(c.max[0] <= work.desk.min[0] || c.min[0] >= work.desk.max[0], "curtain panel clear of the desk in x").toBe(true);
+  }
+});
+
+test("the linen curtains do not pass through the record console, its speakers or the turntable (Paul 2026-11-17)", async ({ page }) => {
+  await enter(page);
+  await page.locator('#swapGroups button[data-kind="window"][data-choice="linen"]').click();
+  await page.waitForFunction(() => window.__bedroom.info().curtains === true);
+  const { curtainPanels, vinyl } = await page.evaluate(() => window.__bedroom.info());
+  for (const c of curtainPanels) {
+    const overlapsX = c.max[0] > vinyl.min[0] && c.min[0] < vinyl.max[0];
+    if (overlapsX) expect(c.min[1], "a curtain over the record console hangs clear above its highest part").toBeGreaterThanOrEqual(vinyl.max[1] + 0.03);
   }
 });
 
@@ -1021,7 +1041,7 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   }
   const info = await page.evaluate(() => { window.__bedroom.render(); return window.__bedroom.info(); });
   const pocket = info.bedsidePocket;
-  expect(pocket.names).toEqual(["glasses-case", "soft-pouch", "cable-coil", "charge-puck"]);
+  expect(pocket.names).toEqual(["glasses-case", "matchbox", "cable-coil", "charge-puck", "vitamins"]);
   expect(pocket.names.length).toBeGreaterThanOrEqual(3);
   expect(pocket.names.length).toBeLessThanOrEqual(5);
   expect(pocket.meshNames).toEqual(["bedside-pocket-set", "bedside-pocket-puck"]);
@@ -1037,15 +1057,11 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
     expect(row.maxGapMm, row.name).toBeLessThanOrEqual(1);
   }
   const tableParts = pocket.fit.filter((row) => row.support === "bedside-top");
-  expect(tableParts.map((row) => row.name)).toEqual(["soft-pouch", "cable-coil", "cable-lead", "charge-puck"]);
-  expect(pocket.fit.find((row) => row.name === "glasses-case").support).toBe("bedside-book");
-  const bookTouch = pocket.clearance.filter((row) => row.piece === "glasses-case" && row.obstacle === "bedside-book").map((row) => row.gapMm);
-  expect(bookTouch.length).toBeGreaterThan(0);
-  expect(Math.min(...bookTouch), "glasses case rests on the upper book").toBeGreaterThanOrEqual(-3);
-  expect(Math.min(...bookTouch), "glasses case rests on the upper book").toBeLessThanOrEqual(1);
+  // Paul 2026-11-18: the book stack is gone (it ran into the lamp base); everything stands on the walnut top, and the case, matchbox and vitamin bottles keep 15 mm.
+  expect(tableParts.map((row) => row.name)).toEqual(["glasses-case", "matchbox", "vitamin-white", "vitamin-orange", "cable-coil", "cable-lead", "charge-puck"]);
   for (const row of pocket.clearance) {
-    if (row.piece === "glasses-case" && row.obstacle === "bedside-book") continue;
     expect(row.gapMm, `${row.piece} vs ${row.obstacle}`).toBeGreaterThan(0);
+    if (/^(glasses|matchbox|vitamin)/.test(row.piece) && (row.obstacle === "lamp-base" || row.obstacle === "bedside-mug")) expect(row.gapMm, `${row.piece} vs ${row.obstacle}`).toBeGreaterThanOrEqual(15);
   }
   expect(pocket.clearance.some((row) => row.obstacle === "bedside-mug")).toBe(true);
   expect(pocket.clearance.some((row) => row.obstacle === "lamp-base")).toBe(true);
@@ -1062,7 +1078,7 @@ test("bedside pocket set sits on the nightstand, stays inside the prop budget, a
   const after = await page.evaluate(() => window.__bedroom.info());
   expect(after.vertices).toBe(info.vertices);
   expect(after.meshes).toBe(info.meshes);
-  expect(after.lights).toBe(9);
+  expect(after.lights).toBe(10);
 });
 
 test("the bed-wall triptych loads San Francisco, New York, and Brooklyn prints without changing scene geometry", async ({ page }) => {
@@ -1106,4 +1122,101 @@ test("the vinyl corner keeps all 32 records in one draw call and its deck glows 
   expect(night.led.glow, "and throws a small warm pool on the plinth").toBeGreaterThan(day.led.glow * 5);
   const info = await page.evaluate(() => window.__bedroom.info());
   expect(info.vertices, "the room stays under the relaxed geometry ceiling").toBeLessThanOrEqual(CAPS.vertices);
+});
+
+test("Room 02 the record player by the window plays side A on a real piano when tapped, goes to the next piece on every tap round the four, and stops when the needle is tapped", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom, null, { timeout: 60000 }); await page.waitForTimeout(3500);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.vinylPoint())).front, { timeout: 20000 }).toBe(true);
+  const spot = await page.evaluate(() => window.__bedroom.vinylPoint());
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { timeout: 8000, message: "a tap on the record corner starts the music" }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 12000 }).toBeGreaterThan(12);
+  await expect(page.locator("#propStory")).toContainText("布魯克林窗台");
+  expect((await page.evaluate(() => window.__bedroom.recordState())).side, "the first tap plays side A").toBe(0);
+  await page.waitForTimeout(1500);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).side, { timeout: 8000, message: "the next tap flips the record to side B" }).toBe(1);
+  expect((await page.evaluate(() => window.__bedroom.recordState())).playing, "side B is playing, not stopped").toBe(true);
+  expect((await page.evaluate(() => window.__bedroom.recordState())).title).toBe("防火梯的雨");
+  await expect(page.locator("#propStory")).toContainText("防火梯的雨");
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 15000, message: "side B plays notes" }).toBeGreaterThan(12);
+  await page.waitForTimeout(1500);
+  for (const [side, title] of [[2, "追劇夜"], [3, "夜戰"], [0, "布魯克林窗台"]]) { // the third, fourth and fifth taps: the next piece each time, and after the last one it comes round to the first
+    await page.mouse.click(spot.x, spot.y);
+    await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).side, { timeout: 8000, message: "every tap goes to the next piece" }).toBe(side);
+    expect((await page.evaluate(() => window.__bedroom.recordState())).title).toBe(title);
+    expect((await page.evaluate(() => window.__bedroom.recordState())).playing, "it never stops by itself").toBe(true);
+    await page.waitForTimeout(800);
+  }
+  await page.locator('#viewRow button[data-look="record"]').click(); await page.waitForTimeout(1700); // the record look brings the needle close
+  const needle = await page.evaluate(() => window.__bedroom.tonearmPoint());
+  expect(needle.front, "the needle end is in the picture").toBe(true);
+  await page.mouse.click(needle.x, needle.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { message: "a tap on the needle stops the record" }).toBe(false);
+  await expect(page.locator("#propStory")).toContainText("唱針");
+  expect(errors).toEqual([]);
+});
+
+test("Room 02 a glowing ring and a hint line point visitors to the record player until they start the music", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom, null, { timeout: 60000 });
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.vinylPoint())).front, { timeout: 20000 }).toBe(true);
+  await expect(page.locator("#vinylRing"), "the ring marks the record player after a few seconds").toBeVisible({ timeout: 20000 });
+  await expect(page.locator("#propStory"), "and the hint line says where to tap").toContainText("唱片機", { timeout: 20000 });
+  const ring = await page.locator("#vinylRing").boundingBox(), spot = await page.evaluate(() => window.__bedroom.vinylPoint());
+  expect(Math.abs(ring.x + ring.width / 2 - spot.x) < 80 && Math.abs(ring.y + ring.height / 2 - spot.y) < 80, "the ring sits on the turntable").toBe(true);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { timeout: 8000 }).toBe(true);
+  await expect(page.locator("#vinylRing"), "the ring goes away once the music has been started").toBeHidden();
+  expect((await page.evaluate(() => window.__bedroom.vinylRing())).found).toBe(true);
+  await page.evaluate(() => window.__bedroom.stopRecord());
+  expect(errors).toEqual([]);
+});
+
+for (const width of [1440, 390]) {
+  test(`${width}: the Sofa corner look walks to the middle and shows the sofa, its stone table with the mug, and the slippers on the rug`, async ({ page }) => {
+    await enter(page, { width });
+    await page.locator('#viewRow button[data-look="sofa"]').click();
+    await expect(page.locator('#viewRow button[data-look="sofa"]')).toHaveAttribute("aria-pressed", "true");
+    await page.waitForTimeout(1900); // the room already opens in the middle, so the glide (1.1 s) is the only thing to wait for
+    const v = await page.evaluate(() => window.__bedroom.inView(["sofa", "sofa-stone-table", "sofa-table-mug", "sofa-rug-slippers"]));
+    for (const n of ["sofa", "sofa-stone-table", "sofa-table-mug", "sofa-rug-slippers"]) {
+      expect(v[n], n + " is found").toBeTruthy();
+      expect(v[n].z, n + " is in front of the camera").toBeLessThan(1);
+      expect(Math.abs(v[n].x), n + " is inside the picture sideways").toBeLessThan(.95);
+      expect(Math.abs(v[n].y), n + " is inside the picture vertically").toBeLessThan(.95);
+    }
+    await page.locator('#viewRow button[data-look="tv"]').click(); // any other look walks back out
+    await page.waitForFunction(() => window.__bedroom.info().centred === false, null, { timeout: 8000 });
+  });
+}
+
+test("Room 02 late-night game: the record starts with the 夜戰 EDM loop in the game mood and the next tap goes on to the next piece", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/prototype/roomverse-3d/bedroom/?lang=zh");
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__bedroom, null, { timeout: 60000 }); await page.waitForTimeout(3500);
+  await page.evaluate(() => window.__bedroom.setMood("night"));
+  await page.waitForTimeout(1500);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.vinylPoint())).front, { timeout: 20000 }).toBe(true);
+  const spot = await page.evaluate(() => window.__bedroom.vinylPoint());
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).playing, { timeout: 8000, message: "a tap in the late-night game mood starts the game piece" }).toBe(true);
+  const state = await page.evaluate(() => window.__bedroom.recordState());
+  expect(state.game, "it is the game piece").toBe(true);
+  expect(state.side).toBe(3);
+  expect(state.title).toBe("夜戰");
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).notes, { timeout: 12000, message: "it plays notes without needing any sample" }).toBeGreaterThan(40);
+  await expect(page.locator("#propStory")).toContainText("夜戰");
+  await page.waitForTimeout(1500);
+  await page.mouse.click(spot.x, spot.y);
+  await expect.poll(async () => (await page.evaluate(() => window.__bedroom.recordState())).side, { timeout: 8000, message: "the second tap goes to the next piece, the Brooklyn side A" }).toBe(0);
+  await page.evaluate(() => window.__bedroom.stopRecord());
+  expect(errors).toEqual([]);
 });

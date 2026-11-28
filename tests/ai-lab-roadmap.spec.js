@@ -81,11 +81,9 @@ for (const lang of ["zh", "en"]) {
       await expect(page.locator("#adopt-note")).toHaveText(x.note);
 
       const links = page.locator("#adopt-links a");
-      await expect(links).toHaveCount(2);
+      await expect(links).toHaveCount(1);
       await expect(links.nth(0)).toHaveAttribute("href", `/ai-lab/enquiry-demo/?lang=${lang}`);
       await expect(links.nth(0)).toHaveText(TEXT[lang].c3.journey);
-      await expect(links.nth(1)).toHaveAttribute("href", "#contact-cta");
-      await expect(links.nth(1)).toHaveText(TEXT[lang].ctaChoices[0].title);
       const linkHeights = await links.evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().height));
       for (const height of linkHeights) expect(height).toBeGreaterThanOrEqual(44);
 
@@ -98,10 +96,6 @@ for (const lang of ["zh", "en"]) {
       await page.locator("#adopt").scrollIntoViewIfNeeded();
       await noOverflow(page);
       await page.locator("#adopt").screenshot({ path: join(screenshotDir, `${lang}-${width}.png`) });
-
-      await links.nth(1).click();
-      await expect(page.locator("#contact-cta")).toBeInViewport();
-      await expect(page.locator("#cta-choices strong").first()).toHaveText(TEXT[lang].ctaChoices[0].title);
 
       await links.nth(0).click();
       await expect(page).toHaveURL(new RegExp(`/ai-lab/enquiry-demo/\\?lang=${lang}`));

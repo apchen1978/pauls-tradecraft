@@ -18,15 +18,35 @@ export default function Nav() {
   }, [open]);
 
   const links = [
-    { href: "#three-questions", label: t.nav.questions },
-    { href: "#works", label: t.nav.works },
-    { href: "#showcase", label: t.nav.showcase },
-    { href: "#garage", label: t.nav.garage },
-    { href: "#capabilities", label: t.nav.services },
-    { href: "#trade-notes", label: t.nav.notes },
-    { href: "#about", label: t.nav.about },
+    // The three main destinations lead the desktop navigation.
+    { href: "#showcase", label: t.nav.showcase, tier: "featured" },
+    { href: "#works", label: t.nav.works, tier: "major" },
+    { href: "#ai-lab", label: t.nav.aiLab, tier: "lab" },
+    { href: "#garage", label: t.nav.garage, tier: "garage" },
+    { href: "#capabilities", label: t.nav.services, tier: "method" },
+    { href: "#trade-notes", label: t.nav.notes, tier: "notes" },
+    { href: "#about", label: t.nav.about, tier: "about" },
   ];
 
+  // Solid fills identify the three main destinations; tinted outlines identify the other sections.
+  const TIER_DESKTOP = {
+    featured: "rounded-full border border-gold bg-gold px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
+    major: "rounded-full border border-[#d99179] bg-[#d99179] px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
+    lab: "rounded-full border border-[#8ebeb8] bg-[#8ebeb8] px-2.5 py-1.5 font-semibold text-pine decoration-transparent hover:brightness-110 focus-visible:brightness-110 xl:px-3.5",
+    garage: "rounded-full border border-[#e59a7a]/80 bg-[#e59a7a]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#e59a7a]/20 focus-visible:bg-[#e59a7a]/20 xl:px-3.5",
+    method: "rounded-full border border-[#8fb4dc]/80 bg-[#8fb4dc]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#8fb4dc]/20 focus-visible:bg-[#8fb4dc]/20 xl:px-3.5",
+    notes: "rounded-full border border-[#b9a6e0]/80 bg-[#b9a6e0]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#b9a6e0]/20 focus-visible:bg-[#b9a6e0]/20 xl:px-3.5",
+    about: "rounded-full border border-[#d9b3c4]/80 bg-[#d9b3c4]/10 px-2.5 py-1.5 text-bone decoration-transparent hover:bg-[#d9b3c4]/20 focus-visible:bg-[#d9b3c4]/20 xl:px-3.5",
+  };
+  const TIER_MENU = {
+    featured: "border border-gold bg-gold font-semibold text-pine hover:brightness-110",
+    major: "border border-[#e8dcc3]/70 bg-[#e8dcc3]/10 text-bone hover:bg-[#e8dcc3]/20",
+    lab: "border border-[#8fbfa8]/80 bg-[#8fbfa8]/10 text-bone hover:bg-[#8fbfa8]/20",
+    garage: "border border-[#e59a7a]/80 bg-[#e59a7a]/10 text-bone hover:bg-[#e59a7a]/20",
+    method: "border border-[#8fb4dc]/80 bg-[#8fb4dc]/10 text-bone hover:bg-[#8fb4dc]/20",
+    notes: "border border-[#b9a6e0]/80 bg-[#b9a6e0]/10 text-bone hover:bg-[#b9a6e0]/20",
+    about: "border border-[#d9b3c4]/80 bg-[#d9b3c4]/10 text-bone hover:bg-[#d9b3c4]/20",
+  };
   const followSectionLink = (href) => {
     if (href === "#garage") openGarageThenScroll();
     setOpen(false);
@@ -37,12 +57,12 @@ export default function Nav() {
       <nav className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 md:h-[76px] md:px-6">
         <a href="#top" className="flex items-baseline gap-2" onClick={() => setOpen(false)}>
           <span className="text-lg font-semibold tracking-[-0.02em] text-bone">{t.brand}</span>
-          <span className="hidden border-l border-bone/25 pl-2 text-xs font-medium text-ondark-meta sm:inline lg:hidden xl:inline">{t.brandNote}</span>
+          <span className="hidden border-l border-bone/25 pl-2 text-xs font-medium text-ondark-meta sm:inline lg:hidden 2xl:inline">{t.brandNote}</span>
         </a>
 
-        <div className="hidden items-center gap-4 text-sm font-medium text-ondark lg:flex xl:gap-8">
+        <div className="hidden items-center gap-2.5 text-[13px] font-medium text-ondark lg:flex xl:gap-8 xl:text-sm">
           {links.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => followSectionLink(l.href)} className="whitespace-nowrap underline decoration-transparent decoration-2 underline-offset-8 transition-colors hover:text-bone hover:decoration-gold focus-visible:text-bone focus-visible:decoration-gold">
+            <a key={l.href} href={l.href} onClick={() => followSectionLink(l.href)} className={`whitespace-nowrap transition-colors ${l.tier ? TIER_DESKTOP[l.tier] : "border border-transparent py-1.5 underline decoration-transparent decoration-2 underline-offset-8 hover:text-bone hover:decoration-gold focus-visible:text-bone focus-visible:decoration-gold"}`}>
               {l.label}
             </a>
           ))}
@@ -82,7 +102,7 @@ export default function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => followSectionLink(l.href)}
-                className="rounded-field px-3 py-2.5 text-sm font-medium text-ondark transition-colors hover:bg-bone/10 hover:text-bone"
+                className={`rounded-field px-3 py-2.5 text-sm font-medium transition-colors ${l.tier ? TIER_MENU[l.tier] : "text-ondark hover:bg-bone/10 hover:text-bone"}`}
               >
                 {l.label}
               </a>

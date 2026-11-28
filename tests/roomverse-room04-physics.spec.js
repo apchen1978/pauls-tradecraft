@@ -1,21 +1,43 @@
 import { expect, test } from "@playwright/test";
 import { LEDGER } from "./helpers/room04-ledger.js";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 const ROOM = "/prototype/roomverse-3d/cafe/";
 
 test("Room 04 audits registered support, joints, container walls and barriers", async ({ page }) => {
   test.setTimeout(300000);
+  // The audit reads geometry, not pixels, and the phone layout builds the same room. A phone-sized canvas keeps a CI runner (which draws in software) from spending
+  // minutes on frames before the deferred prints finish loading; at 1440 px this test timed out on most CI runs, including PRs that did not touch the room.
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(ROOM);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room04, null, { timeout: 120000 });
   await page.waitForFunction((vertices) => window.__room04.info().vertices === vertices, LEDGER.scene.vertices, { timeout: 150000 }); // a CI runner draws in software and loads the deferred prints slowly
-  const result = await page.evaluate(() => ({ checks: window.__room04.physicsAudit(), info: window.__room04.info() }));
+  const result = await page.evaluate(() => ({ info: window.__room04.info(), checks: window.__room04.physicsAudit() })); // the counts first: the audit builds every look
   expect(result.info.vertices).toBe(LEDGER.scene.vertices);
   expect(result.info.meshes).toBe(LEDGER.scene.meshes);
+  const stock = result.info.takeawayLidStock;
+  expect(stock).toMatchObject({ count: 7, radius: 0.041, thickness: 0.006, baseY: 1.05 });
+  expect(stock.nearestCupClearanceMm).toBeGreaterThanOrEqual(20);
+  const lidContacts = result.checks.filter(({ name }) => name.startsWith("takeaway-lid-"));
+  expect(lidContacts).toHaveLength(stock.count);
+  for (const contact of lidContacts) {
+    expect(contact.ok, contact.name).toBe(true);
+    expect(contact.detail, contact.name).toContain("vertical gap 0 mm");
+  }
+  // Pastry case (Paul 2026-11-18): the cakes, tarts, macarons, croissants, muffins and still waters sit on what holds them, 0 to 1 mm in, never above.
+  const seats = result.checks.filter(({ name }) => name.startsWith("pastry-seat-"));
+  expect(seats.length).toBe(20);
+  for (const seat of seats) {
+    const gap = Number(seat.detail.match(/vertical gap (-?[\d.]+) mm/)[1]);
+    expect(gap, seat.name).toBeLessThanOrEqual(0);
+    expect(gap, seat.name).toBeGreaterThanOrEqual(-1);
+  }
   expect(result.checks.length).toBeGreaterThan(100);
   expect(new Set(result.checks.map(({ name }) => name)).size).toBe(result.checks.length);
-  for (const prefix of ["window-chair", "bar-stool-bentwood", "bar-stool-leather", "bar-stool-metal", "lounge-",
-    "pothos-vine", "straw-", "wall-print", "menu", "espresso-foot", "grinder-", "record-player", "drip-tower", "checkout-"]) {
+  for (const prefix of ["window-chair", "bar-stool-arc", "bar-stool-bentwood", "bar-stool-leather", "bar-stool-metal", "lounge-",
+    "pothos-vine", "straw-", "wall-print", "menu", "espresso-foot", "grinder-", "record-player", "drip-tower", "checkout-", "cat-"]) {
     expect(result.checks.some(({ name }) => name.startsWith(prefix)), `registered ${prefix}`).toBe(true);
   }
   for (const check of result.checks) expect(check).toEqual({ ok: expect.any(Boolean), name: expect.any(String), detail: expect.stringContaining("mm") });
@@ -48,4 +70,17 @@ test("historical bad builds fail the same rules while sound joins pass", async (
   expect(checks.slice(0, 5).map(({ ok }) => ok)).toEqual([false, false, false, false, false]);
   expect(checks.slice(5).every(({ ok }) => ok)).toBe(true);
   for (const result of checks) expect(result.detail).toMatch(/-?\d+(\.\d+)? mm/);
+});
+
+// Cache-busting (scripts/vite-auto-asset-versions.mjs): the build rewrites every `?v=auto` in the Room 04 sources to a hash of the target file's final content. This checks the
+// built pages: no placeholder is left, each URL carries the hash of the file it points to, and a change in cafe.js would change page.js's URL (the hash chain).
+test("Room 04 built pages carry content-hash versions, so a changed script always gets a new URL", () => {
+  const dist = new URL("../dist/prototype/roomverse-3d/cafe/", import.meta.url);
+  const read = (name) => readFileSync(new URL(name, dist), "utf8");
+  const hashOf = (text) => createHash("sha1").update(text).digest("hex").slice(0, 10);
+  const html = read("index.html"), page = read("page.js"), cafe = read("cafe.js");
+  for (const [name, text] of [["index.html", html], ["page.js", page], ["cafe.js", cafe]]) expect(text, `${name} has no leftover ?v=auto`).not.toContain("?v=auto");
+  expect(/page\.js\?v=([0-9a-f]{10})/.exec(html)?.[1], "index.html loads page.js by the hash of page.js").toBe(hashOf(page));
+  expect(/\.\/cafe\.js\?v=([0-9a-f]{10})/.exec(page)?.[1], "page.js loads cafe.js by the hash of cafe.js").toBe(hashOf(cafe));
+  expect(/physics-audit\.js\?v=([0-9a-f]{10})/.exec(cafe)?.[1], "cafe.js loads physics-audit.js by its hash").toBe(hashOf(read("physics-audit.js")));
 });

@@ -5,6 +5,22 @@
 
 export const LATEST = [
   {
+    date: "2026-11-20",
+    tag: "watching",
+    zh: {
+      title: "AI 與數學家合作的黎曼猜想證明：電腦驗證通過，數學界仍在審",
+      what: "Anthropic 的數學家 Levent Alpöge 在 11 月 20 日宣布，他與 Claude 合作做出黎曼猜想的證明，並用 Lean（能逐步檢查推理的證明語言）公開，原版約 1,740 萬行。Lean 社群次日確認形式上正確，MIT 與滑鐵盧大學的數學家各自獨立驗證，之後有人把它精簡了九成九以上。但 Clay 數學研究所尚未視為解決：還需正式發表、公開接受審視至少兩年，並獲數學界廣泛接受；也有人批評書面說明冗長難讀。宣稱者是 AI 的開發公司，請連同這一點一起讀。",
+      took: "這是我們的判斷，不是報導：能用電腦逐步驗證的領域，AI 的成果最容易被確認；這類結果若經得起審查，千禧年大獎難題成為下一批目標並不意外，但目前只有這一題有人宣稱，也都還沒有定論。AI 原生的能力越來越重要，所以我們把「誰來檢查、怎麼檢查」放在前面。",
+    },
+    en: {
+      title: "A Riemann hypothesis proof built by an AI and a mathematician: machine-checked, still under review",
+      what: "Levent Alpöge, a mathematician at Anthropic, announced on 20 November that he and Claude had produced a proof of the Riemann hypothesis, published as Lean code (a language that checks reasoning step by step), about 17.4 million lines in its first version. The Lean community confirmed its formal correctness the next day, mathematicians at MIT and Waterloo verified it independently, and a later version was cut by more than 99%. The Clay Mathematics Institute does not yet count the problem as solved: it requires publication, at least two years of public scrutiny and broad acceptance, and critics call the written explanation unreadably long. The claim comes from the AI's maker; read it with that in mind.",
+      took: "Our view, not a news item: fields where results can be checked by machine are where AI work is easiest to confirm. If results like this survive scrutiny, other Millennium Prize problems becoming targets would not be surprising, but only this one has been claimed so far and none is settled. AI-native ability matters more and more, so we put who checks it, and how, first.",
+    },
+    source: "https://www.heise.de/en/news/Riemann-hypothesis-Claude-cuts-AI-proof-by-more-than-99-11539304.html",
+    more: { url: "https://www.theregister.com/ai-and-ml/2026/11/24/anthropic-says-claude-solved-an-age-old-math-problem-but-the-written-proof-is-250000-pages-of-slop/5311775", zh: "另一種看法：Clay 的標準與批評", en: "Another view: Clay's bar and the criticism" },
+  },
+  {
     date: "2026-10-13",
     tag: "watching",
     zh: {

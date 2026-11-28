@@ -39,6 +39,11 @@
   .origin-hint a:focus-visible, .origin-hint button:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
   .room { position: relative; margin: 0 clamp(16px, 3vw, 40px); height: min(72vh, 760px); border-radius: 18px; overflow: hidden; background: #ddd6c8; }
   #stage { position: absolute; inset: 0; }
+  /* A soft vignette in the dim moods (the light atmosphere, 2026-11-20): the corners fall away so the lit things stand out. It lets every tap through and fades in and out with the feeling. */
+  #stage::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .6s; background: radial-gradient(ellipse at 50% 55%, transparent 42%, rgba(6, 4, 12, .62) 100%); }
+  #stage[data-light="tech"]::after, #stage[data-light="tv"]::after { opacity: 1; }
+  #stage[data-light="rain"]::after { opacity: .55; }
+  #stage[data-light="golden"]::after { opacity: .2; }
   #stage canvas { display: block; touch-action: none; }
   .portal { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 14px clamp(16px, 3vw, 40px) 0; }
   .portal button { font: inherit; font-weight: 700; font-size: 15px; min-height: 48px; padding: 12px 20px; border: 1px solid #5a4cc8; border-radius: 999px; background: linear-gradient(90deg, #f6f3ff 0%, #ece6ff 100%); color: #3a2f9e; cursor: pointer; }
@@ -121,9 +126,8 @@
     .home { font-size: 13px; padding: 0 10px; }
     .mark { font-size: 10px; letter-spacing: .05em; }
   }
-  @media (max-width: 768px), (max-width: 1024px) and (max-height: 500px) {
-    .immersive-enter:not([hidden]) { display: block; position: absolute; z-index: 4; right: 12px; bottom: 12px; }
-  }
+  /* the full-screen button shows at every width now (Paul, 2026-11-17: the desktop rooms need it too) */
+  .immersive-enter:not([hidden]) { display: block; position: absolute; z-index: 4; right: 12px; bottom: 12px; }
   .immersive-enter, .immersive-exit, .immersive-door { min-width: 44px; min-height: 44px; padding: 8px 14px; border: 1px solid #fffa; border-radius: 999px; background: #24302ce8; color: #fff; font: 700 14px system-ui, sans-serif; cursor: pointer; }
   .room.is-immersive { position: fixed; inset: 0; z-index: 50; width: 100vw; height: 100vh; height: 100dvh; margin: 0; border-radius: 0; background: #1b1c22; }
   .room.is-immersive #stage { position: absolute; inset: 0; height: 100%; }
@@ -158,6 +162,8 @@
   .robot-bubble { pointer-events: auto; }
   .robot-bubble [data-travel-door-action] { display: block; min-height: 44px; margin: 7px auto 0; padding: 8px 12px; border: 1px solid #aab5aa; border-radius: 999px; background: #fbfaf6; color: #315c5d; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
   .robot-bubble [data-travel-door-action]:focus-visible { outline: 3px solid #977b42; outline-offset: 2px; }
+  .robot-bubble [data-cover] { display: block; width: 64px; height: 64px; margin: 0 auto 6px; border-radius: 6px; object-fit: cover; box-shadow: 0 2px 8px #0003; }
+  .robot-bubble [data-cover][hidden] { display: none; }
 </style>
 
 </head>
@@ -177,7 +183,7 @@
 </aside>
 <section class="room" aria-labelledby="title">
   <div class="room-toolbar" id="roomToolbar" role="group" hidden></div>
-  <div id="stage"><div class="robot-bubble" id="robotBubble" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
+  <div id="stage"><div class="robot-bubble" id="robotBubble" hidden><img data-cover width="64" height="64" alt="" hidden><span data-bubble-copy aria-live="polite"></span><button class="travel-door-trigger" data-travel-door-trigger data-travel-door-action type="button" hidden></button></div><button class="immersive-enter" id="immersiveEnter" type="button" hidden></button></div>
   <div class="poster" id="poster"><button id="enter" type="button"></button></div>
   <p class="status" id="status" hidden></p>
   <button class="panel-toggle" id="panelToggle" type="button" aria-controls="panel" aria-expanded="false" hidden></button>
@@ -188,6 +194,7 @@
 </section>
 <p class="portal" id="portalRow" hidden><button id="portalBtn" data-travel-door-trigger type="button"></button><button id="travelDoorBtn" data-travel-door-trigger type="button"></button><span id="portalHint"></span></p>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=98"></script>
+<p class="note" lang="en">鋼琴音色 Piano sound: <a href="https://github.com/sfzinstruments/SalamanderGrandPiano">Salamander Grand Piano</a> by Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+<script type="module" src="page.js?v=auto"></script>
 </body>
 </html>

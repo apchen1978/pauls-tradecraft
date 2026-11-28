@@ -3,9 +3,16 @@ import { OrbitControls } from "../vendor/OrbitControls.js";
 import { mergeGeometries, mergeVertices } from "../vendor/BufferGeometryUtils.js";
 import { GLTFLoader } from "../vendor/GLTFLoader.js";
 import { LOUNGE_THROW_POSITIONS_B64 } from "./lounge-throw-baked.js";
+import { createRoomRecord, RECORD_A_BARS } from "../bedroom/sound.js?v=auto"; // Room 02's "布魯克林窗台" (side A)
+import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: movie night plays the epic orchestral piece of Room 01
+import { createRoomSound, CAFE_ALLEY_BARS } from "../cafe/sound.js?v=auto"; // Room 04's records; track 1 is "午後弄堂"
+import { createBayRecord, BAY_BARS } from "./sound.js?v=auto"; // Room 03's own piece "灣區晴日", played first
 
 export const ROOM_TITLE = "Room 03｜Bay Area Kitchen";
 const ROOM = Object.freeze({ width: 6, depth: 4.8, height: 2.7 });
+// Paul 2026-11-17: the brick-red mug moves from the counter (x -0.30, z -1.752, base 0.954) to the credenza, right of the record player
+// (x 2.70, z 0.84, standing on the 0.815 top). Both the mug and its morning steam use this one shift.
+const RED_MUG_SHIFT = Object.freeze([3.0, -0.139, 2.592]);
 // The room's door (Paul 2026-10-30: every room has one; beside the cable-car painting on the right wall). A doorway is cut through the 120 mm wall
 // (face x 2.94), the wall panel and the skirting; leaf 0.85 x 2.04 m, hinged on the painting side, so the leaf opens into the room.
 const ROOM_DOOR = Object.freeze({ wallFaceX: 2.94, wallBackX: 3.06, zMid: -1.58, halfHole: 0.443, holeHeight: 2.07, casing: 0.06, leafWidth: 0.85, leafHeight: 2.04 });
@@ -38,6 +45,137 @@ function makeTexture(paint, width = 256, height = 256) {
   return texture;
 }
 
+// Paul 2026-11-24: the oven wanted an inset touch panel, not three glowing rectangles. Everything the panel shows - the glass
+// band, the bezel, the seven-segment clock, the six keys with their thin icons, the two amber indicators on their base plates
+// and the divider hairlines - is drawn into one canvas 0.48 m wide. One quad prints the lot, so the panel costs geometry
+// instead of forty small boxes, and every lit thing is the same amber, so it reads as one light source rather than a row of dots.
+// Paul 2026-11-24: the panel shows the time, so it has to agree with the room's other screens. Room 04's counter screens read the
+// system clock (cafe.js clockTime), so this one does too, from the same source, and repaints itself when the minute turns.
+const ovenPanelClockText = () => { const d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+let ovenPanelTexture = null, ovenPanelShown = "";
+const refreshOvenPanelClock = () => {
+  if (!ovenPanelTexture) return;
+  const now = ovenPanelClockText();
+  if (now === ovenPanelShown) return;
+  ovenPanelShown = now;
+  ovenPanelTexture.image.getContext("2d").clearRect(0, 0, ovenPanelTexture.image.width, ovenPanelTexture.image.height);
+  paintOvenPanelSheet(ovenPanelTexture.image.getContext("2d"), ovenPanelTexture.image.width, ovenPanelTexture.image.height, now);
+  ovenPanelTexture.needsUpdate = true;
+  // the room renders on demand, so a repainted clock would otherwise wait for the visitor to move. The local `render`
+  // lives inside the room factory and is not in scope here, so the published hook asks for the frame instead.
+  try { window.__room03?.render?.(); } catch { /* the room is being torn down */ }
+};
+let ovenPanelTimer = 0;
+if (typeof window !== "undefined") {
+  ovenPanelShown = ovenPanelClockText();
+  ovenPanelTimer = window.setInterval(refreshOvenPanelClock, 10000);
+  // CC review 2026-11-24: hold the handle and drop it when the page goes away, so the timer can never outlive the room.
+  window.addEventListener("pagehide", () => { window.clearInterval(ovenPanelTimer); ovenPanelTimer = 0; }, { once: true });
+}
+
+function makeOvenPanelTexture(clock) {
+  return makeTexture((context, width, height) => paintOvenPanelSheet(context, width, height, clock), 2048, 256);
+}
+
+function paintOvenPanelSheet(context, width, height, clock) {
+    const W = width, H = height, px = (metres) => metres * (W / 0.48), cx = W / 2, at = (metres) => cx + metres * (W / 0.48);
+    // the sheet is transparent where geometry shows through: only ink is drawn
+    context.clearRect(0, 0, W, H);
+    const glass = context.createLinearGradient(0, 0, 0, H);
+    glass.addColorStop(0, "#171a1b"); glass.addColorStop(0.45, "#0a0b0c"); glass.addColorStop(1, "#121415");
+    context.fillStyle = glass; context.fillRect(0, 0, W, H);
+
+
+    // the display: a recessed window with a seven-segment clock
+    const dw = px(0.112), dh = px(0.021), dx = cx - dw / 2, dy = H / 2 - dh / 2;
+    context.fillStyle = "rgba(0,0,0,0.85)"; context.fillRect(dx - 4, dy - 4, dw + 8, dh + 8);
+    const well = context.createLinearGradient(0, dy, 0, dy + dh);
+    well.addColorStop(0, "#0c0d0a"); well.addColorStop(1, "#050604");
+    context.fillStyle = well; context.fillRect(dx, dy, dw, dh);
+    const DIGITS = { "0": "abcdef", "1": "bc", "2": "abged", "3": "abgcd", "4": "fgbc", "5": "afgcd", "6": "afgedc", "7": "abc", "8": "abcdefg", "9": "abcdfg" };
+    const digitW = dh * 0.60, stroke = Math.max(3, dh * 0.115), gapY = dh * 0.06, midY = dy + dh / 2;
+    const segBox = (ox, seg) => {
+      if (seg === "a") return [ox + stroke * 0.6, dy, digitW - stroke * 1.2, stroke];
+      if (seg === "d") return [ox + stroke * 0.6, dy + dh - stroke, digitW - stroke * 1.2, stroke];
+      if (seg === "g") return [ox + stroke * 0.6, midY - stroke / 2, digitW - stroke * 1.2, stroke];
+      if (seg === "f") return [ox, dy + stroke * 0.5, stroke, dh / 2 - stroke];
+      if (seg === "b") return [ox + digitW - stroke, dy + stroke * 0.5, stroke, dh / 2 - stroke];
+      if (seg === "e") return [ox, midY + stroke * 0.2, stroke, dh / 2 - stroke * 1.2];
+      return [ox + digitW - stroke, midY + stroke * 0.2, stroke, dh / 2 - stroke * 1.2];
+    };
+    const drawDigit = (ch, ox) => {
+      const lit = DIGITS[ch] || "";
+      for (const seg of "abcdefg") {
+        const [x, y, w, h] = segBox(ox, seg);
+        context.fillStyle = lit.includes(seg) ? "rgba(255,182,96,1)" : "rgba(255,176,92,0.055)";
+        context.fillRect(x, y, w, h);
+      }
+    };
+    // Paul 2026-11-25 (found by comparing two live captures a minute apart: they were byte-identical). "00:08" was
+    // being read as four digits, so the colon was painted as a dim block and the minutes units were never drawn. Only
+    // the digits are digit glyphs now; the colon stays the two dots below.
+    const clockDigits = String(clock).replace(/[^0-9]/g, "").padEnd(4, "0").slice(0, 4);
+    const digitGap = digitW * 0.26, colonW = digitW * 0.42;
+    const totalW = digitW * 4 + digitGap * 3 + colonW; // three gaps between four digits, one beside the colon
+    let ox = cx - totalW / 2;
+    context.shadowColor = "rgba(255,170,82,0.75)"; context.shadowBlur = dh * 0.55;
+    for (let i = 0; i < 4; i++) {
+      drawDigit(clockDigits[i], ox); ox += digitW + digitGap;
+      if (i === 1) {
+        context.fillStyle = "rgba(255,182,96,1)";
+        context.fillRect(ox - digitGap * 0.5, dy + dh * 0.3, stroke * 0.9, stroke * 0.9);
+        context.fillRect(ox - digitGap * 0.5, dy + dh * 0.62, stroke * 0.9, stroke * 0.9);
+        ox += colonW;
+      }
+    }
+    context.shadowBlur = 0;
+
+    // six keys, symmetric about the display, each a thin recessed outline with a hairline icon
+    const keyY = H / 2;
+    const KEYS = [[-0.212, "power"], [-0.170, "mode"], [-0.128, "temp"], [0.128, "timer"], [0.170, "light"], [0.212, "lock"]];
+    const keyIcon = (kind, x, size) => {
+      const r = size * 0.32;
+      context.strokeStyle = "rgba(255,196,132,0.30)"; context.lineWidth = Math.max(1.5, size * 0.085);
+      context.beginPath();
+      if (kind === "power") {
+        context.arc(x, keyY, r, -Math.PI / 2 + 0.6, -Math.PI / 2 + Math.PI * 2 - 0.6); context.stroke();
+        context.beginPath(); context.moveTo(x, keyY - r * 1.2); context.lineTo(x, keyY - r * 0.05); context.stroke();
+      } else if (kind === "mode") {
+        for (const d of [-0.55, 0, 0.55]) { context.beginPath(); context.moveTo(x - r, keyY + r * d); context.lineTo(x + r, keyY + r * d); context.stroke(); }
+      } else if (kind === "temp") {
+        context.beginPath(); context.moveTo(x, keyY - r); context.lineTo(x, keyY + r * 0.4); context.stroke();
+        context.beginPath(); context.arc(x, keyY + r * 0.7, r * 0.4, 0, Math.PI * 2); context.stroke();
+      } else if (kind === "timer") {
+        context.arc(x, keyY, r, 0, Math.PI * 2); context.stroke();
+        context.beginPath(); context.moveTo(x, keyY - r * 0.5); context.lineTo(x, keyY); context.lineTo(x + r * 0.45, keyY + r * 0.25); context.stroke();
+      } else if (kind === "light") {
+        context.arc(x, keyY - r * 0.12, r * 0.58, Math.PI * 0.12, Math.PI * 0.88, true); context.stroke();
+        context.beginPath(); context.moveTo(x - r * 0.32, keyY + r * 0.5); context.lineTo(x + r * 0.32, keyY + r * 0.5); context.stroke();
+      } else {
+        context.rect(x - r * 0.68, keyY - r * 0.02, r * 1.36, r * 0.92); context.stroke();
+        context.beginPath(); context.arc(x, keyY - r * 0.12, r * 0.42, Math.PI, 0); context.stroke();
+      }
+    };
+    KEYS.forEach(([z, kind], i) => {
+      const size = i === 0 ? px(0.0125) : px(0.0105), half = size / 2, x = at(z);
+      context.strokeStyle = "rgba(226,232,234,0.10)"; context.lineWidth = 1.5;
+      context.strokeRect(x - half, keyY - half, size, size);
+      keyIcon(kind, x, size);
+    });
+
+    // two amber indicators, each on its own base plate, and a hairline either side of the display
+    for (const z of [-0.104, 0.104]) {
+      const x = at(z);
+      context.fillStyle = "rgba(0,0,0,0.7)"; context.fillRect(x - 7, keyY + H * 0.02, 14, 9);
+      context.fillStyle = "rgba(255,178,86,0.85)"; context.fillRect(x - 3, keyY + H * 0.045, 6, 6);
+    }
+    context.fillStyle = "rgba(226,232,234,0.10)";
+    for (const z of [-0.100, 0.100]) {
+      const x = at(z);
+      context.fillRect(x, px(0.006), 2, px(0.024));
+    }
+}
+
 function makeFineNoise(seed, alpha = 0.035) {
   let state = seed;
   const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
@@ -49,6 +187,28 @@ function makeFineNoise(seed, alpha = 0.035) {
       ctx.fillRect(random() * w, random() * h, 1 + random() * 2, 1 + random() * 2);
     }
   });
+}
+
+// Paul 2026-11-22 (a patchwork azulejo / Moroccan backsplash from a reference photo): eight by four glazed square tiles, each a different pattern in cobalt, sky blue, terracotta, ochre and sage on cream,
+// 12.5 cm a side with a thin grout line. Drawn once on a canvas (no picture file).
+function makeAzulejoTexture() {
+  return makeTexture((ctx, w, h) => {
+    const T = 128, cream = "#f1e6d0", pale = "#e3ebf0", cobalt = "#2f4f93", sky = "#7f9fd0", terra = "#c4704f", ochre = "#d9a441", sage = "#8aa07a";
+    ctx.fillStyle = "#d9d1c0"; ctx.fillRect(0, 0, w, h); // grout
+    const poly = (cx, cy, r, n, rot, fill) => { ctx.beginPath(); for (let k = 0; k < n; k++) { const a = rot + k / n * Math.PI * 2; const x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r; if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); } ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); };
+    const dot = (cx, cy, r, fill) => { ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); };
+    for (let j = 0; j < 4; j++) for (let i = 0; i < 8; i++) {
+      const x0 = i * T + 3, y0 = j * T + 3, S = T - 6, cx = i * T + T / 2, cy = j * T + T / 2, kind = (i * 3 + j * 5) % 6;
+      ctx.fillStyle = (i + j) % 2 ? pale : cream; ctx.fillRect(x0, y0, S, S);
+      if (kind === 0) { poly(cx, cy, 52, 16, 0, cobalt); poly(cx, cy, 34, 8, 0.2, cream); dot(cx, cy, 14, ochre); }
+      else if (kind === 1) { for (let k = 0; k < 4; k++) dot(cx + Math.cos(k * Math.PI / 2 + Math.PI / 4) * 24, cy + Math.sin(k * Math.PI / 2 + Math.PI / 4) * 24, 24, terra); dot(cx, cy, 11, cobalt); }
+      else if (kind === 2) { poly(cx, cy, 54, 4, Math.PI / 4, cobalt); poly(cx, cy, 38, 4, Math.PI / 4, cream); poly(cx, cy, 22, 4, Math.PI / 4, terra); }
+      else if (kind === 3) { for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; dot(cx + Math.cos(a) * 28, cy + Math.sin(a) * 28, 13, k % 2 ? ochre : sky); } dot(cx, cy, 13, terra); }
+      else if (kind === 4) { ctx.fillStyle = terra; ctx.fillRect(x0, y0, S, S); poly(cx, cy, 44, 8, 0, cream); poly(cx, cy, 26, 4, Math.PI / 4, cobalt); }
+      else { dot(cx, cy, 54, cobalt); dot(cx, cy, 42, cream); dot(cx, cy, 30, sage); dot(cx, cy, 14, cobalt); }
+      ctx.strokeStyle = "rgba(60,50,40,.18)"; ctx.lineWidth = 2; ctx.strokeRect(x0 + 1, y0 + 1, S - 2, S - 2); // the glaze edge
+    }
+  }, 1024, 512);
 }
 
 function makeCabinetTexture() {
@@ -379,6 +539,8 @@ function makeMaterials() {
     floor: std(0xcdbb9e, 0.88, { map: makeTerrazzoTexture(), metalness: 0.01 }),
     wall: std(0xd0deea, 0.94, { map: makePlasterTexture() }),
     wokWall: std(0x907258, 0.9, { map: makeFineNoise(47, 0.025) }),
+    // Paul 2026-11-21 (is the stainless chimney still what a US kitchen has? 2026 hoods are sculptural, plastered or tiled, in warm putty/clay neutrals, with a slim brass detail): a limewash plaster hood.
+    wokPlaster: std(0xe9ddc6, 0.93, { map: makeFineNoise(31, 0.035) }),
     wokSteel: std(0xbfc3c0, 0.34, { metalness: 0.22, emissive: 0x2e1e0e, emissiveIntensity: 0.45 }),
     wokIron: std(0x343733, 0.42, { metalness: 0.08, emissive: 0x16120e, emissiveIntensity: 0.18 }),
     ovenGlass: std(0x15191a, 0.2, { metalness: 0.18 }),
@@ -388,6 +550,8 @@ function makeMaterials() {
     oak: std(COLORS.oak, 0.76, { map: makeWoodTexture(false) }),
     beam: std(COLORS.beam, 0.79, { map: makeWoodTexture(false) }),
     olive: std(COLORS.olive, 0.88, { map: makeCabinetTexture() }),
+    // Paul 2026-11-21 (colour-blocking, more vibrant): the oven-side base cabinets turn a dusty terracotta clay, the warm complement of the slate-blue credenza opposite.
+    clay: std(0xb9735a, 0.88, { map: makeCabinetTexture() }),
     stone: std(COLORS.stone, 0.45, { map: makeFineNoise(23, 0.025) }),
     black: std(COLORS.black, 0.44), steel: std(COLORS.steel, 0.38), brass: std(0xb58a50, 0.34, { metalness: 0.48 }),
     hoodSteel: std(0xc4c9ca, 0.5, { map: makeBrushedMetalTexture(), metalness: 0.2 }),
@@ -402,6 +566,10 @@ function makeMaterials() {
     sinkSteel: std(0x969d9e, 0.46, { metalness: 0.30 }),
     faucetSteel: std(0xaab1b2, 0.29, { metalness: 0.45 }),
     waterClear: new THREE.MeshStandardMaterial({ color: 0xc9e2e4, roughness: 0.12, transparent: true, opacity: 0.30, depthWrite: false }),
+    // Paul 2026-11-17: close up the big water bottles read as empty. The water is now a visible pale blue-green body with a bright surface, under the clear shell.
+    bottleWater: new THREE.MeshStandardMaterial({ color: 0x86c3cf, roughness: 0.06, transparent: true, opacity: 0.62, depthWrite: false }),
+    bottleWaterTop: new THREE.MeshStandardMaterial({ color: 0xe4f6f7, roughness: 0.05, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide }),
+    pebble: std(0x8f8a7e, 0.9),
     waterBottleGlass: new THREE.MeshPhysicalMaterial({ color: 0xc6d8d5, roughness: 0.19, metalness: 0, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false }),
     // Daylight table pitcher and tumblers (Paul 2026-11-11): real clear glass, not a milky shell. Transmission was tried
     // and dropped: three.js renders the whole room into a refraction buffer, which doubled the opening draw calls
@@ -414,7 +582,7 @@ function makeMaterials() {
     }),
     waterLabel: std(0x78959a, 0.78),
     opal: new THREE.MeshStandardMaterial({ color: COLORS.opal, roughness: 0.22, emissive: 0xffdfa4, emissiveIntensity: 0.24 }),
-    porcelain: std(0xe1ddd2, 0.72), mugGlaze: std(0xb0533c, 0.30), coffee: std(0x47372b, 0.78), coffeeBeanLight: std(0x805536, 0.8),
+    porcelain: std(0xe1ddd2, 0.72), mugGlaze: std(0xb0533c, 0.30), mugCoffee: std(0x1b120c, 0.3), coffee: std(0x47372b, 0.78), coffeeBeanLight: std(0x805536, 0.8),
     oilGlass: std(0x526044, 0.4, { metalness: 0.04 }), leafGreen: std(0x405b3d, 0.78, { side: THREE.DoubleSide }), leafGreenLight: std(0x778b53, 0.8, { side: THREE.DoubleSide }), soil: std(0x62513d, 0.98),
     warmGlow: new THREE.MeshBasicMaterial({ color: 0xffc477, transparent: true, opacity: 0.94, side: THREE.DoubleSide, depthWrite: false }),
     sunlight: new THREE.MeshBasicMaterial({ color: 0xffdda0, map: makeSunPatchTexture(), transparent: true, opacity: 0.24, depthWrite: false, side: THREE.DoubleSide }),
@@ -605,6 +773,17 @@ function buildKitchen(b, m) {
     uv.needsUpdate = true;
     addGeometryToBucket(b, "backsplash", m.mainTile, geometry, [0, 0, 0]);
   }
+  {
+    // The patchwork azulejo panel behind the hob, in front of the plain backsplash, under the hood; the hub screen sits on it.
+    // Paul 2026-11-22: a flat printed panel did not read as tile at the stove, so the panel is now REAL tile: 32 glazed bricks
+    // (8 x 4, the same cells the texture paints) each with its own depth, tilt and glaze-edge bevel, over a grout bed. Every
+    // tile keeps its cell of the shared azulejo texture as its face, so the pattern survives while the surface becomes relief.
+    m.hobTile = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.34, map: makeAzulejoTexture() });
+    m.hobTile.name = "main-hob-azulejo";
+    addGeometryToBucket(b, "backsplash", m.hobTile, new THREE.PlaneGeometry(1.0, 0.5).translate(0.82, 1.21, -2.2655), [0, 0, 0]);
+    for (const sy of [-1, 1]) addBox(b, "kitchen", m.brass, [1.02, 0.01, 0.007], [0.82, 1.21 + sy * 0.255, -2.2635]); // a slim brass frame round the panel
+    for (const sx of [-1, 1]) addBox(b, "kitchen", m.brass, [0.01, 0.5, 0.007], [0.82 + sx * 0.505, 1.21, -2.2635]);
+  }
   addBox(b, "kitchen", m.olive, [4.24, 0.66, 0.42], [0, 1.78, -2.16]);
   // Handle-less push-to-open doors with a slim shadow gap along the lower edge (Paul 2026-10-29: make the top row more modern and technical), and the
   // far-left door is replaced by a built-in dish dryer (buildDishDryer).
@@ -676,20 +855,15 @@ function buildKitchen(b, m) {
 
   // Main cooktop remains unchanged.
   addBox(b, "appliances", m.black, [0.9, 0.035, 0.58], [0.82, 0.98, -2.02]);
-  // Gas hob (Paul 2026-10-29: four bare rings read like an induction plate): each burner is a low dark-steel head with a hollow centre, inside a flat
-  // cast-iron pan-support frame, with four knobs on the front edge. Everything stays under 12 mm so the pots and the pan-support ray still reach the plate.
+  // Paul 2026-11-22 (a flat induction cooktop from a reference photo: "no rotary knobs, fully flat, a single control strip"): the four gas burners, pan-support frames and front knobs are gone. The plate is one flat
+  // sheet of black glass; the four cooking zones are printed as thin pale rings, and the only control is a slim touch strip along the front edge (a thin slider line with seven small glowing marks).
   const hobTop = 0.9975;
   for (const x of [0.53, 1.1]) for (const z of [-2.18, -1.88]) {
-    const head = new THREE.LatheGeometry([[0.022, 0], [0.052, 0], [0.052, 0.006], [0.040, 0.009], [0.022, 0.007]].map(([radius, y]) => new THREE.Vector2(radius, y)), 20);
-    addGeometryToBucket(b, "appliances", m.steel, head, [x, hobTop, z]);
-    for (const side of [-1, 1]) {
-      addGeometryToBucket(b, "appliances", m.black, new THREE.BoxGeometry(0.013, 0.012, 0.27), [x + side * 0.135, hobTop + 0.006, z]);
-      addGeometryToBucket(b, "appliances", m.black, new THREE.BoxGeometry(0.27, 0.012, 0.013), [x, hobTop + 0.006, z + side * 0.135]);
-    }
+    addGeometryToBucket(b, "appliances", m.steel, new THREE.RingGeometry(0.098, 0.101, 44).rotateX(-Math.PI / 2), [x, hobTop + 0.0004, z]);
+    addGeometryToBucket(b, "appliances", m.steel, new THREE.RingGeometry(0.052, 0.054, 32).rotateX(-Math.PI / 2), [x, hobTop + 0.0004, z]);
   }
-  for (const x of [0.58, 0.74, 0.90, 1.06]) {
-    addGeometryToBucket(b, "appliances", m.steel, new THREE.CylinderGeometry(0.017, 0.019, 0.018, 14), [x, 0.98, -1.722], [Math.PI / 2, 0, 0]);
-  }
+  addGeometryToBucket(b, "appliances", m.steel, new THREE.BoxGeometry(0.62, 0.0006, 0.0035), [0.82, hobTop + 0.0004, -1.775]); // the slider line
+  for (let i = 0; i < 7; i++) addGeometryToBucket(b, "appliances", m.wokGlow, new THREE.BoxGeometry(0.0045, 0.0006, 0.012), [0.82 + (i - 3) * 0.1, hobTop + 0.0005, -1.755]);
   // A soft-edged stainless canopy and tapered chimney replace the dark square hood.
   addBox(b, "hood", m.hoodSteel, [1.38, 0.15, 0.55], [0.82, 2.13, -2.01]);
   const hoodShape = new THREE.Shape();
@@ -709,10 +883,8 @@ function buildKitchen(b, m) {
   });
   hoodBody.translate(0, 0, -hoodCoreDepth / 2);
   addGeometryToBucket(b, "hood", m.hoodSteel, mergeVertices(hoodBody), [0.82, 2.43, -2.21]);
-  // Canopy details (GrokBot 2026-10-31: the hood read as a plain grey block): five dark vent slots in the underside, a row of three steel knobs on the front
-  // face and a pale polished lip along the front edge. They join the existing black and steel appliance meshes, so no draw call is added.
+  // Canopy details (GrokBot 2026-10-31: the hood read as a plain grey block): five dark vent slots in the underside, a pale polished lip along the front edge. They join the existing black and steel appliance meshes, so no draw call is added.
   for (const dz of [-0.14, -0.07, 0, 0.07, 0.14]) addGeometryToBucket(b, "appliances", m.black, new THREE.BoxGeometry(0.9, 0.003, 0.022), [0.82, 2.0535, -2.01 + dz]);
-  for (const dx of [-0.52, -0.40, 0.52]) addGeometryToBucket(b, "appliances", m.steel, new THREE.CylinderGeometry(0.014, 0.016, 0.014, 14), [0.82 + dx, 2.1, -1.735 + 0.007], [Math.PI / 2, 0, 0]);
   addGeometryToBucket(b, "appliances", m.steel, new THREE.BoxGeometry(1.34, 0.006, 0.006), [0.82, 2.058, -1.735 + 0.001]);
   // Under-cabinet light is an emissive strip plus a single low-power task spot.
   addBox(b, "light-fixtures", m.warmGlow, [3.45, 0.018, 0.024], [0, 1.43, -1.91]);
@@ -763,20 +935,20 @@ function buildSideKitchen(b, m, scene) {
   const ovenBay = { width: 0.60, bottom: 0.16, top: 0.82 };
   const sideWidth = (cabLen - ovenBay.width) / 2;
   for (const sign of [-1, 1]) {
-    addBox(b, "wok-base-cabinet", m.olive, [cabDepth, bodyH, sideWidth], [cabX, bodyY, counterZ + sign * (ovenBay.width / 2 + sideWidth / 2)]);
+    addBox(b, "wok-base-cabinet", m.clay, [cabDepth, bodyH, sideWidth], [cabX, bodyY, counterZ + sign * (ovenBay.width / 2 + sideWidth / 2)]);
   }
-  addBox(b, "wok-base-cabinet", m.olive, [cabDepth, ovenBay.bottom - kickTop, ovenBay.width], [cabX, kickTop + (ovenBay.bottom - kickTop) / 2, counterZ]);
-  addBox(b, "wok-base-cabinet", m.olive, [cabDepth, bodyTop - ovenBay.top, ovenBay.width], [cabX, ovenBay.top + (bodyTop - ovenBay.top) / 2, counterZ]);
+  addBox(b, "wok-base-cabinet", m.clay, [cabDepth, ovenBay.bottom - kickTop, ovenBay.width], [cabX, kickTop + (ovenBay.bottom - kickTop) / 2, counterZ]);
+  addBox(b, "wok-base-cabinet", m.clay, [cabDepth, bodyTop - ovenBay.top, ovenBay.width], [cabX, ovenBay.top + (bodyTop - ovenBay.top) / 2, counterZ]);
   const kickDepth = 0.46;
   const kickMaxX = 2.872;
   const kickX = kickMaxX - kickDepth / 2;
-  addBox(b, "wok-base-cabinet", m.olive, [kickDepth, 0.10, cabLen - 0.08], [kickX, 0.07, counterZ]);
+  addBox(b, "wok-base-cabinet", m.clay, [kickDepth, 0.10, cabLen - 0.08], [kickX, 0.07, counterZ]);
   const doorX = cabX - cabDepth / 2 + 0.006;
   const doorHeight = ovenBay.top - ovenBay.bottom;
   const cabinetPullOffsetFromOvenMm = Math.round(sideWidth * 0.16 * 1000);
   for (const sign of [-1, 1]) {
     const doorZ = counterZ + sign * (ovenBay.width / 2 + sideWidth / 2);
-    addBox(b, "wok-base-cabinet", m.olive, [0.012, doorHeight, sideWidth - 0.012], [doorX, ovenBay.bottom + doorHeight / 2, doorZ]);
+    addBox(b, "wok-base-cabinet", m.clay, [0.012, doorHeight, sideWidth - 0.012], [doorX, ovenBay.bottom + doorHeight / 2, doorZ]);
     // Put both pulls at the inner, oven-facing opening edges so the adjacent wall cannot block the hand approach.
     addBox(b, "wok-base-cabinet", m.brass, [0.016, 0.09, 0.012], [doorX - 0.012, ovenBay.bottom + doorHeight * 0.57, doorZ - sign * (sideWidth * 0.34)]);
   }
@@ -785,27 +957,71 @@ function buildSideKitchen(b, m, scene) {
   const oven = { width: 0.56, height: 0.62, depth: 0.43, frontX: doorX - 0.008, centerY: (ovenBay.bottom + ovenBay.top) / 2 };
   const ovenBodyX = oven.frontX + oven.depth / 2 + 0.004;
   addBox(b, "side-kitchen", m.black, [oven.depth, oven.height, oven.width], [ovenBodyX, oven.centerY, counterZ]);
-  addBox(b, "side-kitchen", m.steel, [0.018, oven.height, oven.width], [oven.frontX, oven.centerY, counterZ]);
+  // Paul 2026-11-22: the oven front is the face you see beside the hob, so it gets the same care as the tile wall. The door
+  // is a bevelled plate with a real picture-frame reveal around the glass, a shadow gap at its edges, a dark cavity behind
+  // the glass with a warm strip in it, and a handle with turned end caps instead of bare bar ends.
+  addGeometryToBucket(b, "side-kitchen", m.steel, roundedBoxGeometry([0.018, oven.height, oven.width], 0.004), [oven.frontX, oven.centerY, counterZ]);
   const windowY = ovenBay.bottom + 0.285;
+  // the cavity: a dark box behind the glass, so the window reads as depth and not as a sticker
+  addBox(b, "side-kitchen", m.black, [0.010, 0.300, 0.395], [oven.frontX + 0.006, windowY, counterZ]);
   addBox(b, "side-kitchen", m.ovenGlass, [0.008, 0.31, 0.405], [oven.frontX - 0.011, windowY, counterZ]);
-  addBox(b, "side-kitchen", m.black, [0.008, 0.012, 0.415], [oven.frontX - 0.012, windowY - 0.17, counterZ]);
-  addBox(b, "side-kitchen", m.black, [0.008, 0.012, 0.415], [oven.frontX - 0.012, windowY + 0.17, counterZ]);
+  // a warm strip at the top of the cavity: emissive pixels, not another light source
+  addBox(b, "side-kitchen", m.wokGlow, [0.004, 0.006, 0.300], [oven.frontX - 0.004, windowY + 0.142, counterZ]);
+  // the oven glass is opaque, so the interior cannot be seen: a slim chrome bezel on the glass itself gives the window a
+  // second plane that catches the room light, and the warm strip is repeated 1 mm in front of the glass where it reads.
+  for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.0025, 0.007, 0.371], [oven.frontX - 0.0155, windowY + sy * 0.148, counterZ]);
+  for (const sz of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.0025, 0.303, 0.007], [oven.frontX - 0.0155, windowY, counterZ + sz * 0.182]);
+  addBox(b, "side-kitchen", m.wokGlow, [0.002, 0.005, 0.286], [oven.frontX - 0.0158, windowY + 0.136, counterZ]);
+  // the picture-frame reveal: four slim stepped rails that stand 2 mm proud of the door plate, 3 mm wide
+  for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.006, 0.016, 0.429], [oven.frontX - 0.014, windowY + sy * 0.163, counterZ]);
+  for (const sz of [-1, 1]) addBox(b, "side-kitchen", m.steel, [0.006, 0.342, 0.014], [oven.frontX - 0.014, windowY, counterZ + sz * 0.2075]);
+  // the joint lines: a thin dark slot under the trim and a hinge shadow at the foot of the door
+  addBox(b, "side-kitchen", m.black, [0.004, 0.003, 0.412], [oven.frontX - 0.0145, windowY - 0.174, counterZ]);
+  addBox(b, "side-kitchen", m.black, [0.004, 0.006, 0.418], [oven.frontX - 0.011, ovenBay.bottom + 0.004, counterZ]);
   // Brushed horizontal handle and two simple, readable control knobs; no branding or extra light source.
-  addBox(b, "side-kitchen", m.brass, [0.028, 0.022, 0.34], [oven.frontX - 0.014, windowY + 0.205, counterZ]);
-  // Dark-glass timer panel and small amber indicators echo the kitchen's appliance UI.
-  // These are emissive pixels only, not another light source.
-  const ovenPanelY = ovenBay.top - 0.044;
-  addBox(b, "side-kitchen", m.ovenGlass, [0.008, 0.060, 0.24], [oven.frontX - 0.013, ovenPanelY, counterZ]);
-  addBox(b, "side-kitchen", m.wokGlow, [0.003, 0.006, 0.046], [oven.frontX - 0.018, ovenPanelY + 0.007, counterZ - 0.030]);
-  addBox(b, "side-kitchen", m.wokGlow, [0.003, 0.005, 0.032], [oven.frontX - 0.018, ovenPanelY + 0.007, counterZ - 0.002]);
-  addBox(b, "side-kitchen", m.wokGlow, [0.003, 0.004, 0.014], [oven.frontX - 0.018, ovenPanelY + 0.007, counterZ + 0.024]);
-  addBox(b, "side-kitchen", m.steel, [0.003, 0.004, 0.016], [oven.frontX - 0.018, ovenPanelY - 0.014, counterZ + 0.036]);
-  for (const dz of [-0.16, 0.16]) {
-    const knob = new THREE.CylinderGeometry(0.014, 0.014, 0.012, 16);
-    knob.rotateZ(Math.PI / 2);
-    addGeometryToBucket(b, "side-kitchen", m.steel, knob, [oven.frontX - 0.013, ovenBay.top - 0.045, counterZ + dz]);
+  // Paul 2026-11-22 (reference: a stainless range with long bar handles, no fussy dials): a full-width brushed stainless bar on two standoffs; the oven has no knobs, only the touch timer panel below.
+  const handleBar = roundedBoxGeometry([0.018, 0.018, 0.46], 0.006);
+  addGeometryToBucket(b, "side-kitchen", m.steel, handleBar, [oven.frontX - 0.034, windowY + 0.205, counterZ]);
+  for (const sz of [-1, 1]) {
+    // a tapered standoff and a turned end cap, so the bar ends look machined rather than cut
+    const cap = new THREE.CylinderGeometry(0.0105, 0.0105, 0.012, 14).rotateX(Math.PI / 2).translate(oven.frontX - 0.034, windowY + 0.205, counterZ + sz * 0.236);
+    addGeometryToBucket(b, "side-kitchen", m.steel, cap, [0, 0, 0]);
+    const stem = new THREE.CylinderGeometry(0.006, 0.008, 0.014, 12).rotateX(Math.PI / 2).translate(oven.frontX - 0.024, windowY + 0.205, counterZ + sz * 0.19);
+    addGeometryToBucket(b, "side-kitchen", m.steel, stem, [0, 0, 0]);
   }
-  scene.userData.wokOven = { ...oven, bay: ovenBay, cooktopY: counterY + 0.055 + 0.014, cabinetFrontX: doorX - 0.006, backX: oven.frontX + oven.depth, counterBottomY: bodyTop, display: "240 x 60 mm dark-glass timer panel with amber indicators", handle: "centered horizontal brushed brass pull on accessible front face", cabinetPulls: "two brass pulls on oven-facing inner door edges", cabinetPullOffsetFromOvenMm };
+  // Paul 2026-11-24: an inset touch panel built as real geometry - a glass slab, a brushed chrome frame around it, a
+  // recessed display well with its own frame, six key wells, and the indicator bases. The printed sheet only carries
+  // what print carries on the real appliance: the seven-segment clock, the thin key icons and the divider.
+  const ovenPanelY = ovenBay.top - 0.052, ovenPanelW = 0.446, ovenPanelH = 0.056, panelFaceX = oven.frontX - 0.0095;
+  {
+    const glassTop = ovenPanelY + ovenPanelH / 2, glassBottom = ovenPanelY - ovenPanelH / 2;
+    // the glass, sunk 1.5 mm behind the chrome frame so the frame reads as the high edge
+    addBox(b, "side-kitchen", m.ovenGlass, [0.005, ovenPanelH, ovenPanelW], [panelFaceX, ovenPanelY, counterZ]);
+    const trim = m.steel, t = 0.0022, dz = ovenPanelW / 2;
+    addBox(b, "side-kitchen", trim, [0.006, t, ovenPanelW + t * 2], [panelFaceX - 0.0035, glassTop + t / 2, counterZ]);
+    addBox(b, "side-kitchen", trim, [0.006, t, ovenPanelW + t * 2], [panelFaceX - 0.0035, glassBottom - t / 2, counterZ]);
+    for (const sz of [-1, 1]) addBox(b, "side-kitchen", trim, [0.006, ovenPanelH + t * 2, t], [panelFaceX - 0.0035, ovenPanelY, counterZ + sz * (dz + t / 2)]);
+    // the display well: a dark recess with a chrome lip above and below, and the amber digits printed on its back
+    const wellW = 0.126, wellH = 0.028, wellY = ovenPanelY; // centred on the sheet, so no lip clips a digit
+    addBox(b, "side-kitchen", m.black, [0.004, wellH, wellW], [panelFaceX - 0.0012, wellY, counterZ]);
+    for (const sy of [-1, 1]) addBox(b, "side-kitchen", m.black, [0.0045, 0.0016, wellW + 0.004], [panelFaceX - 0.0036, wellY + sy * (wellH / 2 + 0.0008), counterZ]); // dark lips, not chrome: a lit edge would glare
+    // six key wells on the glass, three either side of the display, the power key the widest
+    for (const [dz2, w] of [[-0.212, 0.0130], [-0.170, 0.0112], [-0.128, 0.0112], [0.128, 0.0112], [0.170, 0.0112], [0.212, 0.0112]]) {
+      addBox(b, "side-kitchen", m.black, [0.0025, 0.0132, w], [panelFaceX - 0.0009, ovenPanelY + 0.0035, counterZ + dz2]);
+    }
+    // the two amber indicators keep their base plates, so neither dot floats on the glass
+    for (const dz2 of [-0.104, 0.104]) addBox(b, "side-kitchen", m.black, [0.0022, 0.0052, 0.0072], [panelFaceX - 0.0009, ovenPanelY - 0.0135, counterZ + dz2]);
+    const sheet = makeOvenPanelTexture(ovenPanelClockText());
+    ovenPanelTexture = sheet; ovenPanelShown = ovenPanelClockText();
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(ovenPanelW, ovenPanelH).rotateY(-Math.PI / 2), new THREE.MeshStandardMaterial({
+      map: sheet, color: 0xffffff, roughness: 0.3, metalness: 0.1, transparent: true, alphaTest: 0.02,
+      emissive: 0xffffff, emissiveMap: sheet, emissiveIntensity: 0.9,
+    }));
+    face.name = "oven-touch-panel"; face.userData.category = "side-kitchen";
+    face.position.set(panelFaceX - 0.0052, ovenPanelY, counterZ); // the print sits in front of the wells, so no lip cuts a digit
+    scene.add(face);
+  }
+  scene.userData.wokOven = { ...oven, bay: ovenBay, cooktopY: counterY + 0.055 + 0.014, cabinetFrontX: doorX - 0.006, backX: oven.frontX + oven.depth, counterBottomY: bodyTop, display: "240 x 60 mm dark-glass timer panel with amber indicators", handle: "centered horizontal brushed stainless bar pull on two standoffs", cabinetPulls: "two brass pulls on oven-facing inner door edges", cabinetPullOffsetFromOvenMm };
 
   addGeometryToBucket(b, "wok-counter", m.stone, roundedBoxGeometry([counterDepth, counterH, counterLen], 0.025), [counterX, counterY, counterZ]);
   addBox(b, "side-kitchen", m.black, [0.42, 0.028, 0.48], [cookX, counterY + 0.055, cookZ]);
@@ -828,8 +1044,11 @@ function buildSideKitchen(b, m, scene) {
   ];
   addSideMesh(new THREE.LatheGeometry(wokProfile, 24), m.wokIron, "wok-kitchen-wok", [cookX, counterY + 0.07, cookZ]);
   // Long wooden handle tapering toward the grip and rising 8 degrees (it was a short level rod); the pan also gets a helper loop opposite it.
-  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.017, 0.30, 10), m.oak);
-  wokHandle.rotation.z = Math.PI / 2 - 0.15; wokHandle.position.set(cookX - 0.323, counterY + 0.182, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
+  // Paul 2026-11-24: the handle read as a short orange stick lying inside the wok. It was 30 cm long with its centre only 0.323 m
+  // from the pan axis, so its inner end sat 7.5 mm INSIDE the 0.182 m rim. It is now 24 cm with its centre 0.289 m out, and the
+  // inner end stops 12 mm inside the outer wall: the handle enters the pan it carries, not the food.
+  const wokHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.017, 0.24, 10), m.oak);
+  wokHandle.rotation.z = Math.PI / 2 - 0.14; wokHandle.position.set(cookX - 0.2888, counterY + 0.1966, cookZ); wokHandle.name = "wok-kitchen-handle"; wokHandle.userData.category = "side-kitchen";
   b.get(`shapes:${m.oak.uuid}`) ?? b.set(`shapes:${m.oak.uuid}`, { category: "side-kitchen", material: m.oak, geometries: [], meshes: [] }); b.get(`shapes:${m.oak.uuid}`).meshes.push(wokHandle);
 
   // Past the hood's +Z edge so the shelf, bottle and rail read from the room, not inside the canopy.
@@ -887,16 +1106,54 @@ function buildSideKitchen(b, m, scene) {
     stampTileUvs(geometry);
     addGeometryToBucket(b, "wok-backsplash", wokTile, geometry, [0, 0, 0]);
   };
-  addTiledSplash([0.02, splashH, splashLen], [wallFaceX - 0.007, splashY, splashZ]);
-  addTiledSplash([0.13, splashH, 0.016], [wallFaceX - 0.062, splashY, counterMinZ + 0.008]);
-  addTiledSplash([0.13, splashH, 0.016], [wallFaceX - 0.062, splashY, counterMaxZ - 0.008]);
+  // Paul 2026-11-22: the small stove is the wall worth the tile work. The printed subway run and its two returns become
+  // REAL zellige: hand-set glazed bricks about 68 mm across, each 1.5-5 mm proud, leaning up to a degree, one flat glaze
+  // colour per brick from the azulejo palette plus a light glaze lip. Same bucket and material as the hob panel, so no
+  // draw call is added, and the oven mitts and the hanging tools stay exactly where they were.
+  {
+    const frontX = wallFaceX - 0.007 - 0.010;
+    const GAP = 0.002, T = 0.014, TARGET = 0.068;
+    const ROWS = Math.max(1, Math.round(splashH / TARGET)), COLS = Math.max(1, Math.round(splashLen / TARGET));
+    const faceH = splashH / ROWS - GAP, faceW = splashLen / COLS - GAP;
+    const PALETTE = [[8, 8], [136, 8], [64, 24], [20, 264], [64, 64]]; // cream, pale, cobalt, terracotta, ochre
+    const WEIGHT = [0, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 3, 1, 0, 4, 1, 0, 1, 0];
+    const mix = (n) => { let x = Math.imul((n ^ 0x9e3779b9) >>> 0, 2654435761) >>> 0; x ^= x >>> 15; x = Math.imul(x, 2246822519) >>> 0; return ((x ^ (x >>> 13)) >>> 8) / 16777216; };
+    const jit = (i, k) => { const v = Math.sin((i * 12.9898 + k * 78.233) * 43758.5453); return v - Math.floor(v); };
+    const bricks = [];
+    const glaze = (g, index, front, lip) => {          // front: predicate telling which vertices face the room
+      const uv = g.attributes.uv, pos = g.attributes.position;
+      const pick = PALETTE[WEIGHT[Math.floor(mix(index) * WEIGHT.length)]];
+      const fu = (pick[0] + 2) / 1024, fv = 1 - (pick[1] + 2) / 512;
+      for (let n = 0; n < uv.count; n++) uv.setXY(n, front(pos, n) ? fu : lip, front(pos, n) ? fv : 1 - 4 / 512);
+    };
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const index = r * COLS + c;
+      const y = splashBottom + (r + 0.5) * (splashH / ROWS), z = splashMinZ + (c + 0.5) * (splashLen / COLS);
+      const g = roundedBoxGeometry([T, faceH, faceW], 0.0012, 1);
+      glaze(g, index, (pos, n) => pos.getX(n) < -T * 0.34, 4 / 1024);
+      g.applyMatrix4(new THREE.Matrix4().makeRotationZ((jit(index, 2) - 0.5) * 0.030));
+      g.applyMatrix4(new THREE.Matrix4().makeRotationY((jit(index, 3) - 0.5) * 0.018));
+      g.applyMatrix4(new THREE.Matrix4().makeTranslation(frontX - (0.0015 + jit(index, 1) * 0.0035) - T / 2, y, z));
+      bricks.push(g);
+    }
+    // Paul 2026-11-22: the two 13 cm stone returns stood out from the wall like fins (they read as a vertical slab
+    // sticking into the room), so they are gone; the zellige field ends at the wall edge.
+    // Paul 2026-11-22: a hairline brass edge at each end of the tile field, 5 mm wide and 24 mm deep, so the cut brick
+    // edge meets a metal line instead of stopping abruptly against the wall. It wraps the tile thickness, nothing floats.
+    for (const end of [splashMinZ + 0.0025, splashMinZ + splashLen - 0.0025]) {
+      addBox(b, "kitchen", m.brass, [0.024, splashH - 0.002, 0.005], [frontX - 0.011, splashY, end]);
+    }
+    addGeometryToBucket(b, "backsplash", m.hobTile, mergeGeometries(bricks), [0, 0, 0]);
+    bricks.forEach((g) => g.dispose());
+  }
   scene.userData.wokTile = { material: wokTile, repeatM: tileRepeatM, status: "pending", readyBeforeFirstPaint: false };
 
   const hoodShape = new THREE.Shape();
-  hoodShape.moveTo(-0.26, -0.12); hoodShape.lineTo(-0.14, 0.10); hoodShape.lineTo(0.14, 0.10); hoodShape.lineTo(0.26, -0.12); hoodShape.closePath();
-  const hoodGeometry = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.38, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.008, bevelSize: 0.006 });
+  hoodShape.moveTo(-0.26, -0.12); hoodShape.quadraticCurveTo(-0.185, -0.035, -0.14, 0.10); hoodShape.lineTo(0.14, 0.10); hoodShape.quadraticCurveTo(0.185, -0.035, 0.26, -0.12); hoodShape.closePath(); // a bell: the sides sweep in with a curve
+  const hoodGeometry = new THREE.ExtrudeGeometry(hoodShape, { depth: 0.38, bevelEnabled: true, bevelSegments: 4, bevelThickness: 0.008, bevelSize: 0.006 });
   hoodGeometry.translate(0, 0, -0.19);
-  addSideMesh(hoodGeometry, m.wokSteel, "wok-kitchen-sloped-hood", [cookX + 0.04, 1.72, cookZ], [0, Math.PI / 2, 0]);
+  addSideMesh(hoodGeometry, m.wokPlaster, "wok-kitchen-sloped-hood", [cookX + 0.04, 1.72, cookZ], [0, Math.PI / 2, 0]);
+  addSideMesh(new THREE.BoxGeometry(0.536, 0.016, 0.396), m.brass, "wok-kitchen-hood-rim", [cookX + 0.04, 1.72 - 0.116, cookZ], [0, Math.PI / 2, 0]); // a slim brass rim round the lower edge
 
   const soffitY = 2.61;
   const capH = 0.05;
@@ -906,10 +1163,10 @@ function buildSideKitchen(b, m, scene) {
   const ductTop = capY - capH / 2 + 0.002;
   const ductH = ductTop - ductBottom;
   const ductX = wallFaceX - 0.09;
-  const duct = new THREE.Mesh(new THREE.BoxGeometry(0.16, ductH, 0.22), m.wokSteel);
+  const duct = new THREE.Mesh(new THREE.BoxGeometry(0.16, ductH, 0.22), m.wokPlaster);
   duct.position.set(ductX, ductBottom + ductH / 2, cookZ); duct.name = "wok-kitchen-hood-duct"; duct.userData.category = "side-kitchen";
   duct.castShadow = true; duct.receiveShadow = true; scene.add(duct);
-  const ductCap = new THREE.Mesh(new THREE.BoxGeometry(0.20, capH, 0.26), m.wokSteel);
+  const ductCap = new THREE.Mesh(new THREE.BoxGeometry(0.20, capH, 0.26), m.wokPlaster);
   ductCap.position.set(ductX, capY, cookZ); ductCap.name = "wok-kitchen-hood-duct-cap"; ductCap.userData.category = "side-kitchen";
   ductCap.castShadow = true; ductCap.receiveShadow = true; scene.add(ductCap);
 
@@ -948,8 +1205,10 @@ function buildSideKitchen(b, m, scene) {
     shape.moveTo(0, -ry);
     shape.bezierCurveTo(rx * 0.95, -ry * 0.72, rx, ry * 0.45, 0, ry);
     shape.bezierCurveTo(-rx, ry * 0.45, -rx * 0.95, -ry * 0.72, 0, -ry);
-    const geometry = new THREE.ShapeGeometry(shape, 6);
-    geometry.rotateZ(angle); geometry.translate(cx, cy, 0.0295);
+    // Paul 2026-11-22: the print read as a sticker on a flat plane, so every motif is now a raised pad (an extruded
+    // shape with a soft bevel) instead of a flat sheet: 1.8 mm of embroidery over the cloth, catching the hood light.
+    const geometry = new THREE.ExtrudeGeometry(shape, { depth: 0.0018, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.0005, bevelSize: 0.0005, curveSegments: 4 });
+    geometry.rotateZ(angle); geometry.translate(cx, cy, 0.0288);
     return geometry;
   };
   for (const [index, mittZ] of [hookZ - 0.12, hookZ + 0.12].entries()) {
@@ -999,12 +1258,13 @@ function buildSideKitchen(b, m, scene) {
         const shape = new THREE.Shape();
         shape.moveTo(0, -0.007); shape.bezierCurveTo(0.006, -0.006, 0.006, 0.004, 0, 0.010);
         shape.bezierCurveTo(-0.006, 0.004, -0.006, -0.006, 0, -0.007);
-        const petalGeometry = new THREE.ShapeGeometry(shape, 5);
-        petalGeometry.rotateZ(angle); petalGeometry.translate(px, py, 0.0305);
+        const petalGeometry = new THREE.ExtrudeGeometry(shape, { depth: 0.0012, bevelEnabled: true, bevelSegments: 1, bevelThickness: 0.0004, bevelSize: 0.0004, curveSegments: 4 });
+        petalGeometry.rotateZ(angle); petalGeometry.translate(px, py, 0.0298);
         addPrint(petalGeometry, petalColor);
       }
-      const center = new THREE.CircleGeometry(0.0045, 8); center.translate(cx, cy, 0.032);
-      addPrint(center, 0x8c683d);
+      // the flower's centre is a little domed bead, not a printed disc
+      const centre = new THREE.CylinderGeometry(0.0045, 0.0045, 0.0016, 10).rotateX(Math.PI / 2).translate(cx, cy, 0.0310);
+      addPrint(centre, 0x8c683d);
       mittPattern.flowers++;
     }
   }
@@ -2160,29 +2420,30 @@ function buildThanksgivingDecor(scene) {
   // Bulk pack of paper napkins (Paul 2026-10-31): a soft-plastic wrapped white stack with a generic red band and an abstract,
   // unreadable label block (no real brand name or logo). Slightly squashed: flat base on the table, bulging sides, pinched seams at both ends.
   {
-    const pack = new THREE.BoxGeometry(0.19, 0.074, 0.105, 16, 6, 10);
-    const packPos = pack.attributes.position;
-    for (let i = 0; i < packPos.count; i++) {
-      const x = packPos.getX(i), y = packPos.getY(i), z = packPos.getZ(i);
-      const u = x / 0.095, v = (y + 0.037) / 0.074, w = z / 0.0525;
-      const bulge = Math.sin(Math.PI * Math.min(1, v * 1.05)) * (1 - u * u * 0.6);
-      const pinch = Math.max(0, Math.abs(u) - 0.86) / 0.14;
-      const nz = z * (1 + 0.06 * bulge) * (1 - 0.10 * pinch);
-      const ny = (y + 0.037) * (1 - 0.06 * pinch) * (1 + 0.035 * (1 - w * w) * (1 - u * u)) + 0.0012 * Math.sin(x * 140 + z * 60) * v * v;
-      packPos.setXYZ(i, x * (1 - 0.02 * v * v), ny, nz);
-    }
+    // Paul 2026-11-17: the wrapped pack looked like a plain white brick next to the record player. It is now a paper-napkin dispenser box (same footprint,
+    // same spot): a cream carton with a soft sage band, an oval opening on top and two white napkins pulled up through it, rippled and leaning,
+    // fanning out from the middle. No brand, no text. The two napkins stand 4 mm inside the carton so they grow out of the opening.
+    const BODY_H = 0.062;
+    const body = new THREE.BoxGeometry(0.19, BODY_H, 0.105, 6, 3, 4);
+    paint(body, (y) => (y < -0.012 ? 0xe8e2d3 : y < 0.016 ? 0xc9d6c4 : 0xefeadd));
+    body.translate(0, BODY_H / 2, 0);
+    const opening = new THREE.CircleGeometry(1, 24).scale(0.062, 0.022, 1).rotateX(-Math.PI / 2).translate(0, BODY_H + 0.0004, 0);
+    paint(opening, () => 0x3b3732);
+    const napkin = (w, h, baseX, tiltZ, tiltY, phase, curl) => {
+      const g = new THREE.BoxGeometry(w, h, 0.0016, 12, 10, 1);
+      const pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), y = pos.getY(i) + h / 2, rise = y / h; // 0 at the opening, 1 at the free edge
+        pos.setZ(i, pos.getZ(i) + (0.002 + 0.011 * rise) * Math.sin((x / w) * Math.PI * 2.6 + phase) + curl * rise * rise);
+        pos.setX(i, x * (1 + 0.1 * rise)); // a tissue opens out a little as it rises
+        pos.setY(i, y);
+      }
+      g.rotateZ(tiltZ); g.rotateY(tiltY); g.translate(baseX, BODY_H - 0.004, 0);
+      paint(g, (y, n) => (n > 0.9 ? 0xeceae3 : 0xf8f7f2));
+      return g;
+    };
+    const pack = mergeGeometries([body, opening, napkin(0.066, 0.078, -0.006, 0.07, 0.12, 0.4, 0.016), napkin(0.058, 0.052, 0.018, -0.2, -0.28, 2.2, -0.012)], false);
     pack.rotateY(0.18);
-    paint(pack, () => 0xf1f0ea);
-    const colors = pack.attributes.color, local = new THREE.Vector3(), rot = new THREE.Matrix4().makeRotationY(-0.18), c = new THREE.Color();
-    for (let i = 0; i < packPos.count; i++) {
-      local.fromBufferAttribute(packPos, i).applyMatrix4(rot);
-      const n = Math.abs(Math.sin(local.x * 191.3 + local.y * 83.7 + local.z * 151.1) * 43758.5453) % 1;
-      if (Math.abs(local.x) < 0.034) c.set(0xb0242b);
-      else c.set(n > 0.85 ? 0xdfe0dc : 0xf2f1eb);
-      // Abstract label: a cream block with a few darker bars on the band's front face (deliberately unreadable).
-      if (Math.abs(local.x) < 0.024 && local.z > 0.045 && local.y > 0.022 && local.y < 0.052) c.set(Math.sin(local.x * 900) > 0.6 && local.y > 0.034 ? 0x6e1a20 : 0xeee3cf);
-      c.toArray(colors.array, i * 3);
-    }
     // Paul 2026-10-31: on the dining table it crowded a glass, so it lives on the free front end of the small wok counter, beside the clay-red
     // credenza. Seated on the measured stone top (0 mm), kept 20 mm+ clear of the wok kitchen props (checked in the decor test).
     const wokCounter = scene.getObjectByName("merged-wok-counter");
@@ -2256,6 +2517,7 @@ function buildThanksgivingDecor(scene) {
   }
   const materials = {
     decor: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.38, vertexColors: true }),
+    paper: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.86, vertexColors: true }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.18, transparent: true, opacity: 0.30, depthWrite: false, vertexColors: true }),
     liquid: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.22, transparent: true, opacity: 0.78, depthWrite: false, vertexColors: true }),
   };
@@ -2268,7 +2530,7 @@ function buildThanksgivingDecor(scene) {
     if (!geometry) throw new Error(`Could not merge Room 03 Thanksgiving ${kind}`);
     geometry.computeVertexNormals();
     if (kind !== "paperNapkin") vertices += geometry.attributes.position.count;
-    const material = kind === "paperNapkin" ? materials.decor : materials[kind];
+    const material = kind === "paperNapkin" ? materials.paper : materials[kind];
     const mesh = new THREE.Mesh(geometry, material);
     if (kind === "paperNapkin") {
       paperNapkinVertices = geometry.attributes.position.count;
@@ -3239,6 +3501,7 @@ function buildRoomWallArt(scene, materials, woodGeometries) {
       "moon-hills": "./art/room03-lamp-wall-moon-hills-v1.webp",
       "hills-sun": "./art/room03-lamp-wall-hills-sun-v1.webp",
       "botanical-window": "./art/room03-lamp-wall-botanical-window-v1.webp",
+      "blue-plate-lemons": "./art/room03-lamp-wall-blue-plate-lemons-v1.webp",
     },
   };
   const frameAssetByKey = { "cable-car": cableCar, "redwood-path": redwoodPath, "lamp-wall": lampWall };
@@ -3646,7 +3909,7 @@ function buildRoomDoor(scene, m) {
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
     return geometry;
   };
-  const OLIVE = 0x8c9a70, GLASS = 0xe2dccb, BRASS = 0xb08d4e;
+  const OLIVE = 0xd2a24c /* Paul 2026-11-21: the room was green enough; a warm saffron-mustard leaf completes the slate blue and terracotta */, GLASS = 0xe2dccb, BRASS = 0xb08d4e;
   const top = LEAF_BOTTOM + LH, slotLow = 0.30, slotHigh = 1.80, stile = 0.15, slotW = 0.12;
   const leafBox = (z0, z1, y0, y1, hex) => colour(box(LEAF_T, y1 - y0, z1 - z0, 0, (y0 + y1) / 2, (z0 + z1) / 2), hex);
   const parts = [
@@ -3749,7 +4012,7 @@ function makeCredenzaOakMaps() {
   let state = 20261104;
   const random = () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 4294967296; };
   const boards = 4, boardH = H / boards;
-  const tone = [[196, 150, 99], [184, 138, 90], [204, 158, 106], [190, 144, 94]];
+  const tone = [[228, 218, 198], [220, 209, 188], [234, 224, 204], [224, 213, 192]]; // Paul 2026-11-21: a pale warm limestone-oak, so the top sits quietly between the slate blue and the walnut
   const streaks = [];
   for (let i = 0; i < 150; i++) {
     streaks.push({ y: random() * H, k: 1 + Math.floor(random() * 3), phase: random() * TAU, amp: 1 + random() * 5, width: 0.6 + random() * 1.8, dark: random() < 0.62, alpha: 0.05 + random() * 0.12 });
@@ -3768,12 +4031,12 @@ function makeCredenzaOakMaps() {
     for (let b = 0; b < boards; b++) { const t = tone[b]; ctx.fillStyle = `rgb(${t[0]},${t[1]},${t[2]})`; ctx.fillRect(0, b * boardH, W, boardH + 1); }
     for (const st of streaks) {
       ctx.lineWidth = st.width;
-      ctx.strokeStyle = st.dark ? `rgba(92,58,30,${st.alpha})` : `rgba(240,205,150,${st.alpha * 0.9})`;
+      ctx.strokeStyle = st.dark ? `rgba(140,115,88,${st.alpha})` : `rgba(252,246,232,${st.alpha * 0.9})`;
       for (const dy of [-H, 0, H]) wavy(ctx, st, dy);
     }
-    ctx.fillStyle = "rgba(70,42,22,.30)";
+    ctx.fillStyle = "rgba(110,86,62,.26)";
     for (const po of pores) ctx.fillRect(po.x, po.y, po.len, 0.9);
-    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(60,38,20,.34)"; ctx.fillRect(0, b * boardH, W, 1.4); }
+    for (let b = 0; b < boards; b++) { ctx.fillStyle = "rgba(120,96,70,.30)"; ctx.fillRect(0, b * boardH, W, 1.4); }
   }, W, H);
   const grey = (paint) => { const t = makeTexture(paint, W, H); t.colorSpace = THREE.NoColorSpace; return t; };
   const roughness = grey((ctx) => {
@@ -3795,31 +4058,57 @@ function makeCredenzaOakMaps() {
 function buildRightWallCredenza(scene, m) {
   const WALL_X = 2.94, Z_MIN = -0.80, Z_MAX = 1.00, DEPTH = 0.45, TOP_Y = 0.815, PLINTH = 0.08, TOP_T = 0.03;
   const length = Z_MAX - Z_MIN, zMid = (Z_MIN + Z_MAX) / 2, xBack = WALL_X - 0.002, xFront = xBack - DEPTH, xMid = (xBack + xFront) / 2;
-  const parts = { walnut: [], front: [], dark: [] };
+  const parts = { walnut: [], front: [], dark: [], paint: [], paintDeep: [], paintHi: [], rib: [] };
   const hardwareParts = [];
   // Rounded edges only where they are seen (top and door fronts, 2 bevel segments); hidden body, plinth and pulls are plain boxes.
   const box = (bucket, size, position, rounded = false) => { const g = rounded ? roundedBoxGeometry(size, Math.min(0.006, Math.min(...size) * 0.25), 2) : new THREE.BoxGeometry(...size); if (!rounded) { g.deleteAttribute("uv"); g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); } g.translate(...position); parts[bucket].push(rounded ? g : g); return g; };
   const bodyH = TOP_Y - TOP_T - PLINTH;
   box("walnut", [DEPTH - 0.02, bodyH, length], [xMid + 0.01, PLINTH + bodyH / 2, zMid]);
   box("dark", [DEPTH - 0.08, PLINTH, length - 0.06], [xMid + 0.04, PLINTH / 2, zMid]);
-  const doors = 4, gap = 0.006, doorW = (length - gap * (doors + 1)) / doors;
+  // Paul 2026-11-21 (the side cabinet looked plain and not modern): three fluted doors and, at the window end, a wide section of two drawers over a door in the original walnut tone (2026-11-21: no lighter panel, no inlay line). Handles stay the slim brass bars; the plinth is a recessed dark toe kick, and a thin brass edge line runs under the oak top. Still one vertex-colour mesh (the brass
+  // parts join the existing brass mesh), so the draw call count is unchanged.
+  const gap = 0.007, widths = [0.36, 0.36, 0.36], wide = length - gap * 5 - widths.reduce((a, b) => a + b, 0), doorWidths = [...widths, wide];
+  const doors = doorWidths.length; let cursor = Z_MIN + gap;
+  // Paul 2026-11-21 (colour-blocking): the left door and the wide window-end section are both painted the same slate blue, the three walnut fluted fronts become a middle pair of two with their pulls on the meeting
+  // edges at the centre; every vertical pull (blue and walnut) hangs at the same height and has the same size, so the handles read as one set.
+  const PULL_Y = 0.44, drawerH = 0.125, dgap = 0.007, stileW = 0.032;
+  const verticalPull = (pz) => { const pull = new THREE.BoxGeometry(0.014, 0.082, 0.012); pull.translate(xFront - 0.02, PULL_Y, pz); hardwareParts.push(pull);
+    for (const dy of [-0.027, 0.027]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, PULL_Y + dy, pz); hardwareParts.push(standoff); } };
+  const shaker = (fx, z, doorW, cy, h) => { // one painted front: the slab, four frame bars and the recessed panel
+    box("paint", [0.02, h, doorW], [fx, cy, z], true);
+    box("paintDeep", [0.004, h - 2 * stileW, doorW - 2 * stileW], [fx - 0.0105, cy, z]); // the recessed panel, a little darker
+    for (const sz of [-1, 1]) box("paintHi", [0.007, h, stileW], [fx - 0.0105, cy, z + sz * (doorW / 2 - stileW / 2)], true); // the two stiles
+    for (const sy of [-1, 1]) box("paintHi", [0.007, stileW, doorW - 2 * stileW], [fx - 0.0105, cy + sy * (h / 2 - stileW / 2), z], true); // the top and bottom rails
+  };
   for (let i = 0; i < doors; i++) {
-    const z = Z_MIN + gap + doorW / 2 + i * (doorW + gap);
-    box("front", [0.02, bodyH - 0.02, doorW], [xFront - 0.004, PLINTH + bodyH / 2, z], true);
-    // Slim vertical pulls sit on the opening edge at a natural hand height, rather than disguising themselves as top grooves.
-    const pullZ = z + (i % 2 === 0 ? doorW * 0.32 : -doorW * 0.32);
-    const pullY = PLINTH + bodyH * 0.56;
-    const pull = new THREE.BoxGeometry(0.014, 0.082, 0.012);
-    pull.translate(xFront - 0.018, pullY, pullZ);
-    hardwareParts.push(pull);
-    for (const dy of [-0.027, 0.027]) {
-      const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008);
-      standoff.translate(xFront - 0.014, pullY + dy, pullZ);
-      hardwareParts.push(standoff);
+    const doorW = doorWidths[i], z = cursor + doorW / 2; cursor += doorW + gap;
+    const doorH = bodyH - 0.02, yMid = PLINTH + bodyH / 2, fx = xFront - 0.004, last = i === doors - 1;
+    if (i === 0) { // the left door: slate blue like the window end, its pull on the edge that meets the walnut pair
+      shaker(fx, z, doorW, yMid, doorH); verticalPull(z + doorW / 2 - 0.035);
+    } else if (!last) { // the middle pair of fluted walnut doors: pulls on the two meeting edges
+      box("front", [0.02, doorH, doorW], [fx, yMid, z], true); // the door slab
+      const pitch = 0.0105, rib = 0.0066, n = Math.floor((doorW - 0.07) / pitch); // flutes: plain ribs (flat boxes, 3 mm proud) read the same as round ones at room distance
+      for (let k = 0; k < n; k++) box("rib", [0.0034, doorH - 0.03, rib], [fx - 0.0105, yMid, z - (n - 1) * pitch / 2 + k * pitch]);
+      // Slim vertical pulls on the opening edge at a natural hand height.
+      verticalPull(z + (i === 1 ? doorW / 2 - 0.035 : -doorW / 2 + 0.035));
+    } else {
+      // Paul 2026-11-21 (first the wide end kept the plain walnut, which read as a downgrade next to the fluted doors): the wide section is now painted a calm slate blue, an American shaker finish: two
+      // drawers over a door, each with a raised frame (stiles and rails 3.2 cm wide, 6 mm proud) round a recessed panel, and the same brass pulls. The blue sits well beside the olive cabinets and the oak top.
+      const topY = yMid + doorH / 2;
+      for (const k of [0, 1]) {
+        const y = topY - drawerH / 2 - k * (drawerH + dgap);
+        shaker(fx, z, doorW, y, drawerH);
+        const bar = new THREE.BoxGeometry(0.014, 0.012, 0.11); bar.translate(xFront - 0.02, y, z); hardwareParts.push(bar);
+        for (const dz of [-0.04, 0.04]) { const standoff = new THREE.BoxGeometry(0.018, 0.008, 0.008); standoff.translate(xFront - 0.016, y, z + dz); hardwareParts.push(standoff); }
+      }
+      const doorTop = topY - 2 * drawerH - 2 * dgap, doorBottom = yMid - doorH / 2, doorMid = (doorTop + doorBottom) / 2;
+      shaker(fx, z, doorW, doorMid, doorTop - doorBottom);
+      verticalPull(z - doorW / 2 + 0.035);
     }
   }
+  { const strip = new THREE.BoxGeometry(0.004, 0.006, length - 0.02); strip.translate(xFront - 0.006, TOP_Y - TOP_T - 0.003, zMid); hardwareParts.push(strip); } // the thin brass edge line under the oak top
   // One mesh: warm walnut, slightly lighter door fronts, oak top and recessed shadow lines share one draw call.
-  const tints = { walnut: 0x76543b, front: 0x886344, dark: 0x292724 };
+  const tints = { walnut: 0x76543b, front: 0x6a4a33, dark: 0x201e1b, paint: 0x4a6877, paintDeep: 0x41606e, paintHi: 0x587a8a, rib: 0x86613f }; // the painted wide section: a slate blue
   const all = [];
   for (const [kind, list] of Object.entries(parts)) {
     const tint = new THREE.Color(tints[kind]);
@@ -3891,7 +4180,7 @@ function buildRightWallCredenza(scene, m) {
 function buildRoom03CredenzaDecor(scene) {
   const TOP_Y = 0.815, X = 2.71;
   const parts = [];
-  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1], bucket = parts) => {
     geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale),
     ));
@@ -3899,7 +4188,7 @@ function buildRoom03CredenzaDecor(scene) {
     for (let i = 0; i < count; i++) colour.toArray(colors, i * 3);
     geometry.deleteAttribute("uv");
     geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-    parts.push(geometry);
+    bucket.push(geometry);
   };
   const lathe = (profile, segments) => new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), segments);
   const CLAY = 0xa8644a, MOSS = 0x6f7d5a, BLUE = 0x6c7f93, CREAM = 0xe6dccb, OAK = 0xb88b5b, CERAMIC = 0xd9cfbc;
@@ -3908,10 +4197,70 @@ function buildRoom03CredenzaDecor(scene) {
     add(new THREE.BoxGeometry(width, height, depth), cover, [x, y + height / 2, z], [0, yaw, lean]);
     add(new THREE.BoxGeometry(width - 0.006, height - 0.01, depth + 0.002), CREAM, [x, y + height / 2, z], [0, yaw, lean]);
   };
-  // Stack of three lying books (z about -0.55), the top one a little off square, a small ceramic cup on top.
-  const stack = [[0.27, 0.045, 0.19, MOSS, 0.03], [0.25, 0.05, 0.18, CLAY, -0.05], [0.23, 0.04, 0.17, BLUE, 0.09]];
-  let stackY = TOP_Y;
-  for (const [length, height, width, cover, yaw] of stack) { book(width, height, length, cover, [X, stackY, -0.56], yaw); stackY += height; }
+  // Paul 2026-11-21 (the stack of three books looked like a bookshelf item, not a kitchen one; kitchen things from a reference photo of a sideboard instead): a woven wicker basket with a leafy plant, a small
+  // amber glass lantern and a cream crock of wooden spoons. They stand where the books stood (z -0.56) and between it and the first cup; all of it joins the same merged mesh.
+  const WICKER = 0xc7a26b, WICKER_DARK = 0x9d7a45, LEAF = [0x5f8446, 0x4d7338, 0x6f9250, 0x3f6a3c];
+  {
+    // The flat top holds only cooking things, laid out in order from the window end towards the stove (Paul 2026-11-21): a stoneware canister and a walnut pepper mill against the wall, a cherry-red enamel casserole with a round
+    // board of halved lemon and lime beside it, a floral lidded spice pot, a tray of good bottles (balsamic vinegar, olive oil, soy sauce and the Thanksgiving table's burgundy wine bottle, copied), and two
+    // stacks of dinner plates side by side by the wall (with a mug on one), 4 cm clear of the record player (z 0.32 on). Anything that did not look finished was taken out.
+    // Paul 2026-11-22 (the crock of thin spoons read as odd sticks in a white jar): a matte stoneware canister with a blue glaze band, an oak lid and a brass knob, and a turned walnut pepper mill with brass rings,
+    // the kind of kitchenware in the 2026 design shops. Both stand against the wall at the window end, clear of each other and of the round board.
+    const canX = 2.85, canZ = -0.744, millZ = -0.6745;
+    add(lathe([[0, 0], [0.039, 0], [0.044, 0.008], [0.044, 0.118], [0.04, 0.122], [0, 0.122]], 28), 0xe9e0cf, [canX, TOP_Y, canZ]);
+    add(new THREE.CylinderGeometry(0.0446, 0.0446, 0.02, 28, 1, true), 0xc4704f, [canX, TOP_Y + 0.07, canZ]);
+    add(new THREE.CylinderGeometry(0.0446, 0.0446, 0.004, 28, 1, true), 0xf3ead8, [canX, TOP_Y + 0.088, canZ]);
+    add(lathe([[0, 0.12], [0.043, 0.12], [0.043, 0.128], [0.037, 0.134], [0, 0.136]], 28), 0xb98a52, [canX, TOP_Y, canZ]);
+    add(new THREE.SphereGeometry(0.0095, 12, 8), 0xc9a45a, [canX, TOP_Y + 0.144, canZ]);
+    add(lathe([[0, 0], [0.022, 0], [0.021, 0.02], [0.015, 0.07], [0.013, 0.1], [0.018, 0.135], [0.02, 0.16], [0.012, 0.172], [0, 0.174]], 24), 0x7a5636, [canX, TOP_Y, millZ]);
+    for (const y of [0.022, 0.108]) add(new THREE.TorusGeometry(y < 0.05 ? 0.0215 : 0.0135, 0.0018, 6, 20).rotateX(Math.PI / 2), 0xc9a45a, [canX, TOP_Y + y, millZ]);
+    add(new THREE.SphereGeometry(0.0115, 12, 8), 0x7a5636, [canX, TOP_Y + 0.178, millZ]);
+    { const bx3 = 2.82, bz3 = -0.575; // the round board with a halved lemon and a halved lime
+      add(new THREE.CylinderGeometry(0.075, 0.075, 0.016, 28), 0xc79a5f, [bx3, TOP_Y + 0.008, bz3]); add(new THREE.TorusGeometry(0.075, 0.0045, 5, 28).rotateX(Math.PI / 2), 0xa9793f, [bx3, TOP_Y + 0.016, bz3]);
+      add(new THREE.SphereGeometry(1, 16, 8).scale(0.03, 0.022, 0.026), 0xf1d54a, [bx3 - 0.025, TOP_Y + 0.025, bz3 - 0.012]); add(new THREE.CylinderGeometry(0.022, 0.022, 0.004, 18), 0xf8ecae, [bx3 - 0.025, TOP_Y + 0.046, bz3 - 0.012]);
+      add(new THREE.SphereGeometry(1, 16, 8).scale(0.026, 0.02, 0.023), 0x8fbf3d, [bx3 + 0.028, TOP_Y + 0.024, bz3 + 0.022]); add(new THREE.CylinderGeometry(0.019, 0.019, 0.004, 18), 0xdce8a6, [bx3 + 0.028, TOP_Y + 0.042, bz3 + 0.022]);
+    }
+    { const cx3 = 2.65, cz3 = -0.62; // the cherry-red enamel casserole with its lid, a brass knob and two side handles
+      add(lathe([[0, 0], [0.065, 0], [0.078, 0.01], [0.082, 0.07], [0.078, 0.082], [0.072, 0.082], [0, 0.08]], 28), 0xc6362a, [cx3, TOP_Y, cz3]);
+      add(lathe([[0, 0.078], [0.08, 0.078], [0.083, 0.082], [0.07, 0.098], [0.02, 0.104], [0, 0.104]], 28), 0xc6362a, [cx3, TOP_Y, cz3]);
+      add(new THREE.SphereGeometry(0.011, 12, 8), 0xc9a45a, [cx3, TOP_Y + 0.113, cz3]);
+      for (const sz of [-1, 1]) add(new THREE.BoxGeometry(0.02, 0.012, 0.02), 0xa82a20, [cx3, TOP_Y + 0.07, cz3 + sz * 0.094]);
+    }
+    { const RX = 2.66, RZ = -0.44; // a ceramic lidded spice pot with a wooden spoon and a blue-and-white band
+      add(lathe([[0, 0], [0.04, 0], [0.047, 0.03], [0.045, 0.085], [0.04, 0.09], [0, 0.09]], 20), 0xf1ece0, [RX, TOP_Y, RZ]); add(new THREE.CylinderGeometry(0.0475, 0.0475, 0.018, 20, 1, true), 0x3b6fa6, [RX, TOP_Y + 0.05, RZ]);
+      add(lathe([[0, 0.09], [0.043, 0.09], [0.04, 0.1], [0.02, 0.106], [0, 0.106]], 18), 0xc79a5f, [RX, TOP_Y, RZ]); add(new THREE.SphereGeometry(0.008, 8, 6), 0xa9793f, [RX, TOP_Y + 0.112, RZ]);
+      add(new THREE.CylinderGeometry(0.0025, 0.003, 0.07, 6), 0xb98a52, [RX + 0.012, TOP_Y + 0.12, RZ], [0, 0, -0.5]); add(new THREE.SphereGeometry(1, 8, 5).scale(0.01, 0.014, 0.004), 0xb98a52, [RX + 0.033, TOP_Y + 0.148, RZ], [0, 0, -0.5]);
+    }
+    { const tx2 = 2.855, tz2 = -0.235; // the tray of good bottles: 4 bottles, each 7 to 8 cm across, plain labels (no brands)
+      add(new THREE.BoxGeometry(0.105, 0.012, 0.36), 0xb88b5b, [tx2, TOP_Y + 0.006, tz2]);
+      for (const sz of [-1, 1]) add(new THREE.BoxGeometry(0.105, 0.018, 0.008), 0xa27a4c, [tx2, TOP_Y + 0.015, tz2 + sz * 0.176]);
+      const y0 = TOP_Y + 0.012;
+      const bottle = (z, r, h, body, cap, labelHex, neck = 0.42) => { // a broad-shouldered bottle with a screw cap (Paul 2026-11-22: no paper label on these two; the olive oil and the wine below are the kitchen's own bottles, copied)
+        add(lathe([[0, 0], [r * 0.92, 0], [r, 0.008], [r, h * 0.58], [r * 0.9, h * 0.7], [r * 0.62, h * 0.8], [r * neck, h * 0.88], [r * neck, h * 0.97], [0, h * 0.97]], 26), body, [tx2, y0, z]);
+        add(new THREE.CylinderGeometry(r * neck + 0.004, r * neck + 0.006, 0.026, 16), cap, [tx2, y0 + h * 0.97 + 0.01, z]);
+      };
+      bottle(tz2 - 0.135, 0.040, 0.235, 0x1b2b1e, 0x1b1b1b, 0xe8dcc0, 0.3);   // balsamic vinegar
+      { const oz = tz2 - 0.045; // the olive oil copied from the oven-side counter: dark green glass, a blank olive-gold paper band, a narrow gold neck ring and a dark screw cap
+        add(lathe([[0, 0], [0.026, 0], [0.032, 0.004], [0.034, 0.012], [0.034, 0.085]], 24), 0x263b2b, [tx2, y0, oz]);
+        add(lathe([[0, 0.085], [0.034, 0.085], [0.034, 0.125], [0, 0.125]], 24), 0xb7a979, [tx2, y0, oz]);
+        add(lathe([[0, 0.125], [0.034, 0.125], [0.031, 0.15], [0.018, 0.174], [0.013, 0.18], [0.013, 0.198], [0, 0.198]], 24), 0x263b2b, [tx2, y0, oz]);
+        add(lathe([[0, 0.198], [0.013, 0.198], [0.013, 0.205], [0.014, 0.209], [0.014, 0.215], [0, 0.215]], 24), 0x786b44, [tx2, y0, oz]);
+        add(new THREE.CylinderGeometry(0.015, 0.015, 0.029, 16), 0x292b25, [tx2, y0 + 0.2295, oz]);
+        add(new THREE.TorusGeometry(0.0145, 0.0015, 4, 16).rotateX(Math.PI / 2), 0x81734a, [tx2, y0 + 0.218, oz]); }
+      bottle(tz2 + 0.045, 0.042, 0.17, 0x2a1a12, 0xc6362a, 0xf2ece0, 0.5);    // soy sauce
+      { const wz = tz2 + 0.135; // the burgundy wine bottle copied from the Thanksgiving table: dark green glass, a cream label band, a burgundy foil capsule
+        add(lathe([[0, 0], [0.034, 0], [0.038, 0.006], [0.038, 0.06], [0, 0.06]], 20), 0x1f2b22, [tx2, y0, wz]);
+        add(lathe([[0, 0.06], [0.038, 0.06], [0.038, 0.14], [0, 0.14]], 20), 0xd8ceba, [tx2, y0, wz]);
+        add(lathe([[0, 0.14], [0.038, 0.14], [0.038, 0.17], [0.034, 0.19], [0.022, 0.215], [0.0155, 0.235], [0.015, 0.255], [0, 0.255]], 20), 0x1f2b22, [tx2, y0, wz]);
+        add(lathe([[0, 0.255], [0.015, 0.255], [0.015, 0.285], [0.0165, 0.292], [0.0165, 0.30], [0, 0.30]], 20), 0x5a1a22, [tx2, y0, wz]); }
+    }
+    { const plateStack = (px2, pz2, withMug) => { // a stack of four dinner plates, 16 cm across
+        for (let i = 0; i < 4; i++) add(lathe([[0, 0], [0.05, 0], [0.076, 0.009], [0.08, 0.013], [0.074, 0.013], [0.048, 0.004], [0, 0.003]], 28), i % 2 ? 0xf1ece0 : 0xe9e3d4, [px2, TOP_Y + i * 0.0125, pz2]);
+        if (withMug) { add(lathe([[0, 0], [0.032, 0], [0.036, 0.004], [0.04, 0.07], [0.036, 0.075], [0.031, 0.07], [0, 0.007]], 18), 0x8aa5a8, [px2, TOP_Y + 0.0525, pz2]); add(new THREE.TorusGeometry(0.02, 0.0045, 5, 12, Math.PI).rotateZ(-Math.PI / 2), 0x8aa5a8, [px2 + 0.04, TOP_Y + 0.088, pz2]); }
+      };
+      plateStack(2.82, 0.03, true); plateStack(2.82, 0.2, false); // side by side by the wall; the second ends at z 0.28, 4 cm from the record player (z 0.32)
+    }
+  }
   // Replace the tiny decorative ceramic cup with two useful takeaway cups, set along the clear front strip.
   // Both are 125 mm tall, sit 1 mm into the oak top, and stay in the clear front strip between the books and the right-side keepsake.
   const cupFits = [];
@@ -3930,31 +4279,33 @@ function buildRoom03CredenzaDecor(scene) {
     cupParts.forEach((box) => bounds.union(box));
     cupFits.push({ name, bounds: { min: bounds.min.toArray(), max: bounds.max.toArray() }, bodyColour: `#${bodyColour.toString(16).padStart(6, "0")}`, sleeveColour: `#${sleeveColour.toString(16).padStart(6, "0")}`, lidColour: "#343431" });
   };
-  takeawayCup("cream-sage", -0.34, 0xf0e8dc, 0x78866f);
-  takeawayCup("mist-blue-kraft", 0.36, 0xb8c4c4, 0xc0a27b);
-  // Faceted vessel with dried stems (z about -0.22).
-  const vesselProfile = [[0, 0.004], [0.030, 0.004], [0.046, 0.020], [0.054, 0.075], [0.050, 0.150], [0.038, 0.202], [0.024, 0.222], [0.022, 0.265], [0.029, 0.28], [0.018, 0.28], [0, 0.26]];
-  add(lathe(vesselProfile, 8), 0xc9b79c, [X, TOP_Y, -0.22]);
-  for (const [dz, dx, lean, height] of [[-0.012, 0.01, 0.12, 0.24], [0.014, -0.012, -0.08, 0.30], [0.002, 0.016, 0.28, 0.21], [-0.016, -0.014, -0.22, 0.27]]) {
-    add(new THREE.CylinderGeometry(0.0016, 0.0022, height, 4), 0x8c7a4e, [X + dx + Math.sin(lean) * height * 0.5, TOP_Y + 0.265 + Math.cos(lean) * height * 0.5, -0.22 + dz], [lean * 0.4, 0, -lean]);
-    add(new THREE.SphereGeometry(0.011, 6, 4), 0xb9a37a, [X + dx + Math.sin(lean) * height, TOP_Y + 0.265 + Math.cos(lean) * height, -0.22 + dz], [0, 0, 0], [0.8, 1.9, 0.8]);
+  // Paul 2026-11-21: only the Shanghai Slowly cup stays; the cream-sage cup is gone.
+  // Paul 2026-11-17: the mist-blue cup moves in beside the two water bottles so the whole record player shows, and it carries a small easter egg:
+  // "Shanghai Slowly Cafe", Room 04's cafe, as if the owner had just flown home from Shanghai with a favourite cup. Drawn in code on a curved
+  // label over the kraft sleeve (no download); the text is our own fictional cafe, not a real brand.
+  takeawayCup("mist-blue-kraft", 0.26, 0xb8c4c4, 0xc0a27b); // moved closer to the record player (Paul 2026-11-21)
+  {
+    const canvas = document.createElement("canvas"); canvas.width = 560; canvas.height = 400;
+    const g = canvas.getContext("2d");
+    g.clearRect(0, 0, 560, 400); g.fillStyle = "#3a2a1c"; g.textAlign = "center"; g.textBaseline = "middle";
+    g.font = "italic 700 92px Georgia, 'Times New Roman', serif"; g.fillText("Shanghai", 280, 118); g.fillText("Slowly", 280, 218);
+    g.font = "600 60px Georgia, 'Times New Roman', serif"; g.fillText("C A F E", 280, 318);
+    g.fillRect(150, 358, 260, 4);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    const arc = 1.3, facing = -0.8; // radians; the label faces into the room (toward the camera side)
+    const label = new THREE.Mesh(new THREE.CylinderGeometry(0.0421, 0.0391, 0.04, 28, 1, true, facing - arc / 2, arc),
+      new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.85, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    label.name = "room03-takeaway-cup-label"; label.position.set(2.55, TOP_Y - 0.001 + 0.055, 0.26); label.userData.category = "credenza";
+    scene.add(label);
   }
-  // Row of five upright books with a wooden sculpture at the end (z about 0.12).
-  const row = [[0.04, 0.27, CLAY], [0.036, 0.235, BLUE], [0.045, 0.30, MOSS], [0.038, 0.25, CREAM], [0.04, 0.215, CLAY]];
-  // Paul 2026-11-04: packed tight (0.5 mm) so the last book rests on the sculpture plinth, with an oak L bookend holding the open end.
-  let rowZ = 0.185 - 0.201;
-  add(new THREE.BoxGeometry(0.10, 0.14, 0.012), OAK, [X, TOP_Y + 0.07, rowZ - 0.0065]);
-  add(new THREE.BoxGeometry(0.10, 0.004, 0.06), OAK, [X, TOP_Y + 0.002, rowZ - 0.0125 - 0.03]);
-  for (const [thick, tall, cover] of row) { book(0.18, tall, thick, cover, [X, TOP_Y, rowZ + thick / 2], 0, 0); rowZ += thick + 0.0005; }
-  add(new THREE.BoxGeometry(0.1, 0.022, 0.07), OAK, [X, TOP_Y + 0.011, 0.22]);
-  add(new THREE.BoxGeometry(0.065, 0.075, 0.05), OAK, [X, TOP_Y + 0.0595, 0.22]);
-  add(new THREE.BoxGeometry(0.045, 0.075, 0.04), CLAY, [X + 0.009, TOP_Y + 0.134, 0.222]);
-  // Small unbranded San Francisco cable-car keepsake replaces the flat-looking plant.
+  // Paul moved the upright books out so the record player has a clear, supported footprint.
+  // The small unbranded San Francisco cable car now rests on the entry nook's TV console.
   // A redwood-toned plinth, clay-red body, cream trim and brass details echo the framed cable-car art above.
-  const keepsakeCenter = [2.69, TOP_Y, 0.57], keepsakeBoxes = [];
+  const keepsakeCenter = [2.69, TOP_Y, 0.57], nookCenter = [-0.78, 0.575, 3.52], keepsakeBoxes = [], keepsakeParts = [];
+  const keepsakeOffset = nookCenter.map((v, axis) => v - keepsakeCenter[axis]);
   let keepsakeVertices = 0;
   const keepsakePart = (geometry, colour, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
-    add(geometry, colour, position, rotation, scale);
+    add(geometry, colour, position.map((v, axis) => v + keepsakeOffset[axis]), rotation, scale, keepsakeParts);
     geometry.computeBoundingBox();
     keepsakeBoxes.push(geometry.boundingBox.clone());
     keepsakeVertices += geometry.attributes.position.count;
@@ -3999,11 +4350,79 @@ function buildRoom03CredenzaDecor(scene) {
   keepsakePart(new THREE.TubeGeometry(gripCurve, 10, 0.0022, 6, false), cableDark, [kx, TOP_Y, kz]);
   const keepsakeBounds = new THREE.Box3();
   keepsakeBoxes.forEach((box) => keepsakeBounds.union(box));
-  const keepsake = { type: "unbranded-sf-cable-car-keepsake", bounds: { min: keepsakeBounds.min.toArray(), max: keepsakeBounds.max.toArray() }, vertices: keepsakeVertices };
-  // Shallow dish with three stones (z about 0.85), kept clear of the wok counter at z 1.023.
-  add(lathe([[0, 0.003], [0.05, 0.003], [0.07, 0.014], [0.078, 0.03], [0.072, 0.034], [0.062, 0.018], [0, 0.012]], 14), CERAMIC, [X, TOP_Y, 0.84], [0, 0, 0], [1.25, 1, 0.8]);
-  for (const [dz, dx, r, tone] of [[-0.05, -0.01, 0.026, 0x9a9488], [0.0, 0.02, 0.022, 0xb5ac9a], [0.05, -0.012, 0.024, 0x7f7a6e]]) {
-    add(new THREE.SphereGeometry(r, 8, 6), tone, [X + dx, TOP_Y + 0.02 + r * 0.55, 0.84 + dz], [0, 0, 0], [1, 0.65, 1.15]);
+  const keepsakeGeometry = mergeGeometries(keepsakeParts, false);
+  keepsakeParts.forEach((part) => part.dispose());
+  keepsakeGeometry.computeVertexNormals();
+  const keepsakeMesh = new THREE.Mesh(keepsakeGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.82 }));
+  keepsakeMesh.name = "room03-nook-cable-car-keepsake";
+  keepsakeMesh.userData.category = "entry-nook";
+  keepsakeMesh.castShadow = true; keepsakeMesh.receiveShadow = true;
+  scene.add(keepsakeMesh);
+  const keepsake = { type: "unbranded-sf-cable-car-keepsake", bounds: { min: keepsakeBounds.min.toArray(), max: keepsakeBounds.max.toArray() }, vertices: keepsakeVertices, consoleGapMm: Math.round((keepsakeBounds.min.y - 0.575) * 1000) };
+  // Paul 2026-11-21: the three lying books that stood on the credenza (it now carries kitchenware) go to the little entry nook: stacked on the console's far end, beside the little cable car, the top one a little
+  // off square. Their own mesh, so the keepsake's and the credenza decor's measured bounds stay as they were.
+  {
+    const nookBooks = [], NB = { x: -1.07, z: 3.47, y: 0.575 };
+    const nbook = (width, height, depth, cover, y, yaw) => {
+      for (const [geo, hex] of [[new THREE.BoxGeometry(width, height, depth), cover], [new THREE.BoxGeometry(width - 0.006, height - 0.01, depth + 0.002), CREAM]]) {
+        geo.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(NB.x, y + height / 2, NB.z), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0)), new THREE.Vector3(1, 1, 1)));
+        const colour = new THREE.Color(hex), n = geo.attributes.position.count, cols = new Float32Array(n * 3); for (let i = 0; i < n; i++) colour.toArray(cols, i * 3);
+        geo.deleteAttribute("uv"); geo.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); nookBooks.push(geo);
+      }
+    };
+    let by = NB.y; for (const [length, height, width, cover, yaw] of [[0.27, 0.045, 0.19, MOSS, 1.6], [0.25, 0.05, 0.18, CLAY, 1.52], [0.23, 0.04, 0.17, BLUE, 1.7]]) { nbook(length, height, width, cover, by, yaw); by += height; }
+    const booksGeometry = mergeGeometries(nookBooks, false); nookBooks.forEach((g) => g.dispose()); booksGeometry.computeVertexNormals();
+    const booksMesh = new THREE.Mesh(booksGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.82 }));
+    booksMesh.name = "room03-nook-books"; booksMesh.userData.category = "entry-nook"; booksMesh.castShadow = true; booksMesh.receiveShadow = true; scene.add(booksMesh);
+  }
+  // Paul 2026-11-21: the green plant leaves the credenza (it holds cooking things only now) and stands on the floor by the window instead, beside the lounge chair: a tall glazed pot in sage with a big
+  // leafy plant (a dozen large oval leaves on slim stems, two shades of green). Its own mesh; it needs no power and keeps clear of the chair (which ends at z 0.22) and the glass.
+  {
+    const floorParts = [], FX = -2.72, FZ = 0.78;
+    const fadd = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+      geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale)));
+      const colour = new THREE.Color(hex), n = geometry.attributes.position.count, cols = new Float32Array(n * 3); for (let q = 0; q < n; q++) colour.toArray(cols, q * 3);
+      geometry.deleteAttribute("uv"); geometry.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3)); floorParts.push(geometry);
+    };
+    const POT = [[0, 0.002], [0.12, 0.002], [0.15, 0.1], [0.165, 0.3], [0.17, 0.34], [0.158, 0.345], [0.15, 0.33], [0, 0.32]];
+    const potR = (y) => { for (let i = 1; i < POT.length - 3; i++) if (y <= POT[i + 1][1]) { const [r0, y0] = POT[i], [r1, y1] = POT[i + 1]; return r0 + (r1 - r0) * (y - y0) / (y1 - y0); } return 0.17; };
+    fadd(new THREE.LatheGeometry(POT.map(([x, y]) => new THREE.Vector2(x, y)), 36), 0x9bad94, [FX, 0, FZ]); // the pot, same sage glaze
+    fadd(new THREE.CylinderGeometry(0.15, 0.15, 0.004, 28), 0x4a3526, [FX, 0.322, FZ]); // soil
+    // Hand-painted band on the upper pot (Paul 2026-11-21: same colour, more painted atmosphere): two cream stripes at the rim, a running vine of leaf pairs in deep green with a terracotta dot between them, and
+    // a mustard dot border below. Flat decals lying 1 mm off the glaze (tangent ellipsoids), so they read as paint, not relief.
+    const decal = (a, y, sx, sy, hex, rollZ = 0) => { const r = potR(y) + 0.0012; fadd(new THREE.SphereGeometry(1, 8, 5).scale(sx, sy, 0.0016), hex, [FX + Math.cos(a) * r, y, FZ + Math.sin(a) * r], [0, Math.PI / 2 - a, rollZ]); };
+    for (const [sy, hex] of [[0.322, 0xf1e8d2], [0.304, 0xc4623a]]) fadd(new THREE.CylinderGeometry(potR(sy) + 0.0012, potR(sy) + 0.0012, 0.005, 48, 1, true), hex, [FX, sy, FZ]);
+    for (let q = 0; q < 14; q++) { const a = q * Math.PI * 2 / 14;
+      decal(a, 0.262, 0.026, 0.0085, 0x2f5a3a, 0.5); decal(a + 0.13, 0.268, 0.024, 0.008, 0x3f7a3c, -0.55); // a leaf pair
+      decal(a + 0.0 + Math.PI / 14, 0.282, 0.0065, 0.0065, 0xc4623a); // terracotta bud between leaves
+      decal(a, 0.222, 0.006, 0.006, 0xd9a441); } // mustard dot border
+    // Fourteen slim stems fan out of one tuft: each starts 2.2 cm BELOW the soil (y 0.30), inside the pot, and rises to its own tip; the leaves hang off the tips in three layers (long arching outer leaves,
+    // mid leaves, short upright inner ones), each cupped along its length with a pale midrib.
+    const up = new THREE.Vector3(0, 1, 0);
+    for (let q = 0; q < 16; q++) {
+      const a = q * 2.399, layer = q % 3, tilt = [0.62, 0.4, 0.18][layer] + (q % 4) * 0.03, h = [0.4, 0.48, 0.55][layer] + (q % 5) * 0.03;
+      const ox = Math.cos(a), oz = Math.sin(a), r0 = 0.012 + (q % 4) * 0.008;
+      const base = new THREE.Vector3(FX + ox * r0, 0.30, FZ + oz * r0);
+      const tip = new THREE.Vector3(FX + ox * (r0 + Math.sin(tilt) * h), 0.322 + Math.cos(tilt) * h, FZ + oz * (r0 + Math.sin(tilt) * h));
+      const dir = tip.clone().sub(base), len = dir.length(), mid = base.clone().add(tip).multiplyScalar(0.5);
+      const stemGeo = new THREE.CylinderGeometry(0.0035, 0.0048, len, 5);
+      stemGeo.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up, dir.clone().normalize()));
+      fadd(stemGeo, 0x5d7a45, [mid.x, mid.y, mid.z]);
+      // leaf: a cupped, arching ellipsoid whose base sits on the stem tip and whose length points outward and droops
+      const L = [0.15, 0.125, 0.095][layer], Wd = [0.052, 0.046, 0.04][layer], droop = [0.55, 0.32, 0.05][layer];
+      const f = new THREE.Vector3(ox * Math.cos(droop), Math.sin(0.35 - droop) * 0.6, oz * Math.cos(droop)).normalize();
+      const xAx = new THREE.Vector3().crossVectors(up, f).normalize(), yAx = new THREE.Vector3().crossVectors(f, xAx).normalize();
+      const leafGeo = new THREE.SphereGeometry(1, 14, 10), lp = leafGeo.attributes.position;
+      for (let i = 0; i < lp.count; i++) { const z = lp.getZ(i); lp.setXYZ(i, lp.getX(i) * Wd * (1 - 0.25 * z * z), lp.getY(i) * 0.006 - 0.022 * z * z + 0.014 * Math.abs(lp.getX(i)), z * L); } // cupped and arched
+      leafGeo.applyMatrix4(new THREE.Matrix4().makeBasis(xAx, yAx, f).setPosition(tip.x + f.x * L, tip.y + f.y * L, tip.z + f.z * L));
+      fadd(leafGeo, q % 3 === 0 ? 0x5b9444 : layer === 2 ? 0x6fa24a : 0x3f7a3c, [0, 0, 0]);
+      const rib = new THREE.CylinderGeometry(0.0016, 0.001, L * 1.7, 4); rib.rotateX(Math.PI / 2);
+      rib.applyMatrix4(new THREE.Matrix4().makeBasis(xAx, yAx, f).setPosition(tip.x + f.x * L + yAx.x * 0.0035, tip.y + f.y * L + yAx.y * 0.0035, tip.z + f.z * L + yAx.z * 0.0035));
+      fadd(rib, 0xa9c47a, [0, 0, 0]);
+    }
+    const floorGeometry = mergeGeometries(floorParts, false); floorParts.forEach((g) => g.dispose()); floorGeometry.computeVertexNormals();
+    const floorMesh = new THREE.Mesh(floorGeometry, new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.78, side: THREE.DoubleSide }));
+    floorMesh.name = "room03-window-floor-plant"; floorMesh.userData.category = "plants"; floorMesh.castShadow = true; floorMesh.receiveShadow = true; scene.add(floorMesh);
   }
   const geometry = mergeGeometries(parts, false);
   parts.forEach((part) => part.dispose());
@@ -4019,6 +4438,233 @@ function buildRoom03CredenzaDecor(scene) {
     vertices, mesh, cups: cupFits, keepsake,
     bounds: () => { scene.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray() }; },
   };
+}
+
+// A compact, self-contained turntable on the cleared end of the credenza. No sound is loaded in this first step.
+// US wall outlets (NEMA 5-15R) in the Decora style that a Bay Area kitchen remodel uses (Paul, 2026-11-19: "an outlet a Bay Area kitchen would use"; not the round-faced build of the
+// first pass, and not Room 01's Taiwanese one): a white single-gang plate 70 x 114.5 mm, 8 mm thick, 0.5 mm into the wall, with one flat rounded-rectangle face 33.5 mm wide carrying two
+// receptacles; each has a taller neutral slot on the left (9 mm), a shorter hot slot on the right (7 mm) and a round ground hole below. The GFCI kind (kitchen counters, by the sink) is a
+// little taller and has a centre band with a dark TEST button, a dark-red RESET button and a small green LED. A plate screw sits below the face. When plugged, a chunky black moulded plug
+// stands in the lower receptacle (1 mm into the face, with a lighter grip panel and a strain relief); the cord is added by the caller and ends inside that neck.
+// Built facing +z in a local frame (x is the viewer's right), then turned by `yaw` about y and moved to `origin` (the centre of the plate on the wall plane).
+const OUTLET_CORD_R = 0.0025;
+function usOutlet(kind, { origin, yaw }, plugged = false) {
+  const gfci = kind === "gfci", PITCH = gfci ? 0.0245 : 0.0195, FACE_H = 2 * PITCH + 0.032 + (gfci ? 0.004 : 0), ZF = 0.0083, DARK = 0x1b1a19, parts = [];
+  const put = (geometry, hex) => parts.push([geometry, hex]);
+  const rod = (radius, length) => new THREE.CylinderGeometry(radius, radius, length, 14).rotateX(Math.PI / 2); // a disc whose axis is z
+  put(new THREE.BoxGeometry(0.07, 0.1145, 0.008).translate(0, 0, 0.0035), 0xf4f2ec);
+  put(new THREE.BoxGeometry(0.0335, FACE_H, 0.0008).translate(0, 0, 0.0075 + 0.0004), 0xf8f6f0);
+  for (const dy of [PITCH, -PITCH]) {
+    for (const [dx, h] of [[-0.00635, 0.009], [0.00635, 0.007]]) put(new THREE.BoxGeometry(0.0021, h, 0.0006).translate(dx, dy + 0.0035, ZF + 0.0001), DARK);
+    put(rod(0.0026, 0.0006).translate(0, dy - 0.0072, ZF + 0.0001), DARK);
+  }
+  if (gfci) {
+    put(new THREE.BoxGeometry(0.0085, 0.0055, 0.0016).translate(-0.0075, 0, ZF + 0.0008), 0x26272a); // TEST
+    put(new THREE.BoxGeometry(0.0085, 0.0055, 0.0016).translate(0.0075, 0, ZF + 0.0008), 0x8a2a2a); // RESET
+    put(rod(0.0016, 0.0008).translate(0, 0.0072, ZF + 0.0004), 0x3fcf74); // the LED
+  }
+  put(rod(0.0026, 0.001).translate(0, -(FACE_H / 2 + 0.0078), 0.008), 0xd8d5cc); // the plate screw
+  put(new THREE.BoxGeometry(0.0044, 0.0007, 0.0004).translate(0, -(FACE_H / 2 + 0.0078), 0.0088), 0x8d8a82); // and its slot
+  let neckLocal = null;
+  const NECK_LEN = 0.016, PZ = ZF - 0.001 + 0.009;
+  if (plugged) {
+    put(new THREE.BoxGeometry(0.026, 0.034, 0.018).translate(0, -PITCH, PZ), 0x161719);
+    put(new THREE.BoxGeometry(0.018, 0.022, 0.003).translate(0, -PITCH + 0.001, PZ + 0.009 + 0.0015), 0x242628);
+    neckLocal = new THREE.Vector3(0, -PITCH - 0.017 - 0.006, PZ);
+    put(new THREE.CylinderGeometry(OUTLET_CORD_R + 0.0012, OUTLET_CORD_R + 0.0006, NECK_LEN, 8).translate(neckLocal.x, neckLocal.y, neckLocal.z), 0x161719);
+  }
+  const frame = new THREE.Matrix4().compose(new THREE.Vector3(...origin), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1));
+  for (const [geometry] of parts) geometry.applyMatrix4(frame);
+  return { parts, neck: neckLocal ? neckLocal.applyMatrix4(frame) : null, neckLen: NECK_LEN, plateBottomY: origin[1] - 0.05725, pitch: PITCH };
+}
+const colourParts = (parts, into) => { // vertex colours for every part, pushed into one list that is merged into a single mesh
+  for (const [geometry, hex] of parts) {
+    const tint = new THREE.Color(hex), count = geometry.attributes.position.count, colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) tint.toArray(colors, i * 3);
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    into.push(geometry);
+  }
+};
+
+// Two more outlets (Paul, 2026-11-19): a GFCI on the backsplash beside the sink, empty, 165 mm above the counter, and a Decora duplex on the entry wall behind the window-side floor lamp
+// with the lamp's cord plugged into its lower receptacle. The lamp's cord leaves its pole between two tripod legs, drops to the floor, lies along it to the wall and climbs the wall (flush,
+// there is no skirting on this wall) into the plug. One vertex-coloured mesh for both outlets and the cord.
+function buildRoom03Outlets(scene) {
+  const COUNTER_TOP = 0.955, TILE_FACE_Z = -2.2675, WALL_Z = 2.34, LAMP = { x: -1.93, z: 1.68, poleR: 0.012 }, FLOOR_LIE = OUTLET_CORD_R + 0.0012, parts = [];
+  const gfci = usOutlet("gfci", { origin: [-1.12, COUNTER_TOP + 0.165, TILE_FACE_Z], yaw: 0 });
+  const lampOut = usOutlet("duplex", { origin: [-1.90, 0.36, WALL_Z], yaw: Math.PI }, true);
+  colourParts(gfci.parts, parts); colourParts(lampOut.parts, parts);
+  const nk = lampOut.neck, yPb = lampOut.plateBottomY, yEnd = nk.y + 0.004, zw = (d) => WALL_Z - d;
+  const cordCurve = new THREE.CatmullRomCurve3([
+    [LAMP.x, 0.22, LAMP.z + 0.009], [LAMP.x, 0.21, LAMP.z + 0.020], [LAMP.x, 0.15, LAMP.z + 0.032], [LAMP.x + 0.001, 0.06, LAMP.z + 0.050], [LAMP.x + 0.002, 0.026, LAMP.z + 0.066], [LAMP.x + 0.003, 0.009, LAMP.z + 0.083], [LAMP.x + 0.004, FLOOR_LIE, LAMP.z + 0.105], [LAMP.x + 0.012, FLOOR_LIE, LAMP.z + 0.150],
+    // Paul 2026-11-19: a casual cord, not a ruler line: a loose S across the floor (all points flat on it), a soft turn up at the wall and a slight drift on the way up.
+    [LAMP.x + 0.030, FLOOR_LIE, 1.88], [LAMP.x + 0.004, FLOOR_LIE, 1.98], [LAMP.x - 0.022, FLOOR_LIE, 2.06], [LAMP.x + 0.006, FLOOR_LIE, 2.15], [LAMP.x + 0.036, FLOOR_LIE, 2.22],
+    [-1.90, FLOOR_LIE, 2.27], [-1.90, FLOOR_LIE + 0.003, 2.312], [-1.90, 0.026, zw(0.0045)], [-1.904, 0.12, zw(0.0040)], [-1.898, 0.24, zw(0.0040)], [-1.90, yPb - 0.020, zw(0.0037)],
+    [-1.90, yPb - 0.003, zw(0.010)], [-1.90, yPb + 0.009, nk.z], [nk.x, yEnd, nk.z],
+  ].map((q) => new THREE.Vector3(...q)), false, "centripetal"); // centripetal: a plain Catmull-Rom dipped 8 mm below the floor where the cord turns from the pole to the floor
+  const cordGeometry = new THREE.TubeGeometry(cordCurve, 128, OUTLET_CORD_R, 6, false);
+  colourParts([[cordGeometry, 0x101112]], parts);
+  const geometry = mergeGeometries(parts, false); parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
+  mesh.name = "room03-wall-outlets"; mesh.castShadow = false; mesh.receiveShadow = true; scene.add(mesh);
+  const mm = (v) => Number((v * 1000).toFixed(1));
+  const info = () => {
+    let lowest = Infinity;
+    for (let i = 0; i <= 600; i++) { const q = cordCurve.getPoint(i / 600); if (q.z > LAMP.z + 0.08 && q.z < 2.30) lowest = Math.min(lowest, q.y - OUTLET_CORD_R); }
+    const start = cordCurve.getPoint(0), end = cordCurve.getPoint(1);
+    return {
+      counter: { kind: "gfci", xM: -1.12, centreAboveCounterMm: mm(0.165), plateIntoTileMm: 0.5 },
+      lamp: { centreAboveFloorMm: 360, startInsidePoleMm: mm(LAMP.poleR - Math.hypot(start.x - LAMP.x, start.z - LAMP.z)), lowestAboveFloorMm: mm(lowest),
+        endAboveNeckBottomMm: mm(end.y - (nk.y - lampOut.neckLen / 2)), endInsideNeck: end.y > nk.y - lampOut.neckLen / 2 && end.y < nk.y + lampOut.neckLen / 2 && Math.abs(end.x - nk.x) < 0.0005 && Math.abs(end.z - nk.z) < 0.0005 },
+      vertices: geometry.attributes.position.count,
+    };
+  };
+  return { mesh, info };
+}
+
+function buildRoom03RecordPlayer(scene) {
+  const C = { x: 2.77, z: 0.53, top: 0.815 }, parts = [];
+  const footBoxes = [];
+  const add = (geometry, color, into = parts) => {
+    const tint = new THREE.Color(color), count = geometry.attributes.position.count;
+    const colors = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) tint.toArray(colors, i * 3);
+    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+    into.push(geometry);
+  };
+  // Card I (2026-11-18): the platter (with the record, grooves, label and spindle) and the tonearm (tube and stylus) are their own two meshes so they can
+  // turn and swing while the music plays; everything else stays in the one merged body. Both share the body's material.
+  const platterParts = [], armParts = [];
+  // Four feet begin 2.5 mm inside the oak top and run 7.5 mm into the wooden plinth.
+  for (const dx of [-0.12, 0.12]) for (const dz of [-0.17, 0.17]) {
+    const foot = new THREE.CylinderGeometry(0.011, 0.012, 0.025, 10).translate(C.x + dx, 0.825, C.z + dz);
+    foot.computeBoundingBox(); footBoxes.push(foot.boundingBox.clone()); add(foot, 0x272b29);
+  }
+  const deck = new THREE.BoxGeometry(0.32, 0.028, 0.42).translate(C.x, 0.844, C.z);
+  deck.computeBoundingBox(); const deckBox = deck.boundingBox.clone(); add(deck, 0x71523e);
+  add(new THREE.BoxGeometry(0.314, 0.003, 0.414).translate(C.x, 0.8595, C.z), 0x9c7858);
+  const platter = { x: C.x, y: 0.864, z: C.z - 0.055, radius: 0.138 };
+  add(new THREE.CylinderGeometry(platter.radius, platter.radius, 0.006, 40).translate(platter.x, platter.y, platter.z), 0x34383a, platterParts);
+  const vinyl = new THREE.CylinderGeometry(0.132, 0.132, 0.002, 40).translate(platter.x, 0.868, platter.z);
+  vinyl.computeBoundingBox(); const vinylBox = vinyl.boundingBox.clone(); add(vinyl, 0x141817, platterParts);
+  for (const r of [0.073, 0.095, 0.116]) add(new THREE.TorusGeometry(r, 0.0007, 3, 40).rotateX(Math.PI / 2).translate(platter.x, 0.8692, platter.z), 0x555a57, platterParts);
+  add(new THREE.CylinderGeometry(0.025, 0.025, 0.001, 20).translate(platter.x, 0.8695, platter.z), 0xc5a778, platterParts);
+  // One small dark print block on the label, off centre (no words): the record and its rings are round, so without it a turning record looks still.
+  add(new THREE.BoxGeometry(0.014, 0.0004, 0.004).translate(platter.x + 0.011, 0.87, platter.z - 0.006), 0x6b4a2c, platterParts);
+  add(new THREE.CylinderGeometry(0.003, 0.003, 0.011, 8).translate(platter.x, 0.875, platter.z), 0xc6c6bb, platterParts);
+  const pivot = [C.x + 0.113, 0.881, C.z + 0.151], elbow = [C.x + 0.11, 0.889, C.z + 0.106], tip = [C.x + 0.072, 0.873, C.z + 0.022];
+  add(new THREE.CylinderGeometry(0.012, 0.012, 0.024, 12).translate(pivot[0], 0.87, pivot[2]), 0x46494a);
+  const armCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(...pivot), new THREE.Vector3(...elbow), new THREE.Vector3(...tip)]);
+  add(new THREE.TubeGeometry(armCurve, 14, 0.003, 6, false), 0xc6c6bb, armParts);
+  const stylus = new THREE.BoxGeometry(0.012, 0.01, 0.015).translate(tip[0], 0.874, tip[2]);
+  stylus.computeBoundingBox(); const stylusBox = stylus.boundingBox.clone(); add(stylus, 0x363632, armParts);
+  // The arm parks 30 degrees outwards (stylus 12 mm clear of the gold rim) on a slim rest post that stands 1 mm into the deck top and meets the tube's underside.
+  const ARM = { play: 0, rest: -0.52, swingMs: 650 }, DECK_TOP = 0.861;
+  const restAt = armCurve.getPoint(0.72), restOff = new THREE.Vector3(restAt.x - pivot[0], 0, restAt.z - pivot[2]).applyAxisAngle(new THREE.Vector3(0, 1, 0), ARM.rest);
+  const restTop = restAt.y - 0.003 + 0.001, restBottom = DECK_TOP - 0.001;
+  const restPost = new THREE.CylinderGeometry(0.0026, 0.0032, restTop - restBottom, 8).translate(pivot[0] + restOff.x, (restTop + restBottom) / 2, pivot[2] + restOff.z);
+  restPost.computeBoundingBox(); const restBox = restPost.boundingBox.clone(); add(restPost, 0x2c302e);
+  // Gold trim (Paul 2026-11-17: make the record player shine and stand out): a thin frame around the top edge, a pinstripe on the room-facing side,
+  // a ring at the platter's rim and a cap on the tonearm pivot. One merged mesh with a warm metal material.
+  const gold = [];
+  const addGold = (geometry) => { gold.push(geometry); };
+  const FRAME_Y = 0.8625;
+  for (const sz of [-1, 1]) addGold(new THREE.BoxGeometry(0.318, 0.0026, 0.004).translate(C.x, FRAME_Y, C.z + sz * 0.205));
+  for (const sx of [-1, 1]) addGold(new THREE.BoxGeometry(0.004, 0.0026, 0.406).translate(C.x + sx * 0.155, FRAME_Y, C.z));
+  addGold(new THREE.BoxGeometry(0.0022, 0.0024, 0.37).translate(C.x - 0.1601, 0.8445, C.z)); // pinstripe on the side that faces the room
+  addGold(new THREE.TorusGeometry(platter.radius + 0.0012, 0.0014, 6, 48).rotateX(Math.PI / 2).translate(platter.x, 0.8668, platter.z));
+  addGold(new THREE.CylinderGeometry(0.0085, 0.0085, 0.0022, 16).translate(pivot[0], 0.8826, pivot[2]));
+  const goldGeometry = mergeGeometries(gold, false);
+  gold.forEach((part) => part.dispose()); goldGeometry.computeVertexNormals();
+  const goldMesh = new THREE.Mesh(goldGeometry, new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 0.78, roughness: 0.28, emissive: 0x3a2808, emissiveIntensity: 0.4 }));
+  goldMesh.name = "room03-credenza-record-player-gold"; goldMesh.userData.category = "credenza"; goldMesh.castShadow = false; goldMesh.receiveShadow = false; scene.add(goldMesh);
+  const geometry = mergeGeometries(parts, false);
+  parts.forEach((part) => part.dispose()); geometry.computeVertexNormals();
+  const bodyMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.59, metalness: 0.08 });
+  const mesh = new THREE.Mesh(geometry, bodyMaterial);
+  mesh.name = "room03-credenza-record-player"; mesh.userData.category = "credenza";
+  mesh.castShadow = true; mesh.receiveShadow = true; scene.add(mesh);
+  // Moving parts: geometry is moved so the mesh's own origin sits on its axis (platter centre, arm pivot), then the mesh is placed back there.
+  const moving = (list, name, ox, oz) => {
+    const g = mergeGeometries(list, false); list.forEach((part) => part.dispose()); g.translate(-ox, 0, -oz); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, bodyMaterial); m.name = name; m.userData.category = "credenza"; m.position.set(ox, 0, oz); m.castShadow = true; m.receiveShadow = true; scene.add(m); return m;
+  };
+  const platterMesh = moving(platterParts, "room03-record-platter", platter.x, platter.z);
+  const armMesh = moving(armParts, "room03-record-tonearm", pivot[0], pivot[2]);
+  armMesh.rotation.y = ARM.rest; // stopped: parked on the rest post
+  const box = new THREE.Box3().setFromObject(mesh).union(new THREE.Box3().setFromObject(platterMesh)).union(new THREE.Box3().setFromObject(armMesh));
+  // Card I, copied from Room 04's deck: while playing, the platter turns at 33 1/3 rpm and the arm swings onto the record in 650 ms; on stop it swings back and
+  // the loop ends, so a stopped room draws nothing extra.
+  const RPM33 = (33.333 / 60) * Math.PI * 2;
+  const motion = { playing: false, arm: ARM.rest, from: ARM.rest, swingAt: 0, last: 0, loop: 0, render: null };
+  const reduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const frame = (now) => {
+    motion.loop = 0;
+    const dt = Math.min(0.1, (now - (motion.last || now)) / 1000); motion.last = now;
+    const k = Math.min(1, (now - motion.swingAt) / ARM.swingMs), e = k * k * (3 - 2 * k), target = motion.playing ? ARM.play : ARM.rest;
+    motion.arm = motion.from + (target - motion.from) * e; armMesh.rotation.y = motion.arm;
+    if (motion.playing && !reduced()) platterMesh.rotation.y -= RPM33 * dt;
+    motion.render?.();
+    if (motion.playing || k < 1) motion.loop = requestAnimationFrame(frame);
+  };
+  const setPlaying = (playing, render) => {
+    motion.render = render ?? motion.render; playing = !!playing;
+    if (playing === motion.playing) return;
+    motion.playing = playing; motion.from = motion.arm; motion.swingAt = performance.now(); motion.last = 0;
+    if (reduced()) { motion.arm = playing ? ARM.play : ARM.rest; armMesh.rotation.y = motion.arm; motion.render?.(); return; }
+    if (!motion.loop) motion.loop = requestAnimationFrame(frame);
+  };
+  const stop = () => { if (motion.loop) cancelAnimationFrame(motion.loop); motion.loop = 0; };
+  const motionInfo = () => {
+    scene.updateMatrixWorld(true);
+    const tipNow = new THREE.Vector3(tip[0] - pivot[0], 0, tip[2] - pivot[2]).applyAxisAngle(new THREE.Vector3(0, 1, 0), armMesh.rotation.y);
+    const mm = (v) => Number((v * 1000).toFixed(1));
+    return { playing: motion.playing, looping: !!motion.loop, armAngle: Number(armMesh.rotation.y.toFixed(4)), armRest: ARM.rest, armPlay: ARM.play, platterAngle: Number(platterMesh.rotation.y.toFixed(4)),
+      stylusFromCentreMm: mm(Math.hypot(pivot[0] + tipNow.x - platter.x, pivot[2] + tipNow.z - platter.z)), vinylRadiusMm: 132, labelRadiusMm: 25, platterRadiusMm: 138,
+      restIntoDeckMm: mm(DECK_TOP - restBox.min.y), restTopToTubeMm: mm(restAt.y - 0.003 - restBox.max.y) };
+  };
+  // Power cord (Paul 2026-11-18): a thin black cord leaves the back corner of the deck on the record-player-view side and lies on the oak top along the wall past
+  // the red mug (so the record view sees it). Paul 2026-11-19: it used to vanish into a grommet in the plaster, which looked unnatural; the credenza stands 2 mm off the wall, too tight to drop a
+  // cord behind it, so it now climbs the wall into the plug of a white American duplex outlet just above the top (US form with round receptacle faces, not Room 01's Taiwanese build; plug in the lower receptacle).
+  // Cord, plate, receptacles and plug are one vertex-coloured mesh; the curve is sampled below so the tests can check it rests on the top and ends in the plug.
+  const CORD_R = 0.0025, WALL = 2.94, lie = C.top + CORD_R + 0.0006;
+  const cordCurve = new THREE.CatmullRomCurve3([
+    [2.905, 0.838, 0.734], [2.905, 0.836, 0.748], [2.906, lie + 0.004, 0.762], [2.908, lie, 0.785], [2.914, lie, 0.83], [2.921, lie, 0.874],
+    [2.930, lie + 0.0012, 0.888], [WALL - CORD_R - 0.0015, C.top + 0.030, 0.908], [WALL - CORD_R - 0.0012, C.top + 0.085, 0.915],
+    [WALL - 0.0037, C.top + 0.088, 0.915], [WALL - 0.010, C.top + 0.105, 0.915], [WALL - 0.0165, C.top + 0.117, 0.915], [WALL - 0.0165, C.top + 0.1265, 0.915],
+  ].map((p) => new THREE.Vector3(...p)));
+  const cordParts = [];
+  add(new THREE.TubeGeometry(cordCurve, 64, CORD_R, 6, false), 0x101112, cordParts);
+  // The outlet is a US duplex (NEMA 5-15R), not Room 01's rectangular-faced Taiwanese build (Paul, 2026-11-19): a white single-gang plate 70 x 114 mm, 8 mm thick (0.5 mm into the plaster),
+  // centre 165 mm above the top, behind the deck's far corner. Each receptacle is a ROUND raised boss (the classic US duplex face) with two parallel vertical flat slots, the neutral one on the
+  // left and taller (9 mm against 7 mm), and a round ground hole below them; one plate screw with a slotted head sits between the two. Slots and holes stand 0.2 mm proud so nothing shares a
+  // plane. A chunky black moulded plug sits in the lower receptacle, 1 mm into its face, with the cord leaving through a strain relief downwards; the upper receptacle is empty.
+  const OUT = { y: C.top + 0.165, z: 0.915 };
+  const outlet = usOutlet("duplex", { origin: [WALL, OUT.y, OUT.z], yaw: -Math.PI / 2 }, true);
+  for (const [geometry, hex] of outlet.parts) add(geometry, hex, cordParts);
+  const NECK = { x: outlet.neck.x, y: outlet.neck.y, len: outlet.neckLen };
+  const cordGeometry = mergeGeometries(cordParts, false); cordParts.forEach((part) => part.dispose()); cordGeometry.computeVertexNormals();
+  const cordMesh = new THREE.Mesh(cordGeometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 }));
+  cordMesh.name = "room03-record-player-power-cord"; cordMesh.userData.category = "credenza"; cordMesh.castShadow = false; cordMesh.receiveShadow = true; scene.add(cordMesh);
+  const cordInfo = () => {
+    let lowest = Infinity, maxX = -Infinity;
+    for (let i = 0; i <= 400; i++) {
+      const p = cordCurve.getPoint(i / 400);
+      if (p.z > deckBox.max.z + CORD_R && p.x < WALL - 0.004) lowest = Math.min(lowest, p.y - CORD_R - C.top);
+      maxX = Math.max(maxX, p.x);
+    }
+    const mm = (v) => Number((v * 1000).toFixed(1));
+    const end = cordCurve.getPoint(1);
+    return { radiusMm: mm(CORD_R), lowestAboveTopMm: mm(lowest), endIntoWallMm: mm(maxX - WALL), plugIntoFaceMm: 1, plateIntoWallMm: 0.5,
+      outletCentreAboveTopMm: mm(OUT.y - C.top), cordEndAboveNeckBottomMm: mm(end.y - (NECK.y - NECK.len / 2)), cordEndInsideNeck: end.y > NECK.y - NECK.len / 2 && end.y < NECK.y + NECK.len / 2 && Math.abs(end.x - NECK.x) < 0.0005 && Math.abs(end.z - OUT.z) < 0.0005,
+      startInsideDeckMm: mm(deckBox.max.z - cordCurve.getPoint(0).z),
+      clearOfDeckUnderside: cordCurve.getPoints(200).every((p) => p.z > deckBox.max.z || p.y - CORD_R >= deckBox.min.y - 0.0005), vertices: cordGeometry.attributes.position.count };
+  };
+  return { mesh, platterMesh, armMesh, cordMesh, setPlaying, stop, motionInfo, info: () => ({ dimensionsMm: [320, 42, 420], platterMm: 276, cord: cordInfo(),
+    footIntoTopMm: Math.round((C.top - Math.max(...footBoxes.map((b) => b.min.y))) * 1000),
+    footIntoPlinthMm: Math.round((Math.min(...footBoxes.map((b) => b.max.y)) - deckBox.min.y) * 1000),
+    tonearmEndAboveVinylMm: Math.round((stylusBox.min.y - vinylBox.max.y) * 1000),
+    bounds: { min: box.min.toArray(), max: box.max.toArray() }, vertices: geometry.attributes.position.count + platterMesh.geometry.attributes.position.count + armMesh.geometry.attributes.position.count + goldGeometry.attributes.position.count, goldVertices: goldGeometry.attributes.position.count, cordVertices: cordGeometry.attributes.position.count, motion: motionInfo() }) };
 }
 
 function buildDishDryer(scene, m) {
@@ -4140,7 +4786,7 @@ function buildDishDryer(scene, m) {
   };
 }
 
-function buildHouseholdProps(scene, m) {
+function buildHouseholdProps(scene, m, onPropLoad) {
   const counterY = 0.955;
   // The counter top measures 0.958; the coffee maker, kettle and rice cooker were each 3 mm too low (4 mm embed) and are lifted 3 mm, as the crock was in #731.
   // A compact American grind-and-brew drip maker: sealed bean hopper, warm-white housing, brew outlet and glass carafe on a warming plate.
@@ -4390,15 +5036,16 @@ function buildHouseholdProps(scene, m) {
   // Paul 2026-11-04: more real, Evian-style PET bottles (no brand text): a slim body with soft grip ribs, a long tapered shoulder, a neck ring
   // and a ridged cap; water fills to the shoulder and a blank label band wraps the middle. Placed as a loose pair, not a row: one a little
   // forward and turned, one set back, at uneven spacing.
-  const bottleSpots = [[2.536, -0.118, 0.4], [2.552, 0.014, -0.7]];
-  const waterBottles = bottleSpots.map(([bx, z, yaw], index) => {
-    const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [bx, 0.814, z], ({ shape }) => {
+  const bottleSpots = [[-1.93, -0.55, -0.7, 0.001]]; // Paul 2026-11-21: the water bottle stands on the floor beside the window lounge chair (whoever sits there may want a drink), which frees the credenza top // Paul 2026-11-21: one bottle is enough, which leaves room for kitchen things (it was a pair)
+  const waterBottles = bottleSpots.map(([bx, z, yaw, baseY = 0.814], index) => {
+    const bottleGroup = buildPropGroup(scene, "mineral-water-bottle-" + (index + 1), [bx, baseY, z], ({ shape }) => {
       const profile = [[0, 0.001], [0.030, 0.001], [0.038, 0.004], [0.0415, 0.012], [0.042, 0.030], [0.0395, 0.040], [0.042, 0.050], [0.042, 0.150], [0.0395, 0.160], [0.042, 0.170],
         [0.042, 0.196], [0.039, 0.214], [0.031, 0.236], [0.022, 0.256], [0.0165, 0.272], [0.0155, 0.280], [0.018, 0.283], [0.018, 0.286], [0.0155, 0.288], [0, 0.288]]
         .map(([radius, y]) => new THREE.Vector2(radius, y));
       shape(new THREE.LatheGeometry(profile, 28), m.waterBottleGlass, [0, 0, 0], [0, yaw, 0]);
       const fill = [[0, 0.004], [0.039, 0.006], [0.039, 0.194], [0.036, 0.212], [0, 0.212]].map(([radius, y]) => new THREE.Vector2(radius, y));
-      shape(new THREE.LatheGeometry(fill, 24), m.waterClear);
+      shape(new THREE.LatheGeometry(fill, 24), m.bottleWater);
+      shape(new THREE.CircleGeometry(0.0375, 24).rotateX(-Math.PI / 2), m.bottleWaterTop, [0, 0.2125, 0]); // the water surface
       shape(new THREE.CylinderGeometry(0.0425, 0.0425, 0.062, 28, 1, true), m.waterLabel, [0, 0.105, 0], [0, yaw, 0]);
       // Ridged screw cap: 28 flutes on the side.
       const cap = new THREE.CylinderGeometry(0.0175, 0.0175, 0.022, 56, 1);
@@ -4414,7 +5061,7 @@ function buildHouseholdProps(scene, m) {
   // One opaque ceramic mug, using Room 01's hollow body and embedded handle. Paul 2026-11-04: two mugs side by
   // side read as one shape split by a seam, so there is now a single glazed brick-red mug, turned so its handle
   // faces away from the brewer and its rim catches the window light.
-  const counterMugs = buildPropGroup(scene, "counter-mugs", [0, 0, 0], ({ shape }) => {
+  const counterMugs = buildPropGroup(scene, "counter-mugs", [...RED_MUG_SHIFT], ({ shape }) => {
     // One clean hollow body: the old inherited profile climbed the outside, crossed over the rim and then ran
     // back DOWN at a LARGER radius than the outer wall, so the two walls intersected and the lathe drew thin
     // vertical slivers on both sides of the mug (Paul 2026-11-04). This profile goes up the outside, over a
@@ -4422,6 +5069,8 @@ function buildHouseholdProps(scene, m) {
     const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]]
       .map(([radius, y]) => new THREE.Vector2(radius, y));
     const x = -0.30, z = -1.752, yaw = -0.62;
+    // Paul 2026-11-17: black coffee in the mug. The inner wall is 34.2 mm in radius; the surface sits 15 mm under the 95 mm rim.
+    shape(new THREE.CircleGeometry(0.0338, 40).rotateX(-Math.PI / 2), m.mugCoffee, [x, 0.954 + 0.080, z]);
     // Weld the lathe's duplicated seam vertices first: buildPropGroup recomputes normals on the merged geometry, and
     // an unwelded seam leaves two coincident vertices with different normals, which drew a hard vertical line down
     // the mug from every angle (Paul 2026-11-04). 48 segments keeps the silhouette round up close.
@@ -4450,6 +5099,63 @@ function buildHouseholdProps(scene, m) {
   // A 30-40 mm-tall glaze surface picks up shadow-map acne that reads as flat facets, so the mug only casts.
   counterMugs.traverse((child) => { if (child.isMesh) child.receiveShadow = false; });
   counterMugs.userData.mugCount = 1;
+  // Paul 2026-11-17: the red mug gets a little gold. A thin gilded ring on the rim and a thin band near the foot, and on the side that faces the room a small
+  // gold Golden Gate Bridge (two towers, the main cable and its hangers, the deck and a few lines of water), a band round the side that faces the room, drawn in
+  // code on a canvas, no download. (Paul 2026-11-17: the first design, a round flower medallion, read a little Japanese, like a family crest; the bridge says Bay Area.)
+  {
+    const MX = -0.30 + RED_MUG_SHIFT[0], MY = 0.954 + RED_MUG_SHIFT[1], MZ = -1.752 + RED_MUG_SHIFT[2];
+    const goldMaterial = new THREE.MeshStandardMaterial({ color: 0xe0b45a, metalness: 0.78, roughness: 0.28, emissive: 0x3a2808, emissiveIntensity: 0.4 });
+    const rim = new THREE.TorusGeometry(0.0374, 0.0016, 8, 56).rotateX(Math.PI / 2).translate(MX, MY + 0.0948, MZ);
+    const foot = new THREE.TorusGeometry(0.0403, 0.0011, 8, 56).rotateX(Math.PI / 2).translate(MX, MY + 0.016, MZ);
+    const goldRings = new THREE.Mesh(mergeGeometries([rim, foot], false), goldMaterial);
+    goldRings.name = "room03-red-mug-gold"; goldRings.userData.category = "credenza"; goldRings.castShadow = false; goldRings.receiveShadow = false;
+    scene.add(goldRings);
+    const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 224;
+    const g = canvas.getContext("2d");
+    const gradient = g.createLinearGradient(0, 0, 512, 224);
+    gradient.addColorStop(0, "#f7e19a"); gradient.addColorStop(0.5, "#c9962f"); gradient.addColorStop(1, "#f1d98e");
+    g.clearRect(0, 0, 512, 224);
+    const DECK = 138, TOWER_X = [148, 364], TOP = 22, LEFT = 18, RIGHT = 494;
+    const cable = (p0, p1, p2) => (t) => [(1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * p1[0] + t * t * p2[0], (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * p1[1] + t * t * p2[1]];
+    const spans = [cable([LEFT, DECK - 8], [(LEFT + TOWER_X[0]) / 2 - 8, 66], [TOWER_X[0], TOP + 6]), cable([TOWER_X[0], TOP + 6], [(TOWER_X[0] + TOWER_X[1]) / 2, 128], [TOWER_X[1], TOP + 6]), cable([TOWER_X[1], TOP + 6], [(TOWER_X[1] + RIGHT) / 2 + 8, 66], [RIGHT, DECK - 8])];
+    const draw = (width, style) => { // a dark thin underlay first, then the gold on top, so the lines read on the red glaze
+      g.strokeStyle = style; g.fillStyle = style; g.lineCap = "round"; g.lineJoin = "round";
+      g.lineWidth = width; g.beginPath(); g.moveTo(LEFT - 6, DECK); g.lineTo(RIGHT + 6, DECK); g.stroke(); // the deck
+      g.lineWidth = width * 0.55; g.beginPath(); g.moveTo(LEFT - 6, DECK + 7); g.lineTo(RIGHT + 6, DECK + 7); g.stroke(); // its lower edge
+      for (const x of TOWER_X) { // Art Deco towers: two legs, three struts, a stepped cap
+        for (const dx of [-11, 11]) { g.lineWidth = width * 1.5; g.beginPath(); g.moveTo(x + dx, DECK); g.lineTo(x + dx, TOP + 4); g.stroke(); }
+        g.lineWidth = width * 0.8; for (const y of [50, 82, 112]) { g.beginPath(); g.moveTo(x - 11, y); g.lineTo(x + 11, y); g.stroke(); }
+        g.lineWidth = width * 1.1; g.beginPath(); g.moveTo(x - 14, TOP + 4); g.lineTo(x + 14, TOP + 4); g.stroke(); g.beginPath(); g.moveTo(x - 8, TOP - 4); g.lineTo(x + 8, TOP - 4); g.stroke();
+      }
+      g.lineWidth = width * 0.9; for (const f of spans) { g.beginPath(); for (let i = 0; i <= 24; i++) { const [x, y] = f(i / 24); if (i) g.lineTo(x, y); else g.moveTo(x, y); } g.stroke(); } // the cables
+      g.lineWidth = width * 0.4; // the hangers, from the cable down to the deck
+      for (const f of spans) for (let i = 1; i < 14; i++) { const [x, y] = f(i / 14); if (x > TOWER_X[0] - 12 && x < TOWER_X[0] + 12 || x > TOWER_X[1] - 12 && x < TOWER_X[1] + 12) continue; g.beginPath(); g.moveTo(x, y); g.lineTo(x, DECK); g.stroke(); }
+      g.lineWidth = width * 0.7; for (const [y, half] of [[166, 190], [182, 140], [198, 90]]) { g.beginPath(); g.moveTo(256 - half, y); g.lineTo(256 + half, y); g.stroke(); } // water
+    };
+    draw(9, "#5a3a0a"); draw(5.5, gradient);
+    const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = 8;
+    const arc = 1.7, facing = -1.3; // radians around the mug; the band is centred on the side that faces into the room, away from the handle
+    const medallion = new THREE.Mesh(new THREE.CylinderGeometry(0.0403, 0.0403, 0.03, 48, 1, true, facing - arc / 2, arc),
+      new THREE.MeshStandardMaterial({ map: texture, transparent: true, roughness: 0.4, metalness: 0.25, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    medallion.name = "room03-red-mug-medallion"; medallion.position.set(MX, MY + 0.049, MZ); medallion.userData.category = "credenza";
+    scene.add(medallion);
+  }
+  // Paul 2026-11-22: the dish with three grey stones beside the bread is replaced by a bowl of popcorn, Room 01's bowl copied across (Codex's model, shared file) and re-glazed a soft blue.
+  // The bowl is loaded once and recoloured by material name; the group exists from the start so the prop list and the clearance checks find it, and its measured bounds update when the model arrives.
+  const stoneDish = new THREE.Group();
+  stoneDish.name = "prop-counter-popcorn-bowl"; stoneDish.position.set(-0.30, counterY + 0.0005, -1.752); stoneDish.scale.setScalar(0.7);
+  stoneDish.userData.category = "household-props"; stoneDish.userData.propKey = "counter-popcorn-bowl";
+  scene.add(stoneDish);
+  new GLTFLoader().loadAsync(new URL("../models/room01-popcorn-bowl-v2.glb", import.meta.url).href).then((asset) => {
+    const glaze = { bowl: "#5a84b4", rim: "#ece2cb", popcorn: "#f3e7c6", butter: "#efd9a0", husk: "#6b4a2b" };
+    asset.scene.traverse((o) => { if (!o.isMesh) return; o.castShadow = true; o.receiveShadow = true; o.userData.category = "household-props"; const c = glaze[o.material.name]; if (c) { o.material = o.material.clone(); o.material.color.set(c); o.material.vertexColors = false; } });
+    stoneDish.add(asset.scene); stoneDish.userData.ready = true;
+    stoneDish.updateMatrixWorld(true);
+    { const first = new THREE.Box3().setFromObject(stoneDish); const k = stoneDish.scale.x; asset.scene.position.x -= ((first.min.x + first.max.x) / 2 - stoneDish.position.x) / k; asset.scene.position.z -= ((first.min.z + first.max.z) / 2 - stoneDish.position.z) / k; stoneDish.updateMatrixWorld(true); } // centre the heap and bowl on the spot (the popcorn leans to one side of the bowl)
+    const box = new THREE.Box3().setFromObject(stoneDish);
+    stoneDish.userData.qaBounds = { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
+    onPropLoad?.();
+  }).catch(() => {});
   // Empty turned wooden serving bowl, on the free end of the wok counter.
   // The 220 mm rim stays clear of the 480 mm cooktop and the counter edges.
   const wokServingBowl = buildPropGroup(scene, "wok-wood-serving-bowl", [2.64, 0.954, 2.14], ({ shape }) => {
@@ -4483,7 +5189,7 @@ function buildHouseholdProps(scene, m) {
     });
     group.userData.qaGeometry = { vertices, meshes };
   };
-  [coffeeMaker, counterMugs, kettle, utensilCrock, pantryJar, ...waterBottles, wokServingBowl, riceCooker, saucepan].forEach(savePropMeasure);
+  [coffeeMaker, counterMugs, stoneDish, kettle, utensilCrock, pantryJar, ...waterBottles, wokServingBowl, riceCooker, saucepan].forEach(savePropMeasure);
   const mergeWorldMaterialMeshes = (groups, material, name, renderOrder = 0) => {
     const sourceMeshes = groups.flatMap((group) => group.children.filter((child) => child.isMesh && child.material === material));
     const geometries = sourceMeshes.map((mesh) => mesh.geometry.clone().applyMatrix4(mesh.matrixWorld));
@@ -4531,7 +5237,8 @@ function buildHouseholdProps(scene, m) {
   const sharedCounterGlass = mergeWorldMaterialMeshes([coffeeMaker, pantryJar], m.glass, "prop-countertop-glass-shared", 2);
   sharedCounterGlass.castShadow = false;
   sharedCounterGlass.receiveShadow = false;
-  mergeWorldMaterialMeshes(waterBottles, m.waterClear, "prop-mineral-water-liquid", 1);
+  mergeWorldMaterialMeshes(waterBottles, m.bottleWater, "prop-mineral-water-liquid", 1);
+  mergeWorldMaterialMeshes(waterBottles, m.bottleWaterTop, "prop-mineral-water-surface", 1);
   mergeWorldMaterialMeshes(waterBottles, m.waterBottleGlass, "prop-mineral-water-shells", 2);
   mergeWorldMaterialMeshes(waterBottles, m.waterLabel, "prop-mineral-water-labels", 0);
   // Preserve the steel/black distinction as per-vertex color while merging
@@ -4602,7 +5309,7 @@ function buildHouseholdProps(scene, m) {
   sinkStationInfoRef = () => JSON.parse(JSON.stringify(sinkStationBoxes));
 
   scene.updateMatrixWorld(true); // the station props were just created; merge in world space so they land where they belong
-  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs, ...sinkStationProps], [m.steel, m.black, m.mugGlaze, m.porcelain, m.faucetSteel, m.leafGreen, m.oak], "prop-countertop-hardware-shared");
+  mergeWorldTintedMeshes([kettle, riceCooker, saucepan, counterMugs, ...sinkStationProps], [m.steel, m.black, m.mugGlaze, m.mugCoffee, m.porcelain, m.faucetSteel, m.leafGreen, m.oak], "prop-countertop-hardware-shared");
 
   // One reduced solid-wood board leans against the wok-side backsplash; the former island board is removed.
   const cuttingBoard = buildPropGroup(scene, "cutting-board", [0, 0, 0], ({ shape }) => {
@@ -4622,14 +5329,12 @@ function buildHouseholdProps(scene, m) {
     boardShape.holes.push(handleHole);
     const board = new THREE.ExtrudeGeometry(boardShape, { depth: thickness, bevelEnabled: false, curveSegments: 8 });
     board.translate(0, 0, -thickness / 2);
-    const lean = -0.16;
-    const x = 2.904, z = 1.28, topY = counterY;
-    // Compose the lean about world Z after turning the board to face the room;
-    // this keeps its 255 mm width along the backsplash instead of skewing its bounding box.
-    const orient = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2);
-    orient.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), lean));
+    // Paul 2026-11-22: the board leaned against the small stove's wall, and the new zellige bricks stand 1.5-5 mm proud of
+    // it, so the board cut into the tile and read as broken. It now lies flat on the sink run, clear of the hob and of the
+    // basin, drying after a wash, and the stove wall is left clean.
+    const orient = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
     board.applyQuaternion(orient);
-    const y = topY + height * Math.cos(Math.abs(lean)) / 2 + thickness * Math.sin(Math.abs(lean)) / 2;
+    const x = 2.12, z = -2.03, y = counterY + thickness / 2 + 0.0030; // lying flat; the 3 mm covers the counter's front bevel under the board
     shape(board, m.oak, [x, y, z]);
   });
   cuttingBoard.userData.nominalSizeM = [0.255, 0.315, 0.0195];
@@ -5657,11 +6362,14 @@ function addRoom03Lamps(scene, materials) {
     return geometry;
   };
   const floorHardwareMesh = addMesh(floor, "floor-reading-lamp-hardware", mergeParts([
-    paint(place(new THREE.CylinderGeometry(0.012, 0.012, 1.15, 8), [0, 0.62, 0]), 0x2a2622),
+    // Paul 2026-11-19: the stem and the tripod read as one lamp now. The stem used to run on 11.5 cm below the hub to a loose end 4.5 cm above the floor, and
+    // the legs started just outside the hub; now the stem ends inside the hub, a short collar sleeves it where it enters, and the legs start 15 mm inside the hub.
+    paint(place(new THREE.CylinderGeometry(0.012, 0.012, 1.035, 8), [0, 0.6775, 0]), 0x2a2622),
+    paint(place(new THREE.CylinderGeometry(0.018, 0.018, 0.016, 10), [0, 0.19, 0]), 0x2a2622),
     ...[0, 1, 2].map((index) => {
       const angle = index * Math.PI * 2 / 3 + Math.PI / 6;
       return paint(segment(
-        [Math.cos(angle) * 0.055, 0.17, Math.sin(angle) * 0.055],
+        [Math.cos(angle) * 0.03, 0.172, Math.sin(angle) * 0.03],
         [Math.cos(angle) * 0.15, 0.012, Math.sin(angle) * 0.15],
         0.009, 0.007, 8,
       ), 0x2a2622);
@@ -5855,7 +6563,9 @@ function buildWokOliveOil(scene, paperNapkinPack) {
 
 // One brass rail, four useful US-style everyday tools, and four small seasoning jars. Geometry stays batched into one vertex-colour mesh.
 function buildRoom03WokTools(scene) {
-  const WALL_X = 2.94, X = WALL_X - 0.034, RAIL_Y = 1.36, Z0 = 2.18, SHELF_TOP = 1.4325, SHELF_X = WALL_X - 0.085;
+  // Paul 2026-11-24: the tools read as pressed into the tiles. The rail axis moves from 34 mm to 60 mm off the wall, which
+  // is what a real utensil rail looks like, and it gives the widest body (the whisk) 31 mm and the ladle 22 mm of air.
+  const WALL_X = 2.94, X = WALL_X - 0.060, RAIL_Y = 1.36, Z0 = 2.18, SHELF_TOP = 1.4325, SHELF_X = WALL_X - 0.085;
   const parts = [];
   const toolRecords = [];
   let activeBounds = null;
@@ -5888,12 +6598,14 @@ function buildRoom03WokTools(scene) {
     add(new THREE.CylinderGeometry(0.011, 0.011, 0.004, 14), STEEL, [WALL_X - 0.002, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
     add(new THREE.CylinderGeometry(0.0045, 0.0045, WALL_X - X - 0.003, 8), STEEL, [(WALL_X + X) / 2 - 0.0015, RAIL_Y, Z0 + dz], [0, 0, Math.PI / 2]);
   }
+  // Paul 2026-11-24: the row read as a set of equal toys. Real sets are unequal: the gaps are now 75, 65, 90 and 90 mm and
+  // the tools run 33, 31, 28, 34 and 30 cm - a ladle longer than a whisk, which is how a real rail looks.
   const TOOLS = [
-    { name: "wood-spoon", dz: -0.16 },
-    { name: "slotted-turner", dz: -0.09 },
-    { name: "balloon-whisk", dz: -0.02 },
-    { name: "stainless-ladle", dz: 0.05 },
-    { name: "locking-tongs", dz: 0.12 },
+    { name: "wood-spoon", dz: -0.180 },
+    { name: "slotted-turner", dz: -0.105 },
+    { name: "balloon-whisk", dz: -0.040 },
+    { name: "stainless-ladle", dz: 0.050 },
+    { name: "locking-tongs", dz: 0.140 },
   ];
   const includeInRecord = (record) => ({ min: [...record.min], max: [...record.max] });
   // Handle with a rounded end and a hang hole near its top; profile runs from y=0 (bottom) up to `len`.
@@ -5909,30 +6621,30 @@ function buildRoom03WokTools(scene) {
     add(new THREE.TorusGeometry(0.006, 0.0013, 5, 12, Math.PI), STEEL, [X, RAIL_Y - 0.0145, z], [0, Math.PI / 2, Math.PI]);
     const top = RAIL_Y - 0.012;
     if (name === "wood-spoon") {
-      handle(z, top, 0.22, 0.0055, 0.0085, WALNUT);
-      const neckY = top - 0.22;
+      handle(z, top, 0.24, 0.0055, 0.0085, WALNUT);
+      const neckY = top - 0.24;
       add(new THREE.CylinderGeometry(0.0055, 0.009, 0.03, 10), WALNUT, [X, neckY - 0.012, z]);
       const bowl = new THREE.SphereGeometry(0.5, 16, 10);
       const pos = bowl.attributes.position;
       for (let i = 0; i < pos.count; i++) if (pos.getX(i) < 0) pos.setX(i, pos.getX(i) * 0.35); // shallow scooped front
       add(bowl, WALNUT, [X, neckY - 0.058, z], [0, 0, 0], [0.018, 0.075, 0.05]);
     } else if (name === "slotted-turner") {
-      handle(z, top, 0.165, 0.0065, 0.0085, NYLON);
+      handle(z, top, 0.135, 0.0065, 0.0085, NYLON);
       add(new THREE.CylinderGeometry(0.0035, 0.0035, 0.004, 10), STEEL, [X, top - 0.05, z], [0, 0, Math.PI / 2]); // rivet
-      add(new THREE.CylinderGeometry(0.0045, 0.006, 0.045, 8), NYLON, [X, top - 0.187, z], [0, 0, 0.12]);
-      const bladeY = top - 0.255;
+      add(new THREE.CylinderGeometry(0.0045, 0.006, 0.045, 8), NYLON, [X, top - 0.157, z], [0, 0, 0.12]);
+      const bladeY = top - 0.225;
       add(new THREE.BoxGeometry(0.0035, 0.10, 0.068), NYLON, [X - 0.003, bladeY, z], [0, 0, 0.12]);
       add(new THREE.CylinderGeometry(0.034, 0.034, 0.0035, 20, 1, false, Math.PI / 2, Math.PI), NYLON, [X - 0.009, bladeY - 0.05, z], [0, 0, Math.PI / 2 + 0.12]);
       for (const sz of [-0.02, -0.0067, 0.0067, 0.02]) add(new THREE.BoxGeometry(0.0045, 0.064, 0.0045), 0x0b0b0c, [X - 0.0062, bladeY - 0.005, z + sz], [0, 0, 0.12]);
     } else if (name === "balloon-whisk") {
-      handle(z, top, 0.13, 0.009, 0.0095, STEEL);
-      add(new THREE.CylinderGeometry(0.0095, 0.0075, 0.012, 12), DARK_STEEL, [X, top - 0.136, z]); // wire collar
-      const cy = top - 0.142 - 0.085;
+      handle(z, top, 0.095, 0.009, 0.0095, STEEL);
+      add(new THREE.CylinderGeometry(0.0095, 0.0075, 0.012, 12), DARK_STEEL, [X, top - 0.101, z]); // wire collar
+      const cy = top - 0.107 - 0.085;
       for (let k = 0; k < 6; k++) add(new THREE.TorusGeometry(0.085, 0.0011, 4, 28), STEEL, [X, cy, z], [0, (k * Math.PI) / 6, 0], [0.34, 1, 0.34]);
     } else if (name === "stainless-ladle") {
       handle(z, top, 0.07, 0.0085, 0.009, STEEL);
-      add(new THREE.CylinderGeometry(0.003, 0.0035, 0.20, 8), STEEL, [X, top - 0.07 - 0.10, z]);
-      const cupY = top - 0.27 - 0.03;
+      add(new THREE.CylinderGeometry(0.003, 0.0035, 0.225, 8), STEEL, [X, top - 0.07 - 0.1125, z]);
+      const cupY = top - 0.295 - 0.03;
       add(new THREE.SphereGeometry(0.038, 18, 10, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), STEEL, [X - 0.012, cupY + 0.03, z], [0, 0, -0.5]);
       add(new THREE.TorusGeometry(0.038, 0.0018, 5, 24), DARK_STEEL, [X - 0.012, cupY + 0.03, z], [Math.PI / 2, 0, -0.5]);
     } else {
@@ -5990,7 +6702,8 @@ function buildRoom03WokTools(scene) {
 function buildRoom03CounterFresh(scene) {
   const TOP = 0.955;
   const parts = [];
-  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1]) => {
+  const add = (geometry, hex, position, rotation = [0, 0, 0], scale = [1, 1, 1], local = null, localRotation = [0, 0, 0]) => {
+    if (local) geometry.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(...local), new THREE.Quaternion().setFromEuler(new THREE.Euler(...localRotation)), new THREE.Vector3(1, 1, 1))); // a part placed inside a rotated group
     geometry.applyMatrix4(new THREE.Matrix4().compose(
       new THREE.Vector3(...position), new THREE.Quaternion().setFromEuler(new THREE.Euler(...rotation)), new THREE.Vector3(...scale),
     ));
@@ -6009,32 +6722,46 @@ function buildRoom03CounterFresh(scene) {
   add(new THREE.CylinderGeometry(0.135, 0.135, BOARD_H, 28), 0xb88b5b, [BX, TOP + BOARD_H / 2, BZ]);
   add(new THREE.BoxGeometry(0.05, BOARD_H, 0.03), 0xb88b5b, [BX - 0.155, TOP + BOARD_H / 2, BZ]);
   add(new THREE.TorusGeometry(0.008, 0.0035, 5, 10), 0x8a6842, [BX - 0.185, TOP + BOARD_H / 2, BZ], [Math.PI / 2, 0, 0]);
-  // A hand-shaped sourdough batard: flat base, fuller shoulders and subtle uneven crust.
-  const bread = { length: 0.22, width: 0.12, height: 0.08 };
-  const loafY = TOP + BOARD_H + bread.height * 0.33 - 0.002;
-  const loaf = new THREE.SphereGeometry(0.5, 24, 16);
-  const loafPositions = loaf.attributes.position;
-  for (let i = 0; i < loafPositions.count; i++) {
-    let x = loafPositions.getX(i), y = loafPositions.getY(i), z = loafPositions.getZ(i);
-    const uneven = 1 + 0.025 * Math.sin(x * 19 + z * 13) * Math.cos(z * 17);
-    x = Math.sign(x) * Math.pow(Math.abs(x) * 2, 0.72) * 0.5 * uneven;
-    z = Math.sign(z) * Math.pow(Math.abs(z) * 2, 0.84) * 0.5 * uneven;
-    y = Math.max(-0.33, y) * uneven;
-    loafPositions.setXYZ(i, x, y, z);
+  // Paul 2026-11-22 (reference: a golden quick bread in a metal loaf pan, the top split by one long crack): the batard is now a banana-bread style loaf in a dark steel loaf pan, a domed golden crust with
+  // a lengthwise split showing the pale crumb; a rectangular slice has been cut and lies in front.
+  const bread = { length: 0.235, width: 0.105, height: 0.068 }, panY = TOP + BOARD_H - 0.002, YAW = 0.30;
+  const pan = (g, hex, x, y, z, rot = [0, 0, 0]) => add(g, hex, [BX, panY, BZ], [0, YAW, 0], [1, 1, 1], [x, y, z], rot);
+  // the pan: a bottom, four slightly flared walls, and a flat rolled rim
+  pan(new THREE.BoxGeometry(bread.length - 0.02, 0.004, bread.width - 0.014), 0x2e3032, 0, 0.002, 0);
+  for (const s of [-1, 1]) {
+    pan(new THREE.BoxGeometry(bread.length, bread.height, 0.004), 0x4a4d50, 0, bread.height / 2, s * (bread.width / 2 - 0.004), [s * 0.07, 0, 0]);
+    pan(new THREE.BoxGeometry(0.004, bread.height, bread.width), 0x4a4d50, s * (bread.length / 2 - 0.002), bread.height / 2, 0, [0, 0, -s * 0.06]);
+    pan(new THREE.BoxGeometry(bread.length + 0.018, 0.003, 0.012), 0x686b6e, 0, bread.height, s * (bread.width / 2 + 0.001));
+    pan(new THREE.BoxGeometry(0.012, 0.003, bread.width + 0.018), 0x686b6e, s * (bread.length / 2 + 0.002), bread.height, 0);
+    pan(new THREE.BoxGeometry(bread.length + 0.03, 0.0012, 0.028), 0xeadfc6, 0, bread.height + 0.0035, s * (bread.width / 2 + 0.009), [s * 0.95, 0, 0]); // baking parchment still hangs over the long edges
   }
-  loaf.computeVertexNormals();
-  add(loaf, 0xa96e38, [BX, loafY, BZ], [0, 0.30, 0], [bread.length, bread.height, bread.width]);
-  // Three irregular pale expansion cuts across the baked crown.
-  for (const [i, dx] of [-0.045, 0, 0.045].entries()) {
-    const surfaceY = loafY + 0.038 - Math.abs(dx) * 0.035;
-    add(new THREE.SphereGeometry(0.5, 12, 8), i === 1 ? 0xdac299 : 0xc9a775,
-      [BX + dx, surfaceY, BZ], [0, 0.65, 0], [0.042, 0.004, 0.010]);
+  // the loaf: a flattened dome rising 3 cm over the rim, a long crack along its crest with raised lips and a pale crumb inside; the crust is golden with darker patches
+  const dome = new THREE.SphereGeometry(1, 36, 16, 0, Math.PI * 2, 0, Math.PI / 2), dp = dome.attributes.position, domeColors = new Float32Array(dp.count * 3);
+  const RX = bread.length / 2 - 0.007, RZ = bread.width / 2 - 0.007, RY = 0.052;
+  for (let i = 0; i < dp.count; i++) {
+    let x = dp.getX(i), y = dp.getY(i), z = dp.getZ(i);
+    x = Math.sign(x) * Math.pow(Math.abs(x), 0.75); z = Math.sign(z) * Math.pow(Math.abs(z), 0.85);
+    const px = x * RX, pz = z * RZ;
+    let py = y * RY;
+    const az = Math.abs(pz), lip = Math.max(0, 1 - Math.abs(az - 0.014) / 0.012) * y; // raised lips either side of the crack
+    py += lip * 0.007 + 0.0035 * Math.sin(px * 46 + pz * 23) * y;
+    if (az < 0.0085) py -= (1 - az / 0.0085) * 0.014 * y; // the crack
+    dp.setXYZ(i, px, py, pz);
+    const patch = 0.5 + 0.5 * Math.sin(px * 31 + 1.7) * Math.cos(pz * 47);
+    const base = new THREE.Color(0xd49632).lerp(new THREE.Color(0xa9651f), 0.25 + 0.4 * patch * (0.3 + y));
+    if (y < 0.12) base.set(0xb67a2a); else if (az < 0.011) base.set(0x8f5a24);
+    base.toArray(domeColors, i * 3);
   }
+  dome.setAttribute("color", new THREE.Float32BufferAttribute(domeColors, 3)); dome.computeVertexNormals();
+  dome.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(BX, panY + bread.height - 0.022, BZ), new THREE.Quaternion().setFromEuler(new THREE.Euler(0, YAW, 0)), new THREE.Vector3(1, 1, 1)));
+  dome.deleteAttribute("uv"); parts.push(dome);
+  add(new THREE.BoxGeometry(0.16, 0.0016, 0.007), 0xedc171, [BX, panY + bread.height + 0.0295, BZ], [0, YAW, 0]); // the pale crumb showing in the crack
   // A story on the counter (GrokBot 2026-10-31: tiny details people look for): one slice already cut from the loaf and lying in front of the board with its
   // crumbs, and a lemon half, cut side up, beside it (the lemons of the fruit bowl on the table).
   const SX = BX + 0.03, SZ = -1.86;
-  add(new THREE.CylinderGeometry(0.063, 0.063, 0.016, 22), 0xb9803f, [SX, TOP + 0.008, SZ], [0, 0.25, 0], [1, 1, 0.86]);
-  add(new THREE.CylinderGeometry(0.056, 0.056, 0.0165, 22), 0xe9d6a6, [SX, TOP + 0.00825, SZ], [0, 0.25, 0], [1, 1, 0.86]);
+  add(new THREE.BoxGeometry(0.1, 0.016, 0.082), 0xb87a2a, [SX, TOP + 0.008, SZ], [0, 0.25, 0]);
+  add(new THREE.BoxGeometry(0.092, 0.0165, 0.074), 0xf0d28c, [SX, TOP + 0.00825, SZ], [0, 0.25, 0]);
+  for (const [dx, dz] of [[-0.02, -0.012], [0.015, 0.016], [0.028, -0.02], [-0.03, 0.02]]) add(new THREE.SphereGeometry(0.006, 6, 4), 0xa8743a, [SX + dx, TOP + 0.0168, SZ + dz], [0, 0, 0], [1, 0.3, 1]); // flecks of walnut
   for (const [i, [dx, dz]] of [[-0.09, 0.03], [-0.075, -0.045], [0.085, 0.045], [0.1, -0.025], [-0.03, 0.075], [0.04, -0.07], [0.0, 0.1], [-0.11, -0.01]].entries()) {
     add(new THREE.SphereGeometry(0.0034 + (i % 3) * 0.0008, 5, 4), i % 2 ? 0xe2c58c : 0xc99a58, [SX + dx, TOP + 0.003, SZ + dz]);
   }
@@ -6074,7 +6801,7 @@ function buildRoom03CounterFresh(scene) {
   mesh.updateMatrixWorld(true);
   return {
     vertices: geometry.attributes.position.count, mesh,
-    bread: { dimensionsMm: [220, 120, 66], boardEmbedMm: 2, style: "oval scored country sourdough" },
+    bread: { dimensionsMm: [253, 123, 98], boardEmbedMm: 2, style: "golden quick-bread loaf in a metal pan" },
     bounds: () => { scene.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(mesh); return { min: box.min.toArray(), max: box.max.toArray() }; },
   };
 }
@@ -6451,6 +7178,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (on === Boolean(centerView)) return;
     if (on) {
       if (nookSaved) setNookView(false);
+      if (recordSaved) setRecordView(false);
       savedOrbit = { position: camera.position.clone(), target: controls.target.clone(), zoom: camera.zoom };
       controls.enabled = false;
       canvas.tabIndex = 0;
@@ -6525,6 +7253,7 @@ export async function start({ stage, onReady = () => {} }) {
     if (on === Boolean(nookSaved)) return;
     if (on) {
       if (centerView) setCenterView(false);
+      if (recordSaved) setRecordView(false);
       nookSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance, rotateSpeed: controls.rotateSpeed, zoomSpeed: controls.zoomSpeed };
       controls.minDistance = NOOK_VIEW.minDistance; controls.maxDistance = NOOK_VIEW.maxDistance;
       // Paul 2026-11-01: a slow, deliberate orbit feels like standing in the room; the room's default speed is for the big orbit.
@@ -6550,6 +7279,41 @@ export async function start({ stage, onReady = () => {} }) {
       controls.rotateSpeed = saved.rotateSpeed; controls.zoomSpeed = saved.zoomSpeed;
       nookSaved = null;
       controls.update(); setMood(currentMood); render();
+    }
+  }
+  // A close, slow look at the credenza end where the record player stands (Paul 2026-11-17: the record player's own quality is the idea, and a tap on it
+  // will start the music). Same pattern as the nook view: save the orbit, hold it to a small window, walk in over about a second, restore on leave.
+  // Paul 2026-11-22: like Room 02, a look frames the whole object and lets you swing either side of it. The record view
+  // aims at the deck itself (not at a point beside it) and steps back far enough that the deck, its plinth, the cable-car
+  // art on the left and the small stove's zellige wall on the right are all inside one frame.
+  // Paul 2026-11-23: the swing is asymmetric now. Turning right past about 0.12 rad puts the camera against the wall
+  // behind the counter, and the frame filled with flat grey (measured: contrast collapses from std 59 to 20). The right
+  // side is clamped to 0.14 rad; the left keeps the full 0.52 because it stays on the kitchen.
+  const RECORD_VIEW = { target: [2.72, 0.98, 0.62], position: [1.22, 1.60, 2.30], minDistance: 0.8, maxDistance: 3.4, azimuthLeft: 0.52, azimuthRight: 0.06, halfHfovDeg: 24, minFov: 40, maxFov: 62, rotateSpeed: 0.45, zoomSpeed: 0.65 };
+  const recordFov = (aspect) => Math.min(RECORD_VIEW.maxFov, Math.max(RECORD_VIEW.minFov, 2 * Math.atan(Math.tan(RECORD_VIEW.halfHfovDeg * Math.PI / 180) / aspect) * 180 / Math.PI));
+  let recordSaved = null;
+  function setRecordView(on) {
+    if (on === Boolean(recordSaved)) return;
+    if (on) {
+      if (centerView) setCenterView(false);
+      if (nookSaved) setNookView(false);
+      recordSaved = { position: camera.position.clone(), target: controls.target.clone(), minAzimuth: controls.minAzimuthAngle, maxAzimuth: controls.maxAzimuthAngle, minDistance: controls.minDistance, maxDistance: controls.maxDistance, rotateSpeed: controls.rotateSpeed, zoomSpeed: controls.zoomSpeed };
+      const theta = Math.atan2(RECORD_VIEW.position[0] - RECORD_VIEW.target[0], RECORD_VIEW.position[2] - RECORD_VIEW.target[2]);
+      controls.minAzimuthAngle = theta - RECORD_VIEW.azimuthLeft; controls.maxAzimuthAngle = theta + RECORD_VIEW.azimuthRight;
+      controls.minDistance = RECORD_VIEW.minDistance; controls.maxDistance = RECORD_VIEW.maxDistance;
+      controls.rotateSpeed = RECORD_VIEW.rotateSpeed; controls.zoomSpeed = RECORD_VIEW.zoomSpeed;
+      tweenNook(camera.position, controls.target, camera.fov, new THREE.Vector3(...RECORD_VIEW.position), new THREE.Vector3(...RECORD_VIEW.target), recordFov(camera.aspect));
+      refreshMugSteam();
+    } else {
+      const saved = recordSaved;
+      if (nookTween) { cancelAnimationFrame(nookTween); nookTween = null; }
+      camera.position.copy(saved.position); controls.target.copy(saved.target);
+      camera.fov = compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov; camera.updateProjectionMatrix();
+      controls.minAzimuthAngle = saved.minAzimuth; controls.maxAzimuthAngle = saved.maxAzimuth;
+      controls.minDistance = saved.minDistance; controls.maxDistance = saved.maxDistance;
+      controls.rotateSpeed = saved.rotateSpeed; controls.zoomSpeed = saved.zoomSpeed;
+      recordSaved = null;
+      controls.update(); render(); refreshMugSteam();
     }
   }
   function centerPointerDown(event) {
@@ -6584,6 +7348,7 @@ export async function start({ stage, onReady = () => {} }) {
     { key: "corkboard", box: [[0.06, 0.82, 3.70], [0.48, 1.18, 3.76]], zh: "軟木板上的蠟筆畫，是小姪女畫的。", en: "The crayon drawing on the board is from my niece." },
     { key: "keyShelf", box: [[0.16, 0.36, 3.58], [0.48, 0.50, 3.76]], zh: "鑰匙層板：回家先把鑰匙放下。", en: "The key shelf: keys land here before anything else." },
     { key: "puppy", box: [[-0.50, 0.57, 3.36], [-0.29, 0.71, 3.57]], zh: "小狗在等誰回家，等到睡著了。", en: "The puppy fell asleep waiting for someone to come home." },
+    { key: "cableCar", box: [[-0.86, 0.575, 3.39], [-0.70, 0.75, 3.65]], zh: "從餐櫃搬來的小纜車，現在住在這個角落。", en: "The little cable car moved from the credenza to this nook." },
   ];
   let nookLang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
   let nookCaptionKey = null, nookHintShown = false, nookCaptionTimer = 0;
@@ -6611,6 +7376,101 @@ export async function start({ stage, onReady = () => {} }) {
     nookHintShown = true;
     showNookCaption(nookLang === "zh" ? "點一下：帆布袋、軟木板、鑰匙層板。" : "Tap: totes, board, key shelf.", null, 4200);
   }
+  // The record player (Paul, 2026-11-18): Room 03's own piece "灣區晴日" plays first, then Room 02's "布魯克林窗台" and Room 04's "午後弄堂", each once through, round and round
+  // like Room 04's playlist, until the next tap stops it. Sound can only start inside a tap, and the piano samples (about 1 MB) are fetched on the first tap, never before. After the first tap the
+  // next piece starts from a timer, which browsers allow once the page has made sound.
+  const recordBay = createBayRecord(), recordA = createRoomRecord(), recordB = createRoomSound(), recordEpic = createNightMusic();
+  // [engine, bars to play once through, how to start it]. 午後弄堂 is about 5 dB softer than the others (measured), so it plays 1.4x louder here (+3 dB), as before.
+  // 午後上行 (side 4) is a 42-bar piece (TRACKS[1].formBars in night-score.js); a count of 16 cut it off after about 38 s of its 101 s.
+  const RECORD_PIECES = [[recordBay, BAY_BARS, () => recordBay.start()], [recordA, RECORD_A_BARS, () => recordA.start(0)], [recordB, CAFE_ALLEY_BARS, () => recordB.start(1, false, { playlist: false, level: 1.4 })], [recordEpic, 16, () => recordEpic.start(0, { playlist: false })], [recordEpic, 42, () => recordEpic.start(1, { playlist: false })]]; // 16 is 追劇夜, 42 is 午後上行 v36; neither form was extended
+  let recordSide = -1; // -1 stopped, 0 灣區晴日, 1 布魯克林窗台, 2 午後弄堂, 3 追劇夜 (the epic orchestral piece; it is the first piece when the mood is movie night), 4 晨曦 (Room 01's day piece, Paul 2026-11-22; the same night engine, its second piece)
+  let syncRecordMotion = null; // Card I: set once the record player is built; turns the platter and drops the arm while a piece plays
+  let recordTimer = 0;
+  const stopRecords = () => { clearInterval(recordTimer); recordTimer = 0; for (const [engine] of RECORD_PIECES) engine.stop(); recordSide = -1; if (typeof refreshMugSteam === "function") refreshMugSteam(); syncRecordMotion?.(); };
+  const playRecordPiece = (side) => { RECORD_PIECES.forEach(([engine], i) => { if (i !== side) engine.stop(); }); recordSide = RECORD_PIECES[side][2]() ? side : -1; return recordSide; };
+  const advanceRecord = () => { // the next piece, a moment before the last bar of this one ends (bars counts bars already scheduled, 0.6 s ahead)
+    let next = (recordSide + 1) % RECORD_PIECES.length; if (next === 3 && currentMood !== "movie") next = 4; // the epic piece only joins the round on movie night
+    if (playRecordPiece(next) < 0) { stopRecords(); return; }
+    showNookCaption(RECORD_CAPTIONS[next][nookLang], null, 3500); refreshMugSteam(); syncRecordMotion?.();
+  };
+  const watchRecord = () => { if (recordSide >= 0) { const [engine, bars] = RECORD_PIECES[recordSide]; if (engine.state().bars > bars) advanceRecord(); } };
+  const nextRecord = () => { // one tap plays (from the first piece), the next tap stops
+    if (recordSide === -1) { if (playRecordPiece(currentMood === "movie" ? 3 : 0) >= 0) { clearInterval(recordTimer); recordTimer = setInterval(watchRecord, 400); } }
+    else stopRecords();
+    refreshMugSteam(); syncRecordMotion?.();
+    return recordSide;
+  };
+  const RECORD_CAPTIONS = [ // short on purpose: the line sits over the picture and must not cover the turntable
+    { zh: "♪ 灣區晴日　再點停止", en: "♪ West Coast Sun · tap to stop" },
+    { zh: "♪ 布魯克林窗台　再點停止", en: "♪ Brooklyn Windowsill · tap to stop" },
+    { zh: "♪ 午後弄堂　再點停止", en: "♪ Afternoon Lane · tap to stop" },
+    { zh: "♪ 追劇夜　再點停止", en: "♪ Series Night · tap to stop" },
+    { zh: "♪ 午後上行　再點停止", en: "♪ Afternoon Ascending · tap to stop" },
+    { zh: "唱片收起來了", en: "Record put away" },
+    { zh: "這台裝置放不出聲音", en: "No sound on this device" },
+  ];
+
+  const onRecordHidden = () => { if (document.hidden && recordSide !== -1) stopRecords(); }; // a phone that leaves the page stops the record
+  document.addEventListener("visibilitychange", onRecordHidden);
+  // A discoverable record-player cue (a glowing ring until it is found) and the tap that plays the record.
+  let vinylFound = false, vinylTap = null;
+  const vinylReadyAt = performance.now(), vinylRing = document.createElement("div"), vinylStyle = document.createElement("style");
+  vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
+  vinylStyle.textContent = "#vinylRing{position:absolute;z-index:4;width:62px;height:62px;margin:-31px 0 0 -31px;border:3px solid #ffe2a8;border-radius:50%;background:radial-gradient(circle,rgba(255,214,150,.3),transparent 70%);box-shadow:0 0 18px 5px rgba(255,190,90,.8);pointer-events:none;animation:vinylPulse 1.9s ease-out infinite}#vinylRing[hidden]{display:none}@keyframes vinylPulse{0%{transform:scale(.72);opacity:1}80%,100%{transform:scale(1.35);opacity:0}}@media(prefers-reduced-motion:reduce){#vinylRing{animation:none}}";
+  document.head.append(vinylStyle); (canvas.parentElement || stage).append(vinylRing);
+  const vinylPoint = () => {
+    scene.updateMatrixWorld(true); camera.updateMatrixWorld();
+    const p = new THREE.Vector3(2.77, 0.875, 0.53).project(camera), rect = canvas.getBoundingClientRect();
+    if (p.z >= 1 || Math.abs(p.x) > 0.9 || Math.abs(p.y) > 0.9) return null;
+    return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2 };
+  };
+  const positionVinylRing = () => {
+    const p = !vinylFound && performance.now() - vinylReadyAt > 4500 && !document.hidden ? vinylPoint() : null;
+    vinylRing.hidden = !p;
+    if (p) { const rect = vinylRing.parentElement.getBoundingClientRect(); vinylRing.style.left = `${p.x - rect.left}px`; vinylRing.style.top = `${p.y - rect.top}px`; }
+  };
+  const vinylTimer = setInterval(positionVinylRing, 1000);
+  const vinylPointerDown = (event) => { if (event.isPrimary) vinylTap = { x: event.clientX, y: event.clientY }; };
+  const recordRaycaster = new THREE.Raycaster();
+  const recordNames = new Set(["room03-record-platter", "room03-record-tonearm", "room03-credenza-record-player", "room03-credenza-record-player-gold"]);
+  // The glowing ring sits on the deck centre (2.77, 0.875, 0.53). The record and the tonearm sit 5.5 cm toward the room, at z 0.475.
+  // In the close record view that offset lands outside the deck-centre circle, so a tap on the vinyl or the arm never started the music.
+  const hitsRecordPlayer = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+    recordRaycaster.setFromCamera({ x: ((event.clientX - rect.left) / rect.width) * 2 - 1, y: -((event.clientY - rect.top) / rect.height) * 2 + 1 }, camera);
+    return recordRaycaster.intersectObjects(scene.children, true).some((hit) => recordNames.has(hit.object.name));
+  };
+  // The vinyl itself sits 5.5 cm in front of the deck centre the glowing ring uses. A tap on that disc counts even when the
+  // ray slips through a groove gap, and a tap on the arm or the gold trim still counts by the mesh hit above.
+  const onVinylDisc = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return false;
+    const center = new THREE.Vector3(2.77, 0.868, 0.475).project(camera);
+    if (center.z >= 1) return false;
+    const edge = new THREE.Vector3(2.77 + 0.132, 0.868, 0.475).project(camera);
+    const cx = rect.left + (center.x + 1) * rect.width / 2, cy = rect.top + (1 - center.y) * rect.height / 2;
+    const radius = Math.hypot((edge.x - center.x) * rect.width / 2, (edge.y - center.y) * rect.height / 2);
+    return Math.hypot(event.clientX - cx, event.clientY - cy) <= Math.max(24, radius);
+  };
+  const vinylPointerUp = (event) => {
+    if (!vinylTap || !event.isPrimary) return;
+    const start = vinylTap; vinylTap = null;
+    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
+    const p = vinylPoint();
+    let nearDeck = false;
+    if (p) {
+      const edge = new THREE.Vector3(2.77, 0.875, 0.53 + 0.14).project(camera), rect = canvas.getBoundingClientRect();
+      const radiusPx = Math.hypot((edge.x - ((p.x - rect.left) / rect.width * 2 - 1)) * rect.width / 2, (edge.y - (1 - (p.y - rect.top) / rect.height * 2)) * rect.height / 2);
+      nearDeck = Math.hypot(event.clientX - p.x, event.clientY - p.y) <= Math.max(34, radiusPx * 1.1);
+    }
+    if (!nearDeck && !onVinylDisc(event) && !hitsRecordPlayer(event)) return;
+    vinylFound = true; positionVinylRing();
+    const was = recordSide, now = nextRecord(), caption = RECORD_CAPTIONS[now >= 0 ? now : was === -1 ? 6 : 5];
+    showNookCaption(caption[nookLang], null, now >= 0 ? 6500 : 3500);
+  };
+  canvas.addEventListener("pointerdown", vinylPointerDown);
+  canvas.addEventListener("pointerup", vinylPointerUp);
   const nookRaycaster = new THREE.Raycaster();
   function nookSpotAt(clientX, clientY) {
     if (!nookSaved) return null;
@@ -6804,7 +7664,7 @@ export async function start({ stage, onReady = () => {} }) {
   }
   buildTable(buckets, materials);
   const diningChairSeatGap = buildProceduralDiningChairs(scene, materials);
-  buildHouseholdProps(scene, materials);
+  buildHouseholdProps(scene, materials, () => render());
   const dishDryer = buildDishDryer(scene, materials);
   let credenza = null;
   const loungeChair = buildLoungeChair(scene, materials);
@@ -6822,6 +7682,46 @@ export async function start({ stage, onReady = () => {} }) {
   const grasscloth = makeGrasscloth(scene);
   credenza = buildRightWallCredenza(scene, materials);
   const credenzaDecor = buildRoom03CredenzaDecor(scene);
+  const recordPlayer = buildRoom03RecordPlayer(scene);
+  const outlets = buildRoom03Outlets(scene); // a counter GFCI and the floor lamp's outlet with its cord (Paul, 2026-11-19)
+  syncRecordMotion = () => recordPlayer.setPlaying(recordSide >= 0, render);
+  // Paul 2026-11-18, a desktop-only easter egg: the mist-blue "Shanghai Slowly Cafe" cup by the record player is a way to Room 04. With a mouse (fine pointer that can hover),
+  // the cup glows softly and shows a pointer and a small tip under the cursor; a click (not a drag) goes to the cafe. The ray is tested against the cup's own box only, so
+  // nothing else in the room reacts, and phones and tablets are unchanged.
+  const cupPortal = (() => {
+    const fit = credenzaDecor?.cups?.find((cup) => cup.name === "mist-blue-kraft"), label = scene.getObjectByName("room03-takeaway-cup-label");
+    if (!fit) return null;
+    const fine = matchMedia("(hover: hover) and (pointer: fine)");
+    const box = new THREE.Box3(new THREE.Vector3(...fit.bounds.min), new THREE.Vector3(...fit.bounds.max)), ray = new THREE.Raycaster();
+    const tip = document.createElement("div"); tip.id = "cupPortalTip"; tip.hidden = true;
+    tip.style.cssText = "position:absolute;z-index:6;padding:5px 10px;border-radius:999px;background:#2b2118e6;color:#fff;font:700 12px/1.2 system-ui,'Noto Sans TC',sans-serif;pointer-events:none;white-space:nowrap;transform:translate(14px,-130%)";
+    (canvas.parentElement || document.body).append(tip);
+    const url = () => `/prototype/roomverse-3d/cafe/?lang=${nookLang}`;
+    let hover = false, down = null;
+    const over = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      ray.setFromCamera({ x: ((event.clientX - rect.left) / rect.width) * 2 - 1, y: -((event.clientY - rect.top) / rect.height) * 2 + 1 }, camera);
+      return ray.ray.intersectsBox(box);
+    };
+    const setHover = (on, event) => {
+      if (on && event) { const rect = tip.parentElement.getBoundingClientRect(); tip.style.left = `${event.clientX - rect.left}px`; tip.style.top = `${event.clientY - rect.top}px`; }
+      if (on === hover) return;
+      hover = on; canvas.style.cursor = on ? "pointer" : "";
+      tip.textContent = nookLang === "zh" ? "去 Shanghai Slowly Cafe →" : "To Shanghai Slowly Cafe →"; tip.hidden = !on;
+      if (label) { label.material.emissive.setHex(on ? 0xffc27a : 0x000000); label.material.emissiveIntensity = on ? 0.45 : 0; }
+      render();
+    };
+    const usable = (event) => fine.matches && event.pointerType === "mouse" && event.isPrimary;
+    canvas.addEventListener("pointermove", (event) => { if (down && Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) down.moved = true; if (!usable(event)) return; if (event.buttons) { if (hover) setHover(false); return; } setHover(over(event), event); });
+    canvas.addEventListener("pointerleave", () => { if (hover) setHover(false); });
+    canvas.addEventListener("pointerdown", (event) => { down = usable(event) && over(event) ? { x: event.clientX, y: event.clientY } : null; });
+    canvas.addEventListener("pointerup", (event) => {
+      const start = down; down = null;
+      if (!start || start.moved || !usable(event) || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6 || !over(event)) return; // a drag turns the camera, it does not travel
+      location.assign(url());
+    });
+    return { box, url, hovering: () => hover, fine: () => fine.matches };
+  })();
   const mediaUnit = buildRoom03MediaUnit(scene, materials, woodGeometries);
   const mediaWoodwork = addRoom03Woodwork(scene, materials.oak, woodGeometries);
   const moodSlots = { screen: mediaUnit.screen, tabletopCenterpiece: scene.getObjectByName("mood-slot-tabletop-centerpiece"), tableware: null };
@@ -7310,7 +8210,7 @@ export async function start({ stage, onReady = () => {} }) {
     steamMat.name = "morning-steam"; const steamPoints = new THREE.Points(steamGeo, steamMat); steamPoints.name = "morning-steam"; steamPoints.frustumCulled = false; steamPoints.visible = false;
     dustPoints.raycast = steamPoints.raycast = () => {}; // atmosphere, not objects: taps and the plaque's visibility probe pass straight through
     scene.add(dustPoints, steamPoints);
-    const MUG = Object.freeze({ x: -0.292, y: 1.05, z: -1.752 }); // the rim of the mug standing beside the coffee maker
+    const MUG = Object.freeze({ x: -0.292 + RED_MUG_SHIFT[0], y: 1.05 + RED_MUG_SHIFT[1], z: -1.752 + RED_MUG_SHIFT[2] }); // the rim of the red mug, now on the credenza
     const update = (t) => {
       for (let i = 0; i < DUST; i++) {
         const ph = dust.phase[i], tw = 0.5 + 0.5 * Math.sin(t * 0.55 + ph * 3);
@@ -7364,11 +8264,57 @@ export async function start({ stage, onReady = () => {} }) {
   })();
   function applyAutumnLeaves(name) { leafRig.mesh.visible = name === "thanksgiving"; }
   function autumnLeavesInfo() { const b = new THREE.Box3().setFromObject(leafRig.mesh); return { visible: leafRig.mesh.visible, leaves: leafRig.count, vertices: leafRig.vertices, bounds: { min: b.min.toArray(), max: b.max.toArray() } }; }
+  // Paul 2026-11-17: a little steam over the red mug's black coffee. A faint curl is always there (one still frame); it drifts while the close record view is
+  // open or the record plays, at about 15 frames a second like the Sunday-morning steam, and only then. In the Sunday mood the existing morning steam does this job.
+  const mugSteamRig = (() => {
+    const softCanvas = document.createElement("canvas"); softCanvas.width = softCanvas.height = 64;
+    const sx = softCanvas.getContext("2d"), sg = sx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    sg.addColorStop(0, "rgba(255,255,255,1)"); sg.addColorStop(0.4, "rgba(255,255,255,.5)"); sg.addColorStop(1, "rgba(255,255,255,0)");
+    sx.fillStyle = sg; sx.fillRect(0, 0, 64, 64);
+    const COUNT = 22, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+    for (let i = 0; i < COUNT; i++) data.seed[i] = (i * 0.618034 + 0.07 * Math.sin(i * 5.3)) % 1; // spread unevenly so it never reads as a row of dots
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+    const material = new THREE.PointsMaterial({ map: new THREE.CanvasTexture(softCanvas), size: 0.058, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false });
+    material.name = "red-mug-steam";
+    const points = new THREE.Points(geometry, material); points.name = "red-mug-steam"; points.frustumCulled = false;
+    points.raycast = () => {}; // atmosphere, not an object
+    scene.add(points);
+    const RIM = { x: -0.30 + RED_MUG_SHIFT[0], y: 0.954 + RED_MUG_SHIFT[1] + 0.098, z: -1.752 + RED_MUG_SHIFT[2] };
+    const update = (t) => {
+      for (let i = 0; i < COUNT; i++) {
+        const life = (t * 0.26 + data.seed[i]) % 1; // 0 at the coffee, 1 gone, about four seconds
+        const widen = 0.25 + life * 1.6; // the curl opens out as it rises
+        const sway = Math.sin(t * 0.9 + life * 5.2 + data.seed[i] * 6) * 0.012 * widen; // an S-shaped drift
+        const spread = Math.sin(data.seed[i] * 40) * 0.008 * widen;
+        data.pos[i * 3] = RIM.x + sway + spread + life * 0.014; data.pos[i * 3 + 1] = RIM.y + life * 0.16; data.pos[i * 3 + 2] = RIM.z + Math.cos(t * 0.7 + life * 4.1 + data.seed[i] * 7) * 0.009 * widen + Math.cos(data.seed[i] * 31) * 0.006 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * 0.5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * 0.97;
+      }
+      geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+    };
+    update(7.3);
+    return { points, update };
+  })();
+  let mugSteamRun = 0;
+  function refreshMugSteam() {
+    const run = ++mugSteamRun;
+    mugSteamRig.points.visible = currentMood !== "sunday";
+    if (!mugSteamRig.points.visible || morningReduced() || !(recordSaved || recordSide >= 0)) { mugSteamRig.update(7.3); return; }
+    const t0 = performance.now(); let last = 0;
+    const step = (now) => {
+      if (run !== mugSteamRun) return;
+      if (!(recordSaved || recordSide >= 0) || currentMood === "sunday") { mugSteamRig.update(7.3); render(); return; }
+      if (!document.hidden && now - last > 66) { last = now; mugSteamRig.update((now - t0) / 1000 + 7.3); render(); }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
   let morningRun = 0;
   const morningReduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
   function applyMorningTouches(name) {
     const on = name === "sunday", { dustPoints, steamPoints, update } = morningRig;
     dustPoints.visible = on; steamPoints.visible = on;
+    mugSteamRig.points.visible = !on;
     const run = ++morningRun;
     if (!on) return;
     if (morningReduced()) { update(12.5); return; } // still: motes hang in the beam, one soft curl above the mug
@@ -7380,6 +8326,42 @@ export async function start({ stage, onReady = () => {} }) {
     };
     requestAnimationFrame(step);
   }
+  // Paul 2026-11-18: the Thanksgiving roast steams like the red mug's coffee (the same soft sprite, drift and fade), as three wisps a little larger, from the
+  // top of the bird. Only in the Thanksgiving mood; it drifts at about 15 frames a second and holds one still frame for reduced motion.
+  const turkeySteam = (() => {
+    const WISPS = 3, PER = 9, COUNT = WISPS * PER, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) };
+    for (let i = 0; i < COUNT; i++) data.seed[i] = ((i % PER) / PER + 0.07 * Math.sin(i * 5.3) + Math.floor(i / PER) * 0.31) % 1;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geometry.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+    const material = mugSteamRig.points.material.clone(); material.size = 0.085; material.opacity = 0.22; material.name = "turkey-steam";
+    const points = new THREE.Points(geometry, material); points.name = "turkey-steam"; points.frustumCulled = false; points.visible = false; points.raycast = () => {};
+    scene.add(points);
+    let origins = null, run = 0;
+    const findOrigins = () => { // three spots along the top of the bird, from its world box
+      const food = tablewareGroup?.getObjectByName("room03-tableware-food"); if (!food) return null;
+      food.updateMatrixWorld(true); const box = new THREE.Box3().setFromObject(food), c = box.getCenter(new THREE.Vector3()), sx = (box.max.x - box.min.x) * 0.18, sz = (box.max.z - box.min.z) * 0.18;
+      return [[c.x - sx, box.max.y - 0.01, c.z - sz * 0.4], [c.x + sx * 0.3, box.max.y - 0.004, c.z + sz * 0.5], [c.x + sx, box.max.y - 0.014, c.z - sz * 0.2]];
+    };
+    const update = (t) => {
+      for (let i = 0; i < COUNT; i++) {
+        const [ox, oy, oz] = origins[Math.floor(i / PER)], life = (t * 0.22 + data.seed[i]) % 1, widen = 0.3 + life * 1.8;
+        const sway = Math.sin(t * 0.8 + life * 5.2 + data.seed[i] * 6) * 0.016 * widen, spread = Math.sin(data.seed[i] * 40) * 0.01 * widen;
+        data.pos[i * 3] = ox + sway + spread + life * 0.012; data.pos[i * 3 + 1] = oy + life * 0.24; data.pos[i * 3 + 2] = oz + Math.cos(t * 0.7 + life * 4.1 + data.seed[i] * 7) * 0.012 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * 0.5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * 0.97;
+      }
+      geometry.attributes.position.needsUpdate = true; geometry.attributes.color.needsUpdate = true;
+    };
+    const apply = (name) => {
+      const on = name === "thanksgiving" && Boolean(tablewareGroup?.visible);
+      const thisRun = ++run; points.visible = on; if (!on) return;
+      origins = findOrigins(); if (!origins) { points.visible = false; return; }
+      update(5.1); if (morningReduced()) return;
+      const t0 = performance.now(); let last = 0;
+      const step = (now) => { if (thisRun !== run || !points.visible) return; if (!document.hidden && now - last > 66) { last = now; update((now - t0) / 1000 + 5.1); render(); } requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    };
+    return { points, apply, info: () => ({ visible: points.visible, wisps: WISPS, points: COUNT, looping: points.visible && !morningReduced() }) };
+  })();
   function morningTouchInfo() {
     return { dustVisible: morningRig.dustPoints.visible, steamVisible: morningRig.steamPoints.visible, dustCount: morningRig.dustPoints.geometry.attributes.position.count, steamCount: morningRig.steamPoints.geometry.attributes.position.count, looping: morningRun > 0 };
   }
@@ -7407,6 +8389,7 @@ export async function start({ stage, onReady = () => {} }) {
       if (look.tableware && tablewareGroup.parent !== scene) scene.add(tablewareGroup);
       else if (!look.tableware && tablewareGroup.parent === scene) scene.remove(tablewareGroup);
     }
+    turkeySteam.apply(name);
     sun.intensity = look.sun; sun.color.setHex(look.sunColor); sun.position.set(...look.sunPosition);
     hemi.intensity = look.hemi; hemi.color.setHex(look.hemiSky); hemi.groundColor.setHex(look.hemiGround);
     ambient.intensity = look.ambient; ambient.color.setHex(look.ambientColor);
@@ -7503,14 +8486,14 @@ export async function start({ stage, onReady = () => {} }) {
       compactCameraActive = nextCompact;
       const preset = compactCameraActive ? PORTRAIT_CAMERA : DESKTOP_CAMERA;
       controls.maxDistance = preset.maxDistance;
-      if (!centerView && !nookSaved) {
+      if (!centerView && !nookSaved && !recordSaved) {
         camera.position.set(...preset.position);
         controls.target.set(...preset.target);
         controls.update();
       }
     }
     camera.aspect = rect.width / rect.height;
-    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : nookSaved ? nookFov(camera.aspect) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
+    camera.fov = centerView ? (compactCameraActive ? 84 : 86) : nookSaved ? nookFov(camera.aspect) : recordSaved ? recordFov(camera.aspect) : (compactCameraActive ? PORTRAIT_CAMERA.fov : DESKTOP_CAMERA.fov);
     camera.updateProjectionMatrix();
     // P0b: the pendant shadow follows the same compact flag the camera uses, so a phone never pays for the point-light pass.
     pendantLight.castShadow = !compactCameraActive;
@@ -7694,7 +8677,7 @@ export async function start({ stage, onReady = () => {} }) {
       scene.traverse((object) => { if (object.isMesh && object.userData.category === category) box.expandByObject(object); });
       return box.isEmpty() ? null : { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() };
     };
-    const propKeys = ["drip-coffee-maker", "counter-mugs", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "wok-olive-oil", "oak-utensil-crock", "glass-pantry-jar", "mineral-water-bottle-1", "mineral-water-bottle-2", "wok-wood-serving-bowl", "steel-saucepan", "tabletop-meyer-lemon-bowl", "tabletop-water-set", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
+    const propKeys = ["drip-coffee-maker", "counter-mugs", "counter-popcorn-bowl", "electric-kettle", "rice-cooker", "cutting-board", "counter-seasoning", "wok-olive-oil", "oak-utensil-crock", "glass-pantry-jar", "mineral-water-bottle-1", "mineral-water-bottle-2", "wok-wood-serving-bowl", "steel-saucepan", "tabletop-meyer-lemon-bowl", "tabletop-water-set", "cookbooks", "tv-console-living-set", "window-side-table", "window-meyer-lemon-tree"];
     const propBounds = Object.fromEntries(propKeys.map((key) => {
       const object = scene.getObjectByName(`prop-${key}`);
       if (!object) return [key, null];
@@ -7717,12 +8700,17 @@ export async function start({ stage, onReady = () => {} }) {
     }));
     const cuttingBoardObject = scene.getObjectByName("prop-cutting-board");
     const cuttingBoardBox = cuttingBoardObject ? new THREE.Box3().setFromObject(cuttingBoardObject) : null;
-    const wokCounterSurface = scene.getObjectByName("merged-wok-counter");
+    // Paul 2026-11-22: the board stands on the sink run now, not the wok counter, so the support ray is cast against the
+    // sink counter and falls back to the wok counter (the board's old home) if it ever moves back.
+    const boardCounters = [];
+    scene.traverse((object) => { if (object.name === "merged-counter" || object.name === "merged-wok-counter") boardCounters.push(object); });
+    const wokCounterSurface = boardCounters;
     const boardSupportRay = cuttingBoardBox ? new THREE.Raycaster(
       new THREE.Vector3(cuttingBoardBox.min.x + 0.01, 1.3, (cuttingBoardBox.min.z + cuttingBoardBox.max.z) / 2),
       new THREE.Vector3(0, -1, 0), 0, 1,
     ) : null;
-    const boardSupportHit = boardSupportRay && wokCounterSurface ? boardSupportRay.intersectObject(wokCounterSurface, true)[0] : null;
+    const boardSupportHit = boardSupportRay && wokCounterSurface.length
+      ? boardSupportRay.intersectObjects(wokCounterSurface, true)[0] : null;
     const boardBurner = scene.getObjectByName("wok-kitchen-burners");
     const burnerBox = boardBurner ? new THREE.Box3().setFromObject(boardBurner) : null;
     const cuttingBoardFit = cuttingBoardBox && boardSupportHit ? {
@@ -8171,10 +9159,13 @@ export async function start({ stage, onReady = () => {} }) {
     const tablewareInfo = tablewareGroup ? { foodVariant: tablewareGroup.getObjectByName("room03-tableware-food")?.geometry === tablewareGroup.userData.foodVariants?.thanksgiving ? "turkey" : "chicken", vertices: tablewareGroup.userData.vertices, meshes: tablewareGroup.children.filter((child) => child.isMesh).length, settings: tablewareGroup.userData.settings, materials: tablewareGroup.userData.materials, colors: tablewareGroup.userData.colors, extras: tablewareGroup.userData.extras } : null;
     const coffeeMakerInfo = scene.getObjectByName("prop-drip-coffee-maker")?.userData.brewer || null;
     const mainSinkInfo = { ...kitchenFixtures.sink, openingClear: sinkOpeningClear, basinFloorVisible, basinFinish: "brushed stainless steel", basinBottomY: kitchenFixtures.sink.bottomY, faucet: "center-rear high-arc gooseneck (visual only)", faucetMount: "centered on rear deck near backsplash", rearDeckOffsetMm: kitchenFixtures.sink.mountFromRearMm, control: "70 mm raised side lever with discreet infrared outlet sensor", leverLengthMm: 70, smartSensorVisualOnly: true };
-    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, paperNapkinPack: paperNapkinInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, reflections: { envReady: Boolean(reflectionEnv), materials: Object.fromEntries(Object.keys(reflectiveBase).filter((k) => materials[k]).map((k) => [k, { hasEnv: materials[k].envMap === reflectionEnv, intensity: materials[k].envMapIntensity }])), sceneEnvironment: scene.environment !== null }, centerpieceFit, waterSet: scene.getObjectByName("prop-tabletop-water-set")?.userData.measure ?? null, wallpaper: grasscloth.info(), entryNook: entryNook.info(), nookDecor: { vertices: nookDecor.vertices, bounds: nookDecor.bounds() }, pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), meshes: loungeOttoman.children.length, vertices: loungeOttoman.children.reduce((n, child) => n + (child.geometry?.attributes.position.count || 0), 0) }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, cuttingBoardFit, wokOliveOil: { vertices: wokOliveOil.vertices, material: wokOliveOil.material, bounds: wokOliveOil.bounds, supportY: wokOliveOil.supportY, gapMm: wokOliveOil.gapMm, embedMm: wokOliveOil.embedMm }, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds(), utensils: wokTools.utensils.map((tool) => ({ ...tool, heightMm: Math.round((tool.bounds.max[1] - tool.bounds.min[1]) * 1000) })), spiceJars: wokTools.spiceJars }, mainSink: mainSinkInfo, coffeeMaker: coffeeMakerInfo, wokOven: (() => { const item = scene.userData.wokOven; const bottom = item.centerY - item.height / 2; const top = item.centerY + item.height / 2; const counterBottom = item.counterBottomY; return { style: "built-in under-counter oven", nominalSizeMm: [Math.round(item.width * 1000), Math.round(item.height * 1000), Math.round(item.depth * 1000)], bayMm: [Math.round(item.bay.width * 1000), Math.round((item.bay.top - item.bay.bottom) * 1000)], sideClearanceMm: Math.round((item.bay.width - item.width) * 500), lowerClearanceMm: Math.round((bottom - 0.12) * 1000), upperClearanceMm: Math.round((counterBottom - top) * 1000), rearClearanceMm: Math.round((2.94 - item.backX) * 1000), controls: 2, display: item.display, handle: item.handle, cabinetPulls: item.cabinetPulls, cabinetPullOffsetFromOvenMm: item.cabinetPullOffsetFromOvenMm, displayPanelMm: [240, 60], glassMaterial: materials.ovenGlass.type, transparentGlass: materials.ovenGlass.transparent }; })(), wokMitts: (() => { const item = scene.userData.wokMitts; const box = new THREE.Box3().setFromObject(item.mesh); return { count: item.count, hookCount: item.hookCount, occupiedHooks: item.occupiedHooks, bounds: { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() }, reachHeightMm: Math.round((box.min.y + box.max.y) * 500), lowerClearanceToCounterMm: item.lowerClearanceToCounterMm, vertices: item.mesh.geometry.attributes.position.count, shape: "one distinct thumb and four-finger mitt silhouette", pattern: item.pattern, print: { leaves: item.leafMotifs, flowers: item.flowerMotifs }, colorFamily: "cream cotton with sage botanical print", materialRoughness: item.mesh.material.roughness }; })(), counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds(), bread: counterFresh.bread }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds(), cups: credenzaDecor.cups, keepsake: credenzaDecor.keepsake }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, corkboard: entryWallDetails.corkboard, hooks: entryWallDetails.hooks, tote: entryWallDetails.tote, redTote: entryWallDetails.redTote, cap: entryWallDetails.cap, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, storageBoxCount: cookbookGroup?.userData.storageBoxCount || 0, counterMugCount: scene.getObjectByName("prop-counter-mugs")?.userData.mugCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, windowBeam: `#${materials.windowBeam.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, materialEmissiveIntensity: { ceiling: materials.ceiling.emissiveIntensity, windowBeam: materials.windowBeam.emissiveIntensity }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
+    return { room03LivingDetails: { ...room03LivingDetails.furnitureFit, fit: room03LivingDetails.fit, vertices: room03LivingDetails.vertices }, dishDryer: dishDryer.info(), credenza: credenza ? credenza.info() : null, thanksgivingDecor: thanksgivingInfo, paperNapkinPack: paperNapkinInfo, moodLook: { fields: MOOD_LOOK_FIELDS, moods: MOOD_LOOK }, tableware: tablewareInfo, screenContent, courtyardMap, renderFrame: renderer.info.render.frame, plaque, lounge, footToBody, diningChairQA, contactShadow: contactShadowInfo, lightMetrics, reflections: { envReady: Boolean(reflectionEnv), materials: Object.fromEntries(Object.keys(reflectiveBase).filter((k) => materials[k]).map((k) => [k, { hasEnv: materials[k].envMap === reflectionEnv, intensity: materials[k].envMapIntensity }])), sceneEnvironment: scene.environment !== null }, centerpieceFit, waterSet: scene.getObjectByName("prop-tabletop-water-set")?.userData.measure ?? null, wallpaper: grasscloth.info(), entryNook: entryNook.info(), nookDecor: { vertices: nookDecor.vertices, bounds: nookDecor.bounds() }, pendantPaper: (() => { const paper = scene.getObjectByName("pendant-paper-tiers"); const box = new THREE.Box3().setFromObject(scene.getObjectByName("room03-pendant-tiered")); return paper ? { tiers: PENDANT_TIERS.radii.length, radiiMm: PENDANT_TIERS.radii.map((r) => Math.round(r * 1000)), emissive: paper.material.emissiveIntensity, materialName: paper.material.name, vertices: paper.geometry.attributes.position.count, bounds: { min: box.min.toArray(), max: box.max.toArray() } } : null; })(), yardView, ottoman: { ...loungeOttoman.userData.measure(), meshes: loungeOttoman.children.length, vertices: loungeOttoman.children.reduce((n, child) => n + (child.geometry?.attributes.position.count || 0), 0) }, wallArtChoice: wallArt.choice, wallArtMean: { "cable-car": wallArt.regionMean("cable-car"), "redwood-path": wallArt.regionMean("redwood-path"), "lamp-wall": wallArt.regionMean("lamp-wall") }, lampWallArt: { bounds: boxFor("prop-room03-wall-art-lamp-wall"), imageBounds: wallArt.assets.lampWall.image.userData.bounds, status: wallArt.assets.lampWall.status }, title: ROOM_TITLE, dimensions: ROOM, mood: currentMood, yardLoaded, wallArtLoaded, wallArtAssets, moodSlots: moodSlotInfo, wallArtTextureSize: [wallArt.assets.cableCar.texture?.image?.naturalWidth || wallArt.assets.cableCar.texture?.image?.width || 0, wallArt.assets.cableCar.texture?.image?.naturalHeight || wallArt.assets.cableCar.texture?.image?.height || 0], wallArtColorSpace: wallArt.texture?.colorSpace || null, wallArtMaterial: wallArtImagePlane?.material?.type || null, wallArtLight: wallArtImagePlane ? wallArtImagePlane.material.color.toArray().map((v) => Number(v.toFixed(3))) : null, wallArtReceivesShadow: wallArtImagePlane?.receiveShadow ?? null, wallArtBounds: boxFor("prop-room03-wall-art"), wallArtCorners, wallArtPixels, wokZone, wokTile, wallArtClearanceBounds: { beams: boxFor("merged-structure"), hood: boxFor("merged-hood"), upperCabinets: boxFor("merged-kitchen") }, furniture: { ...furniture.status, urls: furniture.urls, tabletopEdgeHeightDeviation: furniture.tabletopEdgeHeightDeviation }, furnitureAssets, furnitureBounds: { table: boxFor("room03-table-glb"), chairs: chairBounds, pendant: boxFor("room03-pendant-tiered") }, propBounds, propGeometry, cuttingBoardFit, wokOliveOil: { vertices: wokOliveOil.vertices, material: wokOliveOil.material, bounds: wokOliveOil.bounds, supportY: wokOliveOil.supportY, gapMm: wokOliveOil.gapMm, embedMm: wokOliveOil.embedMm }, utensilCrockFit, pantryJarFit, electricKettleFit, dripCoffeeMakerFit, riceCookerFit, saucepanFit, windowBounds: { slider: boxFor("glass-slider-panel"), ajar: boxFor("glass-slider-panel-ajar") }, plantLeafCount: 0, plantLeafVerticesPerBlade: 0, lamps: lampInfo, curtains: room03Curtains.info(), kitchenHub: { vertices: kitchenHub.vertices, bounds: kitchenHub.bounds() }, wokTools: { vertices: wokTools.vertices, bounds: wokTools.bounds(), utensils: wokTools.utensils.map((tool) => ({ ...tool, heightMm: Math.round((tool.bounds.max[1] - tool.bounds.min[1]) * 1000) })), spiceJars: wokTools.spiceJars }, mainSink: mainSinkInfo, coffeeMaker: coffeeMakerInfo, wokOven: (() => { const item = scene.userData.wokOven; const bottom = item.centerY - item.height / 2; const top = item.centerY + item.height / 2; const counterBottom = item.counterBottomY; return { style: "built-in under-counter oven", nominalSizeMm: [Math.round(item.width * 1000), Math.round(item.height * 1000), Math.round(item.depth * 1000)], bayMm: [Math.round(item.bay.width * 1000), Math.round((item.bay.top - item.bay.bottom) * 1000)], sideClearanceMm: Math.round((item.bay.width - item.width) * 500), lowerClearanceMm: Math.round((bottom - 0.12) * 1000), upperClearanceMm: Math.round((counterBottom - top) * 1000), rearClearanceMm: Math.round((2.94 - item.backX) * 1000), controls: 0, display: item.display, handle: item.handle, cabinetPulls: item.cabinetPulls, cabinetPullOffsetFromOvenMm: item.cabinetPullOffsetFromOvenMm, displayPanelMm: [240, 60], glassMaterial: materials.ovenGlass.type, transparentGlass: materials.ovenGlass.transparent }; })(), wokMitts: (() => { const item = scene.userData.wokMitts; const box = new THREE.Box3().setFromObject(item.mesh); return { count: item.count, hookCount: item.hookCount, occupiedHooks: item.occupiedHooks, bounds: { min: box.min.toArray(), max: box.max.toArray(), size: box.getSize(new THREE.Vector3()).toArray() }, reachHeightMm: Math.round((box.min.y + box.max.y) * 500), lowerClearanceToCounterMm: item.lowerClearanceToCounterMm, vertices: item.mesh.geometry.attributes.position.count, shape: "one distinct thumb and four-finger mitt silhouette", pattern: item.pattern, print: { leaves: item.leafMotifs, flowers: item.flowerMotifs }, colorFamily: "cream cotton with sage botanical print", materialRoughness: item.mesh.material.roughness }; })(), counterFresh: { vertices: counterFresh.vertices, bounds: counterFresh.bounds(), bread: counterFresh.bread }, lampBlanket: { vertices: lampBlanket.vertices, bounds: lampBlanket.bounds(), legFit: lampBlanket.legFit }, credenzaDecor: { vertices: credenzaDecor.vertices, bounds: credenzaDecor.bounds(), cups: credenzaDecor.cups, keepsake: credenzaDecor.keepsake }, entryWallDetails: { vertices: entryWallDetails.vertices, bounds: entryWallDetails.bounds(), clock: entryWallDetails.clock, corkboard: entryWallDetails.corkboard, hooks: entryWallDetails.hooks, tote: entryWallDetails.tote, redTote: entryWallDetails.redTote, cap: entryWallDetails.cap, shelf: entryWallDetails.shelf }, softForms, cookbookCount: cookbookGroup?.userData.bookCount || 0, storageBoxCount: cookbookGroup?.userData.storageBoxCount || 0, counterMugCount: scene.getObjectByName("prop-counter-mugs")?.userData.mugCount || 0, wokSupport: { bounds: wokCabinetBounds, counter: wokCounterBounds, counterBottomY: wokCounterBounds ? wokCounterBounds.min[1] : null, counterTopY: wokCounterBounds ? wokCounterBounds.max[1] : null }, sceneBounds: { kitchen: boxFor("merged-kitchen"), counter: boxFor("merged-counter"), structure: boxFor("merged-structure"), hood: boxFor("merged-hood"), sideKitchen: boxFor("merged-side-kitchen"), wokBase: categoryBoxFor("wok-base-cabinet") }, materialColors: { wall: `#${materials.wall.color.getHexString()}`, cabinet: `#${materials.olive.color.getHexString()}`, hood: `#${materials.hoodSteel.color.getHexString()}`, ceiling: `#${materials.ceiling.color.getHexString()}`, windowBeam: `#${materials.windowBeam.color.getHexString()}`, beam: `#${materials.beam.color.getHexString()}`, floor: `#${materials.floor.color.getHexString()}` }, materialEmissiveIntensity: { ceiling: materials.ceiling.emissiveIntensity, windowBeam: materials.windowBeam.emissiveIntensity }, edgeRadii: EDGE_RADIUS_BY_CATEGORY, roundingSegments: ROUNDING_SEGMENTS, vertices, triangles, meshes, drawCallsLastFrame: renderer.info.render.calls, categories, rug: rugBounds, rugSamples: { rug: project([1.22, 0.022, 0.5]), floorBesideRug: project([1.72, 0.002, 0.5]) }, floorSamples: { farFromWindow: project([1.72, 0.002, 0.5]) }, pixelRatio: renderer.getPixelRatio(), canvas: [renderer.domElement.width, renderer.domElement.height], camera: camera.position.toArray(), cameraTarget: controls.target.toArray(), cameraFov: camera.fov, viewport: [stage.clientWidth, stage.clientHeight], wokOpeningWidth: 0, projectedRegions: { dining: project([0, 0.76, 0.5]), kitchen: project([0, 1.2, -2.0]), countertop: project([0, 0.955, -2.03]), cabinetSample: project([-0.52, 1.78, -1.9225]), pendant: project([0, 1.98, 0.15]), wallArt: project([2.908, 1.52, -0.02]), wokDoor: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokBowl: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wokHood: project(scene.getObjectByName("wok-kitchen-sloped-hood")?.position.toArray() || [2.68, 1.72, 1.68]), wokGlow: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), wokBase: project([wokCabinetBounds.min[0] + wokCabinetBounds.size[0] / 2, wokCabinetBounds.min[1] + wokCabinetBounds.size[1] / 2, wokCabinetBounds.min[2] + wokCabinetBounds.size[2] / 2]), doorReveal: project(scene.getObjectByName("wok-kitchen-hood-light")?.position.toArray() || [2.62, 1.55, 1.68]), doorPanel: project([2.9, 1.62, 0.78]), wokOpening: project(scene.getObjectByName("wok-kitchen-wok")?.position.toArray() || [2.64, 0.98, 1.68]), wallBesideWok: project([2.9, 1.62, 0.78]), floorLamp: project(lampInfo["floor-reading-lamp"].center) } };
   };
   const instance = {
     tablePhoneInfo, morningTouchInfo, autumnLeavesInfo,
+    outletsInfo: () => outlets.info(),
+    recordPlayerInfo: () => ({ ...recordPlayer.info(), ringVisible: !vinylRing.hidden, hintSeen: vinylFound, nookKeepsake: credenzaDecor.keepsake }),
+    cupPortal: () => cupPortal && { url: cupPortal.url(), hovering: cupPortal.hovering(), fine: cupPortal.fine(), centre: cupPortal.box.getCenter(new THREE.Vector3()).toArray() }, turkeySteamInfo: () => turkeySteam.info(), recordMusicState: () => ({ side: recordSide, bay: recordBay.state(), windowsill: recordA.state(), lane: recordB.state() , epic: recordEpic.state()}), stopRecord: stopRecords, nextRecordPiece: () => { if (recordSide >= 0) advanceRecord(); return recordSide; }, // QA: skip to the next piece
     setMood, resize, render, camera, controls, info, moodSlots, plaqueMesh: housePlaque, setCenterView,
     doorScreen, doorOpen: () => roomDoor.set(true, true, render), doorClose: () => roomDoor.set(false, true, render), doorSnap: (open) => roomDoor.set(open, false, render), doorIsOpen: () => roomDoor.isOpen(), doorInfo: () => roomDoor.info(), doorBounds: () => { const b = roomDoor.bounds(); return { min: b.min.toArray(), max: b.max.toArray() }; }, doorLeafBounds: () => { const b = roomDoor.leafBounds(); return { min: b.min.toArray(), max: b.max.toArray() }; },
     robotScreen, robotHop, onRender: (listener) => { renderListeners.push(listener); },
@@ -8199,6 +9190,7 @@ export async function start({ stage, onReady = () => {} }) {
     },
     setArtwork: (frameKey, optionKey, onDone) => wallArt.setArtwork(frameKey, optionKey, (result) => { render(); onDone?.(result); }),
     artOptions: () => Object.fromEntries(Object.entries(wallArt.artOptions).map(([frame, options]) => [frame, Object.keys(options)])),
+    setRecordView, recordViewInfo: () => recordSaved ? { target: [...RECORD_VIEW.target], position: [...RECORD_VIEW.position], distance: camera.position.distanceTo(controls.target), fov: camera.fov } : null,
     setNookView, nookViewInfo: () => nookSaved ? { target: [...NOOK_VIEW.target], position: [...NOOK_VIEW.position], azimuthHalfRange: NOOK_VIEW.azimuthHalfRange, minDistance: NOOK_VIEW.minDistance } : null,
     nookAnimating: () => Boolean(nookTween), nookTvCutHidden, nookHotspotInfo, sinkStation: () => (sinkStationInfoRef ? sinkStationInfoRef() : null),
 
@@ -8213,6 +9205,9 @@ export async function start({ stage, onReady = () => {} }) {
       controls.update(); render();
     },
     dispose: () => {
+      stopRecords(); recordPlayer.stop(); document.removeEventListener("visibilitychange", onRecordHidden);
+      clearInterval(vinylTimer); vinylRing.remove(); vinylStyle.remove();
+      canvas.removeEventListener("pointerdown", vinylPointerDown); canvas.removeEventListener("pointerup", vinylPointerUp);
       canvas.removeEventListener('pointerdown', centerPointerDown);
       canvas.removeEventListener('pointermove', centerPointerMove);
       canvas.removeEventListener('pointerup', centerPointerEnd);

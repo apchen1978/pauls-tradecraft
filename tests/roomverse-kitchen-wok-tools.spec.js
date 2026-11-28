@@ -38,18 +38,27 @@ test("wok station has one reduced wall board, five American-style tools, grinder
   expect(tools.spiceJars, "salt and pepper grinders plus four spice jars").toHaveLength(6);
   expect(tools.vertices, "rail, four utensils and four small shelf jars remain one merged draw-call mesh").toBeGreaterThan(1500);
 
-  // Original board was 340×420 mm on the main island; approved version is 75% (255×315 mm), vertical against the wok backsplash.
-  expect(board.min[0], "board relocated to the small wok station").toBeGreaterThan(2.7);
+  // Original board was 340x420 mm on the main island; then 75% (255x315 mm) leaning on the wok backsplash.
+  // Paul 2026-11-22: the new zellige bricks stand 1.5-5 mm proud of that wall and cut into the leaning board, so it moved
+  // to the sink run. Old -> new: min.x > 2.7 m (wok station) -> the board sits on the sink counter, past the hob and behind
+  // the sink line (checked just below).
   expect(info.cuttingBoardFit.nominalSizeMm).toEqual([255, 315, 20]);
-  expect(board.size[2] * 1000).toBeGreaterThanOrEqual(250);
-  expect(board.size[2] * 1000).toBeLessThanOrEqual(260);
-  expect(board.size[1] * 1000).toBeGreaterThanOrEqual(305);
-  expect(board.size[1] * 1000).toBeLessThanOrEqual(315);
+  // Lying flat, the board's axes move: the 255 mm width stays on x, the 315 mm length runs along z, the 19.5 mm edge is
+  // the height. Old -> new: size[2] 250..260 -> 305..315 (the length now lies along z), size[1] 305..315 -> 15..25 mm.
+  expect(board.size[0] * 1000).toBeGreaterThanOrEqual(250);
+  expect(board.size[0] * 1000).toBeLessThanOrEqual(260);
+  expect(board.size[2] * 1000).toBeGreaterThanOrEqual(305);
+  expect(board.size[2] * 1000).toBeLessThanOrEqual(316); // 315 mm plus the float rounding of a rotated bounding box
+  expect(board.size[1] * 1000).toBeGreaterThanOrEqual(15);
+  expect(board.size[1] * 1000).toBeLessThanOrEqual(35); // 19.5 mm edge plus the 0.05 rad skew's lift on a 255 mm width
   expect(info.cuttingBoardFit.gapMm, "board foot sits on the stone counter within 1 mm").toBeGreaterThanOrEqual(-1);
   expect(info.cuttingBoardFit.gapMm).toBeLessThanOrEqual(1);
-  expect(info.cuttingBoardFit.wallClearanceMm, "leaning upper edge stays just in front of the wall").toBeGreaterThanOrEqual(0);
-  expect(info.cuttingBoardFit.wallClearanceMm).toBeLessThanOrEqual(5);
-  expect(info.cuttingBoardFit.burnerClearanceMm, "board clears the cooktop").toBeGreaterThanOrEqual(25);
+  // Paul 2026-11-22: the board left this station. The new zellige bricks on the wok wall stand 1.5-5 mm proud and cut into
+  // the leaning board, so it now dries flat on the sink run, past the hob.
+  // Old -> new: wall clearance 0..5 mm plus burner clearance >= 25 mm at the wok wall -> the board is off the wok station
+  // altogether, so those two station-specific checks are replaced by where the board now is.
+  expect(board.max[2], "the board is on the sink run, not the wok wall").toBeLessThan(-1.80); // its front edge stays behind the counter edge at -1.75
+  expect(board.max[0], "the board sits past the hob").toBeGreaterThan(1.9);
 
   // Oil bottle is a small, unbranded dark-glass retail-style bottle, near the permanent red-banded napkin pack and away from the hob.
   expect(info.wokOliveOil.material).toEqual({ roughness: 0.24, clearcoat: 0.55, transparent: false });

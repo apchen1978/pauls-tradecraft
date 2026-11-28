@@ -13,11 +13,11 @@ for (const width of [390, 1440]) {
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(`${PAGE}?lang=zh&mood=tv&wall=wine`);
     await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-    expect(await page.evaluate(() => __room.shelfDecor())).toEqual({ ready: false, art: null, objects: [], overlaps: [] });
+    expect(await page.evaluate(() => __room.shelfDecor())).toEqual({ ready: false, art: null, objects: [], overlaps: [], leans: [] });
     expect(requests.some((r) => r.includes("console-art-river") || r.includes("shelf-art-still"))).toBe(false);
     await page.evaluate(() => __room.loadConsoleDecor());
     const data = await page.evaluate(() => __room.shelfDecor());
-    expect(data.ready).toBe(true); expect(data.objects).toHaveLength(11); expect(data.overlaps).toEqual([]);
+    expect(data.ready).toBe(true); expect(data.objects).toHaveLength(16 /* 13 before the top shelf was filled up with three more books, 2026-11-21 */); expect(data.overlaps).toEqual([]);
     expect(data.art).toBe("shelf-art-still-v1.webp");
     expect(await page.evaluate(() => __room.consoleDetails().artFile)).toBe("console-art-river-v1.webp");
     expect(requests.filter((r) => r.endsWith("/shelf-art-still-v1.webp"))).toHaveLength(1);
@@ -29,15 +29,22 @@ for (const width of [390, 1440]) {
       expect(item.fits, item.name).toBe(true); expect(item.supported, item.name).toBe(true);
       expect(item.max[1] - item.min[1], item.name).toBeLessThan(.5);
     }
-    expect(data.objects.filter((o) => o.name.startsWith("shelf-book-blue") || o.name.startsWith("shelf-book-moss") || o.name.startsWith("shelf-book-clay") || o.name.startsWith("shelf-book-paper")).length).toBe(5);
-    expect(data.objects.filter((o) => o.bay === "left-lower").map((o) => o.name)).toEqual(["shelf-ceramic-dish"]);
+    expect(data.objects.filter((o) => o.name.startsWith("shelf-book-")).length).toBe(10); // 7 before the top shelf was filled up (2026-11-21)
+    // Paul 2026-11-19: the last two books lean at the open end, one on the short navy book's top corner, the other flush on it; feet on the board (supported above)
+    expect(data.leans.map((l) => [l.name, l.on])).toEqual([["shelf-book-mustard", "shelf-book-navy-short"], ["shelf-book-plum", "shelf-book-mustard"]]);
+    for (const l of data.leans) {
+      expect(l.leanDeg).toBeGreaterThanOrEqual(12); expect(l.leanDeg).toBeLessThanOrEqual(20);
+      expect(Math.abs(l.contactMm), `${l.name} touches ${l.on}, no gap, no cut-in`).toBeLessThanOrEqual(1.5);
+      expect(l.alongMm, `${l.name} touches within the book`).toBeLessThanOrEqual(l.heightMm);
+    }
+    expect(data.objects.filter((o) => o.bay === "left-lower").map((o) => o.name)).toEqual(["shelf-ceramic-dish", "shelf-mini-tatung-cooker"]);
     expect(data.objects.find((o) => o.name === "shelf-small-frame").max[1] - data.objects.find((o) => o.name === "shelf-small-frame").min[1]).toBeGreaterThan(.24);
     expect(data.objects.find((o) => o.name === "shelf-medium-ceramic-vessel").max[1] - data.objects.find((o) => o.name === "shelf-medium-ceramic-vessel").min[1]).toBeGreaterThan(.30);
     const stack = data.objects.find((o) => o.name === "shelf-horizontal-book-stack");
-    const sculpture = data.objects.find((o) => o.name === "shelf-small-wood-sculpture");
-    expect(stack?.bay).toBe("right-lower"); expect(stack.max[1] - stack.min[1]).toBeGreaterThan(.16);
-    expect(sculpture?.bay).toBe("right-lower"); expect(sculpture.max[1] - sculpture.min[1]).toBeGreaterThan(.16);
-    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(6);
+    expect(stack?.bay).toBe("right-lower"); expect(stack.max[1] - stack.min[1]).toBeGreaterThan(.14); // three books lying flush on one another
+    const cooker = data.objects.find((o) => o.name === "shelf-mini-tatung-cooker"); // bottom shelf by the entrance door, beside the dish (Paul 2026-11-19)
+    expect(cooker?.bay).toBe("left-lower"); expect(cooker.max[1] - cooker.min[1]).toBeGreaterThan(.1);
+    expect(await page.evaluate(() => __room.tableLampLighting().lightCount)).toBe(7);
     const before = requests.length;
     await page.evaluate(() => __room.loadConsoleDecor());
     expect(requests.length).toBe(before);
@@ -53,7 +60,7 @@ test("shelf texture failure leaves solid props and a working room", async ({ pag
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await page.evaluate(() => __room.loadConsoleDecor());
   const shelf = await page.evaluate(() => __room.shelfDecor());
-  expect(shelf.objects).toHaveLength(11);
+  expect(shelf.objects).toHaveLength(16);
   expect(shelf.art).toBe(null);
   expect((await page.evaluate(() => __room.consoleDetails())).artLoaded).toBe(false);
   await page.evaluate(() => __room.setOrbitAngle(180));

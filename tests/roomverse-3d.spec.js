@@ -79,7 +79,7 @@ test.describe("Room 01 mobile immersive", () => {
     await page.goBack(); await expect(page.locator(".room")).not.toHaveClass(/is-immersive/);
     await immersiveShot(page, "landscape-after");
     await page.setViewportSize({ width: 1440, height: 900 });
-    await expect(page.locator("#immersiveEnter")).toBeHidden();
+    await expect(page.locator("#immersiveEnter"), "the full-screen button shows on desktop too (2026-11-17)").toBeVisible();
     await expect(page.locator("#panelToggle")).toBeVisible();
     await immersiveShot(page, "desktop-1440");
     expect(errors).toEqual([]);
@@ -250,7 +250,7 @@ for (const width of [390, 1440]) {
       await page.evaluate((value) => window.__room.set("wall", value), wall);
       expect((await page.evaluate(() => window.__room.roomDoor())).textureLoaded).toBe(true);
     }
-    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (await page.locator("#panelToggle").isVisible()) await page.locator("#panelToggle").click();
     const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "存成明信片", exact: true }).click()]);
@@ -276,7 +276,7 @@ test("a failed door texture keeps the door and the room usable", async ({ page }
 });
 
 for (const width of [390, 1440]) {
-  test(`console details at ${width}px: delayed image, three grounded objects and no collisions`, async ({ page }) => {
+  test(`console details at ${width}px: delayed image, grounded objects and no collisions`, async ({ page }) => {
     expect((await stat("public/prototype/roomverse-3d/tex/console-art-river-v1.webp")).size).toBeLessThan(100000);
     await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
     await page.addInitScript(() => { window.requestIdleCallback = () => 1; });
@@ -293,7 +293,7 @@ for (const width of [390, 1440]) {
     await page.waitForFunction(() => window.__room.consoleDetails().ready, null, { timeout: 30000 });
     const details = await page.evaluate(() => window.__room.consoleDetails());
     expect(details.artLoaded).toBe(true); expect(details.collisions).toEqual([]);
-    expect(details.objects.map((o) => o.name)).toEqual(["console-decor-frame", "console-decor-books", "console-decor-tray"]);
+    expect(details.objects.map((o) => o.name)).toEqual(["console-decor-frame", "console-decor-books", "console-decor-tray", "tv-wall-speakers"]);
     for (const obj of details.objects) {
       expect(obj.min[1]).toBeCloseTo(.59, 4);
       expect(obj.max[1]).toBeLessThan(1.285); // below the TV's existing lower light strip
@@ -301,20 +301,20 @@ for (const width of [390, 1440]) {
       expect(obj.min[2]).toBeGreaterThan(1.88); expect(obj.max[2]).toBeLessThan(2.28);
     }
     expect(requests).toHaveLength(1);
-    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+    expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     expect(await page.evaluate(() => { const card = window.__room.postcard(); return card.width > 0 && card.height > 0; })).toBe(true);
     expect(errors).toEqual([]);
   });
 }
 
-test("console picture failure still leaves all three solid decor objects", async ({ page }) => {
+test("console picture failure still leaves all solid decor objects", async ({ page }) => {
   await page.route("**/console-art-river-v1.webp", (route) => route.abort());
   await page.goto(`${PAGE}?lang=zh&mood=rain`);
   await page.locator("#enter").click(); await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   expect(await page.evaluate(() => window.__room.loadConsoleDecor())).toBe(true);
   const details = await page.evaluate(() => window.__room.consoleDetails());
-  expect(details.artLoaded).toBe(false); expect(details.objects).toHaveLength(3); expect(details.collisions).toEqual([]);
+  expect(details.artLoaded).toBe(false); expect(details.objects).toHaveLength(4); expect(details.collisions).toEqual([]);
 });
 
 test("TV wall uses four small painted maps, independent repeats, and consistent grain on thin boards", async ({ page }) => {
@@ -345,7 +345,7 @@ test("TV wall uses four small painted maps, independent repeats, and consistent 
   const console = painted.find((m) => m.name === "tv-console");
   expect(console.repeat[0]).toBeCloseTo(2.05 / .8);
   expect(console.repeat).not.toEqual(board.repeat);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(6);
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7);
 });
 
 test("regular entry paints before TV textures; the TV button loads them together", async ({ page }) => {
@@ -404,7 +404,8 @@ for (const width of [390, 1440]) {
       await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
       await expect(page.locator("#panel")).toBeVisible();
       await expect(page.locator("#stage canvas")).toBeVisible();
-      expect(glb.filter((u) => u.endsWith(".glb"))).toHaveLength(10); // the coffee mug (#517) is the tenth
+      // Eleven models: the nine of the first rooms, the coffee mug (#517, the tenth) and the campus backpack (the eleventh, added since). Named, so the next one is a deliberate edit here and not a surprise count.
+      expect(glb.filter((u) => u.endsWith(".glb")).map((u) => u.split("/").pop()).sort()).toEqual(["campus-backpack-v2", "coffee-table", "floor-lamp", "laptop", "low-chair", "mug-v1", "plant", "robot", "room01-clogs-beige-v2", "room01-popcorn-bowl-v2", "side-table", "sofa", "table-lamp"].map((n) => `${n}.glb`));
       expect(glb.some((url) => url.endsWith("/low-chair.glb"))).toBe(true);
       expect(glb.some((url) => url.endsWith("/low-chair-hy21.glb"))).toBe(false);
 
@@ -528,14 +529,17 @@ test("homepage Showcase: ROOMVERSE 3D is the first card, with Trade Street besid
 });
 
 test("each feeling shows one line on why the pairing works, and it follows the feeling and the language", async ({ page }) => {
-  await page.goto(`${PAGE}?lang=zh`);
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const why = page.locator("#panel .why");
   await expect(why).toHaveCount(1);
+  // The room opens in golden hour, and the feeling group starts with one extra button, so a position no longer names a feeling: pick each one by its key.
+  await expect(why).toContainText("夕陽");
+  await page.locator('#panel .opts').first().locator('button[data-key="rain"]').click();
   await expect(why).toContainText("宅在家裡一天也很舒服");
-  await page.locator("#panel .opts").first().locator("button").nth(2).click();
+  await page.locator('#panel .opts').first().locator('button[data-key="tech"]').click();
   await expect(why).toContainText("冷色燈帶");
   await page.locator("#lang").click();
   await expect(why).toContainText("cool LED wash");
@@ -560,7 +564,7 @@ test("the room lives in the address: a shared link opens the same choices, click
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
-  await expect(pressed(0)).toHaveText("下雨天想窩在家裡");
+  await expect(pressed(0)).toHaveText("追劇夜"); // an unknown mood falls back to the default, series night (2026-11-26; it was golden hour from 2026-11-17)
   await expect(pressed(2)).toHaveText("藍米條紋");
 });
 
@@ -663,10 +667,15 @@ test("new wall paints restore from the URL and work across all seven feelings", 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const mobilePanel = await page.locator("#panel").evaluate((panel) => ({ scroll: panel.scrollHeight, client: panel.clientHeight, width: panel.scrollWidth, clientWidth: panel.clientWidth }));
   expect(mobilePanel.width).toBeLessThanOrEqual(mobilePanel.clientWidth);
-  expect(mobilePanel.scroll).toBeLessThan(1100);
+  expect(mobilePanel.scroll).toBeLessThan(1180); // 1100 before the doorway-view button (2026-11-20) added one more full-width row on the phone
   const newWallLabels = await page.locator('#panel .opts').nth(1).locator('button[data-key="dusk"],button[data-key="wine"]').allTextContents();
   expect(newWallLabels.join(" ")).not.toMatch(/壁紙|wallpaper/i);
-  for (const [fraction, key] of [[0.6, "dusk"], [0.7, "wine"]]) {
+  // The shuffle picks index floor(random x n) among the other walls (the room is set to "original" first), so the fraction that lands on a key is derived from the key's place in
+  // the list; the old fixed 0.6 and 0.7 meant dusk and wine only while the list was shorter (0.6 now lands on wine, in a list of twelve).
+  const panelWalls = await page.locator('#panel .opts').nth(1).locator("button").evaluateAll((buttons) => buttons.map((button) => button.dataset.key));
+  const shuffleWalls = panelWalls.filter((key) => key !== "original"); // every other wall, wallpapers included: that is the list the shuffle draws from
+  for (const key of ["dusk", "wine"]) {
+    const fraction = (shuffleWalls.indexOf(key) + 0.5) / shuffleWalls.length;
     await page.evaluate(() => window.__room.set("wall", "original"));
     await page.evaluate((value) => { const original = Math.random; Math.random = () => value; document.querySelector(".shuffle").click(); Math.random = original; }, fraction);
     await expect(page).toHaveURL(new RegExp(`wall=${key}`));
@@ -1012,7 +1021,7 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   await page.waitForFunction(() => window.__room, null, { timeout: 60000 });
   await page.evaluate(() => { const t = document.getElementById("panelToggle"); if (t && t.offsetParent && t.getAttribute("aria-expanded") === "false") t.click(); }); // wide screens start with the options tucked away
   const focused = () => page.evaluate(() => document.activeElement?.textContent?.trim());
-  await page.locator("#panel .opts").first().locator("button").nth(1).focus();
+  await page.locator('#panel .opts').first().locator('button[data-key="family"]').focus();
   await page.keyboard.press("Enter");
   expect(await focused()).toBe("Cozy family");
   await page.keyboard.press("Tab");
@@ -1022,8 +1031,9 @@ test("keyboard use: focus stays on the pressed button, the 3D view has a name, a
   expect(await focused()).toBe("幫我隨機搭一間");
   await expect(page.locator("#stage canvas")).toHaveAttribute("role", "img");
   await expect(page.locator("#stage canvas")).toHaveAttribute("aria-label", /3D/);
-  await page.locator("#panel .opts").first().locator("button").nth(2).click();
-  await expect(page.locator('[aria-live="polite"]')).toContainText("冷色燈帶");
+  await page.locator('#panel .opts').first().locator('button[data-key="tech"]').click();
+  // Three live regions exist now (the robot bubble and the plant note joined the feeling announcer), so name the announcer: the visually hidden div that app.js appends next to the stage.
+  await expect(page.locator('div[aria-live="polite"]:not(#plantNote)')).toContainText("冷色燈帶");
 });
 
 for (const width of [390, 1440]) {
@@ -1040,7 +1050,7 @@ for (const width of [390, 1440]) {
     expect(initial.sourceInsideShade).toBe(true);
     expect(initial.closedLampCastsShadow).toBe(false); // the closed GLB must not trap its own bulb's light
     expect(initial.decay).toBe(2);
-    expect(initial.lightCount).toBe(6); // the picture spot is added only when the left wall is built
+    expect(initial.lightCount).toBe(7); // the picture spot is added only when the left wall is built
     expect(initial.shadowNear).toBeLessThan(.1);
     expect(initial.source[1]).toBeGreaterThan(initial.shadeMin[1]);
     expect(initial.source[1]).toBeLessThan((initial.shadeMin[1] + initial.shadeMax[1]) / 2);
@@ -1054,7 +1064,7 @@ for (const width of [390, 1440]) {
         expect(lighting.halo).toEqual(lighting.source);
         expect(lighting.sourceInsideShade).toBe(true);
         const left = await page.evaluate(() => window.__room.leftWallArt());
-        expect(lighting.lightCount).toBe(left.built ? 7 : 6);
+        expect(lighting.lightCount).toBe(left.built ? 8 : 7);
         if (left.built) { expect(left.spot.castShadow).toBe(true); expect(left.spot.shadowMap).toBe(512); }
       }
     }
@@ -1109,7 +1119,8 @@ test("TV wall, 360-degree safe orbit, accessible view buttons, URL state, and wi
     await expect(page).toHaveURL(new RegExp(`mood=${mood}`));
     await expect(page).toHaveURL(/view=tv/);
   }
-  await page.waitForTimeout(700);
+  await page.waitForLoadState("networkidle"); await page.waitForTimeout(1500); // the painted prints load as the feelings change; wait until the last one has arrived
+  await page.evaluate(() => window.__room.freezeAmbient()); // the drifting dust would differ between two renders
   const windowPostcard = await page.evaluate(() => window.__room.postcard().toDataURL());
   await page.evaluate(() => window.__room.setOrbitAngle(0));
   const windowPostcardAtZero = await page.evaluate(() => window.__room.postcard().toDataURL());
@@ -1138,6 +1149,11 @@ test("rug rotation and table mug stay grounded and clear in three moods", async 
   await page.locator("#enter").click();
   await page.waitForFunction(() => window.__room?.rugMugDetails(), null, { timeout: 60000 });
   const details = await page.evaluate(() => window.__room.rugMugDetails());
+  const steamBefore = await page.evaluate(() => window.__room.coffeeMugSteamSample());
+  await page.waitForTimeout(350);
+  const steamAfter = await page.evaluate(() => window.__room.coffeeMugSteamSample());
+  expect(steamBefore.visible).toBe(true);
+  expect(steamAfter.position).not.toEqual(steamBefore.position);
   expect(details.rug.rotationY).toBeCloseTo(.0873, 4);
   expect(details.mug.vertices).toBe(862);
   expect(details.mug.triangles).toBe(1712);
@@ -1303,7 +1319,7 @@ test("mobile yaw opens the TV wall from the plaque-fit window fov to at least 76
   const updates = await page.evaluate(() => window.__room.fovProjectionUpdates());
   await page.evaluate(() => window.__room.setOrbitAngle(180));
   expect(await page.evaluate(() => window.__room.fovProjectionUpdates())).toBe(updates);
-  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(7); // left wall was opened at 90°, so its picture spot is present
+  expect(await page.evaluate(() => window.__room.tableLampLighting().lightCount)).toBe(8); // left wall was opened at 90°, so its picture spot is present
   expect(await page.evaluate(() => window.__room.leftWallArt().spot.castShadow)).toBe(true);
   expect(await page.evaluate(() => window.__room.leftWallArt().spot.shadowMap)).toBe(512);
   const fromTv = await page.evaluate(() => window.__room.postcard().toDataURL());
@@ -1458,7 +1474,7 @@ for (const [label, viewport] of [["phone", { width: 390, height: 844 }], ["deskt
   });
 }
 
-test("Room 01 enters series night from the home cover and still lets visitors switch moods", async ({ page }) => {
+test("Room 01 enters as series night from the home cover and still lets visitors switch moods", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh&from=home`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
   await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tv"]')).toHaveAttribute("aria-pressed", "true");
   await page.locator("#panelToggle").click();
@@ -1471,9 +1487,9 @@ test("Room 01 honours a valid mood explicitly supplied with the home route", asy
   await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
 });
 
-test("a direct Room 01 visit keeps its existing rain mood", async ({ page }) => {
+test("a direct Room 01 visit opens as series night", async ({ page }) => {
   await page.goto(`${PAGE}?lang=zh`); await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
-  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="rain"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('#panel .opts[aria-label="感覺"] button[data-key="tv"]')).toHaveAttribute("aria-pressed", "true");
 });
 
 test("the two coffee-table books sit on the table and the red suitcase stands on its wheels in front of the painting", async ({ page }) => {
@@ -1506,5 +1522,197 @@ test("the two coffee-table books sit on the table and the red suitcase stands on
     expect(handle.min.every(Number.isFinite) && handle.max.every(Number.isFinite)).toBe(true);
   }
   expect(d.suitcase.insideRoom).toBe(true);
-  expect(d.lights, "no new light was added").toBe(6);
+  expect(d.lights, "no new light was added").toBe(7); // 7 since the ceiling downlights (Paul 2026-11-19)
+});
+
+test("Room 01 light and music: dust motes drift in strong sun only, a tap on a speaker plays quiet piano, and the next tap stops it", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`); // the TV wall view, where the speakers are
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.dustState())).visible, { timeout: 8000, message: "dust in the golden hour sun" }).toBe(true);
+  expect((await page.evaluate(() => window.__room.dustState())).beam, "the sunbeam shows with the sun").toBe(true);
+  await page.evaluate(() => window.__room.set("mood", "rain"));
+  await expect.poll(async () => (await page.evaluate(() => window.__room.dustState())).visible, { timeout: 12000, message: "no dust in the rain" }).toBe(false);
+  expect((await page.evaluate(() => window.__room.dustState())).beam, "no sunbeam in the rain").toBe(false);
+  await page.waitForTimeout(1500);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.speakerScreen()))?.front, { timeout: 20000, message: "the speakers load" }).toBe(true);
+  const spot = await page.evaluate(() => window.__room.speakerScreen());
+  await page.mouse.click(spot.x, spot.y); // a real tap on the speaker
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing, { timeout: 5000 }).toBe(true);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).notes, { timeout: 8000 }).toBeGreaterThan(8);
+  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("晨曦");
+  await expect(page.locator("#plantNote")).toContainText("晨曦");
+  await page.mouse.click(spot.x, spot.y); // the second tap stops it
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
+  await page.evaluate(() => window.__room.set("mood", "tv")); // series night plays its own cinematic piece
+  await page.evaluate(() => window.__room.playMusic());
+  expect((await page.evaluate(() => window.__room.musicState())).title).toBe("追劇夜");
+  await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 series night: the TV speakers start the quiet piano on the next tap, and never again once the visitor switched them off", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=tv&view=tv`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.speakerScreen()))?.front, { timeout: 20000, message: "the speakers load" }).toBe(true);
+  await page.waitForTimeout(800);
+  const state = () => page.evaluate(() => window.__room.musicState());
+  await page.locator("h1").click(); // any next tap in series night
+  await expect.poll(async () => (await state()).playing, { timeout: 6000 }).toBe(true);
+  expect((await state()).title).toBe("追劇夜");
+  const spot = await page.evaluate(() => window.__room.speakerScreen());
+  await page.mouse.click(spot.x, spot.y); // switch it off by hand
+  await expect.poll(async () => (await state()).playing).toBe(false);
+  await page.locator("h1").click(); await page.waitForTimeout(800);
+  expect((await state()).playing, "it does not start again by itself").toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 TV wall: turning to it with the view button starts the piano in a day mood too, and the window view does not", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room); await page.waitForTimeout(2200);
+  await page.locator("h1").click(); await page.waitForTimeout(600);
+  expect((await page.evaluate(() => window.__room.musicState())).playing, "no music in the window view by day").toBe(false);
+  await page.locator(".camera-tv").evaluate((button) => button.click()); // the view button (also reachable on a phone)
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing, { timeout: 6000 }).toBe(true);
+  await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the lantern is the light source: the room's fill light sits at the centre of the paper globe", async ({ page }) => {
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  const info = await page.evaluate(() => window.__room.lanternInfo());
+  expect(info.globe, "the lantern exists").not.toBeNull();
+  for (let axis = 0; axis < 3; axis++) expect(info.fill[axis], `fill light axis ${axis}`).toBeCloseTo(info.globe[axis], 3);
+  expect(info.globe[1]).toBeGreaterThan(1.9); expect(info.globe[1]).toBeLessThan(2.7); // it hangs from the ceiling, above head height
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the music plays on: one tap keeps the piece going on the real piano with no time limit until the visitor stops it", async ({ page }) => {
+  test.setTimeout(170000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.speakerScreen()))?.front, { timeout: 20000, message: "the speakers load" }).toBe(true);
+  await page.waitForTimeout(800);
+  const state = () => page.evaluate(() => window.__room.musicState());
+  const spot = await page.evaluate(() => window.__room.speakerScreen());
+  await page.mouse.click(spot.x, spot.y); // one tap on a speaker
+  await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
+  expect((await state()).title).toBe("晨曦");
+  await expect.poll(async () => (await state()).piano, { timeout: 20000, message: "the real piano samples load" }).toBe(true);
+  await expect.poll(async () => (await state()).bars, { timeout: 12000, message: "the music is scheduled" }).toBeGreaterThan(1);
+  expect((await state()).title).toBe("晨曦"); expect((await state()).group).toBe("day");
+  await page.waitForTimeout(62000); // longer than the old 60 s limit
+  expect((await state()).playing, "no time limit").toBe(true);
+  await page.mouse.click(spot.x, spot.y); // the next tap stops it
+  await expect.poll(async () => (await state()).playing).toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 golden hour opens with the leaf wallpaper behind the sofa and plain painted side walls; the stripes pair with the leaf wallpaper in the other moods", async ({ page }) => {
+  test.setTimeout(90000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.wallInfo())).backMap, { timeout: 20000, message: "the wallpaper loads" }).toBe(true);
+  const info = async () => page.evaluate(() => window.__room.wallInfo());
+  let now = await info();
+  expect(now.wall).toBe("botanical"); expect(now.backRepeat, "the leaf pattern is 20 percent larger (one tile per 1.8 m)").toBeCloseTo(1 / 1.8, 3); expect(now.sideMap, "golden hour keeps plain painted side walls").toBe(false); expect(now.entrySideMap).toBe(false);
+  await page.evaluate(() => window.__room.set("mood", "slow")); // another mood, its own default wall
+  await page.evaluate(() => window.__room.set("wall", "botanical"));
+  now = await info(); expect(now.sideMap, "with the leaf wallpaper in another mood the side walls take the stripes").toBe(true); expect(now.entrySideMap).toBe(true);
+  await page.evaluate(() => window.__room.set("mood", "golden"));
+  now = await info(); expect(now.wall).toBe("botanical"); expect(now.sideMap, "back to golden hour: plain again").toBe(false);
+  await page.evaluate(() => window.__room.set("mood", "slow")); await page.evaluate(() => window.__room.set("wall", "softwhite"));
+  now = await info(); expect(now.backMap).toBe(false); expect(now.sideMap).toBe(false);
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the music follows the mood, the little robot hints at the record player, and a tap on the TV screen starts it", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  // the robot's hint after a few quiet seconds (it names the record player)
+  await expect(page.locator("#robotBubble:not([hidden]) [data-bubble-copy]"), "the robot hints at the music").toContainText("唱片機", { timeout: 25000 });
+  await page.evaluate(() => window.__room.playMusic());
+  const state = () => page.evaluate(() => window.__room.musicState());
+  await expect.poll(async () => (await state()).playing, { timeout: 8000 }).toBe(true);
+  expect((await state()).title).toBe("晨曦");
+  await page.evaluate(() => window.__room.set("mood", "tv")); // series night while the music plays: it becomes the cinematic piece
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "series night plays the cinematic piece" }).toBe("追劇夜");
+  expect((await state()).playing).toBe(true);
+  await page.evaluate(() => window.__room.set("mood", "golden"));
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back to the bright piece" }).toBe("晨曦");
+  await page.evaluate(() => window.__room.stopMusic());
+  // a tap on the TV screen starts the music
+  await page.goto(`${PAGE}?lang=zh&mood=golden&view=tv`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room);
+  await expect.poll(async () => (await page.evaluate(() => window.__room.tvScreenPoint())).front, { timeout: 20000 }).toBe(true);
+  await page.waitForTimeout(2500);
+  const spot = await page.evaluate(() => window.__room.tvScreenPoint());
+  await page.mouse.click(spot.x, spot.y - 20);
+  await expect.poll(async () => (await state()).playing, { timeout: 8000, message: "a tap on the TV screen starts the music" }).toBe(true);
+  await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the window-side robot is the DJ: a tap starts the music with a cover, each next tap changes the piece (three pieces)", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room); await page.waitForTimeout(3000);
+  const state = () => page.evaluate(() => window.__room.musicState());
+  const tapRobot = async () => { const p = await page.evaluate(() => window.__room.robotPoint()); await page.mouse.click(p.x, p.y); };
+  await expect.poll(async () => (await page.evaluate(() => window.__room.robotPoint())).front).toBe(true);
+  await tapRobot();
+  await expect.poll(async () => (await state()).playing, { timeout: 8000, message: "a tap on the robot starts the music" }).toBe(true);
+  expect((await state()).title).toBe("晨曦");
+  await expect(page.locator("#robotBubble [data-cover]"), "the bubble shows the first cover").toHaveAttribute("src", /room04-record-cover-0-v1\.webp/);
+  await expect(page.locator("#robotBubble [data-bubble-copy]")).toContainText("晨曦");
+  await page.waitForTimeout(1800); // the hop ends
+  await tapRobot();
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the next tap changes the piece" }).toBe("追劇夜");
+  await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-5-v1\.webp/);
+  await page.waitForTimeout(1800);
+  await tapRobot();
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the third piece is Room 04's Bund swing" }).toBe("十里洋場");
+  await expect(page.locator("#robotBubble [data-cover]")).toHaveAttribute("src", /room04-record-cover-3-v1\.webp/);
+  await expect.poll(async () => (await state()).notes, { timeout: 10000, message: "the swing plays" }).toBeGreaterThan(20);
+  expect(await page.evaluate(() => window.__room.musicTracks?.() ?? null)).toEqual(["晨曦", "追劇夜", "十里洋場", "午後上行"]);
+  await page.waitForTimeout(1800);
+  await tapRobot();
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "the fourth piece is the ambient groove" }).toBe("午後上行"); // old -> new: 微光慢拍 -> 午後上行 (renamed 2026-11-24)
+  await page.waitForTimeout(1800);
+  await tapRobot();
+  await expect.poll(async () => (await state()).title, { timeout: 8000, message: "and back" }).toBe("晨曦");
+  await page.evaluate(() => window.__room.set("mood", "slow")); // a mood that is not series night does not undo the pick
+  expect((await state()).title).toBe("晨曦");
+  await page.evaluate(() => window.__room.stopMusic());
+  expect(errors).toEqual([]);
+});
+
+test("Room 01 the record player shows its own card over the record player: the piece now playing and the next of the three", async ({ page }) => {
+  test.setTimeout(120000);
+  const errors = []; page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto(`${PAGE}?lang=zh&mood=golden&hint=0`);
+  await page.locator("#enter").click(); await page.waitForFunction(() => window.__room); await page.waitForTimeout(3000);
+  await page.evaluate(() => window.__room.recordView()); await page.waitForTimeout(1500);
+  await page.evaluate(() => window.__room.tapRecordPlayer());
+  await expect.poll(async () => (await page.evaluate(() => window.__room.recordCard())).shown, { timeout: 8000, message: "the card pops up over the record player" }).toBe(true);
+  const card = await page.evaluate(() => window.__room.recordCard());
+  expect(card.text).toContain("正在播放：晨曦"); expect(card.text).toContain("下一首：追劇夜");
+  expect(card.cover).toMatch(/room04-record-cover-0-v1\.webp/);
+  await page.evaluate(() => window.__room.tapRecordPlayer()); // the next tap stops it, and the card goes
+  await expect.poll(async () => (await page.evaluate(() => window.__room.musicState())).playing).toBe(false);
+  expect((await page.evaluate(() => window.__room.recordCard())).shown).toBe(false);
+  expect(errors).toEqual([]);
 });

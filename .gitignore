@@ -20,3 +20,6 @@ output/
 visual-check/
 test-results/
 playwright-report/
+
+# view-limit sweep output (scripts/sweep-view-limits.mjs)
+.qa/

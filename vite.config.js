@@ -3,6 +3,7 @@ import { extname, resolve } from "node:path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { autoAssetVersions } from "./scripts/vite-auto-asset-versions.mjs";
 
 const teammateDir = resolve("prototype/teammate-type");
 const teammateMime = {
@@ -34,6 +35,6 @@ function teammateToy() {
 }
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), teammateToy()],
+  plugins: [react(), tailwindcss(), teammateToy(), autoAssetVersions()],
   base: "./",
 });

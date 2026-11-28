@@ -25,18 +25,23 @@
     /* 1440×900: 70vh leaves the mood bar just below the fold. Cap height so the six mood buttons stay on the first screen; the 768px rule below still owns the phone. */
     .room { position:relative; margin:0 clamp(12px,2vw,28px); height:min(70vh, 720px, calc(100dvh - 20rem)); min-height:min(480px, calc(100dvh - 20rem)); overflow:hidden; border-radius:18px; background:#d4c5ae; box-shadow:0 14px 40px #493a241c; }
     #stage { position:absolute; inset:0; }
+    /* A soft vignette after closing (the light atmosphere, 2026-11-20): the corners fall away so the lit things stand out. It lets every tap through and only fades in and out. */
+    #stage::after { content:""; position:absolute; inset:0; z-index:1; pointer-events:none; opacity:0; transition:opacity .6s; background:radial-gradient(ellipse at 50% 55%, transparent 38%, rgba(6,4,12,.7) 100%); }
+    #stage[data-light="closing"]::after, #stage[data-light="series"]::after { opacity:1; }
+    #stage[data-light="rain"]::after { opacity:.6; }
     /* The painting is a portrait; the room frame is landscape on a desktop. The whole painting shows (contain), and the sides are filled with the same painting, enlarged, blurred and darkened, so there are no flat brown bars. */
-    .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:center; overflow:hidden; background:#715744; }
-    .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
-    .poster::after { content:""; position:absolute; inset:0; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-concept-mobile.webp?v=2") center / contain no-repeat; }
+    .poster { position:absolute; inset:0; z-index:3; display:grid; place-items:end center; padding-bottom:clamp(14px,5%,40px); overflow:hidden; background:#715744; }
+    .poster::before { content:""; position:absolute; inset:-8%; background:linear-gradient(#0004,#0007), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-mobile.webp?v=2") center / cover no-repeat; filter:blur(26px) saturate(1.15); }
+    .poster::after { content:""; position:absolute; inset:0; background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-mobile.webp?v=2") center / contain no-repeat; }
     @media (min-width:769px) {
       .poster::before { content:none; }
-      .poster::after { background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-wide.webp?v=1") center / cover no-repeat; }
+      .poster::after { background:linear-gradient(#0002,#0005), url("/gallery/assets/roomverse-room04-shanghai-slowly-cover-v3-wide.webp?v=2") center / cover no-repeat; }
     }
     .poster > * { position:relative; z-index:1; }
     .arriving .poster { display:none; }
     .poster:not([hidden]) + .status { top:68%; }
-    .poster button { min-height:48px; padding:12px 24px; border:1px solid #fff9; border-radius:999px; background:#3a2a1fe8; color:#fff; font:700 17px system-ui,sans-serif; cursor:pointer; }
+    .poster button { min-height:48px; padding:12px 28px; border:1px solid #fffb; border-radius:999px; background:#3a2a1fd9; color:#fff; font:700 17px system-ui,"Noto Sans TC",sans-serif; letter-spacing:.04em; cursor:pointer; box-shadow:0 6px 22px #0006; backdrop-filter:blur(6px); transition:transform .2s ease, background .2s ease; }
+    .poster button:hover, .poster button:focus-visible { background:#4a3324; transform:translateY(-2px); }
     #stage canvas { display:block; width:100%; height:100%; touch-action:none; }
     .immersive-exit, .immersive-exits, .immersive-controls { display:none; }
     .immersive-enter, .immersive-exit, #immersiveDoor { min-height:44px; padding:8px 14px; border:1px solid #fffa; border-radius:999px; background:#3a2a1fe8; color:white; font:700 14px system-ui,sans-serif; cursor:pointer; white-space:nowrap; }
@@ -52,6 +57,12 @@
     .is-immersive .view-buttons button, .is-immersive .moods button { flex:none; white-space:nowrap; }
     html.room-immersive, html.room-immersive body { overflow:hidden; overscroll-behavior:none; }
     .room-immersive #moodNote { display:none; }
+    /* Paul 2026-11-18: in full screen (desktop and phone) the view and time chips fold down to a slim strip and come back; the handle sits on the bar's top edge, at the right. */
+    .controls-toggle { display:none; }
+    .is-immersive .controls-toggle { display:block; position:absolute; z-index:8; right:calc(10px + env(safe-area-inset-right)); bottom:calc(var(--controls-h, 100px) - 1px); min-height:32px; padding:4px 14px; border:1px solid #fffa; border-bottom:0; border-radius:12px 12px 0 0; background:#3a2a1fe8; color:#fff; font:700 13px system-ui,"Noto Sans TC",sans-serif; cursor:pointer; }
+    .is-immersive .controls-toggle:focus-visible { outline:3px solid #ffe2a8; outline-offset:2px; }
+    .is-immersive.controls-collapsed .immersive-controls { padding-top:0; padding-bottom:calc(6px + env(safe-area-inset-bottom)); }
+    .is-immersive.controls-collapsed .immersive-controls > * { display:none; }
     .status { position:absolute; z-index:4; top:50%; left:50%; transform:translate(-50%,-50%); padding:9px 14px; border-radius:999px; background:#fffE; font-size:14px; }
     .note { padding:12px clamp(16px,3vw,40px) 34px; max-width:900px; color:var(--muted); font-size:12px; line-height:1.6; }
     .toolbar { margin:12px clamp(12px,2vw,28px) 0; }
@@ -77,7 +88,7 @@
     .tap-target:focus-visible { outline:3px solid #fff; outline-offset:-3px; box-shadow:0 0 0 5px #8a4a2b; }
     .bubble { position:absolute; z-index:5; transform:translate(-50%,-100%); width:max-content; max-width:min(260px,78%); padding:10px 34px 10px 14px; border-radius:14px; background:#fffffaee; color:#2a2f2a; box-shadow:0 6px 20px #0003; font-size:14px; font-weight:600; line-height:1.45; }
     .bubble [data-title] { margin:0 0 2px; font-size:11px; letter-spacing:.14em; color:var(--brick); }
-    .bubble [data-line] { margin:0; }
+    .bubble [data-line] { margin:0; } .bubble [data-cover] { display:block; width:72px; height:72px; margin:0 0 6px; border-radius:6px; object-fit:cover; box-shadow:0 2px 8px #0003; }
     .bubble [data-travel] { display:inline-flex; align-items:center; min-height:44px; margin-top:4px; color:var(--brick); font-size:13px; font-weight:700; }
     .bubble [data-close] { position:absolute; top:2px; right:2px; width:44px; height:44px; border:0; background:transparent; color:#6a5a4a; font:700 18px system-ui; cursor:pointer; }
     .bubble [hidden] { display:none; }
@@ -88,6 +99,12 @@
       #portfolioHome, #otherRooms { font-size:13px; padding:7px 10px; }
       .intro { padding:4px 14px 12px; }
       .room { margin:0 8px; height:clamp(360px,100vw,450px); min-height:360px; border-radius:14px; }
+      .view-buttons { right:0; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; overscroll-behavior-inline:contain; scrollbar-width:none; padding-right:10px; touch-action:pan-x; }
+      .view-buttons.has-more::after { content:"›"; position:absolute; inset:0 0 0 auto; display:flex; align-items:center; justify-content:flex-end; box-sizing:border-box; width:30px; padding-right:5px; pointer-events:none; background:linear-gradient(90deg,transparent,rgba(58,42,31,.9)); color:#fff; font:700 18px/1 system-ui,sans-serif; }
+      .view-scroll-hint { position:absolute; z-index:4; top:62px; right:10px; padding:5px 9px; border-radius:999px; background:#3a2a1fe8; color:#fff; font:600 12px/1.2 system-ui,sans-serif; pointer-events:none; }
+      .view-scroll-hint[hidden], .is-immersive .view-scroll-hint { display:none; }
+      .view-buttons::-webkit-scrollbar { display:none; }
+      .view-buttons button { flex:none; white-space:nowrap; }
       .note { padding:10px 14px 28px; }
     }
   </style>
@@ -109,18 +126,25 @@
     </section>
     <section class="room" aria-label="Room 04 3D room">
       <div id="stage"></div>
-      <div id="poster" class="poster"><button id="enter" type="button">走進咖啡廳</button></div>
+      <div id="poster" class="poster"><button id="enter" type="button">進來咖啡廳坐坐</button></div>
       <p id="status" class="status" role="status" hidden></p>
-      <div class="view-buttons" id="views" role="group"><button class="center-view" data-view="counter" type="button" aria-pressed="true" hidden></button><button class="center-view" data-view="window" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="lounge" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="entry" type="button" aria-pressed="false" hidden></button><button class="center-view" id="centerView" data-view="middle" type="button" aria-pressed="false" hidden></button></div>
+      <div class="view-buttons" id="views" role="group"><button class="center-view" data-view="counter" type="button" aria-pressed="true" hidden></button><button class="center-view" data-view="window" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="lounge" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="record" type="button" aria-pressed="false" hidden></button><button class="center-view" data-view="entry" type="button" aria-pressed="false" hidden></button><button class="center-view" id="centerView" data-view="middle" type="button" aria-pressed="false" hidden></button></div>
+      <span class="view-scroll-hint" id="viewScrollHint" hidden></span>
       <button class="immersive-enter" id="immersiveEnter" type="button" hidden></button>
       <button class="immersive-exit" id="immersiveExit" type="button"></button>
       <div class="immersive-exits" id="immersiveExits"><button id="immersiveDoor" data-travel-door-trigger type="button"></button></div>
       <div class="immersive-controls" id="immersiveControls"></div>
+      <button class="controls-toggle" id="controlsToggle" type="button" aria-controls="immersiveControls" aria-expanded="true"></button>
+      <button class="tap-target" id="menuHit" type="button" hidden></button>
+      <button class="tap-target" id="catHit" type="button" hidden></button>
+      <button class="tap-target" id="baristaHit" type="button" hidden></button>
+      <button class="tap-target" id="tabletHit" type="button" hidden></button>
+      <button class="tap-target" id="phoneHit" type="button" hidden></button>
       <button class="tap-target" id="robotHit" type="button" hidden></button>
       <button class="tap-target" id="noteHit" type="button" hidden></button>
       <button class="tap-target" id="recordHit" type="button" hidden></button>
       <button class="tap-target" id="dripHit" type="button" hidden></button>
-      <div class="bubble" id="bubble" role="dialog" hidden><p data-title></p><p data-line></p><a data-travel data-travel-door-trigger href="/prototype/roomverse-3d/"></a><button data-close type="button">×</button></div>
+      <div class="bubble" id="bubble" role="dialog" hidden><img data-cover width="72" height="72" alt="" hidden><p data-title></p><p data-line></p><a data-travel data-travel-door-trigger href="/prototype/roomverse-3d/"></a><button data-close type="button">×</button></div>
     </section>
     <section class="toolbar" id="roomControls" aria-label="Room settings" hidden>
       <div class="moods" id="moods" role="group"></div>
@@ -129,7 +153,8 @@
     <div class="swap-actions" id="swapActions" hidden><button id="randomLook" type="button" disabled></button><button id="resetLook" type="button" hidden></button></div>
     <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
     <p class="note" id="note"></p>
+    <p class="note" lang="en">鋼琴音色 Piano sound: <a href="https://github.com/sfzinstruments/SalamanderGrandPiano">Salamander Grand Piano</a> by Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
   </main>
-  <script type="module" src="page.js?v=73"></script>
+  <script type="module" src="page.js?v=auto"></script>
 </body>
 </html>

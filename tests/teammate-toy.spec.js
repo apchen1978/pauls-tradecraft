@@ -155,8 +155,8 @@ test("the showcase comes before the business line and garage", async ({ page }) 
   const nav = page.locator("header nav");
   const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
   expect(hrefs.indexOf("#showcase")).toBeGreaterThan(-1);
-  expect(hrefs.indexOf("#works")).toBeLessThan(hrefs.indexOf("#showcase"));
-  await expect(nav.getByRole("link", { name: "互動作品", exact: true })).toHaveAttribute("href", "#showcase");
+  expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works")); // Paul 2026-11-20: the Immersive Collection is the first tab, then the business works
+  await expect(nav.getByRole("link", { name: "沉浸典藏", exact: true })).toHaveAttribute("href", "#showcase");
   await expect(nav.getByRole("link", { name: "商業作品", exact: true })).toHaveAttribute("href", "#works");
   const images = page.locator("#showcase img");
   expect(await images.count()).toBeGreaterThan(0);
@@ -166,14 +166,14 @@ test("the showcase comes before the business line and garage", async ({ page }) 
     if (wakeSrc) await expect(img).toHaveAttribute("src", wakeSrc);
   }
   await page.goto("/?lang=en");
-  await expect(page.locator("header nav").getByRole("link", { name: "Playful Works", exact: true })).toHaveAttribute("href", "#showcase");
+  await expect(page.locator("header nav").getByRole("link", { name: "Immersive Collection", exact: true })).toHaveAttribute("href", "#showcase");
   await expect(page.locator("header nav").getByRole("link", { name: "Business Works", exact: true })).toHaveAttribute("href", "#works");
 });
 
 test.describe("nav names", () => {
   for (const width of [1024, 1440]) {
     for (const lang of ["zh", "en"]) {
-      const showcase = lang === "zh" ? "互動作品" : "Playful Works";
+      const showcase = lang === "zh" ? "沉浸典藏" : "Immersive Collection";
       const works = lang === "zh" ? "商業作品" : "Business Works";
       test(`${width}px ${lang}: ${works} and ${showcase} stay on one line`, async ({ page }) => {
         await page.setViewportSize({ width, height: 900 });
@@ -181,8 +181,13 @@ test.describe("nav names", () => {
         const nav = page.locator("header nav");
         const showcaseLink = nav.getByRole("link", { name: showcase, exact: true });
         const worksLink = nav.getByRole("link", { name: works, exact: true });
+        const labLink = nav.getByRole("link", { name: "AI Lab", exact: true });
         await expect(showcaseLink).toHaveAttribute("href", "#showcase");
         await expect(worksLink).toHaveAttribute("href", "#works");
+        await expect(labLink).toHaveAttribute("href", "#ai-lab");
+        await expect(showcaseLink).toHaveCSS("background-color", "rgb(184, 153, 102)");
+        await expect(worksLink).toHaveCSS("background-color", "rgb(217, 145, 121)");
+        await expect(labLink).toHaveCSS("background-color", "rgb(142, 190, 184)");
         const fit = await showcaseLink.evaluate((el) => {
           const row = el.parentElement;
           const links = [...row.querySelectorAll(":scope > a")];
@@ -204,7 +209,7 @@ test.describe("nav names", () => {
         expect(fit.pageOverflow).toBeLessThanOrEqual(1);
         expect(fit.headerOverflow).toBeLessThanOrEqual(1);
         const hrefs = await nav.locator('a[href^="#"]').evaluateAll((els) => els.map((el) => el.getAttribute("href")));
-        expect(hrefs.indexOf("#works")).toBeLessThan(hrefs.indexOf("#showcase"));
+        expect(hrefs.indexOf("#showcase")).toBeLessThan(hrefs.indexOf("#works")); // Paul 2026-11-20: the Immersive Collection is the first tab, then the business works
       });
     }
   }
@@ -214,12 +219,12 @@ test.describe("nav names", () => {
     await page.goto("/?lang=zh");
     await page.getByRole("button", { name: "開啟選單" }).click();
     const menu = page.locator("header");
-    await expect(menu.getByRole("link", { name: "互動作品", exact: true })).toHaveAttribute("href", "#showcase");
+    await expect(menu.getByRole("link", { name: "沉浸典藏", exact: true })).toHaveAttribute("href", "#showcase");
     await expect(menu.getByRole("link", { name: "商業作品", exact: true })).toHaveAttribute("href", "#works");
     await page.goto("/?lang=en");
     await page.getByRole("button", { name: "Open menu" }).click();
     const enMenu = page.locator("header");
-    await expect(enMenu.getByRole("link", { name: "Playful Works", exact: true })).toHaveAttribute("href", "#showcase");
+    await expect(enMenu.getByRole("link", { name: "Immersive Collection", exact: true })).toHaveAttribute("href", "#showcase");
     await expect(enMenu.getByRole("link", { name: "Business Works", exact: true })).toHaveAttribute("href", "#works");
   });
 });
@@ -238,7 +243,7 @@ test.describe("garage listing", () => {
       const showcase = page.locator("#showcase");
       const card = showcase.getByRole("heading", { name: "十二月的燈" });
       await expect(card).toBeVisible();
-      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("互動作品");
+      await expect(showcase.getByRole("heading", { level: 2 })).toHaveText("沉浸典藏");
       await expect(showcase.getByText("挑一個感興趣的故事，進去試試。")).toBeVisible();
       await expect(showcase.getByText("從《街角的秘密》開始")).toBeVisible();
       await expect(showcase.getByText("示範／成效未驗證。", { exact: true })).toHaveCount(0);
@@ -261,7 +266,7 @@ test.describe("garage listing", () => {
       const enShowcase = page.locator("#showcase");
       const enCard = enShowcase.getByRole("heading", { name: "December Lights" });
       await expect(enCard).toBeVisible();
-      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Interactive Works");
+      await expect(enShowcase.getByRole("heading", { level: 2 })).toHaveText("Immersive Collection");
       await expect(enShowcase.getByText("Pick a story that catches your eye, and give it a try.")).toBeVisible();
       await expect(enShowcase.getByText("Try Secrets on the Corner")).toBeVisible();
       await expect(enShowcase.getByText("Demo / outcomes not validated.", { exact: true })).toHaveCount(0);

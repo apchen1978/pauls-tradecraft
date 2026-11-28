@@ -2,7 +2,8 @@ import { AGENTS, LINKS, NAV_CHAPTERS, TEXT, TIERS } from "./content.js";
 import { CONTEXT_ITEMS, CONTEXT_START, DEEP, PHYSICS, TOLERANCE } from "./deep.js";
 import { GATES, GLOSSARY, MORE, NEXT, TRACE } from "./more.js";
 import { LATEST, LATEST_TEXT } from "./latest.js";
-import { SPIRIT } from "./spirit.js";
+import { SPIRIT } from "./spirit.js?v=6";
+import { START } from "./start.js?v=1";
 import { ADOPTION, PART_TWO, SYSTEMS, TASK_REQUIREMENTS } from "./enterprise.js";
 import { LADDER } from "./ladder.js";
 import { TOOLPATH } from "./toolpath.js";
@@ -346,9 +347,7 @@ function renderAdoption() {
   }));
   const journey = el("a", null, copy.c3.journey);
   journey.href = `/ai-lab/enquiry-demo/?lang=${state.lang}`;
-  const talk = el("a", null, copy.ctaChoices[0].title);
-  talk.href = "#contact-cta";
-  $("adopt-links").replaceChildren(journey, talk);
+  $("adopt-links").replaceChildren(journey);
 }
 
 function renderEnterprise() {
@@ -764,6 +763,13 @@ function renderLatest() {
     src.target = "_blank";
     src.rel = "noopener noreferrer";
     li.append(head, el("h3", null, c.title), el("p", null, c.what), took, src);
+    if (item.more) { // an optional second link, for a caveat or a critical view
+      const more = el("a", "obs-src", `${item.more[state.lang]} ↗`);
+      more.href = item.more.url;
+      more.target = "_blank";
+      more.rel = "noopener noreferrer";
+      li.append(more);
+    }
     return li;
   }));
 }
@@ -812,7 +818,6 @@ function renderFastRoute() {
     { href: `/ai-lab/guide/?lang=${state.lang}`, mark: "", label: x.fastRoute.guide },
     { href: "#adopt", mark: "", label: ADOPTION[state.lang].title },
     { href: "#c13", mark: "13", label: PART_TWO[state.lang].title },
-    { href: "#contact-cta", mark: "", label: x.ctaTitle },
   ];
   $("fast-route-steps").replaceChildren(...steps.map((step) => {
     const li = el("li");
@@ -862,7 +867,7 @@ function watchChapters() {
   const reveal = new IntersectionObserver((entries) => {
     entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); reveal.unobserve(e.target); } });
   }, { rootMargin: "0px 0px -8% 0px" });
-  document.querySelectorAll(".chapter, .deep, .cta").forEach((node) => {
+  document.querySelectorAll(".chapter, .deep, .closing").forEach((node) => {
     if (node.getBoundingClientRect().top > window.innerHeight) { node.classList.add("reveal"); reveal.observe(node); }
   });
 }
@@ -892,6 +897,38 @@ function spiritBlocks(blocks) {
   });
 }
 
+function renderStart() { // the opening "start here" section (Paul 2026-11-28): picture first, three steps, no jargon
+  const x = START[state.lang];
+  $("start-kicker").textContent = x.kicker;
+  $("start-title").textContent = x.title;
+  $("start-lead").textContent = x.lead;
+  $("start-scene-label").textContent = x.sceneLabel;
+  $("start-chat").replaceChildren(...x.chat.map((m) => {
+    const row = el("div", `start-bubble ${m.who}`);
+    row.append(el("span", "who mono", m.who === "you" ? x.you : x.ai), el("p", null, m.text));
+    return row;
+  }));
+  $("start-scene-cap").textContent = x.sceneCaption;
+  $("start-myth-title").textContent = x.mythTitle;
+  $("start-myth").textContent = x.myth;
+  $("start-steps-title").textContent = x.stepsTitle;
+  $("start-steps").replaceChildren(...x.steps.map((s, i) => {
+    const li = el("li", "start-step");
+    const body = el("div", "start-step-body");
+    const say = el("p", "start-say");
+    say.append(el("span", "mono", x.exampleLabel), document.createTextNode(` ${s.say}`));
+    body.append(el("h4", null, s.h), el("p", null, s.p), say);
+    li.append(el("span", "start-n mono", String(i + 1)), body);
+    return li;
+  }));
+  $("start-ease-title").textContent = x.easeTitle;
+  $("start-ease").replaceChildren(...x.ease.map((line) => el("li", null, line)));
+  $("start-note-title").textContent = x.noteTitle;
+  $("start-note").replaceChildren(...x.note.map((line) => el("li", null, line)));
+  $("start-closing").textContent = x.closing;
+  $("start-next").textContent = `${x.next} ↓`;
+}
+
 function renderSpirit() {
   const x = SPIRIT[state.lang];
   $("spirit-kicker").textContent = x.open.kicker;
@@ -901,11 +938,19 @@ function renderSpirit() {
   $("spirit-end-kicker").textContent = x.close.kicker;
   $("spirit-end-title").textContent = x.close.title;
   $("spirit-end-body").replaceChildren(...spiritBlocks(x.close.blocks));
+  $("feature-portals-kicker").textContent = x.close.featureKicker;
+  $("feature-portals-title").textContent = x.close.featureTitle;
+  $("feature-portals-lead").textContent = x.close.featureLead;
   $("gallery-kicker").textContent = x.close.galleryKicker;
   $("gallery-title").textContent = x.close.galleryTitle;
   $("gallery-description").textContent = x.close.galleryDescription;
   $("gallery-cta").textContent = x.close.galleryCta;
   $("gallery-link").href = `/gallery/?lang=${state.lang}`;
+  $("music-lounge-kicker").textContent = x.close.musicLoungeKicker;
+  $("music-lounge-title").textContent = x.close.musicLoungeTitle;
+  $("music-lounge-description").textContent = x.close.musicLoungeDescription;
+  $("music-lounge-cta").textContent = x.close.musicLoungeCta;
+  $("music-lounge-link").href = `/music-lounge/?lang=${state.lang}`;
 }
 
 function render() {
@@ -943,13 +988,8 @@ function render() {
   $("c0-x").textContent = x.c0.sourceOriginal;
   $("c0-x").href = LINKS.x;
   $("c2-demo").textContent = x.c2.demo;
-  $("cta-title").textContent = x.ctaTitle;
-  $("cta-choices").replaceChildren(...x.ctaChoices.map((choice) => {
-    const a = el("a", "cta-choice");
-    a.href = `/?lang=${state.lang}#contact`;
-    a.append(el("strong", null, choice.title), el("span", null, choice.body));
-    return a;
-  }));
+  $("closing-title").textContent = x.closingTitle;
+  $("closing-points").replaceChildren(...x.closingPoints.map((point) => el("li", null, point)));
   $("footer").textContent = x.footer;
   renderFunnel();
   renderCompare(false);
@@ -961,6 +1001,7 @@ function render() {
   renderAdoption();
   renderLadder();
   renderPackage();
+  renderStart();
   renderSpirit();
   renderConsole(false);
   renderRail();

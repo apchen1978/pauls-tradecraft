@@ -1,22 +1,26 @@
-import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=9";
+import { COLLECTION, PIECES, validatePieces } from "./pieces.js?v=xlink";
 
 validatePieces(PIECES);
 const lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "zh";
 const copy = COLLECTION[lang];
-const roomCollectionIds = new Set(["room02-la-coast-collection", "room01-corner-watercolour"]);
+const roomCollectionIds = new Set(["room02-la-coast-collection", "room01-corner-watercolour", "room02-city-new-york", "room02-city-san-francisco", "room02-city-brooklyn", "room03-bay-cable-car", "room03-ferry-building", "room03-marin-hills", "room01-amber-fig", "room02-blue-hour", "room03-lemons", "room04-rain-lane", "room01-alishan-forest-train"]);
 const $ = (id) => document.getElementById(id);
 document.documentElement.lang = lang === "en" ? "en" : "zh-Hant";
 document.title = `${copy.title} · Paul’s Tradecraft`;
-for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "doors-title": "doorsTitle", "doors-note": "doorsNote", "roomverse-title": "roomverseTitle", "roomverse-note": "roomverseNote", "room-collection-title": "roomCollectionTitle", "bay-title": "bayTitle", "bay-note": "bayNote", "more-title": "moreTitle", "more-note": "moreNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
+for (const [id, key] of Object.entries({ title: "title", subtitle: "subtitle", skip: "skip", hint: "hint", "pair-title": "pairTitle", "pair-note": "pairNote", "doors-title": "doorsTitle", "doors-note": "doorsNote", "roomverse-title": "roomverseTitle", "roomverse-note": "roomverseNote", "room-collection-title": "roomCollectionTitle", "bay-title": "bayTitle", "bay-note": "bayNote", "more-title": "moreTitle", "more-note": "moreNote", "move-title": "moveTitle", "move-note": "moveNote", "sh-title": "shTitle", "sh-note": "shNote", "tv-title": "tvTitle", "tv-note": "tvNote", back: "back", close: "close", previous: "previous", next: "next", "made-label": "made" })) $(id).textContent = copy[key];
 $("home").href = `/?lang=${lang}`;
 $("home").ariaLabel = copy.home;
 $("back").href = `/ai-lab/?lang=${lang}#gallery-front`;
+$("lounge").href = `/music-lounge/?lang=${lang}`;
+$("lounge").textContent = copy.lounge;
 document.querySelectorAll(".languages a").forEach((a) => {
   if (a.getAttribute("lang") === document.documentElement.lang) a.setAttribute("aria-current", "page");
   else a.removeAttribute("aria-current");
 });
 
 const dialog = $("viewer");
+const roomLink = $("viewer-room-link");
+roomLink.textContent = copy.viewInRoom;
 let selected = 0;
 let trigger;
 function showPainting(index) {
@@ -32,6 +36,16 @@ function showPainting(index) {
   $("viewer-title").textContent = piece.title[lang];
   $("viewer-caption").textContent = piece.caption[lang];
   $("viewer-made").textContent = piece.made[lang];
+  if (piece.roomHref) {
+    const url = new URL(piece.roomHref, location.origin);
+    url.searchParams.set("lang", lang);
+    roomLink.href = url.pathname + url.search;
+    roomLink.hidden = false;
+  } else {
+    if (document.activeElement === roomLink) $("close").focus();
+    roomLink.hidden = true;
+    roomLink.removeAttribute("href");
+  }
 }
 function openPainting(index, button) {
   trigger = button;
@@ -65,7 +79,7 @@ function makePainting(piece, index) {
   return article;
 }
 PIECES.forEach((piece, index) => {
-  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : roomCollectionIds.has(piece.id) ? "room-collection" : piece.id.startsWith("roomverse-") ? "roomverse" : piece.id.startsWith("bayarea-") ? "bayarea" : index < 2 ? "harbours" : "collection";
+  const slot = piece.id === "harbor-dusk" ? "solo" : ["ai-lab-digital-room", "ai-lab-open-horizon"].includes(piece.id) ? "doors" : roomCollectionIds.has(piece.id) ? "room-collection" : piece.id.startsWith("room02-sports-") ? "move" : piece.id.startsWith("room04-shanghai-") ? "shanghai" : piece.id.startsWith("roomtv-") ? "tv" : piece.id.startsWith("roomverse-") ? "roomverse" : piece.id.startsWith("bayarea-") ? "bayarea" : index < 2 ? "harbours" : "collection";
   $(slot).append(makePainting(piece, index));
 });
 $("solo-section").hidden = false;

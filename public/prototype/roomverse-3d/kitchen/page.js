@@ -1,5 +1,5 @@
 import { initTravelDoor } from "../travel-door.js?v=7";
-import { start, ROOM_TITLE } from "./kitchen.js?v=145";
+import { start, ROOM_TITLE } from "./kitchen.js?v=auto";
 const COPY = {
   zh: {
     title: ROOM_TITLE,
@@ -7,7 +7,7 @@ const COPY = {
     note: "這是一間受灣區 Eichler 住宅語彙啟發的想像房間，不是實際住宅或施工圖。",
     portfolioHome: "⌂ 作品集首頁", portfolioHomeLabel: "回到作品集首頁", otherRooms: "← 其他房間", otherRoomsLabel: "前往其他 ROOMVERSE 房間", robotLabel: "廚房小機器人：點我看要去哪個房間", robotLine: "我是廚房的小幫手。想去哪個房間？", doorLabel: "房間的門：點一下打開", doorLine: "這扇門通到其他房間。想去哪一間？", robotChoose: "看看其他房間", languageLabel: "切換語言", roomLabel: "Room 03 3D 房間", settingsLabel: "Room 03 設定",
     full: "全螢幕", exit: "退出", lang: "EN", loading: "房間準備中…", failed: "這台裝置無法開啟 3D 場景。",
-    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", swapsLabel: "換搭配", randomLook: "隨機搭一間", defaultLook: "預設搭配：霧藍牆、橡木地板、藍米條紋地毯與橡樹街畫", customLook: "目前搭配：自訂組合",
+    center: "站在房間中間", orbit: "回到環繞視角", plaque: "看入口牆", nook: "走近小角落", record: "看唱片機", swapsLabel: "換搭配", randomLook: "隨機搭一間", defaultLook: "預設搭配：霧藍牆、橡木地板、藍米條紋地毯與橡樹街畫", customLook: "目前搭配：自訂組合",
     swaps: {
       wallColor: ["主牆色", { mist: "霧藍", cream: "奶油白", sage: "鼠尾草綠", oat: "燕麥暖灰" }],
       floor: ["地板表面", { oak: "橡木地板", terrazzo: "奶油水磨石", cork: "天然軟木", concrete: "霧面混凝土" }],
@@ -15,7 +15,7 @@ const COPY = {
       "cable-car": ["右側牆的畫", { "cable-car": "舊金山電車", "fog-bridge": "霧中金門大橋", "marin-hills": "馬林海岬", "poster-sun": "山丘與太陽" }],
       "redwood-path": ["入口走廊的畫", { "redwood-path": "紅杉步道", "ferry-building": "渡輪大廈", "oak-street": "橡樹街", "poster-arch": "拱門海報", "poster-leaf": "葉片海報" }],
       wallpaper: ["右側牆壁紙", { "grasscloth-oat": "草織（燕麥）", "grasscloth-sage": "草織（鼠尾草綠）", "grasscloth-charcoal": "草織（炭灰）", none: "無（奶油牆）" }],
-      "lamp-wall": ["窗邊燈上方的畫", { "fog-bridge": "霧中金門大橋", "ferry-building": "渡輪大廈", "moon-hills": "丘陵與月", "hills-sun": "丘陵與日", "botanical-window": "窗台花瓶" }],
+      "lamp-wall": ["窗邊燈上方的畫", { "fog-bridge": "霧中金門大橋", "ferry-building": "渡輪大廈", "moon-hills": "丘陵與月", "hills-sun": "丘陵與日", "botanical-window": "窗台花瓶", "blue-plate-lemons": "藍盤上的檸檬" }],
       yard: ["窗外景色", { auto: "跟著感覺", "fog-morning": "濃霧早晨", "spring-bloom": "春天花開", "overcast-rain": "陰天微雨" }],
     }, canvasLabel: "房間視角。中心模式可用方向鍵環顧。",
     moods: {
@@ -34,7 +34,7 @@ const COPY = {
     note: "An imagined room inspired by Bay Area Eichler architecture; it is not a real residence or construction plan.",
     portfolioHome: "⌂ Portfolio home", portfolioHomeLabel: "Back to portfolio home", otherRooms: "← Other rooms", otherRoomsLabel: "Go to another ROOMVERSE room", robotLabel: "Kitchen robot: tap to choose another room", robotLine: "I look after the kitchen. Where would you like to go?", doorLabel: "Room door: tap to open", doorLine: "This door leads to the other rooms. Where to?", robotChoose: "Explore other rooms", languageLabel: "Switch language", roomLabel: "Room 03 3D room", settingsLabel: "Room 03 settings",
     full: "Full screen", exit: "Exit", lang: "中", loading: "Preparing the room…", failed: "3D could not open on this device.",
-    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", swapsLabel: "Swap the look", randomLook: "Randomize the room", defaultLook: "Default: mist-blue walls, oak plank floor, blue-and-cream rug and the oak-street print", customLook: "Current look: Custom mix",
+    center: "Stand in the room", orbit: "Return to orbit", plaque: "Entry wall", nook: "Closer to the nook", record: "Record player", swapsLabel: "Swap the look", randomLook: "Randomize the room", defaultLook: "Default: mist-blue walls, oak plank floor, blue-and-cream rug and the oak-street print", customLook: "Current look: Custom mix",
     swaps: {
       wallColor: ["Main wall colour", { mist: "Mist blue", cream: "Warm cream", sage: "Sage green", oat: "Oat greige" }],
       floor: ["Floor finish", { oak: "Oak planks", terrazzo: "Cream terrazzo", cork: "Natural cork", concrete: "Matte concrete" }],
@@ -42,7 +42,7 @@ const COPY = {
       "cable-car": ["Painting, right wall", { "cable-car": "Cable car", "fog-bridge": "Golden Gate in fog", "marin-hills": "Marin headlands", "poster-sun": "Hills and sun" }],
       "redwood-path": ["Painting, entry hall", { "redwood-path": "Redwood path", "ferry-building": "Ferry Building", "oak-street": "Oak street", "poster-arch": "Arch poster", "poster-leaf": "Leaf poster" }],
       wallpaper: ["Right-wall wallpaper", { "grasscloth-oat": "Grasscloth, oat", "grasscloth-sage": "Grasscloth, sage", "grasscloth-charcoal": "Grasscloth, charcoal", none: "None (cream wall)" }],
-      "lamp-wall": ["Painting above the lamp", { "fog-bridge": "Golden Gate in fog", "ferry-building": "Ferry Building", "moon-hills": "Hills and moon", "hills-sun": "Hills and sun", "botanical-window": "Window-sill vase" }],
+      "lamp-wall": ["Painting above the lamp", { "fog-bridge": "Golden Gate in fog", "ferry-building": "Ferry Building", "moon-hills": "Hills and moon", "hills-sun": "Hills and sun", "botanical-window": "Window-sill vase", "blue-plate-lemons": "Lemons on a Blue Plate" }],
       yard: ["View outside", { auto: "Follow the mood", "fog-morning": "Foggy morning", "spring-bloom": "Spring bloom", "overcast-rain": "Overcast and damp" }],
     }, canvasLabel: "Room view. Use arrow keys to look around in center mode.",
     moods: {
@@ -213,6 +213,7 @@ function renderCopy() {
   $("centerView").setAttribute("aria-pressed", String(centerMode));
   $("plaqueView").textContent = copy.plaque;
   $("nookView").textContent = copy.nook;
+  $("recordView").textContent = copy.record;
   $("randomLook").textContent = copy.randomLook;
   $("randomLook").setAttribute("aria-label", copy.randomLook);
   updateRandomLookStatus();
@@ -280,9 +281,10 @@ $("immersiveEnter").addEventListener("click", () => setImmersive(true));
 $("randomLook").addEventListener("click", randomizeLook);
 $("centerView").addEventListener("click", () => { if (!centerMode) room?.setNookView?.(false); centerMode = !centerMode; room?.setCenterView(centerMode); renderCopy(); });
 // Turn the orbit to the entry wall (180 degrees), where the house plaque hangs; leaves the standing view first if it is on.
-$("plaqueView").addEventListener("click", () => { room?.setNookView?.(false); if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setView(Math.PI); renderCopy(); });
+$("plaqueView").addEventListener("click", () => { room?.setNookView?.(false); room?.setRecordView?.(false); if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setView(Math.PI); renderCopy(); });
 // Step closer to the small entry nook (cork board, totes, key shelf); leaves the standing view first, like the entry-wall button.
 $("nookView").addEventListener("click", () => { if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setNookView(true); renderCopy(); });
+$("recordView").addEventListener("click", () => { if (centerMode) { centerMode = false; room?.setCenterView(false); } room?.setRecordView?.(true); renderCopy(); });
 $("immersiveExit").addEventListener("click", () => setImmersive(false));
 addEventListener("popstate", (event) => setImmersive(Boolean(event.state?.room03Immersive), false));
 addEventListener("keydown", (event) => {
@@ -341,7 +343,8 @@ function placeTarget(button, rect) {
 function placeRobotUi() {
   const robotRect = room?.robotScreen?.(), doorRect = room?.doorScreen?.();
   placeTarget(robotHit, robotRect);
-  placeTarget(doorHit, doorRect);
+  // In the close record view the door sits at the edge of the picture and its tap area would grow over the view buttons, so it rests there.
+  placeTarget(doorHit, room?.recordViewInfo?.() ? null : doorRect);
   const anchor = bubbleOwner === "door" ? doorRect : robotRect;
   if (!anchor) { robotBubble.hidden = true; return; }
   if (!robotBubble.hidden) Object.assign(robotBubble.style, { left: `${(anchor.left + anchor.right) / 2}px`, top: `${Math.max(8, anchor.top - 10)}px` });
@@ -412,6 +415,7 @@ start({ stage: $("stage"), onReady: (instance) => {
   $("centerView").hidden = false;
   $("plaqueView").hidden = false;
   $("nookView").hidden = false;
+  $("recordView").hidden = false;
   $("swaps").hidden = false;
   renderCopy();
   void room.setMood(mood);
@@ -419,3 +423,6 @@ start({ stage: $("stage"), onReady: (instance) => {
   console.error(error);
   $("status").textContent = COPY[lang].failed;
 });
+
+// Desktop full screen: a compact, foldable controls plate instead of a full-width strip over the picture (Paul 2026-11-17). Phones keep the old strip.
+import("../immersive-dock.js?v=auto").then(({ initImmersiveDock }) => initImmersiveDock({ room: document.querySelector(".room"), controls: document.getElementById("immersiveControls") })).catch(() => {});

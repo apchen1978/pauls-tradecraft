@@ -5,6 +5,9 @@
 import * as THREE from "../vendor/three.module.min.js"; // same self-hosted three.js r160 as the living room
 import { mergeGeometries } from "../vendor/BufferGeometryUtils.js";
 import { loadModel, loadGlb } from "./models.js?v=5";
+import { createNightMusic } from "../night-score.js?v=auto"; // Paul 2026-11-22: series night plays the epic orchestral piece of Room 01
+import { createRoomRecord } from "./sound.js?v=auto"; // the record by the window plays one piece (Brooklyn Windowsill)
+import { createGameMusic } from "./game-score.js?v=auto"; // Paul 2026-11-28: in the late-night game mood the record plays the 夜戰 EDM loop
 
 export const ROOM = { w: 4.0, d: 5.0, h: 2.6 };
 export const WINDOW = { w: 1.6, h: 1.3, sill: .9, x: 0 };
@@ -81,8 +84,16 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   let ready = false;
   const redraw = () => { if (ready) render(); };
   const painted = {};
+  // Phone-size copies (Paul 2026-11-17: the first seconds on a phone matter): on a phone-sized window the big pictures load a smaller copy of themselves
+  // (about 70 percent of the width, same picture), named like the project's other phone files: "-mobile-v1.webp" in place of "-v1.webp". The sizes
+  // came from a Chrome canvas resize at quality 0.82. Only pictures that really got smaller have one; the rest load as before.
+  const MOBILE_ART = new Set(["bedroom-poster-A1-v2.webp", "bedroom-poster-A2-v1.webp", "bedroom-poster-A3-v1.webp", "bedroom-poster-C3-v1.webp", "room02-a6-game-screen-v1.webp",
+    "room02-brooklyn-oak-floor-v1.webp", "room02-c1-full-bookshelf-v1.webp", "room02-c2-seven-tenths-bookshelf-v1.webp", "room02-c3-hardback-bookshelf-v1.webp",
+    "room02-c4-sparse-bookshelf-v1.webp", "room02-rug-modern-v1.webp", "room02-rug-oat-v1.webp", "room02-rug-runner-v1.webp", "room02-window-foreground-day-v1.webp",
+    "room02-window-foreground-night-v1.webp", "room02-window-frame-v1.webp", "studio-window-day-v1.webp", "studio-window-night-v1.webp"]);
+  const artUrl = (file) => new URL(`./art/${compact && MOBILE_ART.has(file) ? file.replace(/-v(\d+)\.webp$/, "-mobile-v$1.webp") : file}`, import.meta.url).href;
   const art = (file, { repeat, apply } = {}) => {
-    const t = new THREE.TextureLoader().load(new URL(`./art/${file}`, import.meta.url).href, (tex) => {
+    const t = new THREE.TextureLoader().load(artUrl(file), (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
       if (repeat) { tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(...repeat); }
       painted[file] = true; apply?.(tex); redraw();
@@ -137,6 +148,10 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // room turn the head for you; dragging still works within the same limits.
   // The fourth look, "centre", is absolute: the camera walks to the middle of the room at eye height and the head can turn a full circle.
   const LOOKS = { center: { pos: CENTER, yaw: compact ? -.06 : 0, pitch: compact ? -.2 : -.09, zoom: compact ? .76 : .92 }, work: compact ? [.1, .1, 1.4] : [.22, .12, 1.35], tv: [.43, .01], bed: compact ? [-.4, .03, 1.9] : [-.4, .08, 1.45] }; // [yaw, pitch, zoom]: the bed look leans in so the pillows and the quilt fill the frame instead of the empty east wall
+  // The "Sofa corner" look (Paul 2026-11-28: the sofa, its stone table and the rug were hardly visible from any look): an absolute look like "Stand in the middle", the camera walks to the middle of the room and
+  // turns east to the sofa from about 1.8 m, about 30 degrees down, so the sofa, the table with its mug and books, and the rug with the slippers are all in the picture. Any other look button walks back out.
+  { const from = compact ? new THREE.Vector3(-.4, 1.35, .55) : new THREE.Vector3(-.75, 1.4, .5), to = compact ? new THREE.Vector3(1.0, .3, .95) : new THREE.Vector3(1.0, .42, .95), d = to.clone().sub(from);
+    LOOKS.sofa = { pos: from, yaw: Math.atan2(-d.x, -d.z), pitch: Math.atan2(d.y, Math.hypot(d.x, d.z)), zoom: compact ? .9 : .86 }; }
   let lookRun = 0, lookName = "center";
   const setZoom = (z) => { camera.zoom = z; camera.updateProjectionMatrix(); };
   // The opening look is the centre (Paul, 2026-10-23): standing in the middle of the room facing the window wall, free to turn all the way round.
@@ -384,6 +399,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       return Promise.resolve(true);
     }
 
+    recordMusic.stop(); // the music ends when the visitor walks out
     leaving = { ...from, cancelled: false, fading: null, frame: 0, started: performance.now() };
     const run = leaving;
     const stand = new THREE.Vector3(DOOR.x, 1.5, 1.56);
@@ -521,6 +537,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (hitRobot) { tapRobot(); return; }
     tapClient = [event.clientX, event.clientY];
     const story = storyAt();
+    if (story === "vinyl-corner") { // the record corner: a tap starts a piece, every next tap goes to the next one (round the four), a tap on the tonearm stops it
+      if (recordMusic.state().playing && armTapped()) { recordMusic.stop(); deckSync(); showPropStory("vinyl-lifted"); return; } // a tap on the tonearm lifts the needle
+      const now = recordMusic.next(); if (now >= 0) vinylFound = true; deckSync();
+      showPropStory(now === 3 ? "vinyl-music-game" : now === 2 ? "vinyl-music-night" : now === 0 ? "vinyl-music" : now === 1 ? "vinyl-music-b" : "vinyl-corner");
+      return;
+    }
     if (story) showPropStory(story === "bedside-phone" && mood === "series" ? "bedside-phone-lit" : story);
   });
   el.addEventListener("pointercancel", endDrag);
@@ -530,6 +552,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const PROP_STORIES = {
     "bedside-pocket": { zh: "床邊口袋：眼鏡盒和充電盤，是睡前最後一個動作。", en: "The bedside pocket: glasses case and charging puck, the last thing before sleep." },
     "vinyl-corner": { zh: "黑膠一次只放一張，A 面放完才翻面。", en: "One record at a time; flip it only when side A ends." },
+    "vinyl-music": { zh: "♪ 布魯克林窗台（A 面）。🎹 鋼琴和老派節拍。點唱片換下一首，點唱針停止。", en: "♪ Brooklyn Windowsill (side A). 🎹 Piano over a dusty beat. Tap the record for the next piece, tap the needle to stop." },
+    "vinyl-music-night": { zh: "♪ 追劇夜。🎻 低音鋼琴、顫音弦樂和銅管慢慢堆高，像一部電影的片頭。點唱片換下一首，點唱針停止。", en: "♪ Series Night. 🎻 Low piano, tremolo strings and brass build like a film’s opening titles. Tap the record for the next piece, tap the needle to stop." },
+    "vinyl-music-game": { zh: "♪ 夜戰。⚡ 140 BPM 的電子脈衝、低音和薩克斯風，一路推向落下，會一直循環。點唱片換下一首，點唱針停止。", en: "♪ Late-Night Game. ⚡ A 140 BPM electronic pulse, bass and saxophone building to the drop; it loops. Tap the record for the next piece, tap the needle to stop." },
+    "vinyl-lifted": { zh: "唱針抬起來了。再點唱片，從頭開始。", en: "The needle is lifted. Tap the record to start again." },
+    "vinyl-music-b": { zh: "♪ 防火梯的雨（B 面）。🎹 慢一點的深夜鋼琴，窗外下著雨。點唱片換下一首，點唱針停止。", en: "♪ Fire Escape Rain (side B). 🎹 A slower late-night piano, rain at the window. Tap the record for the next piece, tap the needle to stop." },
+    "hint-vinyl": { zh: "點一下發光圈裡的唱片機，有音樂喔 🎵", en: "Tap the record player in the glowing ring for some music 🎵" },
     bookshelf: { zh: "書沒讀完也沒關係，擺在手邊就安心。", en: "Unfinished books are fine; having them within reach feels good." },
     "bedside-phone": { zh: "手機面朝下放著，今晚不想被打擾。", en: "The phone lies face down; not to be disturbed tonight." },
     "hint-work": { zh: "點一下：螢幕邊的小便條。", en: "Tap: the little note on the monitor." },
@@ -541,13 +569,47 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   storyCaption.id = "propStory"; storyCaption.setAttribute("role", "status"); storyCaption.setAttribute("aria-live", "polite");
   Object.assign(storyCaption.style, { position: "absolute", left: "50%", bottom: "14px", transform: "translateX(-50%)", maxWidth: "min(320px, 86%)", padding: "9px 14px", borderRadius: "14px", background: "#fffc", color: "#24302c", boxShadow: "0 5px 18px #0003", fontSize: "14px", fontWeight: "700", lineHeight: "1.45", textAlign: "center", pointerEvents: "none", opacity: "0", transition: "opacity .25s ease", zIndex: "4" });
   stage.append(storyCaption);
-  let storyTimer = 0, storyKey = null;
+  // the record by the window (Paul, 2026-11-17: Room 02 plays one Brooklyn piece when its record corner is tapped; 2026-11-22: series night plays the epic piece; 2026-11-28: a late-night game piece).
+  // Paul 2026-11-28: every tap on the record goes to the NEXT piece, and after the last it comes round to the first; the tonearm is what stops it (a tap on the arm lifts the needle). One playlist of four,
+  // 0 = side A (Brooklyn Windowsill), 1 = side B (Fire Escape Rain), 2 = Series Night, 3 = Late-Night Game. The first tap starts the piece that matches the mood (series night: 2, late-night game: 3, else 0).
+  const recordMusic = (() => {
+    const base = createRoomRecord(), epic = createNightMusic(), game = createGameMusic(); let current = -1;
+    const stopAll = () => { base.stop(); epic.stop(); game.stop(); };
+    const startAt = (i) => { stopAll(); const ok = i === 0 ? base.start(0) : i === 1 ? base.start(1) : i === 2 ? epic.start(0, { playlist: true }) : game.start(0); current = ok ? i : -1; return current; };
+    return {
+      start: (w) => startAt(w === 1 ? 1 : 0) >= 0,
+      stop() { stopAll(); current = -1; },
+      resume() { base.resume?.(); epic.resume?.(); game.resume?.(); },
+      next() { const first = mood === "series" ? 2 : mood === "night" ? 3 : 0; return startAt(current < 0 ? first : (current + 1) % 4); }, // returns the piece now playing, or -1
+      state() {
+        if (current === 3) { const g = game.state(); return { ...g, side: 3, title: "夜戰", titleEn: "Late-Night Game", game: true }; }
+        if (current === 2) { const e = epic.state(); return { ...e, side: 2, title: "追劇夜", titleEn: "Series Night", epic: true }; }
+        return base.state();
+      },
+    };
+  })();
+  let storyTimer = 0, storyKey = null, vinylFound = false, vinylHintAt = -1e9, vinylRing = null; const vinylReadyAt = performance.now(); // vinylFound: the visitor has started the music, so the hints stop
   function showPropStory(key) {
     const story = PROP_STORIES[key]; if (!story) return;
     storyKey = key; storyCaption.textContent = story[lang] || story.zh; storyCaption.style.opacity = "1";
     clearTimeout(storyTimer); storyTimer = setTimeout(() => { storyCaption.style.opacity = "0"; storyKey = null; }, 4600);
   }
   let tapClient = null; // where the last tap landed on screen (client px), for the finger-sized tap radius below
+  function armTapped() {
+    scene.updateMatrixWorld(true); camera.updateMatrixWorld();
+    const hit = tapRay.intersectObject(armGroup, true)[0], solid = tapRay.intersectObjects(root.children, true).filter((h) => h.object.visible && !(h.object.material?.transparent && h.object.material.opacity < .5))[0];
+    if (hit && (!solid || hit.distance <= solid.distance + .03)) return true;
+    for (let node = solid?.object; node; node = node.parent) if (node === vin) return false; // the tap landed on the record or its plinth: that is "next", not "stop"
+    if (!tapClient) return false;
+    const rect = el.getBoundingClientRect(), head = armGroup.getObjectByName("tonearm-headshell"), pivot = root.getObjectByName("tonearm-pivot");
+    for (const object of [head, pivot]) {
+      if (!object) continue;
+      const p = object.getWorldPosition(new THREE.Vector3()).project(camera);
+      if (p.z >= 1) continue;
+      if (Math.hypot(tapClient[0] - (rect.left + ((p.x + 1) / 2) * rect.width), tapClient[1] - (rect.top + ((1 - p.y) / 2) * rect.height)) < 34) return true;
+    }
+    return false;
+  }
   function storyAt() {
     // The wardrobe carcass is a solid box whose invisible volume reaches into the room from some looks, so it would swallow a tap meant for
     // the bookshelf beyond it; taps pass through the wardrobe. Glass and other see-through meshes are skipped too.
@@ -664,7 +726,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // The west wall, behind the desk, the TV and the posters, is wallpaper (Paul 2026-10-23: the view outside reads as New York, and American flats
   // paper their walls): Room 01's botanical leaf paper (Paul chose it): cream with soft sage vines, one picture about 1.1 m wide.
   // The colour options below swap it for plain colour as before.
-  const stripeTex = new THREE.TextureLoader().load(new URL("../tex/wallpaper-botanical-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
+  const stripeTex = new THREE.TextureLoader().load(new URL(compact ? "../tex/wallpaper-botanical-mobile-v1.webp" : "../tex/wallpaper-botanical-v1.webp", import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.needsUpdate = true; renderSoon?.(); }); // render() does not exist yet at this point
   stripeTex.wrapS = stripeTex.wrapT = THREE.RepeatWrapping; stripeTex.repeat.set((ROOM.d + .2) / 1.1, ROOM.h / 1.1); stripeTex.anisotropy = 8;
   const featureMat = new THREE.MeshStandardMaterial({ color: "#ffffff", map: stripeTex, roughness: .95 }); // the west wall: wallpaper, or a swappable colour
   art("room02-e2-warm-wall-v1.webp", { repeat: [2.2, 1.6], apply: wallTexApply }); // a soft micro-cement / paint finish, multiplied by each wall colour
@@ -702,7 +764,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const texLoader = new THREE.TextureLoader();
   const skyTex = {};
   const loadSky = (time) => skyTex[time] ??= new Promise((resolve) => {
-    texLoader.load(new URL(`./art/studio-window-${time}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null));
+    texLoader.load(artUrl(`studio-window-${time}-v1.webp`), (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null));
   });
   const SKY = { w: 4.8, h: 3.0, y: 1.6, z: -HD - 1.2 };
   const skyMat = new THREE.MeshBasicMaterial({ color: "#cfe2f2", toneMapped: false });
@@ -721,8 +783,11 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     fgMat.map = t; fgMat.color.setScalar(fgTex[skyTime] ? 1 : .38); fgMat.needsUpdate = true; fg.visible = true; redraw();
   };
   art("room02-window-foreground-day-v1.webp", { apply: (t) => { fgTex.day = t; updateForeground(); } });
-  art("room02-window-foreground-night-v1.webp", { apply: (t) => { fgTex.night = t; updateForeground(); } }); // the same railing and plants, in blue night light
+  // The night version (the same railing and plants, in blue night light) is only fetched when the room first goes to night: by day it is never seen.
+  let fgNightRequested = false;
+  const ensureNightForeground = () => { if (fgNightRequested) return; fgNightRequested = true; art("room02-window-foreground-night-v1.webp", { apply: (t) => { fgTex.night = t; updateForeground(); } }); };
   async function setTime(time) {
+    if (time === "night") ensureNightForeground();
     const t = await loadSky(time);
     if (!t) return false;
     skyTime = time; skyMat.map = t; skyMat.color.set("#ffffff"); skyMat.needsUpdate = true; updateForeground(); render();
@@ -785,8 +850,15 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const loungeRugMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#a9b1b8", "#5d6a76", { stripes: true }), roughness: 1 });
   zoneRug(1.6, 2.3, .55, 1.3, loungeRugMat, "zone-lounge-rug"); // the sofa's front legs stand on its east end
   const rugArt = {};
-  for (const [k, file] of [["modern", "room02-rug-modern-v1.webp"], ["stripe", "room02-a1-living-rug-v1.webp"], ["oat", "room02-rug-oat-v1.webp"]])
-    art(file, { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; if (k === "modern" || k === "oat") cutout(loungeRugMat); loungeRugMat.needsUpdate = true; } } });
+  // The modern rug is the default and the oat rug also lies in the TV zone, so both load at the start. The striped rug (the biggest file here)
+  // is only fetched when a visitor picks it; until it arrives the code-drawn stripes show, as they always did while it loaded.
+  const RUG_FILES = { modern: "room02-rug-modern-v1.webp", stripe: "room02-a1-living-rug-v1.webp", oat: "room02-rug-oat-v1.webp" };
+  const rugRequested = {};
+  const loadRugArt = (k) => {
+    if (rugRequested[k]) return; rugRequested[k] = true;
+    art(RUG_FILES[k], { apply: (t) => { rugArt[k] = t; if (chosen.rug === k) { loungeRugMat.map = t; if (k === "modern" || k === "oat") cutout(loungeRugMat); loungeRugMat.needsUpdate = true; } } });
+  };
+  loadRugArt("modern"); loadRugArt("oat");
 
   // ---------- sleep zone: a 110 x 200 cm bed along the east wall, head to the window wall ----------
   // Real sizes: mattress top 48 cm, pillow 70 x 45 cm, duvet 105 cm wide. The window sits at x < 0.8, so the headboard stays clear of it.
@@ -986,10 +1058,9 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   part(box(.34, .06, .34), new THREE.MeshStandardMaterial({ color: "#1f1d1b", roughness: .7 }), "bedside-plinth", tx, .03, tz);
   for (const y of [.18, .385]) part(rb(.34, .185, .012), creamBody, "bedside-drawer", tx, y, tz + .19 + .003);
   part(box(.34, .01, .008), new THREE.MeshStandardMaterial({ color: "#5a3f2c", roughness: .6 }), "bedside-drawer-gap", tx, .283, tz + .193);
-  // lived-in clutter on the bedside table (Paul 2026-10-24: someone lives here): two books in a short stack, one turned a little, and a phone lying face down
-  { const bookA = part(box(.15, .032, .22), new THREE.MeshStandardMaterial({ color: "#2f4258", roughness: .8 }), "bedside-book", tx - .1, .5 + .016, tz + .06); bookA.rotation.y = .25;
-    const bookB = part(box(.13, .022, .2), new THREE.MeshStandardMaterial({ color: "#b8643a", roughness: .8 }), "bedside-book", tx - .098, .5 + .032 + .011, tz + .062); bookB.rotation.y = -.1;
-    const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5;
+  // lived-in clutter on the bedside table (Paul 2026-10-24: someone lives here): a phone lying face down. The two-book stack is gone (Paul 2026-11-18: it ran
+  // into the lamp base and read as two plain blocks); the glasses case now lies on the wood and two vitamin bottles stand at the back left (in the pocket set below).
+  { const phone = part(rb(.072, .009, .15), new THREE.MeshStandardMaterial({ color: "#1b1c1f", roughness: .35 }), "bedside-phone", tx + .075, .5 + .0045, tz - .09); phone.rotation.y = .5;
     // Series night (Paul 2026-11-11): the phone is turned face up and its screen lights a notification now and then. The glass is on the face that
     // lies against the wood (local -y), so it only shows once the phone is flipped. No text on the glass; the message appears when it is tapped.
     const screenCanvas = document.createElement("canvas"); screenCanvas.width = 128; screenCanvas.height = 272;
@@ -1055,22 +1126,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       boxes[name] = geo.boundingBox.clone();
       return geo;
     };
-    const books = [];
-    root.traverse((o) => { if (o.isMesh && o.name === "bedside-book") books.push(o); });
-    const upperBook = books.sort((a, b) => b.position.y - a.position.y)[0];
-    if (!upperBook) throw new Error("bedside pocket could not find the upper book");
-    const bookY = (x, z) => {
-      ray.set(new THREE.Vector3(x, .9, z), new THREE.Vector3(0, -1, 0));
-      const hit = ray.intersectObject(upperBook, false)[0];
-      if (!hit) throw new Error(`glasses case missed the upper book at ${x.toFixed(3)}, ${z.toFixed(3)}`);
-      return hit.point.y;
-    };
-    const caseSize = [.036, .018, .1], caseYaw = upperBook.rotation.y, caseHalfY = caseSize[1] / 2;
-    const caseX = upperBook.position.x - .01, caseZ = upperBook.position.z + .028;
+    const caseSize = [.036, .018, .1], caseYaw = .25, caseHalfY = caseSize[1] / 2;
+    const caseX = tx - .12, caseZ = tz + .09; // front left of the top, where the books were: 28 mm clear of the lamp base
     const caseFoot = [[0, 0], [caseSize[0] / 2, caseSize[2] / 2], [caseSize[0] / 2, -caseSize[2] / 2], [-caseSize[0] / 2, caseSize[2] / 2], [-caseSize[0] / 2, -caseSize[2] / 2]];
     const seamH = .003, claspH = .006;
     const caseGeo = paint(new THREE.BoxGeometry(...caseSize), "#6d7a62");
-    const caseYs = caseFoot.map(([lx, lz]) => { const [dx, dz] = yawOf(lx, lz, caseYaw); return bookY(caseX + dx, caseZ + dz); });
+    const caseYs = caseFoot.map(([lx, lz]) => { const [dx, dz] = yawOf(lx, lz, caseYaw); return supportY(caseX + dx, caseZ + dz); });
     const caseBottomY = caseYs[0] - BEDSIDE_POCKET_EMBED;
     const caseCenterYLive = caseBottomY + caseHalfY;
     caseGeo.rotateY(caseYaw);
@@ -1078,7 +1139,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     caseGeo.computeBoundingBox();
     boxes["glasses-case"] = caseGeo.boundingBox.clone();
     const caseGaps = caseYs.map((y) => (caseBottomY - y) * 1000);
-    fit.push({ name: "glasses-case", support: "bedside-book", gapMm: +((caseBottomY - caseYs[0]) * 1000).toFixed(2), minGapMm: +Math.min(...caseGaps).toFixed(2), maxGapMm: +Math.max(...caseGaps).toFixed(2) });
+    fit.push({ name: "glasses-case", support: "bedside-top", gapMm: +((caseBottomY - caseYs[0]) * 1000).toFixed(2), minGapMm: +Math.min(...caseGaps).toFixed(2), maxGapMm: +Math.max(...caseGaps).toFixed(2) });
     solids.push(caseGeo);
     const lid = (geo, name, hex, height, ly, local) => {
       geo.translate(local[0], ly, local[1]);
@@ -1092,9 +1153,32 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     };
     lid(new THREE.BoxGeometry(.0045, seamH, .09), "glasses-seam", "#3c4338", seamH, caseHalfY - BEDSIDE_POCKET_CASE_EMBED + seamH / 2, [0, 0]);
     lid(new THREE.BoxGeometry(.012, claspH, .014), "glasses-clasp", "#b08a5a", claspH, caseHalfY - BEDSIDE_POCKET_CASE_EMBED + claspH / 2, [0, .032]);
-    const pouchSize = [.044, .016, .028], pouchYaw = .35, pouchX = tx + .16, pouchZ = tz + .185;
+    // The plain beige block on the front-right corner was a "soft pouch" that read as nothing (Paul 2026-11-18). It is now a matchbox (for the candle-and-records
+    // evenings): 50 x 15 x 36 mm, an ivory tray, a blue top label with a small mustard sun and a red bar (shapes only), and a brown striker strip on each long side.
+    const pouchSize = [.05, .015, .036], pouchYaw = 0, pouchX = tx + .185, pouchZ = tz + .19; // square to the corner; the mug moved 1 cm toward the lamp so it keeps 15 mm
     const pouchFoot = [[0, 0], [pouchSize[0] / 2, pouchSize[2] / 2], [pouchSize[0] / 2, -pouchSize[2] / 2], [-pouchSize[0] / 2, pouchSize[2] / 2], [-pouchSize[0] / 2, -pouchSize[2] / 2]];
-    solids.push(paint(seat(new THREE.BoxGeometry(...pouchSize), { name: "soft-pouch", support: "bedside-top", x: pouchX, z: pouchZ, yaw: pouchYaw, halfY: pouchSize[1] / 2, footprint: pouchFoot }), "#c4a27a"));
+    const matchbox = seat(new THREE.BoxGeometry(...pouchSize), { name: "matchbox", support: "bedside-top", x: pouchX, z: pouchZ, yaw: pouchYaw, halfY: pouchSize[1] / 2, footprint: pouchFoot });
+    solids.push(paint(matchbox, "#efe6d2"));
+    const boxBottom = matchbox.boundingBox.min.y;
+    const onBox = (geo, hex, lx, ly, lz) => { geo.translate(lx, ly, lz); geo.rotateY(pouchYaw); geo.translate(pouchX, boxBottom, pouchZ); solids.push(paint(geo, hex)); };
+    onBox(new THREE.BoxGeometry(.044, .001, .03), "#2f5d7c", 0, pouchSize[1] + .0002, 0); // label, 0.3 mm into the top
+    onBox(new THREE.CylinderGeometry(.006, .006, .0008, 10), "#e0b24a", -.008, pouchSize[1] + .0008, -.002);
+    onBox(new THREE.BoxGeometry(.016, .0008, .003), "#c4472f", .01, pouchSize[1] + .0008, .006);
+    for (const side of [-1, 1]) onBox(new THREE.BoxGeometry(.044, .009, .001), "#5a3826", 0, pouchSize[1] / 2, side * (pouchSize[2] / 2 + .0002));
+    // Two vitamin bottles at the back left (Room 01's pair, vertex coloured here): white with red bands and a white screw cap, and a cream one with an orange
+    // flip-top. 78 and 82 mm clear of the lamp base. Both stand 2 mm into the wood like every pocket piece.
+    const bottle = (name, x, z, r, h, bodyHex, bands, capR, capY0, capY1, capHex) => {
+      const foot = [[0, 0]]; for (let i = 0; i < 8; i++) foot.push([r * .9 * Math.cos(i * Math.PI / 4), r * .9 * Math.sin(i * Math.PI / 4)]);
+      const prof = [[0, 0], [r - .003, 0], [r, .003], [r, h - .006], [r - .004, h], [r * .78, h + .002], [r * .78, capY0 + .002], [0, capY0 + .002]];
+      const body = seat(new THREE.LatheGeometry(prof.map(([a, b]) => new THREE.Vector2(a, b)), 16), { name, support: "bedside-top", x, z, halfY: 0, footprint: foot });
+      solids.push(paint(body, bodyHex));
+      const bottom = body.boundingBox.min.y;
+      for (const [y0, y1, hex] of bands) solids.push(paint(new THREE.CylinderGeometry(r + .0004, r + .0004, y1 - y0, 16, 1, true).translate(x, bottom + (y0 + y1) / 2, z), hex));
+      const cap = new THREE.CylinderGeometry(capR, capR, capY1 - capY0, 16).translate(x, bottom + (capY0 + capY1) / 2, z);
+      cap.computeBoundingBox(); boxes[name + "-cap"] = cap.boundingBox.clone(); solids.push(paint(cap, capHex));
+    };
+    bottle("vitamin-white", tx - .13, tz - .11, .0275, .072, "#f7f6f1", [[.012, .02, "#d9262b"], [.058, .066, "#d9262b"], [.028, .05, "#d9262b"]], .03, .08, .105, "#f2f1ec");
+    bottle("vitamin-orange", tx - .07, tz - .155, .025, .08, "#f6f4ed", [[.03, .034, "#79976b"], [.044, .05, "#c66b3e"]], .0255, .08, .102, "#e58124");
     const coilR = .016, coilTube = .0032, coilX = tx + .175, coilZ = tz + .02;
     const coilFoot = [[0, 0]];
     for (let i = 0; i < 8; i++) coilFoot.push([(coilR + coilTube) * Math.cos(i * Math.PI / 4), (coilR + coilTube) * Math.sin(i * Math.PI / 4)]);
@@ -1117,12 +1201,12 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     set.name = "bedside-pocket-set"; set.castShadow = false; set.receiveShadow = true; group.add(set);
     const puck = new THREE.Mesh(puckGeo, pocketGlowMat);
     puck.name = "bedside-pocket-puck"; puck.castShadow = false; puck.receiveShadow = true; group.add(puck);
-    const names = ["glasses-case", "soft-pouch", "cable-coil", "charge-puck"];
+    const names = ["glasses-case", "matchbox", "cable-coil", "charge-puck", "vitamins"];
     return {
       names, meshes: 2, meshNames: [set.name, puck.name], vertices: merged.attributes.position.count + puckGeo.attributes.position.count, fit, boxes,
       pieces: {
         "glasses-case": { w: caseSize[0], h: caseSize[1], d: caseSize[2] },
-        "soft-pouch": { w: pouchSize[0], h: pouchSize[1], d: pouchSize[2] },
+        "matchbox": { w: pouchSize[0], h: pouchSize[1], d: pouchSize[2] },
         "cable-coil": { outer: (coilR + coilTube) * 2, tube: coilTube * 2 },
         "charge-puck": { d: puckR * 2, h: puckH },
       },
@@ -1317,9 +1401,20 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     recolour(g, { upper: "#ece6dc", sole: "#d9cdb8", accent: "#c4622d", laces: "#f1ece3", lining: "#3a3a3e" });
     g.name = "sneakers"; g.position.set(DOOR.x - .02, .012, HD - .42); g.rotation.y = Math.PI + .5; root.add(g); redraw(); // toes towards the room, the way they come off at the door
   }).catch(() => {});
-  loadGlb(new URL("./models/campus-backpack-v1.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
-    recolour(g, { body: "#33405a", strap: "#2f3136", zip: "#c4622d", base: "#1f2125" });
-    g.name = "backpack"; g.position.set(-.5, 0, -1.2); g.rotation.order = "YXZ"; g.rotation.set(-.12, .9, 0); root.add(g); redraw(); // leaning back a little, as if just put down
+  loadGlb(new URL("./models/campus-backpack-v2.glb", import.meta.url).href, { roughness: .85 }).then((g) => {
+    // Paul 2026-11-18: Room 02's navy bag is now a copy of Room 04's Lounge backpack: plum body, cream straps, gold zip, dark plum base, the same soft
+    // bottom-to-top shading baked into vertex colours and the same matte finish (cafe.js "lounge-backpack"). Same spot, size and pose as before.
+    const plum = { body: "#6e3b52", strap: "#e6dcc6", zip: "#c9a04a", base: "#3b2a33" }, bagMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 });
+    bagMat.name = "room02-backpack-plum";
+    g.traverse((o) => { if (!o.isMesh) return; const geo = o.geometry, n = geo.attributes.position.count, values = new Float32Array(n * 3), name = o.material.name;
+      const col = new THREE.Color(plum[name] || plum.body); geo.computeBoundingBox(); const bb = geo.boundingBox;
+      for (let i = 0; i < n; i++) { const t = (geo.attributes.position.getY(i) - bb.min.y) / Math.max(.001, bb.max.y - bb.min.y), k = name === "body" ? .9 + .08 * t : .96; values[i * 3] = col.r * k; values[i * 3 + 1] = col.g * k; values[i * 3 + 2] = col.b * k; }
+      geo.setAttribute("color", new THREE.BufferAttribute(values, 3)); o.material.dispose?.(); o.material = bagMat; o.userData.part = name; });
+    // Paul 2026-11-18: from the Record player view (north-east of it, looking down) the bag showed its thin side and its back strap, and leaning back it sank
+    // 6 mm into the floor at the back and lifted at the front. It now stands upright with its front turned toward the turntable corner, and is set on the floor
+    // by its measured lowest point (0.5 mm in).
+    g.name = "backpack"; g.position.set(-.5, 0, -1.2); g.rotation.order = "YXZ"; g.rotation.set(0, 2.3, 0); root.add(g);
+    g.updateMatrixWorld(true); g.position.y -= new THREE.Box3().setFromObject(g).min.y + .0005; redraw();
   }).catch(() => {});
 
   // A pair of flip-flops under the desk, in front of the chair (Paul: it should look like a young person has just slipped them off; Taiwanese blue-and-white
@@ -1340,6 +1435,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // Real sizes: 2-seater sofa 160 x 85 cm, seat at 44 cm, back at 82 cm; coffee table 90 x 50 x 40 cm, 33 cm in front of the sofa;
   // 43-inch TV 95 x 55 cm on a 45 cm low console, about 3 m from the sofa; bookshelf 75 x 30 x 180 cm. Books carry no text.
   const sofaMat = new THREE.MeshStandardMaterial({ color: "#8197ab", map: weaveTexture("#f5f1e8", "rgba(55,50,44,.8)"), roughness: .98 });
+  const sofaFrameMat = sofaMat.clone(); sofaFrameMat.color.multiplyScalar(.84); // Paul 2026-11-28: more depth. The frame (base, arms, back) is a shade deeper than the cushions, so the seat and back cushions stand out of it
   const sofaLegMat = woodMat("#b38759", { rough: .7, tint: "#e3d6cc" });
   const tvReflect = canvasTex(256, 144, (ctx, w, h) => { // a switched-off TV is not flat black: it holds a faint reflection of the window and the room
     ctx.fillStyle = "#0c0e12"; ctx.fillRect(0, 0, w, h);
@@ -1355,14 +1451,30 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const mesh = new THREE.Mesh(geometry, material); mesh.name = name; mesh.position.set(x, y, z); mesh.userData.sofaPart = name;
     mesh.castShadow = mesh.receiveShadow = true; target.add(mesh); return mesh;
   };
-  sofaPart(sofaSoftBox(1.5, .2, .84, .1), sofaMat, "sofa-seat-base", 0, .28, .02); // base top at 38 cm
+  sofaPart(sofaSoftBox(1.5, .2, .84, .1), sofaFrameMat, "sofa-seat-base", 0, .28, .02); // base top at 38 cm
   for (const x of [-.38, .38]) sofaPart(sofaSoftBox(.72, .08, .66, .09), sofaMat, "sofa-seat-cushion", x, .4, .07); // seated surface at 44 cm
-  sofaPart(sofaSoftBox(1.48, .44, .18, .09), sofaMat, "sofa-back-frame", 0, .60, -.32); // 82 cm overall back
-  for (const x of [-.36, .36]) sofaPart(sofaSoftBox(.70, .34, .10, .075), sofaMat, "sofa-back-cushion", x, .61, -.205);
-  for (const x of [-.67, .67]) sofaPart(sofaSoftBox(.26, .31, .80, .12), sofaMat, "sofa-rounded-arm", x, .485, .02);
+  sofaPart(sofaSoftBox(1.48, .44, .18, .09), sofaFrameMat, "sofa-back-frame", 0, .60, -.32); // 82 cm overall back
+  for (const x of [-.36, .36]) sofaPart(sofaSoftBox(.70, .34, .10, .075), sofaMat, "sofa-back-cushion", x, .61, -.205).rotation.x = -.09; // leaning back a little, as a cushion does when someone has just sat there
+  for (const x of [-.67, .67]) sofaPart(sofaSoftBox(.26, .31, .80, .12), sofaFrameMat, "sofa-rounded-arm", x, .485, .02);
   const legGeometry = new THREE.CylinderGeometry(.024, .036, .18, 12, 1);
   for (const x of [-.62, .62]) for (const z of [-.30, .31]) sofaPart(legGeometry, sofaLegMat, "legs", x, .09, z);
   sofa.position.set(1.3, 0, .9); sofa.rotation.y = -Math.PI / 2; root.add(sofa);
+  // A pair of wool scuffs on the lounge rug (Paul 2026-11-28: take Room 01's slippers, a different colour): the same soft shape as Room 01's, in charcoal wool instead of oatmeal, one kicked off a little askew,
+  // on the rug between the sofa's front and the bed side of the table, where the room can see them. 265 mm long; the soles rest on the rug (rug top at 6 mm), nothing hovers.
+  { const L0 = .265, W0 = .1, shape = new THREE.Shape(); shape.moveTo(-L0 / 2 + .045, -W0 * .36);
+    shape.bezierCurveTo(-L0 / 2 + .005, -W0 * .34, -L0 / 2 - .004, -W0 * .1, -L0 / 2 + .002, W0 * .08); shape.bezierCurveTo(-L0 / 2 + .01, W0 * .36, -L0 / 2 + .05, W0 * .42, -L0 / 2 + .09, W0 * .46);
+    shape.bezierCurveTo(L0 / 2 - .07, W0 * .56, L0 / 2 - .005, W0 * .34, L0 / 2, 0); shape.bezierCurveTo(L0 / 2 - .005, -W0 * .4, L0 / 2 - .07, -W0 * .5, -L0 / 2 + .09, -W0 * .44); shape.bezierCurveTo(-L0 / 2 + .06, -W0 * .4, -L0 / 2 + .05, -W0 * .37, -L0 / 2 + .045, -W0 * .36);
+    const colour = (geometry, hex) => { const g = geometry.index ? geometry.toNonIndexed() : geometry.clone(); g.deleteAttribute("uv"); const c = new THREE.Color(hex), n = g.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) c.toArray(arr, i * 3); g.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return g; };
+    const sole = new THREE.ExtrudeGeometry(shape, { depth: .014, bevelEnabled: true, bevelThickness: .0025, bevelSize: .0025, bevelSegments: 1, curveSegments: 10 }); sole.rotateX(-Math.PI / 2);
+    const footbed = new THREE.ShapeGeometry(shape, 10).rotateX(-Math.PI / 2).scale(.93, 1, .9).translate(0, .0185, 0);
+    const upper = new THREE.SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2).scale(.098, .043, .056).translate(.052, .0185, 0);
+    const rim = new THREE.TorusGeometry(1, .0045, 6, 20).rotateX(Math.PI / 2).scale(.094, 1, .052).translate(.052 - .004, .0215, 0);
+    const base = mergeGeometries([[sole, 0x3b2a20], [footbed, 0xd9cdb6], [upper, 0x6f7378], [rim, 0x5d6166]].map(([geo, hex]) => colour(geo, hex)), false);
+    const put = (x, z, yaw, flip) => { const g = base.clone(); if (flip) { g.scale(1, 1, -1); const pa = g.attributes.position, ca = g.attributes.color; for (let i = 0; i < pa.count; i += 3) for (const att of [pa, ca]) { const x1 = att.getX(i + 1), y1 = att.getY(i + 1), z1 = att.getZ(i + 1); att.setXYZ(i + 1, att.getX(i + 2), att.getY(i + 2), att.getZ(i + 2)); att.setXYZ(i + 2, x1, y1, z1); } } /* a mirrored copy turns every triangle inside out: swap two corners of each */
+      g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(x, .0088, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(1, 1, 1))); return g; };
+    const pairGeo = mergeGeometries([put(.72, .36, 1.75, false), put(.66, .58, 2.35, true)], false); pairGeo.computeVertexNormals();
+    const slippers = new THREE.Mesh(pairGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .92 })); slippers.name = "sofa-rug-slippers"; slippers.castShadow = slippers.receiveShadow = true; root.add(slippers);
+  }
   // Keep the two loose cushions inside the seat/back corner. A slight lean and uneven roll read as fabric at rest;
   // the previous 45-degree yaw made the square cushion show mostly its thin side from the room.
   const sofaCushions = [
@@ -1380,6 +1492,52 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }), roughness: .5 });
   const bronze = new THREE.MeshStandardMaterial({ color: "#2f2b27", roughness: .42, metalness: .55 });
   const darkOak = woodMat("#7a5a40", { rough: .55, tint: "#8e6f55" });
+  // A low stone pedestal table in front of the sofa, the same one Room 04's lounge has (Paul 2026-11-28): an oak base disc, a stone column and a 56 cm stone top, 43.5 cm high, 30 cm from the sofa's seat front.
+  // It is small on purpose: the middle of the room still breathes (it stands 0.7 m clear of the bed's foot and 1.1 m clear of the TV rug's far edge).
+  const stoneTable = new THREE.Group(); stoneTable.name = "sofa-stone-table"; root.add(stoneTable);
+  { const T = hold(stoneTable), tx0 = .30, tz0 = .92, top = .435;
+    T(new THREE.CylinderGeometry(.17, .17, .022, 32), darkOak, "sofa-table-base", tx0, .011, tz0); // stands on the floor
+    T(new THREE.CylinderGeometry(.05, .05, top - .03 + .01 - .022, 24), travertine, "sofa-table-column", tx0, .022 + (top - .03 + .01 - .022) / 2, tz0); // from the base disc up into the top (10 mm buried)
+    T(new THREE.CylinderGeometry(.28, .28, .03, 40), travertine, "sofa-table-top", tx0, top - .015, tz0); // top face at 43.5 cm
+    // Two hardbacks, built the way a book is: two boards, a spine and a paper block inset from the edges (the way Room 04's window-sill books are), in a dusty teal and a rust, with a gold title bar and no text.
+    const hardback = (name, w, h, d, cover, x, z, yaw, y0) => { const g = new THREE.Group(); g.name = name; g.position.set(x, y0, z); g.rotation.y = yaw; stoneTable.add(g);
+      const board = new THREE.MeshStandardMaterial({ color: cover, roughness: .78 }), paper = new THREE.MeshStandardMaterial({ color: "#efe8d6", roughness: .95 }), gilt = new THREE.MeshStandardMaterial({ color: "#e2bd74", roughness: .35, metalness: .7, emissive: "#4d3812", emissiveIntensity: .5 });
+      const H = hold(g); H(softBox(w, .004, d, .008), board, name + "-lower-board", 0, .002, 0); H(softBox(w, .004, d, .008), board, name + "-upper-board", 0, h - .002, 0);
+      H(box(.006, h, d - .004), board, name + "-spine", -w / 2 + .003, h / 2, 0); H(box(w - .012, h - .008, d - .01), paper, name + "-pages", .0035, h / 2, 0); // the paper block stands in from the edges, so the boards overhang it
+      H(box(.05, .0012, .012), gilt, name + "-title-bar", .012, h + .0006, -d * .22); return g; };
+    hardback("sofa-table-book-a", .17, .03, .23, "#4f6f73", tx0 - .05, tz0 + .06, .28, top);
+    hardback("sofa-table-book-b", .15, .024, .2, "#b0603f", tx0 - .045, tz0 + .055, -.22, top + .03);
+    { // a pen lying on the upper book: a dark lacquer body, a steel cap with a gold ring and clip and a steel point, 15 cm long (the window-seat pen of Room 04, copied)
+      const pen = new THREE.Group(); pen.name = "sofa-table-pen"; const lacquer = new THREE.MeshStandardMaterial({ color: "#1d1f24", roughness: .3 }), steel = new THREE.MeshStandardMaterial({ color: "#b9bec4", roughness: .3, metalness: .8 }), gold = new THREE.MeshStandardMaterial({ color: "#e2bd74", roughness: .3, metalness: .7, emissive: "#4d3812", emissiveIntensity: .5 });
+      const P = hold(pen); P(new THREE.CylinderGeometry(.0046, .004, .092, 12), lacquer, "pen-body", 0, -.014, 0); P(new THREE.CylinderGeometry(.0052, .0052, .045, 12), steel, "pen-cap", 0, .0545, 0);
+      P(new THREE.TorusGeometry(.00525, .0007, 4, 12), gold, "pen-ring", 0, .034, 0).rotation.x = Math.PI / 2; P(new THREE.ConeGeometry(.0038, .018, 12), steel, "pen-point", 0, -.069, 0).rotation.x = Math.PI; P(box(.0016, .03, .001), gold, "pen-clip", 0, .052, .0056);
+      pen.rotation.z = Math.PI / 2; pen.rotation.y = .5; pen.position.set(tx0 - .03, top + .03 + .024 + .0054, tz0 + .06); stoneTable.add(pen); }
+    { // the glazed brick-red mug of Rooms 03 and 04 (no emblem): a hollow lathe body with a rolled rim, a half-loop handle with cap spheres, black coffee 15 mm under the rim and thin gold rim and foot rings
+      const mug = new THREE.Group(); mug.name = "sofa-table-mug"; mug.position.set(tx0 + .1, top, tz0 - .09); stoneTable.add(mug); const M = hold(mug), yaw = -.62;
+      const glaze = new THREE.MeshStandardMaterial({ color: 0xb0533c, roughness: .3 }), coffee = new THREE.MeshStandardMaterial({ color: 0x3b2418, roughness: .35 }), gold = new THREE.MeshStandardMaterial({ color: 0xe2bd74, roughness: .3, metalness: .7, emissive: 0x4d3812, emissiveIntensity: .5 });
+      const profile = [[0, 0], [.0330, 0], [.0375, .0035], [.0400, .008], [.0400, .0900], [.0392, .0944], [.0376, .0952], [.0356, .0948], [.0342, .0900], [.0342, .0140], [.0320, .0110], [0, .0110]].map(([r, h]) => new THREE.Vector2(r, h));
+      M(new THREE.LatheGeometry(profile, 48), glaze, "mug-body", 0, 0, 0); M(new THREE.CircleGeometry(.0338, 28).rotateX(-Math.PI / 2), coffee, "mug-coffee", 0, .080, 0);
+      const dirX = Math.cos(yaw), dirZ = -Math.sin(yaw), loop = .0365, tube = .0052;
+      M(new THREE.TorusGeometry(.0255, tube, 12, 32, Math.PI).rotateZ(-Math.PI / 2).rotateY(yaw), glaze, "mug-handle", dirX * loop, .051, dirZ * loop);
+      for (const side of [-1, 1]) M(new THREE.SphereGeometry(tube, 10, 8), glaze, "mug-handle-cap", dirX * loop, .051 + side * .0255, dirZ * loop);
+      M(new THREE.TorusGeometry(.0374, .0016, 8, 56).rotateX(Math.PI / 2), gold, "mug-rim", 0, .0948, 0); M(new THREE.TorusGeometry(.0403, .0011, 8, 56).rotateX(Math.PI / 2), gold, "mug-foot-ring", 0, .016, 0);
+      // steam: 22 soft points that curl up 16 cm over the rim and fade (Room 04's rig); a still curl is always there, and it drifts while the table is in view
+      const COUNT = 22, data = { pos: new Float32Array(COUNT * 3), col: new Float32Array(COUNT * 3), seed: new Float32Array(COUNT) }; for (let i = 0; i < COUNT; i++) data.seed[i] = (i * .618034 + .07 * Math.sin(i * 5.3)) % 1;
+      const sc = document.createElement("canvas"); sc.width = sc.height = 64; const sg = sc.getContext("2d"), grad = sg.createRadialGradient(32, 32, 2, 32, 32, 30); grad.addColorStop(0, "rgba(255,255,255,.85)"); grad.addColorStop(.5, "rgba(255,255,255,.3)"); grad.addColorStop(1, "rgba(255,255,255,0)"); sg.fillStyle = grad; sg.fillRect(0, 0, 64, 64);
+      const steamTex = new THREE.CanvasTexture(sc); steamTex.colorSpace = THREE.SRGBColorSpace;
+      const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.BufferAttribute(data.pos, 3)); geo.setAttribute("color", new THREE.BufferAttribute(data.col, 3));
+      const steam = new THREE.Points(geo, new THREE.PointsMaterial({ map: steamTex, size: .055, sizeAttenuation: true, vertexColors: true, transparent: true, opacity: .7, blending: THREE.AdditiveBlending, depthWrite: false })); steam.name = "sofa-table-steam"; steam.frustumCulled = false; steam.raycast = () => {}; mug.add(steam);
+      const stepSteam = (t) => { for (let i = 0; i < COUNT; i++) { const life = (t * .26 + data.seed[i]) % 1, widen = .25 + life * 1.6, sway = Math.sin(t * .9 + life * 5.2 + data.seed[i] * 6) * .012 * widen, spread = Math.sin(data.seed[i] * 40) * .008 * widen;
+        data.pos[i * 3] = sway + spread + life * .014; data.pos[i * 3 + 1] = .098 + life * .16; data.pos[i * 3 + 2] = Math.cos(t * .7 + life * 4.1 + data.seed[i] * 7) * .009 * widen + Math.cos(data.seed[i] * 31) * .006 * widen;
+        const fade = Math.sin(Math.PI * Math.min(1, life * 1.05)) * (1 - life * .5); data.col[i * 3] = fade; data.col[i * 3 + 1] = fade; data.col[i * 3 + 2] = fade * .97; }
+        geo.attributes.position.needsUpdate = true; geo.attributes.color.needsUpdate = true; };
+      stepSteam(7.3);
+      // The room only draws on demand, so the drift runs a light loop (about 20 frames a second) while the mug is inside the picture and the page is visible; with reduced motion the curl stays still.
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) { const frustum = new THREE.Frustum(), pv = new THREE.Matrix4(), at = new THREE.Vector3(), t0 = performance.now();
+        const seen = () => { if (document.hidden || !ready) return false; camera.updateMatrixWorld(); pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); frustum.setFromProjectionMatrix(pv); return frustum.containsPoint(mug.getWorldPosition(at).setY(top + .15)); };
+        const tick = () => { if (travelling) { setTimeout(tick, 150); return; } /* never draw over a camera glide */ if (seen()) { const t1 = performance.now(); stepSteam(7.3 + (t1 - t0) / 1000); redraw(); setTimeout(tick, Math.max(70, (performance.now() - t1) * 5)); /* a slow device draws less often: at most about a fifth of the time goes to the steam */ } else setTimeout(tick, 600); }; setTimeout(tick, 1500); }
+    }
+  }
   const ringTable = (g, name, r, topY, topR, topH, topMat) => {
     const h = hold(g);
     h(new THREE.CylinderGeometry(topR, topR, topH, 36), topMat, name + "-top", 0, topY, 0);
@@ -1390,7 +1548,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // The coffee table is gone (Paul: the middle of the room should breathe). The game pad lies on the TV unit and Codex's mug stands on the bedside table.
   const padG = new THREE.Group(); padG.name = "game-pad-group"; root.add(padG); // moved onto the TV unit below
   const cp = hold(padG);
-  loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "bedside-mug"; g.position.set(tx + .1, .5, tz + .11); g.rotation.y = -.7; root.add(g); redraw(); }).catch(() => {});
+  loadGlb(new URL("./models/mug-v1.glb", import.meta.url).href, { height: .095, roughness: .4 }).then((g) => { g.name = "bedside-mug"; g.position.set(tx + .09, .5, tz + .1); g.rotation.y = -.7; root.add(g); redraw(); }).catch(() => {});
   const tv = new THREE.Group(); tv.name = "tv-unit"; tv.position.set(-HW + .2, 0, .95); tv.rotation.y = Math.PI / 2; root.add(tv); // front looks east
   const tp = hold(tv);
   for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) tp(box(.04, .15, .04), oak, "tv-console-leg", dx * .56, .075, dz * .15);
@@ -1536,13 +1694,23 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     ctx.fillStyle = "#b8714f"; ctx.beginPath(); ctx.arc(128, 128, 34, 0, 7); ctx.fill();
     ctx.fillStyle = "#d8c8a8"; ctx.beginPath(); ctx.arc(128, 128, 26, 0, 7); ctx.fill();
     ctx.fillStyle = "#7c4a34"; ctx.beginPath(); ctx.arc(128, 128, 4, 0, 7); ctx.fill();
+    // Card I: one small off-centre print block on the label (still no words), so a turning record can be seen turning; rings alone look still.
+    ctx.fillStyle = "#7c4a34"; ctx.fillRect(136, 112, 16, 3); ctx.fillRect(136, 118, 10, 2); ctx.fillStyle = "#b8714f"; ctx.beginPath(); ctx.arc(116, 142, 3, 0, 7); ctx.fill();
   });
   const record = vp(new THREE.CylinderGeometry(.148, .148, .003, 56), [new THREE.MeshStandardMaterial({ color: "#101012", roughness: .28 }), new THREE.MeshStandardMaterial({ map: recordTex, roughness: .32 }), new THREE.MeshStandardMaterial({ color: "#101012" })], "turntable-record", TT.x - .05, platterY + TT.platterH / 2 + .0035, TT.z);
   record.rotation.y = .35;
   // tonearm: pivot, counterweight, a gently curved chrome tube, headshell and stylus
+  // Card I (2026-11-18): the moving part of the arm (counterweight, tube, headshell, stylus) hangs in one group on the pivot's axis, so it can swing
+  // from a rest post beside the platter onto the record while the music plays. Its "on the record" pose is the old static pose, lifted 7 mm so the
+  // stylus tip touches the vinyl instead of sinking into it; the tube still starts 1 mm inside the pivot cap. A short stub now joins the
+  // counterweight to the pivot (it used to hang 14 mm away from it in the air).
   const armBase = new THREE.Vector3(.17, TT.top + TT.plinthH + .012, -.11);
   vp(new THREE.CylinderGeometry(.016, .018, .03, 14), blackMat, "tonearm-pivot", armBase.x, armBase.y, armBase.z);
-  vp(new THREE.CylinderGeometry(.014, .014, .026, 14), blackGloss, "tonearm-counterweight", armBase.x - .045, armBase.y + .004, armBase.z).rotation.z = Math.PI / 2;
+  const ARM = { lift: .007, play: 0, rest: .7, swingMs: 650 }; // rest: 40 degrees towards the front, the stylus 33 mm outside the platter
+  const armGroup = new THREE.Group(); armGroup.name = "tonearm-swing"; armGroup.position.set(armBase.x, ARM.lift, armBase.z); vin.add(armGroup);
+  const ap = (geo, mat, name, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.name = name; m.position.set(x - armBase.x, y, z - armBase.z); m.castShadow = true; m.receiveShadow = true; armGroup.add(m); return m; };
+  ap(new THREE.CylinderGeometry(.014, .014, .026, 14), blackGloss, "tonearm-counterweight", armBase.x - .045, armBase.y + .004, armBase.z).rotation.z = Math.PI / 2;
+  ap(new THREE.CylinderGeometry(.0035, .0035, .028, 8), brassMetal, "tonearm-counterweight-stub", armBase.x - .02, armBase.y + .006, armBase.z).rotation.z = Math.PI / 2;
   const armCurve = new THREE.CatmullRomCurve3([
     new THREE.Vector3(armBase.x - .01, armBase.y + .012, armBase.z),
     new THREE.Vector3(.115, armBase.y + .026, -.085),
@@ -1550,9 +1718,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     new THREE.Vector3(.012, armBase.y + .018, .012),
   ]);
   const armTube = new THREE.Mesh(new THREE.TubeGeometry(armCurve, 18, .005, 8, false), brassMetal);
-  armTube.name = "tonearm"; armTube.castShadow = true; armTube.receiveShadow = true; vin.add(armTube);
-  vp(softBox(.032, .01, .02, .004, { bevelSegments: 1, curveSegments: 2 }), blackGloss, "tonearm-headshell", .006, armBase.y + .014, .02);
-  vp(new THREE.CylinderGeometry(.0016, .0012, .008, 6), brassMetal, "tonearm-stylus", .006, armBase.y + .008, .028);
+  armTube.name = "tonearm"; armTube.castShadow = true; armTube.receiveShadow = true; armTube.position.set(-armBase.x, 0, -armBase.z); armGroup.add(armTube);
+  ap(softBox(.032, .01, .02, .004, { bevelSegments: 1, curveSegments: 2 }), blackGloss, "tonearm-headshell", .006, armBase.y + .014, .02);
+  const stylusMesh = ap(new THREE.CylinderGeometry(.0016, .0012, .008, 6), brassMetal, "tonearm-stylus", .006, armBase.y + .008, .028);
+  // The rest post stands on the top plate (1 mm into it) under the tube, where the tube lies when the arm is parked; its top meets the tube's underside.
+  const restAt = armCurve.getPoint(.62), restOff = new THREE.Vector3(restAt.x - armBase.x, 0, restAt.z - armBase.z).applyAxisAngle(new THREE.Vector3(0, 1, 0), ARM.rest);
+  const plateTop = TT.top + TT.plinthH + .001, restTop = restAt.y + ARM.lift - .005 + .001;
+  vp(new THREE.CylinderGeometry(.004, .005, restTop - plateTop + .001, 10), blackMat, "tonearm-rest", armBase.x + restOff.x, (restTop + plateTop - .001) / 2, armBase.z + restOff.z);
+  armGroup.rotation.y = ARM.rest; // stopped: parked on the rest post
   // controls: pitch knob, speed button, start/stop button and the power LED (the LED is what glows at night)
   vp(new THREE.CylinderGeometry(.013, .014, .011, 16), blackGloss, "turntable-pitch-knob", .15, TT.top + TT.plinthH + .004, .13);
   vp(box(.03, .006, .014), blackMat, "turntable-speed-button", .195, TT.top + TT.plinthH + .001, .115);
@@ -1569,11 +1742,44 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   ledGlowPlane.name = "turntable-led-glow";
   ledGlowPlane.rotation.x = -Math.PI / 2; ledGlowPlane.position.set(.112, TT.top + TT.plinthH + .002, .152);
   ledGlowPlane.renderOrder = 2; vin.add(ledGlowPlane);
+  // Card I (2026-11-18), copied from Room 04's deck: while the music plays the record turns at 33 1/3 rpm and the arm swings from its rest onto the
+  // record in 650 ms; when it stops the arm swings back and the loop ends, so a stopped room draws nothing extra. The power lamp is bright while
+  // playing and back to its mood level (the old standby look) when stopped.
+  const feltMesh = vin.getObjectByName("turntable-felt-mat");
+  const deck = { playing: false, arm: ARM.rest, from: ARM.rest, swingAt: 0, spin: 0, last: 0, loop: 0 };
+  const RPM33 = (33.333 / 60) * Math.PI * 2;
+  function applyDeckLed(name = mood) {
+    const base = TURNTABLE_LED[name] ?? 0, glow = TURNTABLE_GLOW[name] ?? 0;
+    turntableLedMat.emissiveIntensity = deck.playing ? Math.max(1.6, base) : base;
+    turntableGlowMat.opacity = deck.playing ? Math.max(.16, glow) : glow;
+  }
+  function deckFrame(now) {
+    deck.loop = 0;
+    const dt = Math.min(.1, (now - (deck.last || now)) / 1000); deck.last = now;
+    const target = deck.playing ? ARM.play : ARM.rest, k = Math.min(1, (now - deck.swingAt) / ARM.swingMs), e = k * k * (3 - 2 * k);
+    deck.arm = deck.from + (target - deck.from) * e; armGroup.rotation.y = deck.arm;
+    if (deck.playing && !reducedMotion()) { deck.spin -= RPM33 * dt; record.rotation.y = .35 + deck.spin; if (feltMesh) feltMesh.rotation.y = deck.spin; }
+    render();
+    if (deck.playing || k < 1) deck.loop = requestAnimationFrame(deckFrame);
+  }
+  // Card I: a "Record player" look, like Room 03's record view: the camera walks to a spot in front of, to the right of and above the deck and looks down at it
+  // (an absolute look, the way "Stand in the middle" works); any other look button walks back out.
+  { const tt = new THREE.Vector3(TT.x - .05, platterY, TT.z).add(vin.position), off = new THREE.Vector3(.55, .26, .62); // same framing as Rooms 03/04: about 17 degrees down, 0.87 m out, from the front-right (the desk chair stays at the left edge, the speaker clear on the right)
+    LOOKS.record = { pos: tt.clone().add(off), yaw: Math.atan2(off.x, off.z), pitch: -Math.atan2(off.y, Math.hypot(off.x, off.z)), zoom: compact ? .95 : 1.15 }; }
+  function deckSync() { // call after anything that may start or stop the music
+    const playing = !!recordMusic.state().playing;
+    if (playing === deck.playing) return;
+    deck.playing = playing; deck.from = deck.arm; deck.swingAt = performance.now(); deck.last = 0;
+    applyDeckLed();
+    if (reducedMotion()) { deck.arm = playing ? ARM.play : ARM.rest; armGroup.rotation.y = deck.arm; render(); return; }
+    if (!deck.loop) deck.loop = requestAnimationFrame(deckFrame);
+  }
   // Compact two-way speakers: match Room 01's layered cabinet/baffle/driver language,
   // while the darker walnut veneer sits naturally beside the records and oak console.
   // Pair geometry is merged by material to keep this detail to two draw calls.
   const SPEAKER = { width: .16, height: .25, depth: .18, x: .4, bottom: .5 };
-  const speakerWood = woodMat("#704a32", { rough: .74, tint: "#987557" });
+  // Paul 2026-11-20: a touch more like what a young man would own (inspired by a tall black tower with metal-ringed drivers): same footprint, but a matte black cabinet, a graphite baffle, brushed-aluminium rings on both drivers and a thin rust accent line.
+  const speakerWood = new THREE.MeshStandardMaterial({ color: "#1a1b1e", roughness: .72, metalness: .08 });
   const speakerDetail = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: .78, metalness: .04, vertexColors: true });
   const speakerParts = { wood: [], details: [] };
   const speakerUnitBounds = [];
@@ -1605,20 +1811,29 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const x = sx * SPEAKER.x, cy = SPEAKER.bottom + SPEAKER.height / 2;
     const cabinet = speakerPart(softBox(SPEAKER.width, SPEAKER.height, SPEAKER.depth, .012, { bevelSegments: 1, curveSegments: 1 }), speakerParts.wood, x, cy, -.03);
     speakerUnitBounds.push(cabinet.boundingBox.clone());
-    // The charcoal front sits just proud of the walnut shell, with the wood edge still visible all around.
-    // Keep the inset charcoal baffle crisp and flat; the walnut cabinet carries the softened edge.
-    speakerPart(new THREE.BoxGeometry(.144, .234, .008), speakerParts.details, x, cy, speakerFrontZ - .001, 0, "#25272a");
-    // A shallow, visible 4-inch woofer: rubber surround, shallow cone and a small domed dust cap.
-    speakerPart(new THREE.TorusGeometry(.041, .003, 6, 12), speakerParts.details, x, .595, speakerFrontZ + .004, 0, "#79766f");
+    // The front, in layers (Paul 2026-11-20: more finish, vertex counts no longer limit it): a flat graphite baffle, a thin brushed-aluminium edge frame, and two drivers built up from parts.
+    const F = speakerFrontZ, ALU = "#c3c6ca", ALU_DARK = "#8a8d92", BLACK = "#15161a";
+    speakerPart(new THREE.BoxGeometry(.144, .234, .008), speakerParts.details, x, cy, F - .001, 0, "#2a2c31");
+    for (const [w, h, dx, dy] of [[.148, .003, 0, .1185], [.148, .003, 0, -.1185], [.003, .234, .0725, 0], [.003, .234, -.0725, 0]]) speakerPart(new THREE.BoxGeometry(w, h, .004), speakerParts.details, x + dx, cy + dy, F + .002, 0, ALU);
+    // Woofer: an aluminium bezel with six small bolts, a black rubber surround, a ridged cone with two moulded rings and a polished dust cap.
+    speakerPart(new THREE.TorusGeometry(.0435, .0042, 10, 40), speakerParts.details, x, .595, F + .004, 0, ALU);
+    for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + .3; speakerPart(new THREE.CylinderGeometry(.0026, .0026, .0035, 6), speakerParts.details, x + Math.cos(a) * .0435, .595 + Math.sin(a) * .0435, F + .0072, Math.PI / 2, ALU_DARK); }
+    speakerPart(new THREE.TorusGeometry(.0345, .0035, 8, 40), speakerParts.details, x, .595, F + .0045, 0, BLACK);
     const cone = new THREE.LatheGeometry([
-      new THREE.Vector2(0, .006), new THREE.Vector2(.009, .005),
-      new THREE.Vector2(.031, .001), new THREE.Vector2(.038, .002), new THREE.Vector2(.038, 0),
-    ], 12);
-    speakerPart(cone, speakerParts.details, x, .595, speakerFrontZ + .006, Math.PI / 2, "#55534e");
-    speakerPart(new THREE.SphereGeometry(.011, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .595, speakerFrontZ + .012, Math.PI / 2, "#79766f");
-    // The smaller tweeter has its own satin ring and rounded dome, so the two-way layout reads at a glance.
-    speakerPart(new THREE.TorusGeometry(.019, .0024, 6, 10), speakerParts.details, x, .69, speakerFrontZ + .004, 0, "#79766f");
-    speakerPart(new THREE.SphereGeometry(.0105, 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .69, speakerFrontZ + .006, Math.PI / 2, "#55534e");
+      new THREE.Vector2(0, .0062), new THREE.Vector2(.009, .0056), new THREE.Vector2(.013, .0046), new THREE.Vector2(.021, .0032),
+      new THREE.Vector2(.03, .0016), new THREE.Vector2(.0355, .0012), new THREE.Vector2(.0355, 0),
+    ], 32);
+    speakerPart(cone, speakerParts.details, x, .595, F + .006, Math.PI / 2, "#3b3e44");
+    for (const r of [.0185, .027]) speakerPart(new THREE.TorusGeometry(r, .0009, 6, 32), speakerParts.details, x, .595, F + .0075 - (r - .0185) * .15, 0, "#2c2e33");
+    speakerPart(new THREE.SphereGeometry(.011, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .595, F + .0115, Math.PI / 2, "#b4b8bd");
+    // Tweeter: an aluminium ring, a dark waveguide cone and a champagne dome.
+    speakerPart(new THREE.TorusGeometry(.0215, .003, 10, 28), speakerParts.details, x, .69, F + .004, 0, ALU);
+    speakerPart(new THREE.LatheGeometry([new THREE.Vector2(0, .0045), new THREE.Vector2(.008, .0038), new THREE.Vector2(.0155, .0012), new THREE.Vector2(.0185, 0)], 24), speakerParts.details, x, .69, F + .0055, Math.PI / 2, "#2b2d31");
+    speakerPart(new THREE.SphereGeometry(.0085, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x, .69, F + .0075, Math.PI / 2, "#b5a283");
+    // Below the woofer: the thin rust accent line and a small pale-blue power light in an aluminium ring.
+    speakerPart(new THREE.BoxGeometry(.085, .004, .002), speakerParts.details, x - .01, .527, F + .004, 0, "#c4622d");
+    speakerPart(new THREE.TorusGeometry(.0042, .0008, 6, 14), speakerParts.details, x + .052, .527, F + .0045, 0, ALU);
+    speakerPart(new THREE.SphereGeometry(.0034, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), speakerParts.details, x + .052, .527, F + .0035, Math.PI / 2, "#9fc8ff");
   }
   const speakers = new THREE.Group(); speakers.name = "vinyl-speakers"; vin.add(speakers);
   for (const [kind, material] of [["wood", speakerWood], ["details", speakerDetail]]) {
@@ -1632,7 +1847,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const POSTER = { w: .4, h: .4 * 1020 / 720, y: 1.82, z: -1.75, gap: .08 }; // A2-like portrait, over the desk (Paul: a young person hangs favourites above the desk); the TV wall gets Room 01's morning harbour
   const posterSets = { A: ["A1-v2", "A2-v1", "A3-v1"], B: ["B1-v1", "B2-v1", "B3-v1"], C: ["C1-v1", "C2-v1", "C3-v1"] };
   const posterTex = {};
-  const loadPoster = (id) => posterTex[id] ??= new Promise((resolve) => texLoader.load(new URL(`./art/bedroom-poster-${id}.webp`, import.meta.url).href,
+  const loadPoster = (id) => posterTex[id] ??= new Promise((resolve) => texLoader.load(artUrl(`bedroom-poster-${id}.webp`),
     (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; resolve(t); }, undefined, () => resolve(null)));
   const posters = new THREE.Group(); posters.name = "posters"; posters.position.set(-HW, 0, POSTER.z); posters.rotation.y = Math.PI / 2; root.add(posters);
   const frameBlack = new THREE.MeshStandardMaterial({ color: "#1d1f22", roughness: .5 });
@@ -1667,6 +1882,19 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   }
   // Room 01's plant on the west wall, between the desk and the TV
   const plant = await loadModel("plant", { height: 1.2 }); plant.name = "floor-plant"; plant.position.set(-HW + .55, 0, -.5); root.add(plant);
+  // The pot had no soil (Paul 2026-11-18): from above its open top showed the floor through the shell. A soil disc 6 mm below the lip (lip at y 0.331, outer
+  // radius 0.183 about (-1.458, -0.476), measured on the model) with a little colour noise and six pebbles; one mesh, vertex coloured.
+  { const soilParts = [], soilColor = new THREE.Color(), SOIL = { x: -1.458, z: -.476, y: .325, r: .172 };
+    const disc = new THREE.RingGeometry(0, SOIL.r, 32, 4).rotateX(-Math.PI / 2);
+    const tint = (geo, pick) => { const n = geo.attributes.position.count, arr = new Float32Array(n * 3); for (let i = 0; i < n; i++) pick(i).toArray(arr, i * 3); geo.setAttribute("color", new THREE.Float32BufferAttribute(arr, 3)); return geo; };
+    let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    soilParts.push(tint(disc, () => soilColor.set("#3b2a1e").offsetHSL(0, 0, (rnd() - .5) * .06)).translate(SOIL.x, SOIL.y, SOIL.z));
+    for (let i = 0; i < 6; i++) { const a = i * 1.9 + .4, d = .06 + (i % 3) * .03, pr = .007 + (i % 2) * .003;
+      const pebble = new THREE.SphereGeometry(pr, 6, 4).scale(1.2, .55, 1).translate(SOIL.x + Math.cos(a) * d, SOIL.y + pr * .3, SOIL.z + Math.sin(a) * d);
+      pebble.deleteAttribute("uv"); soilParts.push(tint(pebble, () => soilColor.set(i % 2 ? "#a49a8c" : "#cfc6b8"))); }
+    soilParts[0].deleteAttribute("uv");
+    const soil = new THREE.Mesh(mergeGeometries(soilParts, false), new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+    soil.name = "floor-plant-soil"; soil.receiveShadow = true; root.add(soil); }
   // Codex's coffee bar (batch 12): a 39 cm oak cabinet with a sage door and the espresso machine on top, against the west wall just north of the TV unit.
   // Its colours are written as linear factors and wash out to cream and mint here, so the wood and the door get the room's own oak and sage.
   const barColours = { pale_oak: "#b38759", oak_grain: "#a07549", oak_interior: "#80603d", sage_door: "#6f8568" };
@@ -1730,12 +1958,22 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   // Room 01's wall pieces, rebuilt here (Paul 2026-10-23: use Room 01's own pieces). (1) The bed's side wall, the east wall beside the bed: Codex's three
   // American city posters (batch 14: San Francisco, New York, Los Angeles; Paul asked for pictures that fit an American flat) in thin oak frames,
   // each 50 x 67 cm with its cream paper border, 10 cm apart, centred over the bed at 1.55 m.
+  let brooklynPrint, daytimeBrooklyn, blueHourBrooklyn;
+  function updateBrooklynPrint(mood) {
+    const isNight = mood === "night" || mood === "series";
+    if (isNight && !blueHourBrooklyn) {
+      blueHourBrooklyn = art("room02-blue-hour-frame-v1.webp", { apply: () => updateBrooklynPrint(live.mood) });
+    }
+    brooklynPrint.map = isNight && blueHourBrooklyn?.image ? blueHourBrooklyn : daytimeBrooklyn;
+    brooklynPrint.needsUpdate = true;
+  }
   { const PW = .5, PH = .5 * 4 / 3, GAP = .1, g = new THREE.Group(); g.name = "bed-wall-print"; g.position.set(HW - .02, 1.55, BED.z); g.rotation.y = -Math.PI / 2; root.add(g);
     const frameOak = new THREE.MeshStandardMaterial({ color: "#a8784c", roughness: .55 });
     ["san-francisco", "new-york", "brooklyn"].forEach((city, i) => {
       const x = (i - 1) * (PW + GAP + .03), fr = new THREE.Mesh(new THREE.BoxGeometry(PW + .03, PH + .03, .03), frameOak); fr.position.set(x, 0, 0); fr.castShadow = true; fr.receiveShadow = true; g.add(fr);
-      const tex = texLoader.load(new URL(`../art/room02-city-${city}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
+      const tex = texLoader.load(new URL(`../art/room02-city-${city}${compact ? "-mobile" : ""}-v1.webp`, import.meta.url).href, (t) => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; render(); });
       const pic = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshStandardMaterial({ map: tex, roughness: .85 })); pic.position.set(x, 0, .0155); pic.receiveShadow = true; g.add(pic);
+      if (city === "brooklyn") { brooklynPrint = pic.material; daytimeBrooklyn = tex; }
     }); }
   // (2) Room 01's glass planning board, on the west wall beside the desk, between the desk and the plant (its own words: a work list, the red line is
   // the one that matters). A glass slab on four brass stand-offs, a small oak ledge with two black markers and a red one.
@@ -1750,17 +1988,21 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     part(new THREE.BoxGeometry(.5, .007, .04), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY, .042, "whiteboard-ledge");
     part(new THREE.BoxGeometry(.5, .006, .006), new THREE.MeshStandardMaterial({ color: "#d4b483", roughness: .72 }), 0, ledgeY + .003, .06, "whiteboard-ledge-lip");
     for (const [x, c] of [[-.16, "#1c1c1c"], [-.04, "#c43131"], [.09, "#1c1c1c"]]) part(new THREE.CapsuleGeometry(.008, .1, 4, 12), new THREE.MeshStandardMaterial({ color: c, roughness: .36 }), x, ledgeY + .0075 + .004, .044, "whiteboard-marker").rotation.z = Math.PI / 2; }
-  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque)
+  // linen curtains (only in the "linen over roller" choice): a slim rod and two pleated panels gathered at the sides (the left one stops short of the house plaque).
+  // Paul 2026-11-17: the left panel used to hang to the floor straight through the record console, its speaker and the turntable (a 1.0 m console stands under the
+  // window from x -1.2 to -0.2, and the panel gathers at x -0.94 to -0.66). Moving it outward would cover the house plaque, so both panels are now sill-length:
+  // the hem stops at 0.95 m, 15 cm above the highest thing on the console, and the two sides stay symmetrical.
   const curtains = new THREE.Group(); curtains.name = "curtains"; curtains.visible = chosen.window === "linen"; root.add(curtains);
   const linenMat = new THREE.MeshStandardMaterial({ map: weaveTexture("#efe8da", "#c9bfa9"), roughness: 1, side: THREE.DoubleSide });
   { const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, WINDOW.w + .6, 10), metalMat); rod.rotation.z = Math.PI / 2; rod.position.set(WINDOW.x, wTop + .2, -HD + .12); rod.name = "curtain-rod"; curtains.add(rod); }
   for (const side of [-1, 1]) {
     // Gathered at the rod: keep the upper folds orderly, then let their spacing relax slightly toward the hem.
     // The two existing grids also turn the side edges and hem forward as shallow folded-return cues without adding vertices.
-    const H = wTop + .17, g = new THREE.PlaneGeometry(.3, H, 34, 12), pos = g.attributes.position, TAU = Math.PI * 2;
+    const CURTAIN_HEM = .95, H = wTop + .19 - CURTAIN_HEM, g = new THREE.PlaneGeometry(.3, H, 34, 12), pos = g.attributes.position, TAU = Math.PI * 2;
     const smooth = (a, b, x) => { const q = Math.max(0, Math.min(1, (x - a) / (b - a))); return q * q * (3 - 2 * q); };
     for (let i = 0; i < pos.count; i++) {
-      const u = pos.getX(i) / .3 + .5, t = (pos.getY(i) + H / 2) / H, open = Math.pow(1 - t, 1.3);
+      // t is clamped to 0..1: on the top row, rounding can leave it a hair over 1, and Math.pow of a negative number is NaN, which made that row vanish and its neighbour black
+      const u = pos.getX(i) / .3 + .5, t = Math.min(1, Math.max(0, (pos.getY(i) + H / 2) / H)), open = Math.pow(1 - t, 1.3);
       const upper = smooth(.42, .98, t), lower = 1 - upper, hem = 1 - smooth(0, .14, t);
       const phaseU = u + .045 * lower * Math.sin(TAU * (1.05 * u + side * .14));
       const ph = side * .18 + .08 * open + .11 * lower * Math.sin(TAU * (1.3 * u + side * .08));
@@ -1773,7 +2015,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     pos.needsUpdate = true;
     g.computeVertexNormals();
     const panel = new THREE.Mesh(g, linenMat); panel.name = "curtain-panel"; panel.castShadow = true; panel.receiveShadow = true;
-    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), .02 + H / 2, -HD + .12); curtains.add(panel);
+    panel.position.set(WINDOW.x + side * (WINDOW.w / 2), CURTAIN_HEM + H / 2, -HD + .12); curtains.add(panel);
   }
   // A sliding-door wardrobe on the south wall (behind the corner camera, so it only shows when you stand in the middle): light oak doors,
   // one slim mirror door, a dark rail top and bottom. 160 x 55 cm, 225 cm high, clear of the door (x < -0.7) and the light switch.
@@ -1949,6 +2191,14 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     const lens = new THREE.Mesh(new THREE.CircleGeometry(.028, 20), lensMat); lens.position.z = .106; head.add(lens);
     if (col) { const sp = new THREE.SpotLight(col, 0, 3.8, .5, .75, 2); sp.position.copy(head.position); sp.target.position.set(tx, ty, tz); scene.add(sp, sp.target); roomSpots.push(sp); }
   }
+  // Paul 2026-11-19: a matching recessed downlight on the bed side, the desk downlight mirrored across the room (same trim and lens), for symmetry. It lights
+  // the bed below it with one shadowless spot and is on the bedside switch with the track (its lens glow and strength follow the track spots).
+  const bedDownlightTrim = new THREE.Mesh(downlightTrim.geometry, downlightTrim.material); bedDownlightTrim.name = "bed-downlight";
+  bedDownlightTrim.position.set(1.55, ROOM.h - .006, -1.75); scene.add(bedDownlightTrim);
+  const bedDownlightLens = new THREE.Mesh(downlightLens.geometry, lensMat); bedDownlightLens.name = "bed-downlight-lens";
+  bedDownlightLens.rotation.x = Math.PI / 2; bedDownlightLens.position.set(1.55, ROOM.h - .013, -1.75); scene.add(bedDownlightLens);
+  const bedDownSpot = new THREE.SpotLight("#ffe3bd", 0, 3.2, .55, .8, 2); bedDownSpot.name = "bed-downlight-spot"; bedDownSpot.position.set(1.55, ROOM.h - .03, -1.75);
+  bedDownSpot.target.position.set(1.5, .5, -1.75); scene.add(bedDownSpot, bedDownSpot.target);
 
   // ---------- four moods: each one sets the window, daylight, room fill and the lamps that really glow ----------
   // The bedside lamp and the screen are real lights (no shadows, short reach), so a dark mood is lit by what is on in the room.
@@ -2015,6 +2265,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     if (name === "bed") {
       const on = switchOverrides.bed;
       for (const sp of roomSpots) sp.intensity = on ? preset.deskSpot * .7 : 0;
+      bedDownSpot.intensity = on ? preset.deskSpot * .7 : 0;
       lensMat.emissiveIntensity = on ? preset.deskSpot * .4 : 0;
     } else {
       deskSpot.intensity = switchOverrides.desk ? preset.deskSpot : 0;
@@ -2070,15 +2321,15 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     hemi.intensity = m.hemi[0]; hemi.color.set(m.hemi[1]); hemi.groundColor.set(m.hemi[2]);
     sun.intensity = m.sun[0]; sun.color.set(m.sun[1]); sun.position.y = m.sun[2]; // a lower sun in the early morning reaches further in
     fill.intensity = m.fill[0]; fill.color.set(m.fill[1]);
-    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
+    bedLamp.intensity = m.bedLamp; deskSpot.intensity = m.deskSpot; downlightLens.material.emissiveIntensity = m.deskSpot * .4; for (const sp of roomSpots) sp.intensity = m.deskSpot * .7; bedDownSpot.intensity = m.deskSpot * .7; lensMat.emissiveIntensity = m.deskSpot * .4; shade.material.emissiveIntensity = m.shade;
     pocketGlowMat.emissiveIntensity = BEDSIDE_POCKET_GLOW[name] ?? 0;
     applyBedsidePhone(name);
     screenLight.intensity = m.screen; monitor.material.color.setScalar(m.monitor);
     ledStrip.material.emissiveIntensity = m.led * 1.4; ledGlow.material.opacity = m.glow; applyLed();
     ceilingLight.material.emissiveIntensity = m.ceiling * 3;
-    turntableLedMat.emissiveIntensity = TURNTABLE_LED[name] ?? 0; // the deck's power lamp: dim in daylight, bright at night
-    turntableGlowMat.opacity = TURNTABLE_GLOW[name] ?? 0;
+    applyDeckLed(name); // the deck's power lamp: its mood level (dim in daylight, bright at night) when stopped, fully lit while the record plays
     applyTv(name);
+    updateBrooklynPrint(name);
     setBlind(m.blind);
     applyEnv(name);
     for (const sp of sprites) sp.material.color.setScalar(SPRITE_TINT[name] ?? 1);
@@ -2117,7 +2368,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   const swapWindow = () => { const v = chosen.window; if (v === "roller" || v === "bamboo") { blindFabric.material.map = (v === "bamboo" ? windowPaint.bamboo ?? bambooTex : windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true; } };
   art("room02-a4-roller-linen-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.roller = t; swapWindow(); } });
   art("room02-a4-bamboo-blind-v1.webp", { repeat: [3.9, .45], apply: (t) => { windowPaint.bamboo = t; swapWindow(); } });
-  art("room02-curtain-linen-v1.webp", { repeat: [.85, 6], apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
+  art("room02-curtain-linen-v1.webp", { repeat: [.85, 3.65], /* sill-length: the weave keeps the same size on the shorter panel */ apply: (t) => { linenMat.map = t; linenMat.needsUpdate = true; } });
   const rollerTex = blindFabric.material.map;
   const oakBorderRug = canvasTex(256, 256, (ctx, w, h) => {
     ctx.fillStyle = "#1f2124"; ctx.fillRect(0, 0, w, h); ctx.fillStyle = "#b8925f"; ctx.fillRect(14, 14, w - 28, h - 28);
@@ -2140,7 +2391,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   async function setChoice(kind, value) {
     if (kind === "posters") { if (!(await setPosters(value))) return false; chosen.posters = value; return true; }
     if (kind === "wall" && CHOICES.wall[value]) { featureMat.color.set(CHOICES.wall[value]); featureMat.map = value === "paper" ? stripeTex : wallCement; featureMat.needsUpdate = true; }
-    else if (kind === "rug" && CHOICES.rug[value]) { loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); const cut = (value === "modern" && !!rugArt.modern) || (value === "oat" && !!rugArt.oat); loungeRugMat.transparent = cut; loungeRugMat.alphaTest = cut ? .45 : 0; loungeRugMat.needsUpdate = true; }
+    else if (kind === "rug" && CHOICES.rug[value]) { if (value === "stripe") loadRugArt("stripe"); loungeRugMat.map = value === "oak" ? (rugCache.oak ??= CHOICES.rug.oak()) : CHOICES.rug[value](); const cut = (value === "modern" && !!rugArt.modern) || (value === "oat" && !!rugArt.oat); loungeRugMat.transparent = cut; loungeRugMat.alphaTest = cut ? .45 : 0; loungeRugMat.needsUpdate = true; }
     else if (kind === "window" && CHOICES.window.includes(value)) {
       blindFabric.material.map = value === "bamboo" ? (windowPaint.bamboo ?? bambooTex) : (windowPaint.roller ?? rollerTex); blindFabric.material.needsUpdate = true;
       curtains.visible = value === "linen";
@@ -2159,7 +2410,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     } else if (kind === "screen" && CHOICES.screen.includes(value)) {
       screen.material.map = value === "city" ? cityScreen : (screens[value] ??= drawScreen(value)); screen.material.needsUpdate = true;
     } else if (kind === "sofa" && CHOICES.sofa[value]) {
-      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs") o.material.color.set(CHOICES.sofa[value]); }); // loose cushions and wooden legs keep their own colours
+      sofaBody.traverse((o) => { if (o.isMesh && o.name !== "legs") { o.material.color.set(CHOICES.sofa[value]); if (o.material === sofaFrameMat) o.material.color.multiplyScalar(.84); } }); // loose cushions and wooden legs keep their own colours; the frame stays a shade deeper than the cushions
     } else if (kind === "tv" && CHOICES.tv.includes(value)) {
       chosen.tv = value; applyTv(live.mood);
     } else if (kind === "shelf" && CHOICES.shelf.includes(value)) {
@@ -2176,7 +2427,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
     camera.fov = camera.aspect < .8 ? 82 : 60;
     camera.updateProjectionMatrix();
   }
-  const render = () => { renderer.render(scene, camera); positionRobotBubble(); }; renderSoon = render;
+  const render = () => { renderer.render(scene, camera); positionRobotBubble(); positionVinylRing(); }; renderSoon = render;
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   resize(); render(); ready = true;
   setMood("focus");
@@ -2190,7 +2441,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       room: ROOM, window: WINDOW, door: DOOR, drawCalls: renderer.info.render.calls, sofaAsset: (() => {
         let sofaVertices = 0, sofaTriangles = 0, sofaMeshes = 0, legs = 0;
         sofaBody.traverse((o) => { if (!o.isMesh) return; sofaMeshes++; sofaVertices += o.geometry.attributes.position.count; sofaTriangles += (o.geometry.index?.count ?? o.geometry.attributes.position.count) / 3; if (o.name === "legs") legs++; });
-        const cover = sofaBody.getObjectByName("sofa-seat-base").material;
+        const cover = sofaBody.getObjectByName("sofa-seat-cushion").material;
         return { source: sofa.userData.source, vertices: sofaVertices, triangles: sofaTriangles, meshes: sofaMeshes, legs, seatHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-seat-cushion")).max.y,
           backHeight: new THREE.Box3().setFromObject(sofaBody.getObjectByName("sofa-back-frame")).max.y,
           coverColor: "#" + cover.color.getHexString(), legColor: "#" + sofaLegMat.color.getHexString(), pillows: ["sofa-cushion-diamond", "sofa-cushion-lumbar"].map((name) => {
@@ -2262,7 +2513,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
           if (dx < 0 && dy < 0 && dz < 0) return Math.max(dx, dy, dz);
           return Math.hypot(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0));
         };
-        const watch = ["bedside-book", "bedside-phone", "lamp-base", "lamp-shade"];
+        const watch = ["bedside-phone", "lamp-base", "lamp-shade"];
         const obstacles = [];
         root.traverse((o) => { if (o.isMesh && watch.includes(o.name)) obstacles.push([o.name, new THREE.Box3().setFromObject(o)]); });
         const mug = root.getObjectByName("bedside-mug");
@@ -2273,6 +2524,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       })(),
       plaqueInView: (() => { const b = new THREE.Box3().setFromObject(plaque); camera.updateMatrixWorld(); return [[b.min.x, b.min.y], [b.max.x, b.min.y], [b.min.x, b.max.y], [b.max.x, b.max.y]].every(([x, y]) => { const v = new THREE.Vector3(x, y, b.max.z).project(camera); return Math.abs(v.x) < .98 && Math.abs(v.y) < .98 && v.z < 1; }); })(),
       painted: { ...painted },
+      brooklynPrint: brooklynPrint.map?.image?.src?.split("/").pop() ?? null,
       mood, blind: +((wTop - blindBar.position.y).toFixed(3)),
       camera: camera.position.toArray(), lights: scene.children.filter((c) => c.isLight).length,
     };
@@ -2289,7 +2541,46 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
   };
   const windowArt = () => ({ time: skyTime, loaded: !!skyMat.map, pixels: skyMat.map ? [skyMat.map.image.width, skyMat.map.image.height] : null,
     covers: [camera.position.toArray(), ...Object.values(reach())].map(skyCovers) });
+  // Paul 2026-11-23: the record keeps playing while the visitor switches to another tab or app, as long as the portfolio page stays open (it stops only when they leave the room or close the page).
+  // When the page comes back, a context the browser suspended in the background (phones do this) is resumed.
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) { recordMusic.resume(); deckSync(); } });
+  // The record corner hint (Paul, 2026-11-17: the music is good; make sure visitors find the record player): while the visitor has not started it, a soft pulsing ring marks the turntable whenever it is on
+  // screen (after a few seconds), and the hint line comes back every half minute. Both stop for good once the music has been started.
+  vinylRing = document.createElement("div"); vinylRing.id = "vinylRing"; vinylRing.setAttribute("aria-hidden", "true"); vinylRing.hidden = true;
+  const ringStyle = document.createElement("style"); ringStyle.textContent = "#vinylRing { position:absolute; z-index:3; width:64px; height:64px; margin:-32px 0 0 -32px; border:4px solid #ffe2a8; border-radius:50%; background:radial-gradient(circle, rgba(255,214,150,.38) 0, rgba(255,214,150,0) 70%); box-shadow:0 0 0 2px rgba(96,52,12,.7), 0 0 18px 5px rgba(255,190,90,.85), inset 0 0 12px rgba(255,200,120,.7); pointer-events:none; animation:vinylPulse 1.9s ease-out infinite; } #vinylRing[hidden] { display:none; } @keyframes vinylPulse { 0% { transform:scale(.72); opacity:1; } 80% { transform:scale(1.35); opacity:0; } 100% { transform:scale(1.35); opacity:0; } } @media (prefers-reduced-motion: reduce) { #vinylRing { animation:none; } }";
+  document.head.append(ringStyle); stage.append(vinylRing);
+  function vinylScreen() { // where the turntable is on screen: { x, y } in stage pixels, or null if it is out of view
+    const turntable = root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner"); if (!turntable) return null;
+    scene.updateMatrixWorld(true); const c = new THREE.Box3().setFromObject(turntable).getCenter(new THREE.Vector3()).project(camera), rect = stage.getBoundingClientRect();
+    if (c.z >= 1 || Math.abs(c.x) > 0.9 || Math.abs(c.y) > 0.9) return null;
+    return { x: ((c.x + 1) / 2) * rect.width, y: ((1 - c.y) / 2) * rect.height };
+  }
+  function positionVinylRing() {
+    if (!vinylRing) return; // the ring is built near the end of start(); the first frames come before it
+    const show = !vinylFound && performance.now() - vinylReadyAt > 5000 && !document.hidden, spot = show ? vinylScreen() : null;
+    vinylRing.hidden = !spot; if (spot) { vinylRing.style.left = `${spot.x}px`; vinylRing.style.top = `${spot.y}px`; }
+  }
+  setInterval(() => { // keeps the ring in step even when nothing else is drawing, and repeats the hint line
+    if (vinylFound || document.hidden) { positionVinylRing(); return; }
+    positionVinylRing();
+    const now = performance.now();
+    if (now - vinylReadyAt > 6000 && now - vinylHintAt > 32000 && storyKey === null && !vinylRing.hidden) { vinylHintAt = now; showPropStory("hint-vinyl"); }
+  }, 1200);
   return {
+    vinylRing: () => ({ visible: !vinylRing.hidden, found: vinylFound }), // QA: the hint ring
+    recordState: () => recordMusic.state(), stopRecord: () => { recordMusic.stop(); deckSync(); },
+    deckMotion() { // QA (Card I): the turning record and the swinging arm, plus where the stylus is relative to the vinyl
+      scene.updateMatrixWorld(true);
+      const tip = new THREE.Vector3(0, -.004, 0).applyMatrix4(stylusMesh.matrixWorld), rec = new THREE.Box3().setFromObject(record), c = rec.getCenter(new THREE.Vector3());
+      const pivot = new THREE.Box3().setFromObject(vin.getObjectByName("tonearm-pivot")), tube = new THREE.Box3().setFromObject(armTube), post = new THREE.Box3().setFromObject(vin.getObjectByName("tonearm-rest"));
+      const mm = (v) => Number((v * 1000).toFixed(1));
+      return { playing: deck.playing, looping: !!deck.loop, armAngle: Number(armGroup.rotation.y.toFixed(4)), armRest: ARM.rest, armPlay: ARM.play, recordAngle: Number(record.rotation.y.toFixed(4)),
+        stylusFromCentreMm: mm(Math.hypot(tip.x - c.x, tip.z - c.z)), recordRadiusMm: mm(record.geometry.parameters.radiusTop), labelRadiusMm: mm(record.geometry.parameters.radiusTop * 34 / 128),
+        stylusAboveVinylMm: mm(tip.y - rec.max.y), tubeIntoPivotMm: mm(pivot.max.y - tube.min.y), restIntoPlateMm: mm(TT.top + TT.plinthH + .001 - post.min.y),
+        led: Number(turntableLedMat.emissiveIntensity.toFixed(2)), view: lookName };
+    },
+    tonearmPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = root.getObjectByName("tonearm-headshell").getWorldPosition(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the needle end of the tonearm on screen
+    vinylPoint() { scene.updateMatrixWorld(true); camera.updateMatrixWorld(); const r = el.getBoundingClientRect(), c = new THREE.Box3().setFromObject(root.getObjectByName("turntable-plinth") ?? root.getObjectByName("vinyl-corner")).getCenter(new THREE.Vector3()).project(camera); return { x: r.left + ((c.x + 1) / 2) * r.width, y: r.top + ((1 - c.y) / 2) * r.height, front: c.z < 1 }; }, // QA: the turntable on screen
     tvState() { // local QA only
       const m = tvFace.material, on = !!m.emissiveMap;
       return { mode: !on ? "off" : m.emissiveMap === tvTex.film ? "film" : "game", reflection: !!m.map };
@@ -2302,6 +2593,7 @@ export async function start({ stage, bubble = null, hitTarget = null, lang = "zh
       const bx = (n) => { const o = root.getObjectByName(n) ?? scene.getObjectByName(n); if (!o) return null; const b = new THREE.Box3().setFromObject(o); return { min: b.min.toArray(), max: b.max.toArray() }; };
       const lamp = bx("ring-lamp");
       const skin = bx("game-console-skin"), glow = bx("ceiling-glow");
+      ensureNightForeground(); // QA only: ask for the night picture, then report whether it has arrived
       return { ready: !!(lamp && skin && glow && fgTex.night), lamp, glow, skin, console: bx("game-console"), consoleTop: bx("game-console-top")?.max[1], fgNightLoaded: !!fgTex.night, fgIsNight: fgMat.map === fgTex.night };
     },
     windowParts() { // local QA only

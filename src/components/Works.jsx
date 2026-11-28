@@ -36,7 +36,7 @@ const SECTION_ORDER = ["commercial", "operations", "labs"];
 const WIDE_CARDS = {
   "overseas-lead-discovery": { balance: true },
   "global-business-development": { balance: true },
-  "trade-profit-navigator": { balance: false },
+  "trade-profit-navigator": { balance: true },
 };
 
 // Public narrative top-3 (C): the Commercial Decision Desk is featured separately; the flagship wall is GBD + Trade Profit Navigator.
@@ -564,6 +564,8 @@ function FeaturedSystem({ work }) {
   const { lang, t } = useLang();
   const featuredRef = useRef(null);
   const fold = useFold();
+  // Two featured blocks can sit on the page; the decision desk keeps its original id, the other gets its own.
+  const moreId = work.id === "commercial-decision-desk" ? "featured-more" : `featured-more-${work.id}`;
   const copy = work[lang];
   const cover = typeof work.cover === "string" ? work.cover : work.cover?.[lang];
   const linkLabel = typeof work.linkLabel === "string" ? work.linkLabel : work.linkLabel?.[lang];
@@ -673,8 +675,8 @@ function FeaturedSystem({ work }) {
           </div>
           <h3 data-featured-copy className="mt-5 max-w-md text-3xl font-medium leading-[1.08] tracking-[-0.03em] text-bone md:text-4xl">{copy.title}</h3>
           <p data-featured-copy className="mt-5 max-w-[43ch] text-base leading-relaxed text-ondark-meta">{copy.desc}</p>
-          <FoldToggle open={fold.open} onToggle={fold.toggle} controls="featured-more" className="mt-5 text-gold" />
-          <div id="featured-more" className={foldClass(fold.open)}>
+          <FoldToggle open={fold.open} onToggle={fold.toggle} controls={moreId} className="mt-5 text-gold" />
+          <div id={moreId} className={foldClass(fold.open)}>
           {copy.caseSummary && (
             <p data-featured-copy className="mt-7 border-l border-gold pl-4 text-sm leading-relaxed text-ondark">{copy.caseSummary}</p>
           )}
@@ -750,6 +752,8 @@ export function WorksFlagship() {
   const { open, toggle } = useFold();
   const [subFirst, subRest] = firstSentence(t.works.sub);
   const featuredSystem = works.find((work) => work.id === "commercial-decision-desk");
+  // Paul 2026-11-26: Overseas Lead Discovery leads the section (SME owners read it at a glance); the decision desk block below is unchanged.
+  const leadFeatured = works.find((work) => work.id === "overseas-lead-discovery");
   const adjacentWorks = ["global-business-development", "trade-profit-navigator", "quote-lens"]
     .map((id) => works.find((work) => work.id === id))
     .filter(Boolean);
@@ -779,7 +783,8 @@ export function WorksFlagship() {
           ))}
         </nav>
       </div>
-      <div className="mt-12">
+      <div className="mt-12 grid gap-8 md:gap-10">
+        {leadFeatured && <FeaturedSystem work={leadFeatured} />}
         <FeaturedSystem work={featuredSystem} />
       </div>
     </section>
@@ -794,7 +799,7 @@ export default function Works() {
     label: t.works.sections[id],
     note: t.works.sections.notes[id],
     works: [...works]
-      .filter((w) => w.section === id && w.id !== featuredSystem.id && (id !== "commercial" || PUBLIC_COMMERCIAL_WALL_IDS.has(w.id)))
+      .filter((w) => w.section === id && w.id !== featuredSystem.id && w.id !== "overseas-lead-discovery" && (id !== "commercial" || PUBLIC_COMMERCIAL_WALL_IDS.has(w.id)))
       .sort((a, b) => {
         if (a.id === "architecture-decision") return 1;
         if (b.id === "architecture-decision") return -1;
@@ -854,7 +859,7 @@ export default function Works() {
       >
         <Wrapper {...wrapperProps} className={`flex flex-1 flex-col ${wide ? "md:grid md:grid-cols-[1.05fr_0.95fr]" : ""}`}>
           {cover ? (
-            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-center md:bg-paper md:p-8 lg:p-10" : ""}`}>
+            <div className={`overflow-hidden bg-ink/[0.04] ${wide ? "md:flex md:flex-col md:justify-start md:bg-paper md:p-8 lg:p-10" : ""}`}>
               {editorialCoverIds.has(w.id) ? <EditorialCover work={w} lang={lang} /> : <CoverImage
                 src={cover}
                 alt={w.imageAlt[lang]}

@@ -88,9 +88,8 @@
     .home { font-size: 13px; padding: 0 10px; }
     .mark { flex: 1 1 100%; font-size: 10px; letter-spacing: .05em; }
   }
-  @media (max-width: 768px), (max-width: 1024px) and (max-height: 500px) {
-    .immersive-enter:not([hidden]) { display: block; position: absolute; z-index: 6; right: 12px; bottom: 12px; }
-  }
+  /* the full-screen button shows at every width now (Paul, 2026-11-17: the desktop rooms need it too) */
+  .immersive-enter:not([hidden]) { display: block; position: absolute; z-index: 6; right: 12px; bottom: 12px; }
   .immersive-enter, .immersive-exit, .immersive-door { min-width: 44px; min-height: 44px; padding: 8px 14px; border: 1px solid #fffa; border-radius: 999px; background: #24302ce8; color: #fff; font: 700 14px system-ui, sans-serif; cursor: pointer; }
   .room.is-immersive { position: fixed; inset: 0; z-index: 50; width: 100vw; height: 100vh; height: 100dvh; margin: 0; border-radius: 0; background: #1b1c22; }
   .room.is-immersive #stage { position: absolute; inset: 0; height: 100%; }
@@ -111,6 +110,7 @@
   .room.is-immersive .views button[aria-pressed="true"], .room.is-immersive .moods button[aria-pressed="true"] { background: #315c5d; color: #fff; }
   .room.is-immersive .moods button.shuffle { border-color: #bd9848; background: #f0d48d; color: #34280f; font-weight: 800; box-shadow: 0 2px 8px #0003; }
   .room.is-immersive .moods p { display: none; }
+  .room.is-immersive #propStory { bottom: calc(var(--r02-dock, 0px) + 14px) !important; } /* like the page view, the hint line sits 14 px above the chip rows instead of under them */
   html.room-immersive, html.room-immersive body { overflow: hidden; overscroll-behavior: none; }
   .portal .travel-door-trigger { border-color: #aab5aa; background: #fbfaf6; color: #315c5d; }
   .robot-bubble { pointer-events: none; }
@@ -143,6 +143,8 @@
 <section class="moods" id="moods" hidden aria-labelledby="moodsLabel"><p id="moodsLabel" hidden></p><div class="row" id="moodRow" role="group"></div><p id="why" aria-live="polite"></p></section>
 <details class="swaps" id="swaps" hidden><summary id="swapsTitle"></summary><div id="swapGroups"></div></details>
 <p class="note" id="note"></p>
-<script type="module" src="page.js?v=108"></script>
+<p class="note" lang="en">弦樂音色 Strings sound: the violin section of <a href="https://github.com/sgossner/VSCO-2-CE">VS Chamber Orchestra: Community Edition</a> by Sam Gossner and Simon Dalzell, <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</p>
+<p class="note" lang="en">鋼琴音色 Piano sound: <a href="https://github.com/sfzinstruments/SalamanderGrandPiano">Salamander Grand Piano</a> by Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
+<script type="module" src="page.js?v=auto"></script>
 </body>
 </html>

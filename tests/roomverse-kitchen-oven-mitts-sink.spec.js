@@ -1,5 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { mkdirSync } from "node:fs";
+import { LEDGER } from "./helpers/room03-ledger.js";
+
+// DSH 2026-11-22 (CC's card, item 4): this spec hard-coded a 130-mesh ceiling that main passed only until the room grew
+// past it, so it has been red on clean main and hid real failures behind a stale number. The ceiling now comes from the
+// ledger, the one place that holds the measured scene size and its headroom.
+// Old -> new: 130 hard-coded -> LEDGER.scene.meshes + LEDGER.headroom.meshes (157 + 19 = 176 at the time of writing).
+const MESH_CAP = LEDGER.scene.meshes + LEDGER.headroom.meshes;
 
 const PAGE = "/prototype/roomverse-3d/kitchen/";
 const QA = process.env.ROOMVERSE_QA_DIR || null;
@@ -24,9 +31,9 @@ test("the oven, mitts, and sink read as fitted kitchen fixtures with stable clea
     expect(info.wokOven.lowerClearanceMm).toBeGreaterThanOrEqual(20);
     expect(info.wokOven.upperClearanceMm).toBeGreaterThanOrEqual(50);
     expect(info.wokOven.rearClearanceMm).toBeGreaterThanOrEqual(0);
-    expect(info.wokOven.controls).toBe(2);
+    expect(info.wokOven.controls, "no knobs, only the touch timer panel").toBe(0);
     expect(info.wokOven.display).toContain("timer panel");
-    expect(info.wokOven.handle).toContain("centered horizontal brushed brass pull");
+    expect(info.wokOven.handle).toContain("centered horizontal brushed stainless bar pull");
     expect(info.wokOven.cabinetPulls).toContain("oven-facing inner door edges");
     expect(info.wokOven.cabinetPullOffsetFromOvenMm).toBeGreaterThanOrEqual(40);
     expect(info.wokOven.cabinetPullOffsetFromOvenMm).toBeLessThanOrEqual(65);
@@ -135,6 +142,6 @@ test("the sink station: soap, sponge, dish brush and a folded towel sit on the c
     return { lightCount: i.lightMetrics.lightCount, vertices: i.vertices, meshes: i.meshes };
   });
   expect(info.lightCount, "the station adds no light").toBe(9);
-  expect(info.meshes, "the station is batched into the existing countertop props").toBeLessThanOrEqual(130);
+  expect(info.meshes, "the station is batched into the existing countertop props").toBeLessThanOrEqual(MESH_CAP);
   expect(errors).toEqual([]);
 });

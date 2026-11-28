@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: "Geist Variable";
+    src: url("public/fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    font-weight: 100 900;
+  }
+  :root {
+    --bone: #F6F3ED;
+    --ink: #193A35;
+    --pine: #142C29;
+    --moss: #62716A;
+    --amber: #8A6A2B;
+    --amber-deep: #765A24;
+    --gold: #B89966;
+    --line: #D4DAD1;
+    --serif: Georgia, "Songti TC", "PMingLiU", "Noto Serif CJK TC", "Noto Serif TC", serif;
+    --sans: "Geist Variable", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1440px; height: 810px; overflow: hidden; background: var(--bone); color: var(--ink); font-family: var(--sans); }
+  .cover { width: 1440px; height: 810px; padding: 64px 84px 52px; display: flex; flex-direction: column; }
+
+  .brand { display: flex; align-items: center; gap: 24px; font-family: var(--serif); font-size: 22px; }
+  .brand .rule { flex: 1; height: 1px; background: var(--amber); }
+  .brand .kicker { font-family: var(--sans); font-size: 15px; font-weight: 600; letter-spacing: 0.06em; color: var(--amber); }
+  html[lang="zh-Hant"] .brand .kicker { letter-spacing: 0.04em; }
+
+  .main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
+  .title { font-family: var(--serif); font-size: 58px; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; white-space: nowrap; }
+  .title .l3 { display: block; color: var(--amber-deep); font-style: italic; font-weight: 500; }
+  html[lang="zh-Hant"] .title { font-size: 66px; line-height: 1.34; letter-spacing: 0; white-space: nowrap; }
+  html[lang="zh-Hant"] .title .l3 { font-style: normal; font-weight: 600; }
+  .tagline { margin-top: 36px; font-size: 24px; line-height: 1.5; color: var(--amber); text-wrap: balance; max-width: 540px; }
+
+  .slip { display: flex; flex-direction: column; }
+  .slip .head { font-size: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--moss); padding-bottom: 20px; border-bottom: 1px solid var(--amber); }
+  html[lang="zh-Hant"] .slip .head { letter-spacing: 0.04em; text-transform: none; font-size: 16px; }
+  .row { display: grid; grid-template-columns: 210px 1fr; align-items: baseline; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--line); }
+  .row .k { font-size: 16px; line-height: 1.35; color: var(--moss); }
+  .row .v { font-family: var(--serif); font-size: 32px; line-height: 1.25; }
+  .row.hold .k { color: var(--amber-deep); }
+  .row.hold .v { color: var(--amber-deep); }
+  .row .sub { display: block; margin-top: 8px; font-family: var(--sans); font-size: 15px; color: var(--amber); }
+
+  .foot { padding-top: 20px; font-size: 14px; line-height: 1.5; color: var(--amber); }
+</style>
+</head>
+<body>
+  <div class="cover">
+    <div class="brand"><span>Paul's Tradecraft</span><span class="rule"></span><span class="kicker" data-k="kicker"></span></div>
+
+    <div class="main">
+      <div>
+        <div class="title" data-k="title"></div>
+        <div class="tagline" data-k="tagline"></div>
+      </div>
+      <div class="slip">
+        <div class="head" data-k="head"></div>
+        <div class="row"><span class="k" data-k="a"></span><span class="v" data-k="av"></span></div>
+        <div class="row"><span class="k" data-k="b"></span><span class="v" data-k="bv"></span></div>
+        <div class="row hold"><span class="k" data-k="p"></span><span class="v"><span data-k="pv"></span><span class="sub" data-k="psub"></span></span></div>
+      </div>
+    </div>
+
+    <div class="foot" data-k="flow"></div>
+  </div>
+  <script>
+    // ?lang=zh or ?lang=en (default en). Copy is unchanged from the previous cover;
+    // only the layout moved to the same editorial style as the other flagship covers.
+    const COPY = {
+      en: {
+        kicker: "JUDGMENT DEMONSTRATOR",
+        title: "Same evidence.<br>Different objective.<span class=\"l3\">Different next move.</span>",
+        tagline: "Surface relevance is not yet worth commercial effort.",
+        head: "Business objective",
+        a: "A / Fill capacity", av: "Regional channel",
+        b: "B / Premium entry", bv: "Design brand",
+        p: "Prestige account", pv: "Hold", psub: "Procurement path: UNKNOWN",
+        flow: "Supplier reality &nbsp;→&nbsp; decision-maker objective &nbsp;→&nbsp; evidence &nbsp;→&nbsp; human judgment",
+      },
+      zh: {
+        kicker: "判斷示範",
+        title: "同一組證據。<br>不同的目標。<span class=\"l3\">不同的下一步。</span>",
+        tagline: "表面相關，還不值得投入商業資源。",
+        head: "負責人目標",
+        a: "A／補產能", av: "區域通路",
+        b: "B／高端切入", bv: "設計品牌",
+        p: "指標客戶", pv: "先暫緩", psub: "採購路徑：未知",
+        flow: "供應商現實 &nbsp;→&nbsp; 負責人目標 &nbsp;→&nbsp; 證據 &nbsp;→&nbsp; 人的判斷",
+      },
+    };
+    const lang = new URLSearchParams(location.search).get("lang") === "zh" ? "zh" : "en";
+    document.documentElement.lang = lang === "zh" ? "zh-Hant" : "en";
+    for (const node of document.querySelectorAll("[data-k]")) node.innerHTML = COPY[lang][node.dataset.k];
+  </script>
+</body>
+</html>
