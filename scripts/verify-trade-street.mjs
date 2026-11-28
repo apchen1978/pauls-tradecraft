@@ -12,6 +12,7 @@ import { DAILY, EXTRA_TAG, LESSON_LABEL, TIPS, TIP_LABEL } from "../prototype/tr
 import { AVATAR_COLOR, SHORT, STATION_LINE, UI } from "../prototype/trade-street/app.js";
 import { ART, GLOSS, MOBILE_QUERY, POS } from "../prototype/trade-street/layout.js";
 import { ALT, BIO, SIZE, UI as CAST_UI, stopsOf, styleOf } from "../prototype/trade-street/cast/cast.js";
+import { CHOOSE, GAP_STOPS, LEGS, TERM_ORDER, TERMS, UI as APPENDIX_UI, summaryOf } from "../prototype/trade-street/appendix/appendix.js";
 
 const BS = String.fromCharCode(92);
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
@@ -605,4 +606,102 @@ test("learn more: the cut-off terms, risky moments and five questions are verbat
   const app = read("../prototype/trade-street/app.js");
   assert.match(app, /wordingNote/);
   assert.match(app, /renderLightsHelp/);
+});
+
+// ---- the appendix card: trade terms (Incoterms) ----------------------------------------------------------------
+test("appendix card: five terms, six legs, and a table that reads left to right as more seller responsibility", () => {
+  assert.deepEqual(TERM_ORDER, ["exw", "fca", "fob", "cif", "ddp"]);
+  assert.equal(LEGS.length, 6);
+  const sellerLegs = TERM_ORDER.map((id) => [...TERMS[id].legs].filter((leg) => leg === "s").length);
+  for (const id of TERM_ORDER) assert.match(TERMS[id].legs, /^[sb]{6}$/, `${id} has six legs`);
+  for (let i = 1; i < sellerLegs.length; i += 1) assert.ok(sellerLegs[i] >= sellerLegs[i - 1], `${TERM_ORDER[i]} carries at least as much as ${TERM_ORDER[i - 1]}`);
+  assert.deepEqual(sellerLegs, [1, 3, 3, 4, 6]);
+  // the risk pin only moves to the right, and FCA hands over before FOB's "on board" (the container gap)
+  const risks = TERM_ORDER.map((id) => TERMS[id].risk);
+  for (let i = 1; i < risks.length; i += 1) assert.ok(risks[i] >= risks[i - 1]);
+  assert.ok(TERMS.fca.risk < TERMS.fob.risk);
+  assert.equal(TERMS.fob.risk, TERMS.cif.risk);
+  for (const id of TERM_ORDER) assert.ok(TERMS[id].risk >= 0 && TERMS[id].risk <= 6);
+  // only CIF requires insurance; FOB and CIF are the sea-only rules
+  assert.deepEqual(TERM_ORDER.filter((id) => TERMS[id].insurance), ["cif"]);
+  assert.deepEqual(TERM_ORDER.filter((id) => TERMS[id].sea), ["fob", "cif"]);
+  // CIF is the one where cost and risk come apart: the seller carries the main leg, but the pin sits inside it
+  assert.equal(TERMS.cif.legs[LEGS.indexOf("main")], "s");
+  assert.ok(TERMS.cif.risk > LEGS.indexOf("main") && TERMS.cif.risk < LEGS.indexOf("main") + 1);
+  // every term has all of its words in both languages
+  for (const id of TERM_ORDER) for (const lang of ["zh", "en"]) for (const key of ["name", "mode", "riskAt", "one", "best", "watch"]) {
+    assert.ok(TERMS[id][lang][key] && TERMS[id][lang][key].length >= (key === "name" || key === "mode" ? 4 : 7), `${id} ${lang} ${key}`);
+  }
+  for (const lang of ["zh", "en"]) assert.equal(APPENDIX_UI[lang].legs.length, 6);
+  // the chooser covers every term once
+  assert.deepEqual([...CHOOSE.map((row) => row.term)].sort(), [...TERM_ORDER].sort());
+  // the container gap points at the right stops of the game
+  assert.deepEqual(GAP_STOPS.map((i) => SHORT.zh[i]), ["進港", "報關", "查驗", "裝船"]);
+  assert.deepEqual(GAP_STOPS.map((i) => SHORT.en[i]), ["To port", "Customs", "Inspection", "On board"]);
+});
+
+test("appendix card: the sentence read out names the term, both sides and the risk point", () => {
+  for (const lang of ["zh", "en"]) for (const id of TERM_ORDER) {
+    const line = summaryOf(id, lang);
+    assert.ok(line.includes(TERMS[id].code) && line.includes(TERMS[id][lang].riskAt), `${id} ${lang}`);
+    assert.equal(/undefined|NaN|\[object/.test(line), false);
+    for (const leg of APPENDIX_UI[lang].legs) {
+      const who = TERMS[id].legs[APPENDIX_UI[lang].legs.indexOf(leg)];
+      const [sellerPart, buyerPart] = line.split(lang === "zh" ? "買方負責：" : "The buyer carries:");
+      assert.ok((who === "s" ? sellerPart : buyerPart).includes(leg), `${id} ${lang} puts "${leg}" on the right side`);
+    }
+  }
+  assert.match(summaryOf("ddp", "zh"), /買方負責：沒有/);
+  assert.match(summaryOf("exw", "en"), /The seller carries: Prepare the goods\./);
+});
+
+test("appendix card: public copy keeps the boundary and skips banned words, numbers with units, real names and real places", () => {
+  const html = read("../prototype/trade-street/appendix/index.html");
+  const strings = everyString([TERMS, CHOOSE, APPENDIX_UI]).join("\n");
+  const blob = strings + html;
+  assert.match(APPENDIX_UI.zh.boundary, /教學示意/);
+  assert.match(APPENDIX_UI.zh.boundary, /不含具體天數、費用或比例/);
+  assert.match(APPENDIX_UI.en.boundary, /Teaching sketch/);
+  assert.match(APPENDIX_UI.en.boundary, /no specific days, costs or percentages/);
+  assert.equal(/魔法|法師|咒|巫|\bmage\b|\bmagic\b/i.test(blob), false);
+  assert.equal(/人工智慧|\bAI\b|老闆|老板|\bROI\b|轉換率|成交率|中間層|A2A|\bCDD\b|\bowner\b|mailto:|@gmail/i.test(blob), false);
+  assert.equal(/Maersk|\bMSC\b|COSCO|Evergreen|長榮|陽明|Hapag|ONE Line|FedEx|DHL|\bUPS\b|DB Schenker/i.test(blob), false);
+  // no named ports or cities (the street never names real places)
+  assert.equal(/Shanghai|Ningbo|Qingdao|Shenzhen|Rotterdam|Port Klang|Haiphong|Kaohsiung|上海|寧波|青島|深圳|高雄|巴生|鹿特丹/i.test(blob), false);
+  // the card states no days, money or percentages
+  assert.equal(/\d+\s*(天|日|小時|days?|hours?|USD|\$|%|％|元|萬)/i.test(strings), false);
+  // sources: only the ICC Academy page is linked, and nothing else is fetched at run time
+  assert.deepEqual(APPENDIX_UI.zh.sources.filter((s) => s.href).map((s) => s.href), ["https://icc.academy/incoterms-2020-fca-or-fob"]);
+  assert.deepEqual(APPENDIX_UI.en.sources.filter((s) => s.href).map((s) => s.href), ["https://icc.academy/incoterms-2020-fca-or-fob"]);
+});
+
+test("appendix card: one folder, one module, every id the script uses, no inline script, no network calls, linked both ways, deploy copies it", () => {
+  const html = read("../prototype/trade-street/appendix/index.html");
+  const code = read("../prototype/trade-street/appendix/appendix.js");
+  assert.equal(/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), false);
+  assert.match(html, /<script type="module" src="appendix\.js"><\/script>/);
+  assert.equal(/@[A-Za-z0-9-]+\.(com|net|org)|mailto:/i.test(html + code), false);
+  const used = new Set([...code.matchAll(/\$\("([a-z0-9-]+)"\)/g)].map((match) => match[1]));
+  for (const id of used) assert.ok(html.includes(`id="${id}"`), `appendix/index.html has id ${id}`);
+  assert.equal(/fetch\(|XMLHttpRequest|localStorage|sessionStorage|indexedDB|navigator\.sendBeacon/.test(code), false);
+  assert.equal(/Digital Garage|回到 Garage|Back to Garage|#garage/.test(html + code), false, "points at the Showcase");
+  // the page goes back to the game and the cast page; the game links to the page from the start screen and the wrap-up
+  assert.ok(html.includes('id="play-top" href="../"') && html.includes('id="cast-link" href="../cast/"'));
+  const game = read("../prototype/trade-street/index.html");
+  assert.ok(game.includes('id="see-appendix"') && game.includes('id="appendix-link"'));
+  assert.ok(/`appendix\/\$\{/.test(read("../prototype/trade-street/app.js")));
+  const app = read("../prototype/trade-street/app.js");
+  assert.ok(app.includes("appendixLink:"), "both languages name the link");
+  assert.equal((app.match(/appendixLink:/g) || []).length, 2);
+  const deploy = read("../.github/workflows/deploy.yml");
+  assert.ok(deploy.includes("cp -r prototype/trade-street/appendix dist/prototype/trade-street/"), "deploy copies the appendix folder");
+});
+
+test("appendix card: weight, pictures and motion stay small and optional", () => {
+  assert.ok(bytes("appendix/index.html").length < 24 * 1024, "page shell is light");
+  assert.ok(bytes("appendix/appendix.js").length < 28 * 1024, "script is light");
+  const html = read("../prototype/trade-street/appendix/index.html");
+  assert.equal(/<img\b|url\(/.test(html), false, "no pictures to download: the card is drawn in CSS and inline icons");
+  assert.match(html, /prefers-reduced-motion: reduce/);
+  assert.equal(/font-face|fonts\.googleapis|@import/.test(html), false, "no webfonts");
 });
